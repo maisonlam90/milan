@@ -1,0 +1,15 @@
+# Rust build output
+/target/
+Cargo.lock
+
+# Env config
+.env
+.env.*
+
+# Editor/OS junk
+.idea/
+.vscode/
+.DS_Store
+*.swp
+*.bak
+*~

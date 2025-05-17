@@ -1,0 +1,48 @@
+nohup: ignoring input
+warning: unused import: `Router`
+ --> src/main.rs:1:12
+  |
+1 | use axum::{Router};
+  |            ^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `uuid::Uuid`
+ --> src/module/tenant/command.rs:2:5
+  |
+2 | use uuid::Uuid;
+  |     ^^^^^^^^^^
+
+warning: function `routes` is never used
+ --> src/module/user/router.rs:6:8
+  |
+6 | pub fn routes() -> Router<sqlx::PgPool> {
+  |        ^^^^^^
+  |
+  = note: `#[warn(dead_code)]` on by default
+
+warning: function `find_users` is never used
+ --> src/module/user/query.rs:6:14
+  |
+6 | pub async fn find_users(pool: &PgPool, tenant_id: Uuid) -> sqlx::Result<Vec<User>> {
+  |              ^^^^^^^^^^
+
+warning: struct `GetTenantQuery` is never constructed
+ --> src/module/tenant/query.rs:4:12
+  |
+4 | pub struct GetTenantQuery {
+  |            ^^^^^^^^^^^^^^
+
+warning: function `tenant_form_schema` is never used
+ --> src/module/tenant/metadata.rs:4:8
+  |
+4 | pub fn tenant_form_schema() -> serde_json::Value {
+  |        ^^^^^^^^^^^^^^^^^^
+
+warning: `axum` (bin "axum") generated 6 warnings (run `cargo fix --bin "axum"` to apply 2 suggestions)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.17s
+     Running `target/debug/axum`
+🚀 Axum khởi động tại http://0.0.0.0:3000
+thread 'main' panicked at src/main.rs:57:75:
+called `Result::unwrap()` on an `Err` value: Os { code: 98, kind: AddrInUse, message: "Address already in use" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
