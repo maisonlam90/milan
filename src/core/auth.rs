@@ -1,7 +1,3 @@
-// ==========================
-// 📁 src/core/auth.rs
-// ==========================
-
 use axum::{
     async_trait,
     extract::FromRequestParts,
@@ -41,22 +37,41 @@ where
     ) -> Result<Self, Self::Rejection> {
         let auth_header = parts.headers.get("Authorization")
             .and_then(|h| h.to_str().ok())
-            .ok_or(StatusCode::UNAUTHORIZED)?;
+            .ok_or_else(|| {
+                eprintln!("❌ Không tìm thấy header Authorization");
+                StatusCode::UNAUTHORIZED
+            })?;
 
         let token = auth_header.strip_prefix("Bearer ")
-            .ok_or(StatusCode::UNAUTHORIZED)?;
+            .ok_or_else(|| {
+                eprintln!("❌ Authorization không phải Bearer token");
+                StatusCode::UNAUTHORIZED
+            })?;
 
         let claims = decode::<Claims>(
             token,
             &DecodingKey::from_secret(b"super_secret_jwt_key"),
             &Validation::default(),
         )
-        .map_err(|_| StatusCode::UNAUTHORIZED)?
+        .map_err(|err| {
+            eprintln!("❌ Lỗi decode JWT: {:?}", err);
+            StatusCode::UNAUTHORIZED
+        })?
         .claims;
 
+        let user_id = Uuid::parse_str(&claims.sub).map_err(|err| {
+            eprintln!("❌ Lỗi parse sub UUID: {:?}", err);
+            StatusCode::UNAUTHORIZED
+        })?;
+
+        let tenant_id = Uuid::parse_str(&claims.tenant_id).map_err(|err| {
+            eprintln!("❌ Lỗi parse tenant_id UUID: {:?}", err);
+            StatusCode::UNAUTHORIZED
+        })?;
+
         Ok(AuthUser {
-            user_id: Uuid::parse_str(&claims.sub).map_err(|_| StatusCode::UNAUTHORIZED)?,
-            tenant_id: Uuid::parse_str(&claims.tenant_id).map_err(|_| StatusCode::UNAUTHORIZED)?,
+            user_id,
+            tenant_id,
         })
     }
 }
@@ -69,22 +84,37 @@ pub async fn jwt_auth(
     let headers = req.headers();
     let auth_header = headers.get("Authorization")
         .and_then(|h| h.to_str().ok())
-        .ok_or(StatusCode::UNAUTHORIZED)?;
+        .ok_or_else(|| {
+            eprintln!("❌ Không tìm thấy header Authorization (middleware)");
+            StatusCode::UNAUTHORIZED
+        })?;
 
     let token = auth_header.strip_prefix("Bearer ")
-        .ok_or(StatusCode::UNAUTHORIZED)?;
+        .ok_or_else(|| {
+            eprintln!("❌ Authorization không phải Bearer token (middleware)");
+            StatusCode::UNAUTHORIZED
+        })?;
 
     let claims = decode::<Claims>(
         token,
         &DecodingKey::from_secret(b"super_secret_jwt_key"),
         &Validation::default(),
     )
-    .map_err(|_| StatusCode::UNAUTHORIZED)?
+    .map_err(|err| {
+        eprintln!("❌ Middleware decode JWT lỗi: {:?}", err);
+        StatusCode::UNAUTHORIZED
+    })?
     .claims;
 
     let user = AuthUser {
-        user_id: Uuid::parse_str(&claims.sub).map_err(|_| StatusCode::UNAUTHORIZED)?,
-        tenant_id: Uuid::parse_str(&claims.tenant_id).map_err(|_| StatusCode::UNAUTHORIZED)?,
+        user_id: Uuid::parse_str(&claims.sub).map_err(|err| {
+            eprintln!("❌ Middleware parse user_id UUID lỗi: {:?}", err);
+            StatusCode::UNAUTHORIZED
+        })?,
+        tenant_id: Uuid::parse_str(&claims.tenant_id).map_err(|err| {
+            eprintln!("❌ Middleware parse tenant_id UUID lỗi: {:?}", err);
+            StatusCode::UNAUTHORIZED
+        })?,
     };
 
     req.extensions_mut().insert(user);

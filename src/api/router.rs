@@ -21,8 +21,8 @@ pub fn build_router(pool: sqlx::PgPool) -> Router<sqlx::PgPool> {
         .nest(
             "/user",
             Router::new()
-                .route("/me", axum::routing::get(user::handler::whoami))
-                .layer(middleware::from_fn(jwt_auth)), // 👈 Kiểm tra token
+                .route("/profile", axum::routing::get(user::handler::whoami))
+                .layer(middleware::from_fn(jwt_auth)),
         )
 
         // 🧩 Route gán / lấy module của tenant
