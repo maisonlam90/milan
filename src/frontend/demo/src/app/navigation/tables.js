@@ -27,8 +27,8 @@ export const tables = {
             id: 'tables.user-table',
             path: path(ROOT_APPS, '/user-table'),
             type: NAV_TYPE_ITEM,
-            title: 'user-table',
-            transKey: 'nav.user-table',
+            title: 'User Table',
+            transKey: 'nav.tables.user-table',
             Icon: TableIcon
         },
         {
