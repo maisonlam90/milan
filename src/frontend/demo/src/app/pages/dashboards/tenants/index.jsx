@@ -11,6 +11,7 @@ export default function TenantPage() {
   const createForm = useForm();
   const moduleForm = useForm();
   const removeForm = useForm();
+  const userForm = useForm();
 
   const [createSuccess, setCreateSuccess] = useState(null);
   const [createError, setCreateError] = useState(null);
@@ -18,6 +19,8 @@ export default function TenantPage() {
   const [assignError, setAssignError] = useState(null);
   const [removeSuccess, setRemoveSuccess] = useState(null);
   const [removeError, setRemoveError] = useState(null);
+  const [userSuccess, setUserSuccess] = useState(null);
+  const [userError, setUserError] = useState(null);
   const [tenantList, setTenantList] = useState([]);
   const [availableModules, setAvailableModules] = useState([]);
   const [searchText, setSearchText] = useState("");
@@ -30,6 +33,20 @@ export default function TenantPage() {
       console.error("❌ Lỗi lấy module khả dụng");
     }
   };
+
+  const fetchTenantList = async () => {
+    try {
+      const res = await api.get("/tenants-with-modules");
+      setTenantList(res.data);
+    } catch {
+      console.error("❌ Lỗi lấy danh sách tenants");
+    }
+  };
+
+  useEffect(() => {
+    fetchTenantList();
+    fetchAvailableModules();
+  }, []);
 
   const onCreateSubmit = async (data) => {
     try {
@@ -66,7 +83,6 @@ export default function TenantPage() {
 
   const onRemoveSubmit = async (data) => {
     try {
-      console.log("👀 Gửi xoá module với:", data);
       await api.delete(`/tenant/${data.tenant_id}/modules/${data.module_name}`);
       setRemoveSuccess({ module: data.module_name });
       setRemoveError(null);
@@ -79,19 +95,18 @@ export default function TenantPage() {
     }
   };
 
-  const fetchTenantList = async () => {
+  const onUserSubmit = async (data) => {
     try {
-      const res = await api.get("/tenants-with-modules");
-      setTenantList(res.data);
-    } catch {
-      console.error("❌ Lỗi lấy danh sách tenants");
+      const res = await api.post("/user/register", data);
+      setUserSuccess(res.data);
+      setUserError(null);
+      userForm.reset();
+    } catch (err) {
+      console.error("❌ Lỗi tạo user:", err);
+      setUserError(err.response?.data?.message || err.message);
+      setUserSuccess(null);
     }
   };
-
-  useEffect(() => {
-    fetchTenantList();
-    fetchAvailableModules();
-  }, []);
 
   const filteredList = tenantList.filter((t) =>
     t.name.toLowerCase().includes(searchText.toLowerCase()) ||
@@ -180,6 +195,39 @@ export default function TenantPage() {
             <Button type="submit" className="w-full">Gỡ module</Button>
             {removeSuccess && <p className="text-green-600 text-sm text-center">✅ Đã gỡ: {removeSuccess.module}</p>}
             {removeError && <p className="text-red-500 text-sm text-center">❌ {removeError}</p>}
+          </form>
+        </Card>
+
+        <Card className="rounded-lg p-6">
+          <h3 className="text-lg font-semibold mb-4">👤 Tạo user cho tổ chức</h3>
+          <form onSubmit={userForm.handleSubmit(onUserSubmit)} className="space-y-5">
+            <Input
+              label="Tenant ID"
+              placeholder="UUID tenant"
+              {...userForm.register("tenant_id", { required: "Bắt buộc" })}
+              error={userForm.formState.errors?.tenant_id?.message}
+            />
+            <Input
+              label="Email"
+              placeholder="email@example.com"
+              {...userForm.register("email", { required: "Bắt buộc" })}
+              error={userForm.formState.errors?.email?.message}
+            />
+            <Input
+              label="Tên người dùng"
+              placeholder="Nguyễn Văn A"
+              {...userForm.register("name", { required: "Bắt buộc" })}
+              error={userForm.formState.errors?.name?.message}
+            />
+            <Input
+              label="Mật khẩu"
+              type="password"
+              {...userForm.register("password", { required: "Bắt buộc" })}
+              error={userForm.formState.errors?.password?.message}
+            />
+            <Button type="submit" className="w-full">Tạo User</Button>
+            {userSuccess && <p className="text-green-600 text-sm text-center">✅ Đã tạo: {userSuccess.email}</p>}
+            {userError && <p className="text-red-500 text-sm text-center">❌ {userError}</p>}
           </form>
         </Card>
 

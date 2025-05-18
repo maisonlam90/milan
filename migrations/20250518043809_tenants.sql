@@ -38,3 +38,35 @@ CREATE INDEX IF NOT EXISTS idx_tenant_module_tenant_id ON tenant_module (tenant_
 
 -- Cho phép module_name nullable trong view tổng hợp để phù hợp LEFT JOIN
 -- (Không cần sửa bảng chính vì module_name luôn có, xử lý nullable ở truy vấn)
+
+-- ✅ Tạo tenant admin hệ thống
+INSERT INTO tenant (tenant_id, name, shard_id)
+VALUES (
+  '00000000-0000-0000-0000-000000000000',
+  'System Admin Tenant',
+  'admin-cluster'
+)
+ON CONFLICT DO NOTHING;
+
+-- ✅ Tạo user admin hệ thống
+INSERT INTO users (tenant_id, user_id, email, password_hash, name, created_at)
+VALUES (
+  '00000000-0000-0000-0000-000000000000',
+  gen_random_uuid(),
+  'admin@example.com',
+  '$2b$12$KFP4bYhbxzhVPcjYME9PTutOJihMrdoqLf8g9do7d9b0om2v6szbO',
+  'System Admin',
+  now()
+)
+ON CONFLICT DO NOTHING;
+
+-- ✅ Gán quyền admin toàn cục cho admin@example.com
+INSERT INTO user_role (tenant_id, user_id, module_name, role_name)
+SELECT
+  '00000000-0000-0000-0000-000000000000',
+  user_id,
+  '*',
+  'admin'
+FROM users
+WHERE email = 'admin@example.com' AND tenant_id = '00000000-0000-0000-0000-000000000000'
+ON CONFLICT DO NOTHING;

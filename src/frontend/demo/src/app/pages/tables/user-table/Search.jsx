@@ -30,8 +30,6 @@ import {
 } from "components/ui";
 import { JWT_HOST_API } from "configs/auth.config";
 
-// ----------------------------------------------------------------------
-
 const api = axios.create({ baseURL: JWT_HOST_API });
 
 const fuzzyFilter = (row, columnId, value, addMeta) => {
@@ -43,17 +41,15 @@ const fuzzyFilter = (row, columnId, value, addMeta) => {
 export function Search() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [sorting, setSorting] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [columnFilters, setColumnFilters] = useState([]);
-
   const deferredGlobalFilter = useDeferredValue(globalFilter);
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const token = localStorage.getItem("authToken"); // ✅ đúng key bạn đang dùng
+        const token = localStorage.getItem("authToken");
         const res = await api.get("/user/users", {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -90,10 +86,19 @@ export function Search() {
         filterFn: fuzzyFilter,
       },
       {
+        accessorKey: "tenant_id",
+        header: "Tenant ID",
+        filterFn: fuzzyFilter,
+      },
+      {
+        accessorKey: "tenant_name",
+        header: "Tên tổ chức",
+        filterFn: fuzzyFilter,
+      },
+      {
         accessorKey: "created_at",
         header: "Ngày tạo",
-        cell: (info) =>
-          new Date(info.getValue()).toLocaleDateString("vi-VN"),
+        cell: (info) => new Date(info.getValue()).toLocaleDateString("vi-VN"),
       },
     ],
     []
@@ -156,7 +161,10 @@ export function Search() {
                 {table.getHeaderGroups().map((headerGroup) => (
                   <Tr key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
-                      <Th key={header.id} className="bg-gray-200 pb-2 font-semibold uppercase text-gray-800 dark:bg-dark-800 dark:text-dark-100">
+                      <Th
+                        key={header.id}
+                        className="bg-gray-200 pb-2 font-semibold uppercase text-gray-800 dark:bg-dark-800 dark:text-dark-100"
+                      >
                         {header.column.getCanSort() ? (
                           <HeaderSort header={header} />
                         ) : header.isPlaceholder ? null : (

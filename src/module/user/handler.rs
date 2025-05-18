@@ -1,5 +1,5 @@
 use axum::{extract::{State, Extension}, Json}; // ✅ Extension để lấy AuthUser từ middleware
-use sqlx::PgPool;
+use sqlx::{PgPool, Row};
 use axum::http::StatusCode;
 use bcrypt::verify;
 use crate::module::user::{dto::{RegisterDto, LoginDto}, command::create_user};
@@ -108,35 +108,55 @@ pub async fn whoami(
     }))
 }
 
-/// ✅ Lấy danh sách tất cả user trong cùng tenant
+/// ✅ Lấy danh sách tất cả user (toàn bộ nếu là admin hệ thống)
 pub async fn list_users(
+    Extension(auth_user): Extension<AuthUser>,
     State(pool): State<PgPool>,
-    Extension(auth_user): Extension<AuthUser>, // 📥 Lấy tenant từ token
 ) -> Result<Json<serde_json::Value>, StatusCode> {
-    let rows = sqlx::query!(
-        r#"
-        SELECT user_id, email, name, created_at
-        FROM users
-        WHERE tenant_id = $1
-        ORDER BY created_at DESC
-        "#,
-        auth_user.tenant_id
-    )
-    .fetch_all(&pool)
-    .await
-    .map_err(|err| {
-        eprintln!("❌ Lỗi lấy danh sách user: {:?}", err);
+    let is_admin = auth_user.tenant_id == uuid::Uuid::nil();
+
+    let rows = if is_admin {
+        sqlx::query(
+            r#"
+            SELECT u.tenant_id, t.name AS tenant_name, u.user_id, u.email, u.name, u.created_at
+            FROM users u
+            JOIN tenant t ON u.tenant_id = t.tenant_id
+            ORDER BY u.created_at DESC
+            "#
+        )
+        .fetch_all(&pool)
+        .await
+    } else {
+        sqlx::query(
+            r#"
+            SELECT u.tenant_id, t.name AS tenant_name, u.user_id, u.email, u.name, u.created_at
+            FROM users u
+            JOIN tenant t ON u.tenant_id = t.tenant_id
+            WHERE u.tenant_id = $1
+            ORDER BY u.created_at DESC
+            "#
+        )
+        .bind(auth_user.tenant_id)
+        .fetch_all(&pool)
+        .await
+    }
+    .map_err(|e| {
+        eprintln!("❌ Lỗi truy vấn danh sách users: {:?}", e);
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
     let users: Vec<_> = rows
         .into_iter()
-        .map(|u| json!({
-            "user_id": u.user_id,
-            "email": u.email,
-            "name": u.name,
-            "created_at": u.created_at,
-        }))
+        .map(|row| {
+            json!({
+                "tenant_id": row.get::<uuid::Uuid, _>("tenant_id"),
+                "tenant_name": row.get::<String, _>("tenant_name"),
+                "user_id": row.get::<uuid::Uuid, _>("user_id"),
+                "email": row.get::<String, _>("email"),
+                "name": row.get::<String, _>("name"),
+                "created_at": row.get::<chrono::NaiveDateTime, _>("created_at"),
+            })
+        })
         .collect();
 
     Ok(Json(json!(users)))

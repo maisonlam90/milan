@@ -13,6 +13,7 @@ import { Page } from "components/shared/Page";
 
 // Schema validation
 const schema = Yup.object().shape({
+  tenant_id: Yup.string().uuid("Tenant ID không hợp lệ").required("Tenant ID là bắt buộc"),
   email: Yup.string().email("Email không hợp lệ").required("Email là bắt buộc"),
   password: Yup.string().min(6, "Mật khẩu ít nhất 6 ký tự").required("Mật khẩu là bắt buộc"),
 });
@@ -26,15 +27,15 @@ export default function SignIn() {
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      email: "test@example.com",
-      password: "123456",
+      tenant_id: "",
+      email: "",
+      password: "",
     },
   });
 
   const onSubmit = (data) => {
-    // Gán tenant_id cố định
     login({
-      tenant_id: "00000000-0000-0000-0000-000000000001",
+      tenant_id: data.tenant_id,
       email: data.email,
       password: data.password,
     });
@@ -59,6 +60,13 @@ export default function SignIn() {
           <Card className="mt-5 rounded-lg p-5 lg:p-7">
             <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
               <div className="space-y-4">
+                <Input
+                  label="Tenant ID"
+                  placeholder="UUID tổ chức"
+                  {...register("tenant_id")}
+                  error={errors?.tenant_id?.message}
+                />
+
                 <Input
                   label="Email"
                   placeholder="Enter your email"
@@ -110,7 +118,7 @@ export default function SignIn() {
               </p>
             </div>
 
-            <div className="my-7 flex items-center space-x-3 text-xs ">
+            <div className="my-7 flex items-center space-x-3 text-xs">
               <div className="h-px flex-1 bg-gray-200 dark:bg-dark-500"></div>
               <p>OR</p>
               <div className="h-px flex-1 bg-gray-200 dark:bg-dark-500"></div>
@@ -138,4 +146,3 @@ export default function SignIn() {
     </Page>
   );
 }
-
