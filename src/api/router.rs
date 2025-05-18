@@ -22,6 +22,7 @@ pub fn build_router(pool: sqlx::PgPool) -> Router<sqlx::PgPool> {
             "/user",
             Router::new()
                 .route("/profile", axum::routing::get(user::handler::whoami))
+                .route("/users", axum::routing::get(user::handler::list_users))
                 .layer(middleware::from_fn(jwt_auth)),
         )
 

@@ -107,3 +107,37 @@ pub async fn whoami(
         "tenant_id": auth_user.tenant_id,
     }))
 }
+
+/// ✅ Lấy danh sách tất cả user trong cùng tenant
+pub async fn list_users(
+    State(pool): State<PgPool>,
+    Extension(auth_user): Extension<AuthUser>, // 📥 Lấy tenant từ token
+) -> Result<Json<serde_json::Value>, StatusCode> {
+    let rows = sqlx::query!(
+        r#"
+        SELECT user_id, email, name, created_at
+        FROM users
+        WHERE tenant_id = $1
+        ORDER BY created_at DESC
+        "#,
+        auth_user.tenant_id
+    )
+    .fetch_all(&pool)
+    .await
+    .map_err(|err| {
+        eprintln!("❌ Lỗi lấy danh sách user: {:?}", err);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+
+    let users: Vec<_> = rows
+        .into_iter()
+        .map(|u| json!({
+            "user_id": u.user_id,
+            "email": u.email,
+            "name": u.name,
+            "created_at": u.created_at,
+        }))
+        .collect();
+
+    Ok(Json(json!(users)))
+}

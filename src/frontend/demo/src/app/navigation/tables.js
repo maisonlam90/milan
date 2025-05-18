@@ -24,6 +24,14 @@ export const tables = {
             Icon: TableIcon
         },
         {
+            id: 'tables.user-table',
+            path: path(ROOT_APPS, '/user-table'),
+            type: NAV_TYPE_ITEM,
+            title: 'user-table',
+            transKey: 'nav.user-table',
+            Icon: TableIcon
+        },
+        {
             id: 'tables.orders-datatable-2',
             path: path(ROOT_APPS, '/orders-datatable-2'),
             type: NAV_TYPE_ITEM,

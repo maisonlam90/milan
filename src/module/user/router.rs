@@ -1,6 +1,7 @@
 use axum::{Router, routing::{post, get}, middleware};
 use crate::module::user::handler::{register, login, whoami};
 use crate::core::auth::jwt_auth; // ✅ Middleware xác thực JWT
+use crate::module::user::handler; // ✅ thêm dòng này
 
 /// Trả về toàn bộ router của module user
 pub fn routes() -> Router<sqlx::PgPool> {
@@ -14,6 +15,7 @@ pub fn routes() -> Router<sqlx::PgPool> {
             "/user",
             Router::new()
                 .route("/me", get(whoami))
+                .route("/users", get(handler::list_users)) 
                 .layer(middleware::from_fn(jwt_auth)), // 🔐 chỉ áp dụng middleware cho /user/me
         )
 }

@@ -390,6 +390,13 @@ const protectedRoutes = {
               element: <Navigate to="/tables/orders-datatable-1" />,
             },
             {
+              path: "user-table",
+              lazy: async () => ({
+                Component: (await import("app/pages/tables/user-table"))
+                  .default,
+              }),
+            },
+            {
               path: "basic-table",
               lazy: async () => ({
                 Component: (await import("app/pages/tables/basic-table"))

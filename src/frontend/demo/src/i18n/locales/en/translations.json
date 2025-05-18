@@ -92,6 +92,7 @@
     },
     "tables": {
       "tables": "Tables",
+      "user-table": "User Table",
       "orders-datatable-1": "Orders Datatable v1",
       "orders-datatable-2": "Orders Datatable v2",
       "courses-datatable": "Courses Datatable",
