@@ -37,7 +37,7 @@ export const dashboards = {
             type: NAV_TYPE_ITEM,
             title: 'Tenants',
             transKey: 'nav.dashboards.tenants',
-            Icon: StatisticIcon,
+            Icon: PeopleIcon,
         },
         {
             id: 'dashboards.sales',

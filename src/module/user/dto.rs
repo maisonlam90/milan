@@ -13,7 +13,6 @@ pub struct RegisterDto {
 // 📥 Dữ liệu đăng nhập
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LoginDto {
-    pub tenant_id: Uuid, // 🎯 Tenant hiện tại
     pub email: String,
     pub password: String,
 }

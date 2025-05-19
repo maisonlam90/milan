@@ -33,15 +33,14 @@ pub async fn login(
     State(pool): State<PgPool>,
     Json(input): Json<LoginDto>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
-    println!("🔐 Đăng nhập: tenant_id='{}', email='{}'", input.tenant_id, input.email);
+    println!("🔐 Đăng nhập: email='{}'", input.email);
 
     let row = sqlx::query!(
         r#"
-        SELECT user_id, email, name, password_hash
+        SELECT tenant_id, user_id, email, name, password_hash
         FROM users
-        WHERE tenant_id = $1 AND email = $2
+        WHERE email = $1
         "#,
-        input.tenant_id,
         input.email
     )
     .fetch_optional(&pool)
@@ -57,7 +56,7 @@ pub async fn login(
             user
         }
         None => {
-            eprintln!("❌ Không tìm thấy user với tenant_id='{}' email='{}'", input.tenant_id, input.email);
+            eprintln!("❌ Không tìm thấy user với email='{}'", input.email);
             return Err(StatusCode::UNAUTHORIZED);
         }
     };
@@ -67,7 +66,7 @@ pub async fn login(
             let expiration = chrono::Utc::now().timestamp() + 3600;
             let claims = Claims {
                 sub: user.user_id.to_string(),
-                tenant_id: input.tenant_id.to_string(),
+                tenant_id: user.tenant_id.to_string(),
                 exp: expiration as usize,
             };
 
@@ -97,6 +96,7 @@ pub async fn login(
         }
     }
 }
+
 
 /// ✅ Trả về thông tin user đang đăng nhập, lấy từ token JWT
 pub async fn whoami(

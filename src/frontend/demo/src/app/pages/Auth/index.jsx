@@ -13,7 +13,6 @@ import { Page } from "components/shared/Page";
 
 // Schema validation
 const schema = Yup.object().shape({
-  tenant_id: Yup.string().uuid("Tenant ID không hợp lệ").required("Tenant ID là bắt buộc"),
   email: Yup.string().email("Email không hợp lệ").required("Email là bắt buộc"),
   password: Yup.string().min(6, "Mật khẩu ít nhất 6 ký tự").required("Mật khẩu là bắt buộc"),
 });
@@ -27,7 +26,6 @@ export default function SignIn() {
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      tenant_id: "",
       email: "",
       password: "",
     },
@@ -35,7 +33,6 @@ export default function SignIn() {
 
   const onSubmit = (data) => {
     login({
-      tenant_id: data.tenant_id,
       email: data.email,
       password: data.password,
     });
@@ -46,7 +43,7 @@ export default function SignIn() {
       <main className="min-h-100vh grid w-full grow grid-cols-1 place-items-center">
         <div className="w-full max-w-[26rem] p-4 sm:px-5">
           <div className="text-center">
-            <Logo className="mx-auto size-16" />
+            <Logo className="mx-auto size-60" />
             <div className="mt-4">
               <h2 className="text-2xl font-semibold text-gray-600 dark:text-dark-100">
                 Welcome Back
@@ -60,13 +57,6 @@ export default function SignIn() {
           <Card className="mt-5 rounded-lg p-5 lg:p-7">
             <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
               <div className="space-y-4">
-                <Input
-                  label="Tenant ID"
-                  placeholder="UUID tổ chức"
-                  {...register("tenant_id")}
-                  error={errors?.tenant_id?.message}
-                />
-
                 <Input
                   label="Email"
                   placeholder="Enter your email"
