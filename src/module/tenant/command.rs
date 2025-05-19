@@ -6,6 +6,7 @@ use serde_json::Value;
 #[derive(Debug, Deserialize)]
 pub struct CreateTenantCommand {
     pub name: String,         // Tên tổ chức
+    pub slug: String,
     pub shard_id: String,     // Tên shard để map tenant
 }
 

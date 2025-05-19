@@ -1,8 +1,8 @@
 // Import Dependencies
 import { Link } from "react-router";
 import { EnvelopeIcon, LockClosedIcon } from "@heroicons/react/24/outline";
-import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 
 // Local Imports
@@ -13,6 +13,7 @@ import { Page } from "components/shared/Page";
 
 // Schema validation
 const schema = Yup.object().shape({
+  tenant_slug: Yup.string().required("Tenant là bắt buộc"),
   email: Yup.string().email("Email không hợp lệ").required("Email là bắt buộc"),
   password: Yup.string().min(6, "Mật khẩu ít nhất 6 ký tự").required("Mật khẩu là bắt buộc"),
 });
@@ -26,16 +27,15 @@ export default function SignIn() {
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
+      tenant_slug: "",
       email: "",
       password: "",
     },
   });
 
   const onSubmit = (data) => {
-    login({
-      email: data.email,
-      password: data.password,
-    });
+    console.log("📤 Payload gửi lên:", data); // 🧪 debug gửi đầy đủ
+    login(data);
   };
 
   return (
@@ -57,6 +57,13 @@ export default function SignIn() {
           <Card className="mt-5 rounded-lg p-5 lg:p-7">
             <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
               <div className="space-y-4">
+                <Input
+                  label="Tenant Slug"
+                  placeholder="your-company"
+                  {...register("tenant_slug")}
+                  error={errors?.tenant_slug?.message}
+                />
+
                 <Input
                   label="Email"
                   placeholder="Enter your email"
@@ -98,7 +105,7 @@ export default function SignIn() {
 
             <div className="mt-4 text-center text-xs-plus">
               <p>
-                <span>Don&apos;t have an account?</span>{" "}
+                <span>Don&#39;t have an account?</span>{" "}
                 <Link
                   className="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-600"
                   to="/pages/sign-up-v1"

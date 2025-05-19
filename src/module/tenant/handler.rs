@@ -18,18 +18,18 @@ pub async fn create_tenant(
     let tenant_id = Uuid::new_v4();
     let created_at = chrono::Utc::now();
 
-    let result = sqlx::query_as!(
-        Tenant,
+    let result = sqlx::query_as::<_, Tenant>(
         r#"
-        INSERT INTO tenant (tenant_id, name, shard_id, created_at)
-        VALUES ($1, $2, $3, $4)
-        RETURNING tenant_id, name, shard_id, created_at
-        "#,
-        tenant_id,
-        payload.name,
-        payload.shard_id,
-        created_at
+        INSERT INTO tenant (tenant_id, name, slug, shard_id, created_at)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING tenant_id, name, slug, shard_id, created_at
+        "#
     )
+    .bind(tenant_id)
+    .bind(&payload.name)
+    .bind(&payload.slug)
+    .bind(&payload.shard_id)
+    .bind(created_at)
     .fetch_one(&pool)
     .await;
 
@@ -38,6 +38,7 @@ pub async fn create_tenant(
         Err(err) => (StatusCode::INTERNAL_SERVER_ERROR, Json(err.to_string())).into_response(),
     }
 }
+
 
 // Truy vấn thông tin tenant theo ID (GET /tenant/:id)
 #[debug_handler]
@@ -48,7 +49,7 @@ pub async fn get_tenant(
     let result = sqlx::query_as!(
         Tenant,
         r#"
-        SELECT tenant_id, name, shard_id, created_at
+        SELECT tenant_id, name, slug, shard_id, created_at
         FROM tenant
         WHERE tenant_id = $1
         "#,
@@ -146,6 +147,7 @@ pub async fn remove_module(
 pub struct TenantWithModules {
     pub tenant_id: Uuid,
     pub name: String,
+    pub slug: String, 
     pub shard_id: String,
     pub modules: Vec<String>,
 }
@@ -157,7 +159,7 @@ pub async fn list_tenants_with_modules(
 ) -> impl IntoResponse {
     let rows = sqlx::query!(
         r#"
-        SELECT t.tenant_id, t.name, t.shard_id, m.module_name as "module_name?"
+        SELECT t.tenant_id, t.name, t.slug, t.shard_id, m.module_name as "module_name?"
         FROM tenant t
         LEFT JOIN tenant_module m ON t.tenant_id = m.tenant_id
         ORDER BY t.name
@@ -168,18 +170,24 @@ pub async fn list_tenants_with_modules(
 
     match rows {
         Ok(records) => {
-            let mut map: HashMap<Uuid, (String, String, Vec<String>)> = HashMap::new();
+            let mut map: HashMap<Uuid, (String, String, String, Vec<String>)> = HashMap::new();
             for r in records {
-                let entry = map.entry(r.tenant_id).or_insert_with(|| (r.name.clone(), r.shard_id.clone(), vec![]));
+                let entry = map.entry(r.tenant_id).or_insert_with(|| (
+                    r.name.clone(),
+                    r.slug.clone(),
+                    r.shard_id.clone(),
+                    vec![],
+                ));
                 if let Some(module_name) = r.module_name {
-                    entry.2.push(module_name);
+                    entry.3.push(module_name);
                 }
             }
             let result: Vec<TenantWithModules> = map
                 .into_iter()
-                .map(|(tenant_id, (name, shard_id, modules))| TenantWithModules {
+                .map(|(tenant_id, (name, slug, shard_id, modules))| TenantWithModules {
                     tenant_id,
                     name,
+                    slug,
                     shard_id,
                     modules,
                 })

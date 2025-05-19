@@ -117,24 +117,24 @@ export function AuthProvider({ children }) {
     init();
   }, []);
 
-  const login = async ({ email, password, tenant_id }) => {
+  const login = async ({ tenant_slug, email, password }) => {
     dispatch({ type: "LOGIN_REQUEST" });
-
+  
     try {
       const response = await axios.post("/user/login", {
-        tenant_id,   // ✅ Gửi đúng structure cho Axum
+        tenant_slug, // ✅ Đúng key backend đang chờ
         email,
         password,
       });
-
+  
       const { token, user } = response.data;
-
+  
       if (!isString(token) && !isObject(user)) {
         throw new Error("Response không hợp lệ");
       }
-
+  
       setSession(token);
-
+  
       dispatch({
         type: "LOGIN_SUCCESS",
         payload: { user },

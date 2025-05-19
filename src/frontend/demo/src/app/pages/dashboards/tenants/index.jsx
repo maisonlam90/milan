@@ -127,6 +127,12 @@ export default function TenantPage() {
               error={createForm.formState.errors?.name?.message}
             />
             <Input
+              label="Slug"
+              placeholder="tencongty.mailan.net"
+              {...createForm.register("slug", { required: "Bắt buộc" })}
+              error={createForm.formState.errors?.slug?.message}
+            />
+            <Input
               label="Shard / Cluster"
               placeholder="cluster1"
               {...createForm.register("shard_id", { required: "Bắt buộc" })}
@@ -246,6 +252,7 @@ export default function TenantPage() {
             <thead className="bg-gray-100">
               <tr>
                 <th className="p-2 border">Tên tổ chức</th>
+                <th className="p-2 border">Slug</th> {/* 🆕 thêm cột slug */}
                 <th className="p-2 border">Tenant ID</th>
                 <th className="p-2 border">Cluster</th>
                 <th className="p-2 border">Module</th>
@@ -255,6 +262,7 @@ export default function TenantPage() {
               {filteredList.map((t) => (
                 <tr key={t.tenant_id}>
                   <td className="p-2 border">{t.name}</td>
+                  <td className="p-2 border">{t.slug}</td> {/* 🆕 hiển thị slug */}
                   <td className="p-2 border">{t.tenant_id}</td>
                   <td className="p-2 border">{t.shard_id}</td>
                   <td className="p-2 border">{t.modules.join(", ")}</td>

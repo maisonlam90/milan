@@ -2,6 +2,7 @@
 CREATE TABLE IF NOT EXISTS tenant (
     tenant_id UUID PRIMARY KEY,
     name TEXT NOT NULL,
+    slug TEXT UNIQUE NOT NULL,
     shard_id TEXT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT now()
 );
@@ -40,10 +41,11 @@ CREATE INDEX IF NOT EXISTS idx_tenant_module_tenant_id ON tenant_module (tenant_
 -- (Không cần sửa bảng chính vì module_name luôn có, xử lý nullable ở truy vấn)
 
 -- ✅ Tạo tenant admin hệ thống
-INSERT INTO tenant (tenant_id, name, shard_id)
+INSERT INTO tenant (tenant_id, name, slug, shard_id)
 VALUES (
   '00000000-0000-0000-0000-000000000000',
   'System Admin Tenant',
+  'mailan.net',         -- 🆕 slug cho tenant hệ thống
   'admin-cluster'
 )
 ON CONFLICT DO NOTHING;
@@ -53,7 +55,7 @@ INSERT INTO users (tenant_id, user_id, email, password_hash, name, created_at)
 VALUES (
   '00000000-0000-0000-0000-000000000000',
   gen_random_uuid(),
-  'admin@example.com',
+  'admin@mailan.net',
   '$2b$12$KFP4bYhbxzhVPcjYME9PTutOJihMrdoqLf8g9do7d9b0om2v6szbO',
   'System Admin',
   now()

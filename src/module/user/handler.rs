@@ -33,15 +33,37 @@ pub async fn login(
     State(pool): State<PgPool>,
     Json(input): Json<LoginDto>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
-    println!("🔐 Đăng nhập: email='{}'", input.email);
+    println!("🔐 Đăng nhập: email='{}' | tenant_slug='{}'", input.email, input.tenant_slug);
 
+    // 🔍 Tra tenant_id từ slug
+    let tenant = sqlx::query!(
+        "SELECT tenant_id FROM tenant WHERE slug = $1",
+        input.tenant_slug
+    )
+    .fetch_optional(&pool)
+    .await
+    .map_err(|err| {
+        eprintln!("❌ Lỗi khi tìm tenant từ slug: {:?}", err);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+
+    let tenant_id = match tenant {
+        Some(t) => t.tenant_id,
+        None => {
+            eprintln!("❌ Không tìm thấy tenant với slug='{}'", input.tenant_slug);
+            return Err(StatusCode::UNAUTHORIZED);
+        }
+    };
+
+    // 🔐 Tìm user trong tenant đó
     let row = sqlx::query!(
         r#"
         SELECT tenant_id, user_id, email, name, password_hash
         FROM users
-        WHERE email = $1
+        WHERE email = $1 AND tenant_id = $2
         "#,
-        input.email
+        input.email,
+        tenant_id
     )
     .fetch_optional(&pool)
     .await
@@ -56,7 +78,7 @@ pub async fn login(
             user
         }
         None => {
-            eprintln!("❌ Không tìm thấy user với email='{}'", input.email);
+            eprintln!("❌ Không tìm thấy user với email='{}' và tenant_slug='{}'", input.email, input.tenant_slug);
             return Err(StatusCode::UNAUTHORIZED);
         }
     };

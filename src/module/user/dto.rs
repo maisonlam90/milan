@@ -15,4 +15,5 @@ pub struct RegisterDto {
 pub struct LoginDto {
     pub email: String,
     pub password: String,
+    pub tenant_slug: String, // 🆕 Thêm slug vào DTO
 }
