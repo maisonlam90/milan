@@ -15,7 +15,7 @@ export function Header() {
     <header className="relative flex h-[61px] shrink-0 items-center justify-center ltr:pl-6 ltr:pr-3 rtl:pl-3 rtl:pr-6">
       <div className="flex items-center justify-start gap-4 pt-3">
         <Link to="/">
-          <Logo className="size-40 text-primary-600 dark:text-primary-400" />
+          <Logo className="size-30 text-primary-600 dark:text-primary-400" />
         </Link>    
       </div>
       <div className="pt-5 xl:hidden">
