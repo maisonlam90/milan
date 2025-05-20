@@ -6,7 +6,7 @@ const DEFAULT_DARK_COLOR = "cinder";
 const DEFAULT_LIGHT_COLOR = "slate";  
 // Options: "slate", "gray", "neutral"  
 
-const DEFAULT_PRIMARY_COLOR = "blue";  
+const DEFAULT_PRIMARY_COLOR = "green";  
 // Options: "indigo", "blue", "green", "amber", "purple", "rose"  
 
 // Default theme configuration  
