@@ -1,13 +1,15 @@
-use axum::{extract::{State, Extension}, Json}; // ✅ Extension để lấy AuthUser từ middleware
+use axum::{extract::{State, Extension}, Json};
 use std::sync::Arc;
-use sqlx::{Row};
+use sqlx::Row;
 use axum::http::StatusCode;
 use bcrypt::verify;
 use crate::module::user::{dto::{RegisterDto, LoginDto}, command::create_user};
 use serde_json::json;
 use jsonwebtoken::{encode, EncodingKey, Header};
 use serde::{Serialize, Deserialize};
-use crate::core::{auth::AuthUser, state::AppState}; // ✅ AppState chứa PgPool + Shard
+use uuid::Uuid;
+
+use crate::core::{auth::AuthUser, state::AppState};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Claims {
@@ -23,7 +25,9 @@ pub async fn register(
     State(state): State<Arc<AppState>>,
     Json(input): Json<RegisterDto>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
-    match create_user(&state.default_pool, input).await {
+    // Tạm thời gán tenant_id = nil vì chưa xác định được
+    let pool = state.shard.get_pool_for_tenant(&Uuid::nil());
+    match create_user(pool, input).await {
         Ok(user) => Ok(Json(json!({ "status": "ok", "email": user.email, "name": user.name }))),
         Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
     }
@@ -36,29 +40,33 @@ pub async fn login(
 ) -> Result<Json<serde_json::Value>, StatusCode> {
     println!("🔐 Đăng nhập: email='{}' | tenant_slug='{}'", input.email, input.tenant_slug);
 
-    let pool = &state.default_pool;
+    // 📥 Vì chưa biết tenant_id nên dùng shard mặc định (nil)
+    let global_pool = state.shard.get_pool_for_tenant(&Uuid::nil());
 
-    // 🔍 Tra tenant_id từ slug
+    // 🔍 Truy tìm tenant_id theo slug
     let tenant = sqlx::query!(
-        "SELECT tenant_id FROM tenant WHERE slug = $1",
+        "SELECT tenant_id, shard_id FROM tenant WHERE slug = $1",
         input.tenant_slug
     )
-    .fetch_optional(pool)
+    .fetch_optional(global_pool)
     .await
     .map_err(|err| {
         eprintln!("❌ Lỗi khi tìm tenant từ slug: {:?}", err);
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
-    let tenant_id = match tenant {
-        Some(t) => t.tenant_id,
+    let (tenant_id, _shard_id) = match tenant {
+        Some(t) => (t.tenant_id, t.shard_id),
         None => {
             eprintln!("❌ Không tìm thấy tenant với slug='{}'", input.tenant_slug);
             return Err(StatusCode::UNAUTHORIZED);
         }
     };
 
-    // 🔐 Tìm user trong tenant đó
+    // 📦 Lấy pool đúng shard
+    let pool = state.shard.get_pool_for_tenant(&tenant_id);
+
+    // 🔐 Tìm user
     let row = sqlx::query!(
         r#"
         SELECT tenant_id, user_id, email, name, password_hash
@@ -76,10 +84,7 @@ pub async fn login(
     })?;
 
     let user = match row {
-        Some(user) => {
-            println!("✅ Tìm thấy user: email='{}'", user.email);
-            user
-        }
+        Some(user) => user,
         None => {
             eprintln!("❌ Không tìm thấy user với email='{}' và tenant_slug='{}'", input.email, input.tenant_slug);
             return Err(StatusCode::UNAUTHORIZED);
@@ -122,7 +127,7 @@ pub async fn login(
     }
 }
 
-/// ✅ Trả về thông tin user đang đăng nhập, lấy từ token JWT
+/// ✅ Trả về thông tin user đang đăng nhập
 pub async fn whoami(
     Extension(auth_user): Extension<AuthUser>,
 ) -> Json<serde_json::Value> {
@@ -132,13 +137,13 @@ pub async fn whoami(
     }))
 }
 
-/// ✅ Lấy danh sách tất cả user (toàn bộ nếu là admin hệ thống)
+/// ✅ Lấy danh sách user trong tenant
 pub async fn list_users(
     Extension(auth_user): Extension<AuthUser>,
     State(state): State<Arc<AppState>>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
-    let pool = &state.default_pool;
-    let is_admin = auth_user.tenant_id == uuid::Uuid::nil();
+    let is_admin = auth_user.tenant_id == Uuid::nil();
+    let pool = state.shard.get_pool_for_tenant(&auth_user.tenant_id);
 
     let rows = if is_admin {
         sqlx::query(
@@ -174,9 +179,9 @@ pub async fn list_users(
         .into_iter()
         .map(|row| {
             json!({
-                "tenant_id": row.get::<uuid::Uuid, _>("tenant_id"),
+                "tenant_id": row.get::<Uuid, _>("tenant_id"),
                 "tenant_name": row.get::<String, _>("tenant_name"),
-                "user_id": row.get::<uuid::Uuid, _>("user_id"),
+                "user_id": row.get::<Uuid, _>("user_id"),
                 "email": row.get::<String, _>("email"),
                 "name": row.get::<String, _>("name"),
                 "created_at": row.get::<chrono::NaiveDateTime, _>("created_at"),

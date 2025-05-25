@@ -11,13 +11,13 @@ use crate::core::state::AppState;
 use super::model::{Tenant, TenantModule};
 use super::command::{CreateTenantCommand, AssignModuleCommand};
 
-// Tạo mới tenant (POST /tenant)
+// POST /tenant — tạo tenant mới
 #[debug_handler]
 pub async fn create_tenant(
     State(state): State<Arc<AppState>>,
     Json(payload): Json<CreateTenantCommand>,
 ) -> impl IntoResponse {
-    let pool = &state.default_pool;
+    let pool = state.shard.get_pool_for_tenant(&Uuid::nil());
     let tenant_id = Uuid::new_v4();
     let created_at = chrono::Utc::now();
 
@@ -42,13 +42,13 @@ pub async fn create_tenant(
     }
 }
 
-// Truy vấn thông tin tenant theo ID (GET /tenant/:id)
+// GET /tenant/:tenant_id
 #[debug_handler]
 pub async fn get_tenant(
     State(state): State<Arc<AppState>>,
     Path(tenant_id): Path<Uuid>,
 ) -> impl IntoResponse {
-    let pool = &state.default_pool;
+    let pool = state.shard.get_pool_for_tenant(&Uuid::nil());
 
     let result = sqlx::query_as!(
         Tenant,
@@ -68,14 +68,14 @@ pub async fn get_tenant(
     }
 }
 
-// Gán module cho tenant (POST /tenant/:id/modules)
+// POST /tenant/:id/modules — gán module cho tenant
 #[debug_handler]
 pub async fn assign_module(
     State(state): State<Arc<AppState>>,
     Path(tenant_id): Path<Uuid>,
     Json(payload): Json<AssignModuleCommand>,
 ) -> impl IntoResponse {
-    let pool = &state.default_pool;
+    let pool = state.shard.get_pool_for_tenant(&Uuid::nil());
 
     let enabled_at = chrono::Utc::now();
     let config_json = payload.config_json.unwrap_or_else(|| serde_json::json!({}));
@@ -101,13 +101,13 @@ pub async fn assign_module(
     }
 }
 
-// Liệt kê các module của tenant (GET /tenant/:id/modules)
+// GET /tenant/:id/modules — liệt kê module của tenant
 #[debug_handler]
 pub async fn list_modules(
     State(state): State<Arc<AppState>>,
     Path(tenant_id): Path<Uuid>,
 ) -> impl IntoResponse {
-    let pool = &state.default_pool;
+    let pool = state.shard.get_pool_for_tenant(&Uuid::nil());
 
     let result = sqlx::query_as!(
         TenantModule,
@@ -127,13 +127,13 @@ pub async fn list_modules(
     }
 }
 
-// Gỡ module khỏi tenant (DELETE /tenant/:id/modules/:module_name)
+// DELETE /tenant/:id/modules/:module_name
 #[debug_handler]
 pub async fn remove_module(
     State(state): State<Arc<AppState>>,
     Path((tenant_id, module_name)): Path<(Uuid, String)>,
 ) -> impl IntoResponse {
-    let pool = &state.default_pool;
+    let pool = state.shard.get_pool_for_tenant(&Uuid::nil());
 
     let result = sqlx::query!(
         r#"
@@ -152,22 +152,22 @@ pub async fn remove_module(
     }
 }
 
-// ⚙️ Struct chứa tenant và danh sách module của họ
+// Struct tổng hợp tenant + module
 #[derive(Serialize)]
 pub struct TenantWithModules {
     pub tenant_id: Uuid,
     pub name: String,
-    pub slug: String, 
+    pub slug: String,
     pub shard_id: String,
     pub modules: Vec<String>,
 }
 
-// 📋 API danh sách tenant + module gán tương ứng (GET /tenants-with-modules)
+// GET /tenants-with-modules — danh sách tổng hợp
 #[debug_handler]
 pub async fn list_tenants_with_modules(
     State(state): State<Arc<AppState>>,
 ) -> impl IntoResponse {
-    let pool = &state.default_pool;
+    let pool = state.shard.get_pool_for_tenant(&Uuid::nil());
 
     let rows = sqlx::query!(
         r#"

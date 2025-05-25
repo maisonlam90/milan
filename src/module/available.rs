@@ -1,6 +1,7 @@
 use axum::{Json, extract::State};
 use serde::Serialize;
 use std::sync::Arc;
+use uuid::Uuid;
 
 use crate::core::state::AppState;
 
@@ -14,9 +15,10 @@ pub struct AvailableModule {
 /// Handler GET /available-modules
 /// Truy vấn bảng available_module và trả về danh sách module có thể gán cho tenant
 pub async fn get_available_modules(
-    State(state): State<Arc<AppState>>, // Lấy AppState toàn cục
+    State(state): State<Arc<AppState>>,
 ) -> Result<Json<Vec<AvailableModule>>, (axum::http::StatusCode, String)> {
-    let pool = &state.default_pool;
+    // 👉 Lấy pool từ ShardManager (dùng nil() nếu là bảng toàn cục)
+    let pool = state.shard.get_pool_for_tenant(&Uuid::nil());
 
     let rows = sqlx::query_as!(
         AvailableModule,
