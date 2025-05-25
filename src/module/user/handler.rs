@@ -1,12 +1,13 @@
 use axum::{extract::{State, Extension}, Json}; // ✅ Extension để lấy AuthUser từ middleware
-use sqlx::{PgPool, Row};
+use std::sync::Arc;
+use sqlx::{Row};
 use axum::http::StatusCode;
 use bcrypt::verify;
 use crate::module::user::{dto::{RegisterDto, LoginDto}, command::create_user};
 use serde_json::json;
 use jsonwebtoken::{encode, EncodingKey, Header};
 use serde::{Serialize, Deserialize};
-use crate::core::auth::AuthUser; // ✅ AuthUser từ middleware jwt_auth
+use crate::core::{auth::AuthUser, state::AppState}; // ✅ AppState chứa PgPool + Shard
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Claims {
@@ -19,10 +20,10 @@ const SECRET_KEY: &[u8] = b"super_secret_jwt_key";
 
 /// ✅ Đăng ký người dùng mới
 pub async fn register(
-    State(pool): State<PgPool>,
+    State(state): State<Arc<AppState>>,
     Json(input): Json<RegisterDto>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
-    match create_user(&pool, input).await {
+    match create_user(&state.default_pool, input).await {
         Ok(user) => Ok(Json(json!({ "status": "ok", "email": user.email, "name": user.name }))),
         Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
     }
@@ -30,17 +31,19 @@ pub async fn register(
 
 /// ✅ Đăng nhập, trả về token JWT
 pub async fn login(
-    State(pool): State<PgPool>,
+    State(state): State<Arc<AppState>>,
     Json(input): Json<LoginDto>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
     println!("🔐 Đăng nhập: email='{}' | tenant_slug='{}'", input.email, input.tenant_slug);
+
+    let pool = &state.default_pool;
 
     // 🔍 Tra tenant_id từ slug
     let tenant = sqlx::query!(
         "SELECT tenant_id FROM tenant WHERE slug = $1",
         input.tenant_slug
     )
-    .fetch_optional(&pool)
+    .fetch_optional(pool)
     .await
     .map_err(|err| {
         eprintln!("❌ Lỗi khi tìm tenant từ slug: {:?}", err);
@@ -65,7 +68,7 @@ pub async fn login(
         input.email,
         tenant_id
     )
-    .fetch_optional(&pool)
+    .fetch_optional(pool)
     .await
     .map_err(|err| {
         eprintln!("❌ Lỗi truy vấn DB khi login: {:?}", err);
@@ -119,10 +122,9 @@ pub async fn login(
     }
 }
 
-
 /// ✅ Trả về thông tin user đang đăng nhập, lấy từ token JWT
 pub async fn whoami(
-    Extension(auth_user): Extension<AuthUser>, // 📥 Trích xuất user từ token đã xác thực
+    Extension(auth_user): Extension<AuthUser>,
 ) -> Json<serde_json::Value> {
     Json(json!({
         "user_id": auth_user.user_id,
@@ -133,8 +135,9 @@ pub async fn whoami(
 /// ✅ Lấy danh sách tất cả user (toàn bộ nếu là admin hệ thống)
 pub async fn list_users(
     Extension(auth_user): Extension<AuthUser>,
-    State(pool): State<PgPool>,
+    State(state): State<Arc<AppState>>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
+    let pool = &state.default_pool;
     let is_admin = auth_user.tenant_id == uuid::Uuid::nil();
 
     let rows = if is_admin {
@@ -146,7 +149,7 @@ pub async fn list_users(
             ORDER BY u.created_at DESC
             "#
         )
-        .fetch_all(&pool)
+        .fetch_all(pool)
         .await
     } else {
         sqlx::query(
@@ -159,7 +162,7 @@ pub async fn list_users(
             "#
         )
         .bind(auth_user.tenant_id)
-        .fetch_all(&pool)
+        .fetch_all(pool)
         .await
     }
     .map_err(|e| {

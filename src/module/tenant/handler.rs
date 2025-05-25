@@ -1,20 +1,23 @@
 use axum::{Json, extract::{Path, State}};
 use uuid::Uuid;
-use sqlx::PgPool;
 use axum::response::IntoResponse;
 use axum::http::StatusCode;
 use axum::debug_handler;
-use super::model::{Tenant, TenantModule};
-use super::command::{CreateTenantCommand, AssignModuleCommand};
 use serde::Serialize;
 use std::collections::HashMap;
+use std::sync::Arc;
+
+use crate::core::state::AppState;
+use super::model::{Tenant, TenantModule};
+use super::command::{CreateTenantCommand, AssignModuleCommand};
 
 // Tạo mới tenant (POST /tenant)
 #[debug_handler]
 pub async fn create_tenant(
-    State(pool): State<PgPool>,
+    State(state): State<Arc<AppState>>,
     Json(payload): Json<CreateTenantCommand>,
 ) -> impl IntoResponse {
+    let pool = &state.default_pool;
     let tenant_id = Uuid::new_v4();
     let created_at = chrono::Utc::now();
 
@@ -30,7 +33,7 @@ pub async fn create_tenant(
     .bind(&payload.slug)
     .bind(&payload.shard_id)
     .bind(created_at)
-    .fetch_one(&pool)
+    .fetch_one(pool)
     .await;
 
     match result {
@@ -39,13 +42,14 @@ pub async fn create_tenant(
     }
 }
 
-
 // Truy vấn thông tin tenant theo ID (GET /tenant/:id)
 #[debug_handler]
 pub async fn get_tenant(
-    State(pool): State<PgPool>,
+    State(state): State<Arc<AppState>>,
     Path(tenant_id): Path<Uuid>,
 ) -> impl IntoResponse {
+    let pool = &state.default_pool;
+
     let result = sqlx::query_as!(
         Tenant,
         r#"
@@ -55,7 +59,7 @@ pub async fn get_tenant(
         "#,
         tenant_id
     )
-    .fetch_one(&pool)
+    .fetch_one(pool)
     .await;
 
     match result {
@@ -67,10 +71,12 @@ pub async fn get_tenant(
 // Gán module cho tenant (POST /tenant/:id/modules)
 #[debug_handler]
 pub async fn assign_module(
-    State(pool): State<PgPool>,
+    State(state): State<Arc<AppState>>,
     Path(tenant_id): Path<Uuid>,
     Json(payload): Json<AssignModuleCommand>,
 ) -> impl IntoResponse {
+    let pool = &state.default_pool;
+
     let enabled_at = chrono::Utc::now();
     let config_json = payload.config_json.unwrap_or_else(|| serde_json::json!({}));
 
@@ -86,7 +92,7 @@ pub async fn assign_module(
         config_json,
         enabled_at
     )
-    .fetch_one(&pool)
+    .fetch_one(pool)
     .await;
 
     match result {
@@ -98,9 +104,11 @@ pub async fn assign_module(
 // Liệt kê các module của tenant (GET /tenant/:id/modules)
 #[debug_handler]
 pub async fn list_modules(
-    State(pool): State<PgPool>,
+    State(state): State<Arc<AppState>>,
     Path(tenant_id): Path<Uuid>,
 ) -> impl IntoResponse {
+    let pool = &state.default_pool;
+
     let result = sqlx::query_as!(
         TenantModule,
         r#"
@@ -110,7 +118,7 @@ pub async fn list_modules(
         "#,
         tenant_id
     )
-    .fetch_all(&pool)
+    .fetch_all(pool)
     .await;
 
     match result {
@@ -122,9 +130,11 @@ pub async fn list_modules(
 // Gỡ module khỏi tenant (DELETE /tenant/:id/modules/:module_name)
 #[debug_handler]
 pub async fn remove_module(
-    State(pool): State<PgPool>,
+    State(state): State<Arc<AppState>>,
     Path((tenant_id, module_name)): Path<(Uuid, String)>,
 ) -> impl IntoResponse {
+    let pool = &state.default_pool;
+
     let result = sqlx::query!(
         r#"
         DELETE FROM tenant_module
@@ -133,7 +143,7 @@ pub async fn remove_module(
         tenant_id,
         module_name
     )
-    .execute(&pool)
+    .execute(pool)
     .await;
 
     match result {
@@ -142,7 +152,7 @@ pub async fn remove_module(
     }
 }
 
-// ⚙️ Struct chứa tenant và danh sách module của họ (dùng cho API hiển thị bảng tổng hợp)
+// ⚙️ Struct chứa tenant và danh sách module của họ
 #[derive(Serialize)]
 pub struct TenantWithModules {
     pub tenant_id: Uuid,
@@ -152,11 +162,13 @@ pub struct TenantWithModules {
     pub modules: Vec<String>,
 }
 
-// 📋 API trả danh sách tất cả tenant và module gán tương ứng (GET /tenants-with-modules)
+// 📋 API danh sách tenant + module gán tương ứng (GET /tenants-with-modules)
 #[debug_handler]
 pub async fn list_tenants_with_modules(
-    State(pool): State<PgPool>,
+    State(state): State<Arc<AppState>>,
 ) -> impl IntoResponse {
+    let pool = &state.default_pool;
+
     let rows = sqlx::query!(
         r#"
         SELECT t.tenant_id, t.name, t.slug, t.shard_id, m.module_name as "module_name?"
@@ -165,7 +177,7 @@ pub async fn list_tenants_with_modules(
         ORDER BY t.name
         "#
     )
-    .fetch_all(&pool)
+    .fetch_all(pool)
     .await;
 
     match rows {

@@ -1,37 +1,42 @@
-use axum::{middleware, Router};
+use std::sync::Arc;
+
+use axum::{Router, routing::{get, post}, middleware};
 use axum::http::{Method, header};
 use tower_http::cors::{Any, CorsLayer};
 
-use crate::module::{user, tenant, available}; // 👈 Import thêm module `available`
-use crate::core::auth::jwt_auth;
+use crate::module::{user, tenant, available};
+use crate::core::{auth::jwt_auth, state::AppState};
 
-pub fn build_router(pool: sqlx::PgPool) -> Router<sqlx::PgPool> {
-    // 🌐 Cấu hình CORS: cho phép mọi origin/method/header
+/// Build tất cả router từ các module.
+/// Sử dụng `Arc<AppState>` thay vì `PgPool` để hỗ trợ sharding.
+pub fn build_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
+    // 🌐 Middleware CORS cho phép mọi origin, method, header
     let cors = CorsLayer::new()
         .allow_origin(Any)
-        .allow_methods([Method::GET, Method::POST , Method::DELETE])
+        .allow_methods([Method::GET, Method::POST, Method::DELETE])
         .allow_headers([header::CONTENT_TYPE, header::AUTHORIZATION]);
 
     Router::new()
-        // 🔐 Đăng ký user (public)
-        .route("/user/register", axum::routing::post(user::handler::register))
-        .route("/user/login", axum::routing::post(user::handler::login))
+        // 🔐 Auth route (public)
+        .route("/user/register", post(user::handler::register))
+        .route("/user/login", post(user::handler::login))
 
-        // 🔒 Route yêu cầu JWT
+        // 🔒 Route cần auth bằng JWT
         .nest(
             "/user",
             Router::new()
-                .route("/profile", axum::routing::get(user::handler::whoami))
-                .route("/users", axum::routing::get(user::handler::list_users))
+                .route("/profile", get(user::handler::whoami))
+                .route("/users", get(user::handler::list_users))
                 .layer(middleware::from_fn(jwt_auth)),
         )
 
-        // 🧩 Route gán / lấy module của tenant
-        .merge(tenant::router::routes(pool.clone())) // ✅ Truyền pool
+        // 🧩 Route tenant (module → tenant binding)
+        .merge(tenant::router::routes())
 
-        // 📋 Route public để lấy danh sách module khả dụng
-        .route("/available-modules", axum::routing::get(available::get_available_modules))
+        // 📋 Route public lấy danh sách module khả dụng
+        .route("/available-modules", get(available::get_available_modules))
 
-        // 🌐 Gắn middleware CORS
+        // 🌐 Gắn state + middleware CORS
+        .with_state(state)
         .layer(cors)
 }

@@ -1,7 +1,8 @@
-//Tao api available module fronend hien thi khi chon gan module
 use axum::{Json, extract::State};
 use serde::Serialize;
-use sqlx::PgPool;
+use std::sync::Arc;
+
+use crate::core::state::AppState;
 
 /// Cấu trúc trả về cho từng module khả dụng
 #[derive(Serialize)]
@@ -13,8 +14,10 @@ pub struct AvailableModule {
 /// Handler GET /available-modules
 /// Truy vấn bảng available_module và trả về danh sách module có thể gán cho tenant
 pub async fn get_available_modules(
-    State(pool): State<PgPool>, // Lấy connection pool từ app state
+    State(state): State<Arc<AppState>>, // Lấy AppState toàn cục
 ) -> Result<Json<Vec<AvailableModule>>, (axum::http::StatusCode, String)> {
+    let pool = &state.default_pool;
+
     let rows = sqlx::query_as!(
         AvailableModule,
         r#"
@@ -23,12 +26,12 @@ pub async fn get_available_modules(
         ORDER BY display_name
         "#
     )
-    .fetch_all(&pool)
+    .fetch_all(pool)
     .await
     .map_err(|e| (
         axum::http::StatusCode::INTERNAL_SERVER_ERROR,
         e.to_string()
     ))?;
 
-    Ok(Json(rows)) // Trả về JSON danh sách module
+    Ok(Json(rows))
 }
