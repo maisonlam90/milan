@@ -730,6 +730,12 @@ const protectedRoutes = {
               }),
             },
             {
+              path: "acl",
+              lazy: async () => ({
+                Component: (await import("app/pages/dashboards/acl")).default,
+              }),
+            },
+            {
               path: "sales",
               lazy: async () => ({
                 Component: (await import("app/pages/dashboards/sales")).default,

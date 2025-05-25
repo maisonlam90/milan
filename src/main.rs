@@ -1,4 +1,3 @@
-use axum::Router;
 use axum::http::{Method, header::{AUTHORIZATION, CONTENT_TYPE}};
 use dotenvy::dotenv;
 use std::{env, net::SocketAddr, sync::Arc};

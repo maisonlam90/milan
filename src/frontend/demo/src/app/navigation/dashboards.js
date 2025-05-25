@@ -40,6 +40,14 @@ export const dashboards = {
             Icon: PeopleIcon,
         },
         {
+            id: 'dashboards.acl',
+            path: path(ROOT_DASHBOARDS, '/acl'),
+            type: NAV_TYPE_ITEM,
+            title: 'Acl',
+            transKey: 'nav.dashboards.acl',
+            Icon: PeopleIcon,
+        },
+        {
             id: 'dashboards.sales',
             path: path(ROOT_DASHBOARDS, '/sales'),
             type: NAV_TYPE_ITEM,

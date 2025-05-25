@@ -1,10 +1,9 @@
 use std::sync::Arc;
-
 use axum::{Router, routing::{get, post}, middleware};
 use axum::http::{Method, header};
 use tower_http::cors::{Any, CorsLayer};
 
-use crate::module::{user, tenant, available};
+use crate::module::{user, tenant, available, acl}; // 👈 Import thêm module acl
 use crate::core::{auth::jwt_auth, state::AppState};
 
 /// Build tất cả router từ các module.
@@ -32,6 +31,9 @@ pub fn build_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 
         // 🧩 Route tenant (module → tenant binding)
         .merge(tenant::router::routes())
+
+        // 🛡️ Route phân quyền ACL
+        .merge(acl::router::routes()) // 👈 Mount ACL router
 
         // 📋 Route public lấy danh sách module khả dụng
         .route("/available-modules", get(available::get_available_modules))
