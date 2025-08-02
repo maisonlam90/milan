@@ -3,7 +3,11 @@
     "dashboards": {
       "dashboards": "Dashboards",
       "tenants" : "Tenants" ,
+      "user" : "Users" ,
       "acl" : "ACL" ,
+      "loan" : "Cho Vay" ,
+      "loan-1" : "Hợp Đồng Vay" ,
+      "loan-2" : "Tạo Mới Hợp Đồng" ,
       "sales": "Sales",
       "crm-analytics": "CRM Analytics",
       "orders": "Orders",

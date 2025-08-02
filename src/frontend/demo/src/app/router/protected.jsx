@@ -730,9 +730,30 @@ const protectedRoutes = {
               }),
             },
             {
+              path: "user",
+              lazy: async () => ({
+                Component: (await import("app/pages/dashboards/user")).default,
+              }),
+            },
+            {
               path: "acl",
               lazy: async () => ({
                 Component: (await import("app/pages/dashboards/acl")).default,
+              }),
+            },
+      
+            {
+              path: "loan/loan-1",
+              lazy: async () => ({
+                Component: (await import("app/pages/dashboards/loan-1"))
+                  .default,
+              }),
+            },
+            {
+              path: "loan/loan-2",
+              lazy: async () => ({
+                Component: (await import("app/pages/dashboards/loan-2"))
+                  .default,
               }),
             },
             {
