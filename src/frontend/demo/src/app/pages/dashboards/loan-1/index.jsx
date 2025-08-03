@@ -1,9 +1,15 @@
 import { useEffect, useState, useCallback } from "react";
 import { Page } from "components/shared/Page";
+import { Breadcrumbs } from "components/shared/Breadcrumbs";
 import { Card } from "components/ui";
 import axios from "axios";
 import { JWT_HOST_API } from "configs/auth.config";
 import DynamicList from "components/shared/DynamicList";
+
+const breadcrumbs = [
+  { title: "Hợp đồng vay", path: "/loans" },
+  { title: "Danh sách" },
+];
 
 const api = axios.create({ baseURL: JWT_HOST_API });
 
@@ -12,26 +18,16 @@ export default function LoanListPage() {
   const [metadata, setMetadata] = useState(null);
   const token = localStorage.getItem("authToken");
 
-  /** Lấy metadata (cấu hình cột hiển thị) */
   const fetchMetadata = useCallback(async () => {
-    try {
-      const res = await api.get("/loan/metadata");
-      setMetadata(res.data);
-    } catch (err) {
-      console.error("❌ Lỗi load metadata:", err);
-    }
+    const res = await api.get("/loan/metadata");
+    setMetadata(res.data);
   }, []);
 
-  /** Lấy danh sách hợp đồng vay */
   const fetchContracts = useCallback(async () => {
-    try {
-      const res = await api.get("/loan/list", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setContracts(res.data);
-    } catch (err) {
-      console.error("❌ Lỗi lấy danh sách hợp đồng:", err);
-    }
+    const res = await api.get("/loan/list", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setContracts(res.data);
   }, [token]);
 
   useEffect(() => {
@@ -41,16 +37,23 @@ export default function LoanListPage() {
 
   return (
     <Page title="📋 Danh sách hợp đồng vay">
-      <main className="p-6">
-        <Card className="p-6 w-full">
-          <h2 className="text-lg font-semibold mb-4">Danh sách hợp đồng vay</h2>
-          {metadata && metadata.list ? (
-            <DynamicList columns={metadata.list.columns} data={contracts} />
-          ) : (
-            <p>Đang tải danh sách...</p>
-          )}
-        </Card>
-      </main>
+      <div className="transition-content w-full px-(--margin-x) pb-8">
+        <div className="flex items-center space-x-4 py-5 lg:py-6 ">
+          <h2 className="text-xl font-medium tracking-wide text-gray-800 dark:text-dark-50 lg:text-2xl">
+            Danh sách hợp đồng vay
+          </h2>
+          <div className="hidden self-stretch py-1 sm:flex">
+            <div className="h-full w-px bg-gray-300 dark:bg-dark-600"></div>
+          </div>
+          <Breadcrumbs items={breadcrumbs} className="max-sm:hidden" />
+        </div>
+
+        {metadata && metadata.list ? (
+          <DynamicList columns={metadata.list.columns} data={contracts} />
+        ) : (
+          <Card className="p-6">Đang tải danh sách...</Card>
+        )}
+      </div>
     </Page>
   );
 }

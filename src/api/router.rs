@@ -35,6 +35,9 @@ pub fn build_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
         // 🛡️ Route phân quyền ACL
         .merge(acl::router::routes()) // 👈 Mount ACL router
 
+        // 🛡️ Route module loan
+        .merge(crate::module::loan::router::routes())
+
         // 📋 Route public lấy danh sách module khả dụng
         .route("/available-modules", get(available::get_available_modules))
 

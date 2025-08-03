@@ -1,6 +1,7 @@
 pub mod user;
 pub mod tenant;
 pub mod acl;
+pub mod loan;
 pub mod available; // 👈 Cho phép module router gọi được handler get_available_modules
 
 // Ghi module vao tenant available_module
