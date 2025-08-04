@@ -19,21 +19,38 @@ export default function LoanListPage() {
   const token = localStorage.getItem("authToken");
 
   const fetchMetadata = useCallback(async () => {
-    const res = await api.get("/loan/metadata");
-    setMetadata(res.data);
+    try {
+      const res = await api.get("/loan/metadata");
+      setMetadata(res.data);
+    } catch (err) {
+      console.error("❌ Lỗi load metadata:", err);
+    }
   }, []);
 
   const fetchContracts = useCallback(async () => {
-    const res = await api.get("/loan/list", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    setContracts(res.data);
+    try {
+      const res = await api.get("/loan/list", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log("📄 Dữ liệu hợp đồng:", res.data);
+      setContracts(res.data);
+    } catch (err) {
+      console.error("❌ Lỗi load danh sách hợp đồng:", err);
+    }
   }, [token]);
 
   useEffect(() => {
     fetchMetadata();
     fetchContracts();
   }, [fetchMetadata, fetchContracts]);
+
+  const handleRowClick = (row) => {
+    if (!row.id) {
+      alert("⚠️ Không tìm thấy ID hợp đồng trong dòng dữ liệu");
+      return;
+    }
+    window.location.href = `/dashboards/loan/loan-2?id=${row.id}`;
+  };
 
   return (
     <Page title="📋 Danh sách hợp đồng vay">
@@ -49,7 +66,11 @@ export default function LoanListPage() {
         </div>
 
         {metadata && metadata.list ? (
-          <DynamicList columns={metadata.list.columns} data={contracts} />
+          <DynamicList
+            columns={metadata.list.columns}
+            data={contracts}
+            onRowClick={handleRowClick}
+          />
         ) : (
           <Card className="p-6">Đang tải danh sách...</Card>
         )}

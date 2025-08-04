@@ -10,7 +10,7 @@ const widthClass = {
   "12": "md:col-span-12",
 };
 
-export default function DynamicForm({ form, fields, optionsMap }) {
+export default function DynamicForm({ form, fields, optionsMap, disabled = false }) {
   if (!fields || !Array.isArray(fields)) {
     return <p className="text-red-500">⚠️ Metadata form.fields không hợp lệ</p>;
   }
@@ -23,7 +23,7 @@ export default function DynamicForm({ form, fields, optionsMap }) {
 
         return (
           <div key={field.name || idx} className={span}>
-            {renderField(field, form, optionsMap, error)}
+            {renderField(field, form, optionsMap, error, disabled)}
           </div>
         );
       })}
@@ -31,7 +31,7 @@ export default function DynamicForm({ form, fields, optionsMap }) {
   );
 }
 
-function renderField(field, form, optionsMap, error) {
+function renderField(field, form, optionsMap, error, disabled) {
   const rules = { required: `${field.label} là bắt buộc` };
 
   // textarea
@@ -41,12 +41,13 @@ function renderField(field, form, optionsMap, error) {
         label={field.label}
         error={error}
         rows={3}
+        disabled={disabled}
         {...form.register(field.name, rules)}
       />
     );
   }
 
-  // select (HTML thuần)
+  // select
   if (field.type === "select") {
     const options = optionsMap?.[field.name] || field.options || [];
     return (
@@ -55,6 +56,7 @@ function renderField(field, form, optionsMap, error) {
         <select
           {...form.register(field.name, rules)}
           className="border rounded-md p-2 w-full"
+          disabled={disabled}
         >
           <option value="">-- Chọn {field.label} --</option>
           {options.map((opt, idx) => (
@@ -68,7 +70,7 @@ function renderField(field, form, optionsMap, error) {
     );
   }
 
-  // date sử dụng Controller và DatePicker chuẩn
+  // date
   if (field.type === "date") {
     return (
       <Controller
@@ -83,6 +85,7 @@ function renderField(field, form, optionsMap, error) {
             error={error}
             placeholder="Chọn ngày..."
             options={{ disableMobile: true }}
+            disabled={disabled}
             {...rest}
           />
         )}
@@ -96,6 +99,7 @@ function renderField(field, form, optionsMap, error) {
       type={field.type === "number" ? "number" : "text"}
       label={field.label}
       error={error}
+      disabled={disabled}
       {...form.register(field.name, {
         ...rules,
         valueAsNumber: field.type === "number",

@@ -5,6 +5,8 @@ use axum::{
 };
 use std::sync::Arc;
 use serde_json::json;
+use uuid::Uuid;
+use axum::extract::Path; // 👈 để dùng Path<T>
 use crate::core::auth::AuthUser;
 use crate::core::state::AppState;
 use crate::module::loan::{
@@ -53,6 +55,7 @@ pub async fn list_contracts(
     // Chuyển dữ liệu sang JSON đúng format cho DynamicList
     let data: Vec<_> = contracts.into_iter().map(|c| {
         json!({
+            "id": c.id,  // ⚠️ Thêm dòng này
             "name": c.name,
             "principal": c.principal,
             "interest_rate": c.interest_rate,
@@ -64,4 +67,50 @@ pub async fn list_contracts(
     }).collect();
 
     Ok(Json(json!(data)))
+}
+
+// ham lay thong tin hop dong khi bam vao list contract ra trang chinh sua
+pub async fn get_contract_by_id(
+    State(state): State<Arc<AppState>>,
+    auth: AuthUser,
+    axum::extract::Path(contract_id): axum::extract::Path<Uuid>,
+) -> Result<Json<serde_json::Value>, StatusCode> {
+    let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
+
+    let contract = query::get_contract_by_id(&pool, auth.tenant_id, contract_id)
+        .await
+        .map_err(|_| StatusCode::NOT_FOUND)?;
+
+    Ok(Json(serde_json::to_value(contract).unwrap()))
+}
+
+// ham update thong tin sua hop dong vay
+pub async fn update_contract(
+    State(state): State<Arc<AppState>>,
+    auth: AuthUser,
+    axum::extract::Path(contract_id): axum::extract::Path<Uuid>,
+    Json(input): Json<CreateContractInput>,
+) -> Result<Json<serde_json::Value>, StatusCode> {
+    let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
+
+    command::update_contract(pool, auth.tenant_id, contract_id, input)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    Ok(Json(json!({ "updated": true })))
+}
+
+//xoa hop dong
+pub async fn delete_contract(
+    State(state): State<Arc<AppState>>,
+    auth: AuthUser,
+    Path(contract_id): Path<Uuid>,
+) -> Result<StatusCode, StatusCode> {
+    let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
+
+    command::delete_contract(&pool, auth.tenant_id, contract_id)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    Ok(StatusCode::NO_CONTENT)
 }

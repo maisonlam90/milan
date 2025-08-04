@@ -48,3 +48,63 @@ pub async fn create_contract(
 
     Ok(contract)
 }
+
+//update loan contract
+pub async fn update_contract(
+    pool: &PgPool,
+    tenant_id: Uuid,
+    contract_id: Uuid,
+    input: CreateContractInput,
+) -> sqlx::Result<LoanContract> {
+    let updated = sqlx::query_as!(
+        LoanContract,
+        r#"
+        UPDATE loan_contract
+        SET
+            customer_id = $1,
+            name = $2,
+            principal = $3,
+            interest_rate = $4,
+            term_months = $5,
+            date_start = $6,
+            date_end = $7,
+            collateral_description = $8,
+            collateral_value = $9,
+            updated_at = NOW()
+        WHERE id = $10 AND tenant_id = $11
+        RETURNING *
+        "#,
+        input.customer_id,
+        input.name,
+        input.principal,
+        input.interest_rate,
+        input.term_months,
+        input.date_start,
+        input.date_end,
+        input.collateral_description,
+        input.collateral_value.unwrap_or(0),
+        contract_id,
+        tenant_id,
+    )
+    .fetch_one(pool)
+    .await?;
+
+    Ok(updated)
+}
+
+//xu ly xoa hop dong
+pub async fn delete_contract(
+    pool: &PgPool,
+    tenant_id: Uuid,
+    contract_id: Uuid,
+) -> sqlx::Result<()> {
+    sqlx::query!(
+        "DELETE FROM loan_contract WHERE id = $1 AND tenant_id = $2",
+        contract_id,
+        tenant_id
+    )
+    .execute(pool)
+    .await?;
+
+    Ok(())
+}
