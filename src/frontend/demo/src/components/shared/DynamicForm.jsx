@@ -1,5 +1,6 @@
 import { Input, Textarea } from "components/ui";
 import { DatePicker } from "components/shared/form/Datepicker";
+import { Controller } from "react-hook-form";
 
 const widthClass = {
   "3": "md:col-span-3",
@@ -19,11 +20,10 @@ export default function DynamicForm({ form, fields, optionsMap }) {
       {fields.map((field, idx) => {
         const span = widthClass[field.width?.toString()] || "md:col-span-12";
         const error = form.formState.errors?.[field.name]?.message;
-        const value = form.getValues(field.name) || "";
 
         return (
           <div key={field.name || idx} className={span}>
-            {renderField(field, form, optionsMap, value, error)}
+            {renderField(field, form, optionsMap, error)}
           </div>
         );
       })}
@@ -31,7 +31,7 @@ export default function DynamicForm({ form, fields, optionsMap }) {
   );
 }
 
-function renderField(field, form, optionsMap, value, error) {
+function renderField(field, form, optionsMap, error) {
   const rules = { required: `${field.label} là bắt buộc` };
 
   // textarea
@@ -68,14 +68,24 @@ function renderField(field, form, optionsMap, value, error) {
     );
   }
 
-  // date (DatePicker theme, fallback nếu lỗi)
+  // date sử dụng Controller và DatePicker chuẩn
   if (field.type === "date") {
     return (
-      <DatePicker
-        label={field.label}
-        error={error}
-        value={value || null}
-        onChange={(date) => form.setValue(field.name, date)}
+      <Controller
+        control={form.control}
+        name={field.name}
+        rules={rules}
+        render={({ field: { value, onChange, ...rest } }) => (
+          <DatePicker
+            label={field.label}
+            value={value || ""}
+            onChange={onChange}
+            error={error}
+            placeholder="Chọn ngày..."
+            options={{ disableMobile: true }}
+            {...rest}
+          />
+        )}
       />
     );
   }
