@@ -1,32 +1,52 @@
 import { useEffect, useState, useCallback } from "react";
 import { Page } from "components/shared/Page";
 import { Breadcrumbs } from "components/shared/Breadcrumbs";
-import { Card } from "components/ui";
 import axios from "axios";
 import { JWT_HOST_API } from "configs/auth.config";
 import DynamicList from "components/shared/DynamicList";
 
+// 👉 Breadcrumbs định nghĩa đường dẫn header
 const breadcrumbs = [
   { title: "Hợp đồng vay", path: "/loans" },
   { title: "Danh sách" },
 ];
 
+// 👉 Tạo instance axios có sẵn baseURL từ config
 const api = axios.create({ baseURL: JWT_HOST_API });
+
+// ⚙️ Load metadata từ cache nếu có (tránh nháy trắng)
+const initialMetadata = (() => {
+  try {
+    const cached = JSON.parse(localStorage.getItem("loanMetadata"));
+    return cached?.list?.columns ? cached : null;
+  } catch {
+    return null;
+  }
+})();
 
 export default function LoanListPage() {
   const [contracts, setContracts] = useState([]);
-  const [metadata, setMetadata] = useState(null);
+
+  // 👉 Khởi tạo metadata từ localStorage nếu có
+  const [metadata, setMetadata] = useState(initialMetadata);
+
+  // 👉 Token auth từ localStorage
   const token = localStorage.getItem("authToken");
 
+  // 📥 Gọi API lấy metadata nếu cache chưa có hoặc lỗi
   const fetchMetadata = useCallback(async () => {
     try {
       const res = await api.get("/loan/metadata");
-      setMetadata(res.data);
+      if (res.data?.list?.columns) {
+        localStorage.setItem("loanMetadata", JSON.stringify(res.data)); // cache lại
+        setMetadata(res.data);
+      }
     } catch (err) {
       console.error("❌ Lỗi load metadata:", err);
     }
   }, []);
 
+  // 📥 Gọi API lấy danh sách hợp đồng
   const fetchContracts = useCallback(async () => {
     try {
       const res = await api.get("/loan/list", {
@@ -39,11 +59,13 @@ export default function LoanListPage() {
     }
   }, [token]);
 
+  // 🚀 Gọi fetch metadata + danh sách khi trang load
   useEffect(() => {
     fetchMetadata();
     fetchContracts();
   }, [fetchMetadata, fetchContracts]);
 
+  // 📍 Click vào dòng dữ liệu sẽ chuyển sang trang chi tiết
   const handleRowClick = (row) => {
     if (!row.id) {
       alert("⚠️ Không tìm thấy ID hợp đồng trong dòng dữ liệu");
@@ -54,8 +76,8 @@ export default function LoanListPage() {
 
   return (
     <Page title="📋 Danh sách hợp đồng vay">
-      <div className="transition-content w-full px-(--margin-x) pb-8">
-        <div className="flex items-center space-x-4 py-5 lg:py-6 ">
+      <div className="w-full px-(--margin-x) pb-8">
+        <div className="flex items-center space-x-4 py-5 lg:py-6">
           <h2 className="text-xl font-medium tracking-wide text-gray-800 dark:text-dark-50 lg:text-2xl">
             Danh sách hợp đồng vay
           </h2>
@@ -65,14 +87,13 @@ export default function LoanListPage() {
           <Breadcrumbs items={breadcrumbs} className="max-sm:hidden" />
         </div>
 
-        {metadata && metadata.list ? (
+        {/* ⚠️ Chỉ render DynamicList nếu metadata đã sẵn sàng */}
+        {metadata?.list?.columns && (
           <DynamicList
             columns={metadata.list.columns}
             data={contracts}
             onRowClick={handleRowClick}
           />
-        ) : (
-          <Card className="p-6">Đang tải danh sách...</Card>
         )}
       </div>
     </Page>

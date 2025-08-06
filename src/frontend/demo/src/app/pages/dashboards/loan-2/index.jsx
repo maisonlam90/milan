@@ -87,12 +87,15 @@ export default function LoanPage() {
         });
         setIsEditing(false);
       } else {
-        const res = await api.post("/loan/create", { ...payload, state: "draft" }, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await api.post(
+          "/loan/create",
+          { ...payload, state: "draft" },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
         const newId = res.data?.contract_id;
         if (newId) {
           setLocalLoanId(newId);
+          setIsEditing(false); // --- chuyển ngay sang view mode
           await fetchLoan(newId);
         } else {
           alert("❌ Không lấy được ID hợp đồng mới");
@@ -112,7 +115,7 @@ export default function LoanPage() {
       await api.delete(`/loan/${loanId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      window.location.href = "/dashboards/loan/loan-list"; // cập nhật nếu cần
+      window.location.href = "/dashboards/loan/loan-list";
     } catch (err) {
       alert("❌ Lỗi xóa hợp đồng: " + (err.response?.data || err.message));
     }
