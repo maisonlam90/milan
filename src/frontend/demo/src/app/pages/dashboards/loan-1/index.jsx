@@ -7,7 +7,7 @@ import DynamicList from "components/shared/DynamicList";
 
 // 👉 Breadcrumbs định nghĩa đường dẫn header
 const breadcrumbs = [
-  { title: "Hợp đồng vay", path: "/loans" },
+  { title: "Hợp đồng vay", path: "/dashboards/loan/loan-1" },
   { title: "Danh sách" },
 ];
 

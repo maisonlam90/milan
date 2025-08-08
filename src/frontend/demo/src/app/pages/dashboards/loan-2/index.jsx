@@ -5,6 +5,8 @@ import axios from "axios";
 import { JWT_HOST_API } from "configs/auth.config";
 import { Card, Button } from "components/ui";
 import DynamicForm from "components/shared/DynamicForm";
+import Notebook from "components/shared/Notebook"; // ✅ import mới
+
 
 const api = axios.create({ baseURL: JWT_HOST_API });
 
@@ -79,7 +81,15 @@ export default function LoanPage() {
         : 0,
       interest_rate: parseFloat(data.interest_rate),
     };
-
+  
+    // ✅ Convert transaction.date to Unix timestamp (in seconds)
+    if (Array.isArray(data.transactions)) {
+      payload.transactions = data.transactions.map((tx) => ({
+        ...tx,
+        date: tx.date ? Math.floor(new Date(tx.date).getTime() / 1000) : null,
+      }));
+    }
+  
     try {
       if (loanId) {
         await api.post(`/loan/${loanId}/update`, payload, {
@@ -95,7 +105,7 @@ export default function LoanPage() {
         const newId = res.data?.contract_id;
         if (newId) {
           setLocalLoanId(newId);
-          setIsEditing(false); // --- chuyển ngay sang view mode
+          setIsEditing(false);
           await fetchLoan(newId);
         } else {
           alert("❌ Không lấy được ID hợp đồng mới");
@@ -105,17 +115,23 @@ export default function LoanPage() {
       alert("❌ Lỗi lưu hợp đồng: " + (err.response?.data || err.message));
     }
   };
+  
 
   const handleDelete = async () => {
     if (!loanId) return;
+  
+    // ✅ Hiển thị hộp thoại xác nhận trước khi xóa
     const confirmDelete = window.confirm("Bạn có chắc muốn xóa hợp đồng này?");
     if (!confirmDelete) return;
-
+  
     try {
+      // ✅ Gọi API xóa hợp đồng
       await api.delete(`/loan/${loanId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      window.location.href = "/dashboards/loan/loan-list";
+  
+      // ✅ Sau khi xóa thành công, chuyển về trang danh sách hợp đồng
+      window.location.href = "/dashboards/loan/loan-1"; // 👈 Đường dẫn này phải đúng với router
     } catch (err) {
       alert("❌ Lỗi xóa hợp đồng: " + (err.response?.data || err.message));
     }
@@ -195,19 +211,30 @@ export default function LoanPage() {
                     />
                   </div>
                 </Card>
+
+                {/* ✅ Card lịch sử giao dịch */}
+                <Card className="p-4 sm:px-5">
+                  <Notebook
+                    name="transactions"
+                    editable={isEditing}
+                    form={form}
+                    fields={metadata?.notebook?.fields || []}
+                  />
+                </Card>
               </div>
 
               <div className="col-span-12 lg:col-span-4 space-y-4 sm:space-y-5 lg:space-y-6">
-                <Card className="p-4 sm:px-5">
-                  <h6 className="text-base font-medium text-gray-800 dark:text-dark-100">
-                    Lịch sử chỉnh sửa
-                  </h6>
-                  <p className="mt-3 text-gray-500">
-                    {loanId
-                      ? "Hiển thị sau khi có các chỉnh sửa"
-                      : "Chưa có dữ liệu lịch sử"}
-                  </p>
-                </Card>
+              <Card className="p-4 sm:px-5">
+                <h6 className="text-base font-medium text-gray-800 dark:text-dark-100">
+                  Thông tin tính toán lãi
+                </h6>
+                <div className="mt-4 space-y-2 text-sm text-gray-600 dark:text-dark-50">
+                  <div>Gốc còn lại: {form.watch("current_principal")?.toLocaleString()} VNĐ</div>
+                  <div>Lãi hiện tại: {form.watch("current_interest")?.toLocaleString()} VNĐ</div>
+                  <div>Lãi tích lũy: {form.watch("accumulated_interest")?.toLocaleString()} VNĐ</div>
+                  <div>Tổng lãi đã trả: {form.watch("total_paid_interest")?.toLocaleString()} VNĐ</div>
+                </div>
+              </Card>
               </div>
             </div>
           </form>

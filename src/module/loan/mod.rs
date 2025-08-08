@@ -6,3 +6,4 @@ pub mod model;
 pub mod dto;
 pub mod event;
 pub mod metadata;
+pub mod calculator;
