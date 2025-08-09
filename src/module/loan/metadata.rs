@@ -39,10 +39,10 @@ pub fn loan_form_schema() -> serde_json::Value {
                     { "value": "settlement", "label": "Tất toán" }
                 ])},
                 { "name": "amount", "label": "Số tiền", "type": "number" },
-                { "name": "days_from_prev", "label": "Số ngày", "type": "number" },
-                { "name": "interest_for_period", "label": "Lãi kỳ này", "type": "number" },
-                { "name": "accumulated_interest", "label": "Lãi tích lũy", "type": "number" },
-                { "name": "principal_balance", "label": "Dư nợ gốc", "type": "number" },
+                { "name": "days_from_prev", "label": "Số ngày", "type": "compute" },
+                { "name": "interest_for_period", "label": "Lãi kỳ này", "type": "compute" },
+                { "name": "accumulated_interest", "label": "Lãi tích lũy", "type": "compute" },
+                { "name": "principal_balance", "label": "Dư nợ gốc", "type": "compute" },
                 { "name": "note", "label": "Ghi chú", "type": "text" },
             ]
         }

@@ -5,8 +5,7 @@ import axios from "axios";
 import { JWT_HOST_API } from "configs/auth.config";
 import { Card, Button } from "components/ui";
 import DynamicForm from "components/shared/DynamicForm";
-import Notebook from "components/shared/Notebook"; // ✅ import mới
-
+import Notebook from "components/shared/Notebook";
 
 const api = axios.create({ baseURL: JWT_HOST_API });
 
@@ -39,30 +38,33 @@ export default function LoanPage() {
       const res = await api.get("/user/users", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setCustomers(res.data);
+      setCustomers(res.data || []);
     } catch (err) {
       console.error("❌ Lỗi load customers:", err);
     }
   }, [token]);
 
-  const fetchLoan = useCallback(async (id = loanId) => {
-    if (!id) {
-      setIsEditing(true);
-      return;
-    }
-    setLoadingLoan(true);
-    try {
-      const res = await api.get(`/loan/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      form.reset(res.data);
-      setIsEditing(false);
-    } catch (err) {
-      alert("❌ Lỗi load hợp đồng: " + (err.response?.data || err.message));
-    } finally {
-      setLoadingLoan(false);
-    }
-  }, [loanId, token, form]);
+  const fetchLoan = useCallback(
+    async (id = loanId) => {
+      if (!id) {
+        setIsEditing(true);
+        return;
+      }
+      setLoadingLoan(true);
+      try {
+        const res = await api.get(`/loan/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        form.reset(res.data);
+        setIsEditing(false);
+      } catch (err) {
+        alert("❌ Lỗi load hợp đồng: " + (err.response?.data || err.message));
+      } finally {
+        setLoadingLoan(false);
+      }
+    },
+    [loanId, token, form]
+  );
 
   useEffect(() => {
     fetchMetadata();
@@ -76,20 +78,17 @@ export default function LoanPage() {
       date_start: new Date(data.date_start).toISOString(),
       date_end: data.date_end ? new Date(data.date_end).toISOString() : null,
       principal: parseInt(data.principal, 10),
-      collateral_value: data.collateral_value
-        ? parseInt(data.collateral_value, 10)
-        : 0,
+      collateral_value: data.collateral_value ? parseInt(data.collateral_value, 10) : 0,
       interest_rate: parseFloat(data.interest_rate),
     };
-  
-    // ✅ Convert transaction.date to Unix timestamp (in seconds)
+
     if (Array.isArray(data.transactions)) {
       payload.transactions = data.transactions.map((tx) => ({
         ...tx,
         date: tx.date ? Math.floor(new Date(tx.date).getTime() / 1000) : null,
       }));
     }
-  
+
     try {
       if (loanId) {
         await api.post(`/loan/${loanId}/update`, payload, {
@@ -115,23 +114,16 @@ export default function LoanPage() {
       alert("❌ Lỗi lưu hợp đồng: " + (err.response?.data || err.message));
     }
   };
-  
 
   const handleDelete = async () => {
     if (!loanId) return;
-  
-    // ✅ Hiển thị hộp thoại xác nhận trước khi xóa
     const confirmDelete = window.confirm("Bạn có chắc muốn xóa hợp đồng này?");
     if (!confirmDelete) return;
-  
     try {
-      // ✅ Gọi API xóa hợp đồng
       await api.delete(`/loan/${loanId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-  
-      // ✅ Sau khi xóa thành công, chuyển về trang danh sách hợp đồng
-      window.location.href = "/dashboards/loan/loan-1"; // 👈 Đường dẫn này phải đúng với router
+      window.location.href = "/dashboards/loan/loan-1";
     } catch (err) {
       alert("❌ Lỗi xóa hợp đồng: " + (err.response?.data || err.message));
     }
@@ -145,6 +137,9 @@ export default function LoanPage() {
             <h2 className="line-clamp-1 text-xl font-medium text-gray-700 dark:text-dark-50">
               {loanId ? "Chi tiết hợp đồng vay" : "Tạo hợp đồng vay mới"}
             </h2>
+            {loadingLoan && (
+              <span className="ml-3 text-xs text-gray-400">Đang tải dữ liệu hợp đồng…</span>
+            )}
           </div>
           <div className="flex gap-2">
             {loanId && !isEditing && (
@@ -154,28 +149,19 @@ export default function LoanPage() {
             )}
             {isEditing && (
               <>
-                <Button
-                  className="min-w-[7rem]"
-                  variant="outlined"
-                  onClick={() => fetchLoan()}
-                >
+                <Button className="min-w-[7rem]" variant="outlined" onClick={() => fetchLoan()}>
                   Hủy
                 </Button>
                 {loanId && (
                   <Button
                     className="min-w-[7rem] text-white"
-                    style={{ backgroundColor: "#8B0000", hover: { backgroundColor: "#a30000" } }}
+                    style={{ backgroundColor: "#8B0000" }}
                     onClick={handleDelete}
                   >
                     Xóa
                   </Button>
                 )}
-                <Button
-                  className="min-w-[7rem]"
-                  color="primary"
-                  type="submit"
-                  form="loan-form"
-                >
+                <Button className="min-w-[7rem]" color="primary" type="submit" form="loan-form">
                   Lưu
                 </Button>
               </>
@@ -183,62 +169,62 @@ export default function LoanPage() {
           </div>
         </div>
 
-        {!metadata || loadingLoan ? (
-          <p>Đang tải form...</p>
-        ) : (
-          <form
-            autoComplete="off"
-            onSubmit={form.handleSubmit(onSubmit)}
-            id="loan-form"
-          >
-            <div className="grid grid-cols-12 place-content-start gap-4 sm:gap-5 lg:gap-6">
-              <div className="col-span-12 lg:col-span-8">
-                <Card className="p-4 sm:px-5">
-                  <h3 className="text-base font-medium text-gray-800 dark:text-dark-100">
-                    Thông tin hợp đồng
-                  </h3>
-                  <div className="mt-5 space-y-5">
-                    <DynamicForm
-                      form={form}
-                      fields={metadata.form.fields}
-                      optionsMap={{
-                        customer_id: customers.map((c) => ({
-                          value: c.id || c.user_id,
-                          label: c.email || c.username || c.full_name,
-                        })),
-                      }}
-                      disabled={!isEditing}
-                    />
-                  </div>
-                </Card>
-
-                {/* ✅ Card lịch sử giao dịch */}
-                <Card className="p-4 sm:px-5">
-                  <Notebook
-                    name="transactions"
-                    editable={isEditing}
+        {/* ✅ Luôn render form; bỏ chặn “Đang tải form…” */}
+        <form autoComplete="off" onSubmit={form.handleSubmit(onSubmit)} id="loan-form">
+          <div className="grid grid-cols-12 place-content-start gap-4 sm:gap-5 lg:gap-6">
+            <div className="col-span-12 lg:col-span-8">
+              <Card className="p-4 sm:px-5">
+                <h3 className="text-base font-medium text-gray-800 dark:text-dark-100">
+                  Thông tin hợp đồng
+                </h3>
+                <div className="mt-5 space-y-5">
+                  <DynamicForm
                     form={form}
-                    fields={metadata?.notebook?.fields || []}
+                    fields={metadata?.form?.fields || []}
+                    optionsMap={{
+                      customer_id: (customers || []).map((c) => ({
+                        value: c.id || c.user_id,
+                        label: c.email || c.username || c.full_name,
+                      })),
+                    }}
+                    disabled={!isEditing}
                   />
-                </Card>
-              </div>
+                </div>
+              </Card>
 
-              <div className="col-span-12 lg:col-span-4 space-y-4 sm:space-y-5 lg:space-y-6">
+              <Card className="p-4 sm:px-5">
+                <Notebook
+                  name="transactions"
+                  editable={isEditing}
+                  form={form}
+                  fields={metadata?.notebook?.fields || []}
+                />
+              </Card>
+            </div>
+
+            <div className="col-span-12 lg:col-span-4 space-y-4 sm:space-y-5 lg:space-y-6">
               <Card className="p-4 sm:px-5">
                 <h6 className="text-base font-medium text-gray-800 dark:text-dark-100">
                   Thông tin tính toán lãi
                 </h6>
                 <div className="mt-4 space-y-2 text-sm text-gray-600 dark:text-dark-50">
-                  <div>Gốc còn lại: {form.watch("current_principal")?.toLocaleString()} VNĐ</div>
-                  <div>Lãi hiện tại: {form.watch("current_interest")?.toLocaleString()} VNĐ</div>
-                  <div>Lãi tích lũy: {form.watch("accumulated_interest")?.toLocaleString()} VNĐ</div>
-                  <div>Tổng lãi đã trả: {form.watch("total_paid_interest")?.toLocaleString()} VNĐ</div>
+                  <div>
+                    Gốc còn lại: {form.watch("current_principal")?.toLocaleString?.() || 0} VNĐ
+                  </div>
+                  <div>
+                    Lãi hiện tại: {form.watch("current_interest")?.toLocaleString?.() || 0} VNĐ
+                  </div>
+                  <div>
+                    Lãi tích lũy: {form.watch("accumulated_interest")?.toLocaleString?.() || 0} VNĐ
+                  </div>
+                  <div>
+                    Tổng lãi đã trả: {form.watch("total_paid_interest")?.toLocaleString?.() || 0} VNĐ
+                  </div>
                 </div>
               </Card>
-              </div>
             </div>
-          </form>
-        )}
+          </div>
+        </form>
       </div>
     </Page>
   );
