@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+import { clsx } from "clsx";
 import { Input, Textarea } from "components/ui";
 import { DatePicker } from "components/shared/form/Datepicker";
 import { Controller } from "react-hook-form";
@@ -11,81 +13,116 @@ const widthClass = {
 };
 
 export default function DynamicForm({ form, fields, optionsMap, disabled = false }) {
-  if (!fields || !Array.isArray(fields)) {
-    return <p className="text-red-500">⚠️ Metadata form.fields không hợp lệ</p>;
-  }
+  // ===== Helpers format/parse số (đồng nhất với Notebook.jsx) =====
+  const nf = useMemo(() => new Intl.NumberFormat("vi-VN"), []);
+  const parseNumber = (str) => {
+    if (str === null || str === undefined) return null;
+    const s = String(str).trim();
+    if (s === "") return null;
+    const normalized = s.replace(/\./g, "").replace(/,/g, ".");
+    const n = Number(normalized);
+    return Number.isFinite(n) ? n : null;
+  };
+  const formatNumber = (value) => {
+    if (value === null || value === undefined || value === "") return "";
+    const n = typeof value === "number" ? value : parseNumber(String(value));
+    return n === null ? "" : nf.format(n);
+  };
+
+  const allowNumericKeystroke = (e) => {
+    const allowed = [
+      "Backspace", "Delete", "Tab", "Enter", "ArrowLeft", "ArrowRight", "Home", "End",
+    ];
+    if (
+      allowed.includes(e.key) ||
+      /^[0-9]$/.test(e.key) ||
+      e.key === "." || e.key === "," ||
+      (e.ctrlKey && ["a", "c", "v", "x"].includes(e.key.toLowerCase()))
+    ) return;
+    e.preventDefault();
+  };
+
+  // ===== Helper ngày dd/mm/yyyy (tránh lệch timezone) =====
+  const formatDateDisplay = (v) => {
+    if (!v) return "";
+    if (typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v)) {
+      const [y, m, d] = v.split("-").map(Number);
+      return `${String(d).padStart(2, "0")}/${String(m).padStart(2, "0")}/${y}`;
+    }
+    const d = v instanceof Date ? v : new Date(v);
+    if (Number.isNaN(d.getTime())) return String(v ?? "");
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const yy = d.getFullYear();
+    return `${dd}/${mm}/${yy}`;
+  };
+
+  // Style “compute”
+  const roBox = "bg-gray-100 dark:bg-dark-800 text-gray-600 px-2 py-1 rounded";
+  const roOneLine = `${roBox} block w-full min-w-0 whitespace-nowrap overflow-hidden text-ellipsis`;
+
+  // Tránh return sớm để không vi phạm hook rules
+  const fieldsInvalid = !Array.isArray(fields);
+  const safeFields = fieldsInvalid ? [] : fields;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-      {fields.map((field, idx) => {
-        const span = widthClass[field.width?.toString()] || "md:col-span-12";
-        const error = form.formState.errors?.[field.name]?.message;
+    <>
+      {fieldsInvalid && (
+        <p className="text-red-500 mb-3">⚠️ Metadata form.fields không hợp lệ</p>
+      )}
 
-        return (
-          <div key={field.name || idx} className={span}>
-            {renderField(field, form, optionsMap, error, disabled)}
-          </div>
-        );
-      })}
-    </div>
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+        {safeFields.map((field, idx) => {
+          const span = widthClass[field.width?.toString()] || "md:col-span-12";
+          const error = form.formState.errors?.[field.name]?.message;
+
+          return (
+            <div key={field.name || idx} className={span}>
+              {renderField({
+                field, form, optionsMap, error,
+                disabled,
+                formatNumber, parseNumber, allowNumericKeystroke,
+                roBox, roOneLine, formatDateDisplay,
+              })}
+            </div>
+          );
+        })}
+      </div>
+    </>
   );
-}
-
-/** format giá trị để hiển thị read-only */
-function formatReadOnly(field, raw, optionsMap) {
-  if (raw === null || raw === undefined || raw === "") {
-    return <span className="text-gray-400">—</span>;
-  }
-
-  if (field.type === "date") {
-    // hỗ trợ ISO string hoặc epoch seconds
-    let d;
-    if (typeof raw === "number") d = new Date(raw * 1000);
-    else d = new Date(raw);
-    return <span>{isNaN(d) ? String(raw) : d.toLocaleDateString('vi-VN')}</span>;
-  }
-
-  if (field.type === "select") {
-    const options = optionsMap?.[field.name] || field.options || [];
-    const label = options.find((o) => o.value === raw)?.label ?? raw;
-    return <span>{label ?? <span className="text-gray-400">—</span>}</span>;
-  }
-
-  if (field.type === "number") {
-    const n = typeof raw === "number" ? raw : parseFloat(raw);
-    return <span>{isNaN(n) ? String(raw) : n.toLocaleString()}</span>;
-  }
-
-  if (field.type === "textarea") {
-    return <div className="whitespace-pre-wrap">{String(raw)}</div>;
-  }
-
-  return <span>{String(raw)}</span>;
 }
 
 function FieldLabel({ label }) {
   return <label className="block mb-1 text-gray-700 dark:text-dark-100">{label}</label>;
 }
 
-function renderField(field, form, optionsMap, error, disabled) {
-  const rules = { required: `${field.label} là bắt buộc` };
-  const rawValue = form.getValues(field.name);
+function renderField({
+  field,
+  form,
+  optionsMap,
+  error,
+  disabled,
+  formatNumber,
+  parseNumber,
+  allowNumericKeystroke,
+  roBox,
+  roOneLine,
+  formatDateDisplay,
+}) {
+  const rules = field.required ? { required: `${field.label} là bắt buộc` } : {};
 
-  // 🔒 READ-ONLY MODE: render text thuần, không dùng input để tránh icon/hover
-  if (disabled) {
-    return (
-      <div>
-        <FieldLabel label={field.label} />
-        <div className="min-h-[38px] px-3 py-2 rounded border bg-white dark:bg-dark-900">
-          {formatReadOnly(field, rawValue, optionsMap)}
-        </div>
-        {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
-      </div>
-    );
-  }
-
-  // ✏️ EDIT MODE: render control như cũ
+  // Textarea
   if (field.type === "textarea") {
+    if (disabled) {
+      const val = form.watch(field.name);
+      return (
+        <div>
+          <FieldLabel label={field.label} />
+          <div className={clsx(roBox, "whitespace-pre-line")}>{val || ""}</div>
+          {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+        </div>
+      );
+    }
     return (
       <Textarea
         label={field.label}
@@ -96,20 +133,33 @@ function renderField(field, form, optionsMap, error, disabled) {
     );
   }
 
+  // Select
   if (field.type === "select") {
     const options = optionsMap?.[field.name] || field.options || [];
+    const getSelectLabel = (val) =>
+      (options || []).find((o) => String(o.value) === String(val))?.label ?? "";
+
+    if (disabled) {
+      const val = form.watch(field.name);
+      return (
+        <div>
+          <FieldLabel label={field.label} />
+          <div className={roOneLine}>{getSelectLabel(val)}</div>
+          {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+        </div>
+      );
+    }
+
     return (
       <div>
         <FieldLabel label={field.label} />
         <select
-          {...form.register(field.name, rules)}
           className="border rounded-md p-2 w-full"
+          {...form.register(field.name, rules)}
         >
           <option value="">-- Chọn {field.label} --</option>
           {options.map((opt, idx) => (
-            <option key={idx} value={opt.value}>
-              {opt.label}
-            </option>
+            <option key={idx} value={opt.value}>{opt.label}</option>
           ))}
         </select>
         {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
@@ -117,36 +167,113 @@ function renderField(field, form, optionsMap, error, disabled) {
     );
   }
 
+  // Date
   if (field.type === "date") {
+    if (disabled) {
+      const val = form.watch(field.name);
+      return (
+        <div>
+          <FieldLabel label={field.label} />
+          <div className={roOneLine}>{formatDateDisplay(val)}</div>
+          {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+        </div>
+      );
+    }
+
+    return (
+      <div>
+        <FieldLabel label={field.label} />
+        <Controller
+          control={form.control}
+          name={field.name}
+          rules={rules}
+          render={({ field: { value, onChange, ...rest } }) => (
+            <DatePicker
+              value={value || ""}
+              onChange={onChange}
+              placeholder="Chọn ngày..."
+              className="w-full"
+              options={{ disableMobile: true, dateFormat: "d/m/Y" }}
+              {...rest}
+            />
+          )}
+        />
+        {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+      </div>
+    );
+  }
+
+  // Number
+  if (field.type === "number") {
+    if (disabled) {
+      const v = form.watch(field.name);
+      const show = (() => {
+        if (typeof v === "number") return formatNumber(v);
+        const maybe = parseNumber(v);
+        return maybe === null ? (v ?? "") : formatNumber(maybe);
+      })();
+      return (
+        <div>
+          <FieldLabel label={field.label} />
+          <div className={roOneLine}>{show}</div>
+          {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+        </div>
+      );
+    }
+
     return (
       <Controller
         control={form.control}
         name={field.name}
         rules={rules}
-        render={({ field: { value, onChange, ...rest } }) => (
-          <DatePicker
-            label={field.label}
-            value={value || ""}
-            onChange={onChange}
-            error={error}
-            placeholder="Chọn ngày..."
-            options={{ disableMobile: true }}
-            {...rest}
-          />
-        )}
+        render={({ field: { value, onChange, onBlur, ref } }) => {
+          const display = formatNumber(value);
+          return (
+            <Input
+              type="text"
+              label={field.label}
+              error={error}
+              value={display}
+              onKeyDown={allowNumericKeystroke}
+              onChange={(e) => {
+                const raw = e.target.value;
+                const parsed = parseNumber(raw);
+                if (raw.trim() === "") onChange("");
+                else if (parsed !== null) onChange(parsed);
+              }}
+              onBlur={(e) => {
+                const parsed = parseNumber(e.target.value);
+                onChange(parsed ?? "");
+                onBlur?.();
+              }}
+              ref={ref}
+              inputMode="decimal"
+              placeholder="0"
+            />
+          );
+        }}
       />
+    );
+  }
+
+  // Default: text
+  if (disabled) {
+    const val = form.watch(field.name);
+    return (
+      <div>
+        <FieldLabel label={field.label} />
+        <div className={roOneLine}>{val || ""}</div>
+        {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+      </div>
     );
   }
 
   return (
     <Input
-      type={field.type === "number" ? "number" : "text"}
+      type="text"
       label={field.label}
       error={error}
-      {...form.register(field.name, {
-        ...rules,
-        valueAsNumber: field.type === "number",
-      })}
+      {...form.register(field.name, rules)}
     />
   );
 }

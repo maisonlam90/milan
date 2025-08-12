@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useFieldArray, Controller } from "react-hook-form";
+import { clsx } from "clsx";
 import { Button, Input, Textarea } from "components/ui";
 import { DatePicker } from "components/shared/form/Datepicker";
 
@@ -22,6 +23,59 @@ export default function Notebook({ name = "transactions", editable = true, form,
     });
     append(row);
   };
+
+  // ===== Helpers số =====
+  const nf = useMemo(() => new Intl.NumberFormat("vi-VN"), []);
+  const formatNumber = (value) => {
+    if (value === null || value === undefined || value === "") return "";
+    const n = typeof value === "number" ? value : parseNumber(String(value));
+    if (n === null) return "";
+    return nf.format(n);
+  };
+  const parseNumber = (str) => {
+    if (str === null || str === undefined) return null;
+    const s = String(str).trim();
+    if (s === "") return null;
+    const normalized = s.replace(/\./g, "").replace(/,/g, ".");
+    const n = Number(normalized);
+    return Number.isFinite(n) ? n : null;
+  };
+
+  const allowNumericKeystroke = (e) => {
+    const allowed = ["Backspace","Delete","Tab","Enter","ArrowLeft","ArrowRight","Home","End"];
+    if (
+      allowed.includes(e.key) ||
+      /^[0-9]$/.test(e.key) ||
+      e.key === "." || e.key === "," ||
+      (e.ctrlKey && (e.key === "a" || e.key === "c" || e.key === "v" || e.key === "x"))
+    ) return;
+    e.preventDefault();
+  };
+
+  // ===== Helper ngày dd/mm/yyyy (tránh lệch timezone) =====
+  const formatDateDisplay = (v) => {
+    if (!v) return "";
+    // yyyy-mm-dd -> parse UTC để không lệch múi giờ
+    if (typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v)) {
+      const [y,m,d] = v.split("-").map(Number);
+      const dd = String(d).padStart(2,"0");
+      const mm = String(m).padStart(2,"0");
+      return `${dd}/${mm}/${y}`;
+    }
+    const d = v instanceof Date ? v : new Date(v);
+    if (Number.isNaN(d.getTime())) return String(v ?? "");
+    const dd = String(d.getDate()).padStart(2,"0");
+    const mm = String(d.getMonth()+1).padStart(2,"0");
+    const yy = d.getFullYear();
+    return `${dd}/${mm}/${yy}`;
+  };
+
+  // Style: giống compute + ép 1 dòng (ellipsis)
+  const roBox = "bg-gray-100 dark:bg-dark-800 text-gray-600 px-2 py-1 rounded";
+  const roOneLine = `${roBox} block w-full min-w-0 whitespace-nowrap overflow-hidden text-ellipsis`;
+
+  const getSelectLabel = (col, val) =>
+    (col.options || []).find((o) => String(o.value) === String(val))?.label ?? "";
 
   return (
     <div className="mt-6">
@@ -53,53 +107,121 @@ export default function Notebook({ name = "transactions", editable = true, form,
               <tr key={field.id} className="border-t">
                 {columns.map((col) => {
                   const isCompute = col.type === "compute";
+                  const path = `${name}.${index}.${col.name}`;
+                  const watched = form.watch(path);
+
                   return (
                     <td key={col.name} className="px-3 py-2">
                       {isCompute ? (
-                        <div className="bg-gray-100 dark:bg-dark-800 text-gray-600 px-2 py-1 rounded">
-                          {form.watch(`${name}.${index}.${col.name}`) ?? ""}
+                        <div className={roBox}>
+                          {(() => {
+                            const v = watched;
+                            if (typeof v === "number") return formatNumber(v);
+                            const maybe = parseNumber(v);
+                            return maybe === null ? (v ?? "") : formatNumber(maybe);
+                          })()}
                         </div>
                       ) : col.type === "date" ? (
-                        <Controller
-                          control={control}
-                          name={`${name}.${index}.${col.name}`}
-                          render={({ field: { value, onChange, ...rest } }) => (
-                            <DatePicker
-                              value={value || ""}
-                              onChange={onChange}
-                              placeholder="Chọn ngày..."
-                              className="w-full"
-                              options={{ disableMobile: true }}
-                              {...rest}
-                            />
-                          )}
-                        />
+                        editable ? (
+                          <Controller
+                            control={control}
+                            name={path}
+                            render={({ field: { value, onChange, ...rest } }) => (
+                              <DatePicker
+                                value={value || ""}
+                                onChange={onChange}
+                                placeholder="Chọn ngày..."
+                                className="w-full"
+                                options={{ disableMobile: true, dateFormat: "d/m/Y" }}
+                                {...rest}
+                              />
+                            )}
+                          />
+                        ) : (
+                          <div className={roOneLine}>{formatDateDisplay(watched)}</div>
+                        )
                       ) : col.type === "select" ? (
-                        <select
-                          className="w-full rounded border px-2 py-1"
-                          {...register(`${name}.${index}.${col.name}`)}
-                        >
-                          <option value="">-- Chọn --</option>
-                          {(col.options || []).map((opt) => (
-                            <option key={opt.value} value={opt.value}>
-                              {opt.label}
-                            </option>
-                          ))}
-                        </select>
+                        editable ? (
+                          <select
+                            className="w-full rounded border px-2 py-1"
+                            {...form.register(path)}
+                          >
+                            <option value="">-- Chọn --</option>
+                            {(col.options || []).map((opt) => (
+                              <option key={opt.value} value={opt.value}>
+                                {opt.label}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <div className={roOneLine}>{getSelectLabel(col, watched)}</div>
+                        )
                       ) : col.type === "textarea" ? (
-                        <Textarea
-                          className="w-full rounded border px-2 py-1"
-                          rows={2}
-                          {...register(`${name}.${index}.${col.name}`)}
-                        />
+                        editable ? (
+                          <Textarea
+                            className="w-full rounded border px-2 py-1"
+                            rows={2}
+                            {...form.register(path)}
+                          />
+                        ) : (
+                          // textarea read-only vẫn cho nhiều dòng
+                          <div className={clsx(roBox, "whitespace-pre-line")}>
+                            {watched || ""}
+                          </div>
+                        )
+                      ) : col.type === "number" ? (
+                        editable ? (
+                          <Controller
+                            control={control}
+                            name={path}
+                            render={({ field: { value, onChange, onBlur, ref } }) => {
+                              const display = formatNumber(value);
+                              return (
+                                <Input
+                                  type="text"
+                                  className="w-full"
+                                  value={display}
+                                  onKeyDown={allowNumericKeystroke}
+                                  onChange={(e) => {
+                                    const raw = e.target.value;
+                                    const parsed = parseNumber(raw);
+                                    if (raw.trim() === "") onChange("");
+                                    else if (parsed !== null) onChange(parsed);
+                                  }}
+                                  onBlur={(e) => {
+                                    const parsed = parseNumber(e.target.value);
+                                    if (parsed === null) onChange("");
+                                    else onChange(parsed);
+                                    onBlur?.();
+                                  }}
+                                  ref={ref}
+                                  inputMode="decimal"
+                                  placeholder="0"
+                                />
+                              );
+                            }}
+                          />
+                        ) : (
+                          <div className={roOneLine}>
+                            {(() => {
+                              const v = watched;
+                              if (typeof v === "number") return formatNumber(v);
+                              const maybe = parseNumber(v);
+                              return maybe === null ? (v ?? "") : formatNumber(maybe);
+                            })()}
+                          </div>
+                        )
                       ) : (
-                        <Input
-                          type={col.type || "text"}
-                          className="w-full"
-                          {...register(`${name}.${index}.${col.name}`, {
-                            valueAsNumber: col.type === "number",
-                          })}
-                        />
+                        editable ? (
+                          <Input
+                            type={col.type || "text"}
+                            className="w-full"
+                            {...register(path)}
+                          />
+                        ) : (
+                          // text read-only: ép 1 dòng
+                          <div className={roOneLine}>{watched || ""}</div>
+                        )
                       )}
                     </td>
                   );

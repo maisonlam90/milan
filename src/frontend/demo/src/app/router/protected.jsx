@@ -741,6 +741,19 @@ const protectedRoutes = {
                 Component: (await import("app/pages/dashboards/acl")).default,
               }),
             },
+
+            {
+              path: "contact/contact-list",
+              lazy: async () => ({
+                Component: (await import("app/pages/dashboards/contact-list")).default,
+              }),
+            },
+            {
+              path: "contact/contact-create",
+              lazy: async () => ({
+                Component: (await import("app/pages/dashboards/contact-create")).default,
+              }),
+            },
       
             {
               path: "loan/loan-1",

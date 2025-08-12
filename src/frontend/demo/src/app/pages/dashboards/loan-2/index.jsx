@@ -19,6 +19,8 @@ export default function LoanPage() {
   const [loadingLoan, setLoadingLoan] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [localLoanId, setLocalLoanId] = useState(null);
+  const [saving, setSaving] = useState(false);
+
   const form = useForm();
   const token = localStorage.getItem("authToken");
   const query = useQuery();
@@ -47,7 +49,9 @@ export default function LoanPage() {
   const fetchLoan = useCallback(
     async (id = loanId) => {
       if (!id) {
+        // Không có id → đang tạo mới
         setIsEditing(true);
+        form.reset({}); // clear form để tránh dính dữ liệu cũ
         return;
       }
       setLoadingLoan(true);
@@ -75,11 +79,15 @@ export default function LoanPage() {
   const onSubmit = async (data) => {
     const payload = {
       ...data,
-      date_start: new Date(data.date_start).toISOString(),
+      date_start: data.date_start ? new Date(data.date_start).toISOString() : null,
       date_end: data.date_end ? new Date(data.date_end).toISOString() : null,
-      principal: parseInt(data.principal, 10),
-      collateral_value: data.collateral_value ? parseInt(data.collateral_value, 10) : 0,
-      interest_rate: parseFloat(data.interest_rate),
+      principal: data.principal !== undefined ? parseInt(data.principal, 10) : 0,
+      collateral_value:
+        data.collateral_value !== undefined ? parseInt(data.collateral_value, 10) : 0,
+      interest_rate:
+        data.interest_rate !== undefined && data.interest_rate !== ""
+          ? parseFloat(data.interest_rate)
+          : 0,
     };
 
     if (Array.isArray(data.transactions)) {
@@ -90,12 +98,21 @@ export default function LoanPage() {
     }
 
     try {
+      setSaving(true);
+
       if (loanId) {
+        // ✅ Cập nhật: KHÔNG reset theo res.data để tránh clear form
         await api.post(`/loan/${loanId}/update`, payload, {
           headers: { Authorization: `Bearer ${token}` },
         });
+
+        // Luôn refetch để đồng bộ lại dữ liệu (kể cả các field compute từ server)
+        await fetchLoan(loanId);
+
+        // Thoát chế độ chỉnh sửa sau khi đã refetch xong
         setIsEditing(false);
       } else {
+        // ✅ Tạo hợp đồng mới
         const res = await api.post(
           "/loan/create",
           { ...payload, state: "draft" },
@@ -104,14 +121,16 @@ export default function LoanPage() {
         const newId = res.data?.contract_id;
         if (newId) {
           setLocalLoanId(newId);
+          await fetchLoan(newId); // nạp lại dữ liệu chuẩn
           setIsEditing(false);
-          await fetchLoan(newId);
         } else {
           alert("❌ Không lấy được ID hợp đồng mới");
         }
       }
     } catch (err) {
       alert("❌ Lỗi lưu hợp đồng: " + (err.response?.data || err.message));
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -149,7 +168,12 @@ export default function LoanPage() {
             )}
             {isEditing && (
               <>
-                <Button className="min-w-[7rem]" variant="outlined" onClick={() => fetchLoan()}>
+                <Button
+                  className="min-w-[7rem]"
+                  variant="outlined"
+                  onClick={() => fetchLoan()}
+                  disabled={saving}
+                >
                   Hủy
                 </Button>
                 {loanId && (
@@ -157,12 +181,19 @@ export default function LoanPage() {
                     className="min-w-[7rem] text-white"
                     style={{ backgroundColor: "#8B0000" }}
                     onClick={handleDelete}
+                    disabled={saving}
                   >
                     Xóa
                   </Button>
                 )}
-                <Button className="min-w-[7rem]" color="primary" type="submit" form="loan-form">
-                  Lưu
+                <Button
+                  className="min-w-[7rem]"
+                  color="primary"
+                  type="submit"
+                  form="loan-form"
+                  disabled={saving}
+                >
+                  {saving ? "Đang lưu..." : "Lưu"}
                 </Button>
               </>
             )}
@@ -209,16 +240,20 @@ export default function LoanPage() {
                 </h6>
                 <div className="mt-4 space-y-2 text-sm text-gray-600 dark:text-dark-50">
                   <div>
-                    Gốc còn lại: {form.watch("current_principal")?.toLocaleString?.() || 0} VNĐ
+                    Gốc còn lại: {form.watch("current_principal")?.toLocaleString?.("vi-VN") || 0}{" "}
+                    VNĐ
                   </div>
                   <div>
-                    Lãi hiện tại: {form.watch("current_interest")?.toLocaleString?.() || 0} VNĐ
+                    Lãi hiện tại: {form.watch("current_interest")?.toLocaleString?.("vi-VN") || 0}{" "}
+                    VNĐ
                   </div>
                   <div>
-                    Lãi tích lũy: {form.watch("accumulated_interest")?.toLocaleString?.() || 0} VNĐ
+                    Lãi tích lũy:{" "}
+                    {form.watch("accumulated_interest")?.toLocaleString?.("vi-VN") || 0} VNĐ
                   </div>
                   <div>
-                    Tổng lãi đã trả: {form.watch("total_paid_interest")?.toLocaleString?.() || 0} VNĐ
+                    Tổng lãi đã trả:{" "}
+                    {form.watch("total_paid_interest")?.toLocaleString?.("vi-VN") || 0} VNĐ
                   </div>
                 </div>
               </Card>

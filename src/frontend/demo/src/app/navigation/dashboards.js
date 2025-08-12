@@ -56,6 +56,30 @@ export const dashboards = {
             Icon: PeopleIcon,
         },
         {
+            id: 'dashboards.contact',
+            path: path(ROOT_DASHBOARDS, '/contact'),
+            type: NAV_TYPE_COLLAPSE,
+            title: 'Contact',
+            transKey: 'nav.dashboards.contact',
+            Icon: PeopleIcon,
+            childs: [
+                {
+                    id: 'dashboards.contact-list',
+                    type: NAV_TYPE_ITEM,
+                    path: path(ROOT_DASHBOARDS, '/contact/contact-list'),
+                    title: 'contact list',
+                    transKey: 'nav.dashboards.contact-list',
+                },
+                {
+                    id: 'dashboards.contact-create',
+                    type: NAV_TYPE_ITEM,
+                    path: path(ROOT_DASHBOARDS, '/contact/contact-create'),
+                    title: 'contact create',
+                    transKey: 'nav.dashboards.contact-create',
+                },
+            ],
+        },
+        {
             id: 'dashboards.loan',
             path: path(ROOT_DASHBOARDS, '/loan'),
             type: NAV_TYPE_COLLAPSE,

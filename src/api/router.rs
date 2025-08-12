@@ -38,6 +38,9 @@ pub fn build_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
         // 🛡️ Route module loan
         .merge(crate::module::loan::router::routes())
 
+        // 🛡️ Route module loan
+        .merge(crate::module::contact::router::routes())
+
         // 📋 Route public lấy danh sách module khả dụng
         .route("/available-modules", get(available::get_available_modules))
 

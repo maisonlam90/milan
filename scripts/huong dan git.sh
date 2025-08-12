@@ -1,9 +1,7 @@
 day code len github
-# Bước 1: thêm tất cả thay đổi
+
 git add .                          
-# Bước 2: ghi chú commit
-git commit -m "tao dynamic list , dynamic form"   
-# Bước 3: đẩy lên nhánh chính (main)
+git commit -m "chinh lai giao dien dynamicform va notebook cho dep"   
 git push origin main              
 # Bước 4:dien tai khoan va pass
 maisonlam90
