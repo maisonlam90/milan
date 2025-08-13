@@ -22,7 +22,7 @@ pub async fn create_contract(
         LoanContract,
         r#"
         INSERT INTO loan_contract (
-            tenant_id, customer_id, name, principal, interest_rate, term_months,
+            tenant_id, contact_id, name, principal, interest_rate, term_months,
             date_start, date_end, collateral_description, collateral_value,
             storage_fee_rate, storage_fee, current_principal, current_interest,
             accumulated_interest, total_paid_interest, total_settlement_amount, state
@@ -31,14 +31,14 @@ pub async fn create_contract(
             $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,
             $11,$12,$13,$14,$15,$16,$17,$18
         )
-        RETURNING id, tenant_id, customer_id, name, principal, interest_rate, term_months,
+        RETURNING id, tenant_id, contact_id, name, principal, interest_rate, term_months,
                   date_start, date_end, collateral_description, collateral_value,
                   storage_fee_rate, storage_fee, current_principal, current_interest,
                   accumulated_interest, total_paid_interest, total_settlement_amount,
                   state, created_at, updated_at
         "#,
         tenant_id,
-        input.customer_id,
+        input.contact_id,
         input.name,
         input.principal,
         input.interest_rate,
@@ -59,16 +59,14 @@ pub async fn create_contract(
     .fetch_one(&mut *tx)
     .await?;
 
-    // 🚫 Không ghi các trường tính toán của transaction
     for t in input.transactions.iter() {
         let date_parsed = epoch_to_utc(t.date)?;
 
         sqlx::query!(
             r#"
             INSERT INTO loan_transaction (
-                id, contract_id, tenant_id, customer_id,
+                id, contract_id, tenant_id, contact_id,
                 transaction_type, amount, date, note
-                -- interest_for_period, accumulated_interest, principal_balance bỏ qua vì là computed
             )
             VALUES (
                 uuid_generate_v4(), $1, $2, $3,
@@ -77,7 +75,7 @@ pub async fn create_contract(
             "#,
             contract.id,
             tenant_id,
-            input.customer_id,
+            input.contact_id,
             t.transaction_type,
             t.amount,
             date_parsed,
@@ -104,7 +102,7 @@ pub async fn update_contract(
         r#"
         UPDATE loan_contract
         SET
-            customer_id = $1,
+            contact_id = $1,
             name = $2,
             principal = $3,
             interest_rate = $4,
@@ -115,13 +113,13 @@ pub async fn update_contract(
             collateral_value = $9,
             updated_at = NOW()
         WHERE id = $10 AND tenant_id = $11
-        RETURNING id, tenant_id, customer_id, name, principal, interest_rate, term_months,
+        RETURNING id, tenant_id, contact_id, name, principal, interest_rate, term_months,
                   date_start, date_end, collateral_description, collateral_value,
                   storage_fee_rate, storage_fee, current_principal, current_interest,
                   accumulated_interest, total_paid_interest, total_settlement_amount,
                   state, created_at, updated_at
         "#,
-        input.customer_id,
+        input.contact_id,
         input.name,
         input.principal,
         input.interest_rate,
@@ -136,7 +134,6 @@ pub async fn update_contract(
     .fetch_one(&mut *tx)
     .await?;
 
-    // reset toàn bộ dòng giao dịch rồi insert lại dữ liệu gốc
     sqlx::query!(
         "DELETE FROM loan_transaction WHERE contract_id = $1 AND tenant_id = $2",
         contract_id,
@@ -151,9 +148,8 @@ pub async fn update_contract(
         sqlx::query!(
             r#"
             INSERT INTO loan_transaction (
-                id, contract_id, tenant_id, customer_id,
+                id, contract_id, tenant_id, contact_id,
                 transaction_type, amount, date, note
-                -- interest_for_period, accumulated_interest, principal_balance bỏ qua vì là computed
             )
             VALUES (
                 uuid_generate_v4(), $1, $2, $3,
@@ -162,7 +158,7 @@ pub async fn update_contract(
             "#,
             contract_id,
             tenant_id,
-            input.customer_id,
+            input.contact_id,
             t.transaction_type,
             t.amount,
             date_parsed,

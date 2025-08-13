@@ -7,7 +7,7 @@ pub async fn list_contracts(pool: &PgPool, tenant_id: Uuid) -> sqlx::Result<Vec<
     let contracts = sqlx::query_as!(
         LoanContract,
         r#"
-        SELECT id, tenant_id, customer_id, name, principal, interest_rate, term_months,
+        SELECT id, tenant_id, contact_id, name, principal, interest_rate, term_months,
                date_start, date_end, collateral_description, collateral_value,
                storage_fee_rate, storage_fee, current_principal, current_interest,
                accumulated_interest, total_paid_interest, total_settlement_amount,
@@ -32,7 +32,7 @@ pub async fn get_contract_by_id(
     let contract = sqlx::query_as!(
         LoanContract,
         r#"
-        SELECT id, tenant_id, customer_id, name, principal, interest_rate, term_months,
+        SELECT id, tenant_id, contact_id, name, principal, interest_rate, term_months,
                date_start, date_end, collateral_description, collateral_value,
                storage_fee_rate, storage_fee, current_principal, current_interest,
                accumulated_interest, total_paid_interest, total_settlement_amount,
@@ -63,7 +63,7 @@ pub async fn get_transactions_by_contract(
             lt.id,
             lt.contract_id,
             lt.tenant_id,
-            lt.customer_id,
+            lt.contact_id,
             lt.transaction_type,
             lt.amount,
             lt.date,

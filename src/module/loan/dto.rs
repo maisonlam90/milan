@@ -4,7 +4,7 @@ use chrono::{DateTime, Utc};
 
 #[derive(Debug, Deserialize)]
 pub struct CreateContractInput {
-    pub customer_id: Uuid,
+    pub contact_id: Uuid,
     pub name: String,
     pub principal: i64,
     pub interest_rate: f64,
@@ -31,11 +31,8 @@ pub struct TransactionInput {
     pub amount: i64,
     pub note: Option<String>,
 
-    // ⛔ Client gửi gì cũng bị bỏ qua, luôn default None
     #[serde(skip_deserializing, default)]
     pub days_from_prev: Option<i32>,
-
-    // (tương tự – nếu đây cũng là trường tính)
     #[serde(skip_deserializing, default)]
     pub interest_for_period: Option<i64>,
     #[serde(skip_deserializing, default)]
@@ -47,7 +44,7 @@ pub struct TransactionInput {
 // === DTO trả ra Frontend (view) ===
 #[derive(Debug, Serialize)]
 pub struct ContractView {
-    pub customer_id: Uuid,
+    pub contact_id: Uuid,
     pub name: String,
     pub principal: i64,
     pub interest_rate: f64,
@@ -73,7 +70,7 @@ pub struct TransactionView {
     pub transaction_type: String,
     pub amount: i64,
     pub note: Option<String>,
-    pub days_from_prev: i32,    // ✅ backend tính và trả về
+    pub days_from_prev: i32,
     pub interest_for_period: Option<i64>,
     pub accumulated_interest: Option<i64>,
     pub principal_balance: Option<i64>,

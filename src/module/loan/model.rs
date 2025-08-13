@@ -6,7 +6,7 @@ use chrono::{DateTime, Utc};
 pub struct LoanContract {
     pub id: Uuid,
     pub tenant_id: Uuid,
-    pub customer_id: Uuid,
+    pub contact_id: Uuid,
     pub name: String,
 
     /// Gốc ban đầu khi tạo hợp đồng
@@ -67,7 +67,7 @@ pub struct LoanTransaction {
     pub id: Uuid,
     pub contract_id: Uuid,
     pub tenant_id: Uuid,
-    pub customer_id: Uuid,
+    pub contact_id: Uuid,
 
     /// disbursement | additional | interest | principal | liquidation | settlement
     pub transaction_type: String,

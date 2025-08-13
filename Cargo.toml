@@ -30,3 +30,4 @@ uuid = { version = "1", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 bcrypt = "0.15"
 jsonwebtoken = "9"
+chrono-tz = "0.8"
