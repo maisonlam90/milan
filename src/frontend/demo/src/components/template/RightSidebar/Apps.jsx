@@ -10,7 +10,7 @@ import {
 
 // Local Imports
 import { Avatar } from "components/ui";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 // ----------------------------------------------------------------------
 

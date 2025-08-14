@@ -4,7 +4,7 @@ import clsx from "clsx";
 import dayjs from "dayjs";
 import { StarIcon, EllipsisHorizontalIcon } from "@heroicons/react/24/outline";
 import { StarIcon as StarIconSolid } from "@heroicons/react/24/solid";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 // Local Imports
 import { Avatar, Badge, Button, Checkbox } from "components/ui";

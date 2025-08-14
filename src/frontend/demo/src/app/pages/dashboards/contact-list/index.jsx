@@ -1,5 +1,6 @@
 // src/app/pages/dashboards/contact-list/index.jsx
 import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ import thêm
 import { Page } from "components/shared/Page";
 import { Breadcrumbs } from "components/shared/Breadcrumbs";
 import axios from "axios";
@@ -27,6 +28,7 @@ export default function ContactListPage() {
   const [rows, setRows] = useState([]);
   const [metadata, setMetadata] = useState(initialMetadata);
   const token = localStorage.getItem("authToken");
+  const navigate = useNavigate(); // ✅ hook điều hướng
 
   const fetchMetadata = useCallback(async () => {
     try {
@@ -63,16 +65,14 @@ export default function ContactListPage() {
     fetchList();
   }, [fetchMetadata, fetchList]);
 
-  // 👉 Click row → trang contact-create (giống loan-2)
   const handleRowClick = (row) => {
     if (!row.id) {
       alert("⚠️ Không tìm thấy ID liên hệ");
       return;
     }
-    window.location.href = `/dashboards/contact/contact-create?id=${row.id}`;
+    navigate(`/dashboards/contact/contact-create?id=${row.id}`); // ✅ dùng navigate
   };
 
-  // DynamicList dùng col.key → map từ name → key
   const columnsForList =
     metadata?.list?.columns?.map((c) => ({ ...c, key: c.key ?? c.name })) ?? [];
 
@@ -93,7 +93,7 @@ export default function ContactListPage() {
           <div className="flex items-center gap-2">
             <Button
               color="primary"
-              onClick={() => (window.location.href = "/dashboards/contact/contact-create")}
+              onClick={() => navigate("/dashboards/contact/contact-create")} // ✅ dùng navigate
             >
               + Tạo liên hệ
             </Button>

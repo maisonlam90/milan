@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
+import { useSearchParams } from "react-router-dom"; // ✅ Thêm dòng này
 import { Page } from "components/shared/Page";
 import axios from "axios";
 import { JWT_HOST_API } from "configs/auth.config";
@@ -7,10 +8,6 @@ import { Card, Button } from "components/ui";
 import DynamicForm from "components/shared/DynamicForm";
 
 const api = axios.create({ baseURL: JWT_HOST_API });
-
-function useQuery() {
-  return new URLSearchParams(window.location.search);
-}
 
 export default function ContactCreatePage() {
   const [metadata, setMetadata] = useState(null);
@@ -22,10 +19,9 @@ export default function ContactCreatePage() {
 
   const form = useForm();
   const token = localStorage.getItem("authToken");
-  const query = useQuery();
-  const contactId = query.get("id") || localContactId;
+  const [searchParams] = useSearchParams(); // ✅ Dùng hook
+  const contactId = searchParams.get("id") || localContactId;
 
-  // --- Metadata (public)
   const fetchMetadata = useCallback(async () => {
     try {
       const res = await api.get("/contact/metadata");
@@ -35,7 +31,6 @@ export default function ContactCreatePage() {
     }
   }, []);
 
-  // --- Danh sách công ty để chọn parent_id
   const fetchCompanies = useCallback(async () => {
     try {
       const res = await api.get("/contact/list", {
@@ -49,14 +44,11 @@ export default function ContactCreatePage() {
     }
   }, [token]);
 
-  // --- Lấy chi tiết contact (nếu có id) hoặc chuyển sang chế độ tạo mới
   const fetchContact = useCallback(
     async (id = contactId) => {
       if (!id) {
         setIsEditing(true);
-        form.reset({
-          is_company: false,
-        });
+        form.reset({ is_company: false });
         return;
       }
       setLoadingContact(true);
@@ -72,10 +64,7 @@ export default function ContactCreatePage() {
                 .map((s) => s.trim())
                 .filter(Boolean)
             : [];
-        form.reset({
-          ...dto,
-          tags: tagsArray, // prefill cho DynamicForm(type:"tags")
-        });
+        form.reset({ ...dto, tags: tagsArray });
         setIsEditing(false);
       } catch (err) {
         alert("❌ Lỗi load liên hệ: " + (err.response?.data || err.message));
@@ -93,7 +82,6 @@ export default function ContactCreatePage() {
   }, [fetchMetadata, fetchCompanies, fetchContact]);
 
   const onSubmit = async (data) => {
-    // Chuẩn hoá payload cho backend contact
     const payload = {
       is_company: !!data.is_company,
       parent_id: data.parent_id || null,

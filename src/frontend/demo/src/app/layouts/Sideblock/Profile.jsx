@@ -11,7 +11,7 @@ import {
   Cog6ToothIcon,
 } from "@heroicons/react/24/outline";
 import { TbCoins, TbUser, TbUsersGroup } from "react-icons/tb";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 // Local Imports
 import { Avatar, AvatarDot, Button } from "components/ui";

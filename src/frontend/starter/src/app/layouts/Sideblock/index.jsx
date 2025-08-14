@@ -1,5 +1,5 @@
 // Import Dependencies
-import { Outlet } from "react-router";
+import { Outlet } from "react-router-dom";
 
 // Local Imports
 import { Sidebar } from "./Sidebar";

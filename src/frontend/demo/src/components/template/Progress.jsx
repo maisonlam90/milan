@@ -1,5 +1,5 @@
 // Import Dependencies
-import { useNavigation } from "react-router";
+import { useNavigation } from "react-router-dom";
 
 // Local Imports
 import { NProgress } from "components/shared/NProgress";

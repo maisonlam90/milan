@@ -1,5 +1,5 @@
 // Import Dependencies
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 // Local Imports
 import Galaxy from "assets/illustrations/galaxy.svg?react";

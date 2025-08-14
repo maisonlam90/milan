@@ -21,7 +21,7 @@ import {
 import { IoCheckmarkDoneOutline } from "react-icons/io5";
 import clsx from "clsx";
 import { Fragment, useState } from "react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 // Local Imports
 import { Avatar, AvatarDot, Badge, Button } from "components/ui";

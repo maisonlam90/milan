@@ -8,7 +8,7 @@ import {
   ClockIcon,
   EllipsisVerticalIcon,
 } from "@heroicons/react/24/outline";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 
 // Local Imports
 import { Button } from "components/ui";

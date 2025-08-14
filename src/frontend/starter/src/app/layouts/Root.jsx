@@ -1,5 +1,5 @@
 // Import Dependencies
-import { Outlet, ScrollRestoration } from "react-router";
+import { Outlet, ScrollRestoration } from "react-router-dom";
 import { lazy } from "react";
 
 // Local Imports

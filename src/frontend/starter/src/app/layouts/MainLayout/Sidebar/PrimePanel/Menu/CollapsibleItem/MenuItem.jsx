@@ -1,7 +1,7 @@
 // Import Dependencies
 import PropTypes from "prop-types";
 import clsx from "clsx";
-import { NavLink, useRouteLoaderData } from "react-router";
+import { NavLink, useRouteLoaderData } from "react-router-dom";
 
 // Local Imports
 import { Badge } from "components/ui";

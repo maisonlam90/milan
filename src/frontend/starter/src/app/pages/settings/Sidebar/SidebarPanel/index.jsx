@@ -2,7 +2,7 @@
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { ChatBubbleBottomCenterIcon } from "@heroicons/react/24/outline";
-import { NavLink } from "react-router";
+import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 // Local Imports

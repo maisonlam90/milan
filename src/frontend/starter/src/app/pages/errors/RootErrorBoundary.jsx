@@ -1,5 +1,5 @@
 // Import Depndencies
-import { isRouteErrorResponse, useRouteError } from "react-router";
+import { isRouteErrorResponse, useRouteError } from "react-router-dom";
 import { lazy } from "react";
 
 // Local Imports

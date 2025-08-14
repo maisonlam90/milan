@@ -1,6 +1,6 @@
 // Import Dependencies
 import PropTypes from "prop-types";
-import { NavLink } from "react-router";
+import { NavLink } from "react-router-dom";
 import clsx from "clsx";
 import {
   Bars2Icon,

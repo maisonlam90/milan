@@ -1,5 +1,5 @@
 // Import Dependencies
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import Confetti from "react-confetti";
 import { useState, useEffect, useRef } from "react";
 

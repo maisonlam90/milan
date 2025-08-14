@@ -1,4 +1,4 @@
-import { matchPath } from "react-router";
+import { matchPath } from "react-router-dom";
 
 /**
  * Checks if the given path matches the current pathname.

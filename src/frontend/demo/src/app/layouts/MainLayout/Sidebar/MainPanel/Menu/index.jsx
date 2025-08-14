@@ -1,7 +1,7 @@
 // Import Dependencies
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 // Local Imports
 import { NAV_TYPE_ITEM } from "constants/app.constant";

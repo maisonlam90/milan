@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Page } from "components/shared/Page";
 import axios from "axios";
@@ -9,22 +10,34 @@ import Notebook from "components/shared/Notebook";
 
 const api = axios.create({ baseURL: JWT_HOST_API });
 
-function useQuery() {
-  return new URLSearchParams(window.location.search);
-}
-
 export default function LoanPage() {
+  const navigate = useNavigate();
+  const { state } = useLocation();
+  const [search] = useSearchParams();
+  const urlId = search.get("id");
+
   const [metadata, setMetadata] = useState(null);
   const [customers, setCustomers] = useState([]);
-  const [loadingLoan, setLoadingLoan] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  const [loadingLoan, setLoadingLoan] = useState(!state?.preview);
+  const [isEditing, setIsEditing] = useState(!urlId);
   const [localLoanId, setLocalLoanId] = useState(null);
   const [saving, setSaving] = useState(false);
 
   const form = useForm();
   const token = localStorage.getItem("authToken");
-  const query = useQuery();
-  const loanId = query.get("id") || localLoanId;
+  const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
+  const loanId = urlId || localLoanId;
+
+  useEffect(() => {
+    if (state?.preview) {
+      form.reset(state.preview);
+      setLoadingLoan(false);
+      setIsEditing(false);
+      if (state.preview?.id) {
+        sessionStorage.setItem(`loan_preview_${state.preview.id}`, JSON.stringify(state.preview));
+      }
+    }
+  }, [state?.preview]);
 
   const fetchMetadata = useCallback(async () => {
     try {
@@ -37,32 +50,34 @@ export default function LoanPage() {
 
   const fetchCustomers = useCallback(async () => {
     try {
-      const res = await api.get("/user/users", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get("/contact/list", { headers: authHeader });
       setCustomers(res.data || []);
     } catch (err) {
-      console.error("❌ Lỗi load customers:", err);
+      console.error("❌ Lỗi load contact:", err);
     }
   }, [token]);
 
   const fetchLoan = useCallback(
     async (id = loanId) => {
       if (!id) {
-        // Không có id → đang tạo mới
         setIsEditing(true);
-        form.reset({}); // clear form để tránh dính dữ liệu cũ
+        form.reset({});
+        setLoadingLoan(false);
         return;
       }
+
       setLoadingLoan(true);
       try {
-        const res = await api.get(`/loan/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await api.get(`/loan/${id}`, { headers: authHeader });
         form.reset(res.data);
         setIsEditing(false);
       } catch (err) {
-        alert("❌ Lỗi load hợp đồng: " + (err.response?.data || err.message));
+        const cached = sessionStorage.getItem(`loan_preview_${id}`);
+        if (cached) {
+          form.reset(JSON.parse(cached));
+        } else {
+          alert("❌ Lỗi load hợp đồng: " + (err.response?.data || err.message));
+        }
       } finally {
         setLoadingLoan(false);
       }
@@ -101,28 +116,19 @@ export default function LoanPage() {
       setSaving(true);
 
       if (loanId) {
-        // ✅ Cập nhật: KHÔNG reset theo res.data để tránh clear form
-        await api.post(`/loan/${loanId}/update`, payload, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        // Luôn refetch để đồng bộ lại dữ liệu (kể cả các field compute từ server)
+        await api.post(`/loan/${loanId}/update`, payload, { headers: authHeader });
         await fetchLoan(loanId);
-
-        // Thoát chế độ chỉnh sửa sau khi đã refetch xong
         setIsEditing(false);
       } else {
-        // ✅ Tạo hợp đồng mới
-        const res = await api.post(
-          "/loan/create",
-          { ...payload, state: "draft" },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        const res = await api.post("/loan/create", { ...payload, state: "draft" }, { headers: authHeader });
         const newId = res.data?.contract_id;
         if (newId) {
           setLocalLoanId(newId);
-          await fetchLoan(newId); // nạp lại dữ liệu chuẩn
+          await fetchLoan(newId);
           setIsEditing(false);
+          const params = new URLSearchParams(location.search);
+          params.set("id", newId);
+          navigate({ search: `?${params.toString()}` }, { replace: true });
         } else {
           alert("❌ Không lấy được ID hợp đồng mới");
         }
@@ -136,13 +142,10 @@ export default function LoanPage() {
 
   const handleDelete = async () => {
     if (!loanId) return;
-    const confirmDelete = window.confirm("Bạn có chắc muốn xóa hợp đồng này?");
-    if (!confirmDelete) return;
+    if (!window.confirm("Bạn có chắc muốn xóa hợp đồng này?")) return;
     try {
-      await api.delete(`/loan/${loanId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      window.location.href = "/dashboards/loan/loan-1";
+      await api.delete(`/loan/${loanId}`, { headers: authHeader });
+      navigate("/dashboards/loan/loan-1");
     } catch (err) {
       alert("❌ Lỗi xóa hợp đồng: " + (err.response?.data || err.message));
     }
@@ -200,7 +203,6 @@ export default function LoanPage() {
           </div>
         </div>
 
-        {/* ✅ Luôn render form; bỏ chặn “Đang tải form…” */}
         <form autoComplete="off" onSubmit={form.handleSubmit(onSubmit)} id="loan-form">
           <div className="grid grid-cols-12 place-content-start gap-4 sm:gap-5 lg:gap-6">
             <div className="col-span-12 lg:col-span-8">
@@ -213,9 +215,9 @@ export default function LoanPage() {
                     form={form}
                     fields={metadata?.form?.fields || []}
                     optionsMap={{
-                      customer_id: (customers || []).map((c) => ({
-                        value: c.id || c.user_id,
-                        label: c.email || c.username || c.full_name,
+                      contact_id: (customers || []).map((c) => ({
+                        value: c.id,
+                        label: c.display_name || c.name || c.email || c.phone,
                       })),
                     }}
                     disabled={!isEditing}
@@ -240,20 +242,16 @@ export default function LoanPage() {
                 </h6>
                 <div className="mt-4 space-y-2 text-sm text-gray-600 dark:text-dark-50">
                   <div>
-                    Gốc còn lại: {form.watch("current_principal")?.toLocaleString?.("vi-VN") || 0}{" "}
-                    VNĐ
+                    Gốc còn lại: {form.watch("current_principal")?.toLocaleString?.("vi-VN") || 0} VNĐ
                   </div>
                   <div>
-                    Lãi hiện tại: {form.watch("current_interest")?.toLocaleString?.("vi-VN") || 0}{" "}
-                    VNĐ
+                    Lãi hiện tại: {form.watch("current_interest")?.toLocaleString?.("vi-VN") || 0} VNĐ
                   </div>
                   <div>
-                    Lãi tích lũy:{" "}
-                    {form.watch("accumulated_interest")?.toLocaleString?.("vi-VN") || 0} VNĐ
+                    Lãi tích lũy: {form.watch("accumulated_interest")?.toLocaleString?.("vi-VN") || 0} VNĐ
                   </div>
                   <div>
-                    Tổng lãi đã trả:{" "}
-                    {form.watch("total_paid_interest")?.toLocaleString?.("vi-VN") || 0} VNĐ
+                    Tổng lãi đã trả: {form.watch("total_paid_interest")?.toLocaleString?.("vi-VN") || 0} VNĐ
                   </div>
                 </div>
               </Card>

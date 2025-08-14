@@ -8,7 +8,7 @@ import {
 import { FaMoneyBillWave } from "react-icons/fa";
 import { FaN, FaCar, FaShapes } from "react-icons/fa6";
 import { RiRobot2Line } from "react-icons/ri";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 // Local Imports
 import { Page } from "components/shared/Page";

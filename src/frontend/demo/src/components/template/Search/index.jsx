@@ -18,7 +18,7 @@ import {
   RocketLaunchIcon,
 } from "@heroicons/react/24/outline";
 import invariant from "tiny-invariant";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import { useHotkeys } from "react-hotkeys-hook";
 
 // Local Imports

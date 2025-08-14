@@ -1,5 +1,5 @@
 // Import Dependencies
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter } from "react-router-dom";
 
 // Local Imports
 import Root from "app/layouts/Root";

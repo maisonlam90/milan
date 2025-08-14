@@ -2,7 +2,7 @@
 import PropTypes from "prop-types";
 import { toast } from "sonner";
 import { ChevronRightIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 
 // Local Imports
 import { Button } from "components/ui";

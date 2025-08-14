@@ -110,7 +110,7 @@ const dependencies = [
     url: "https://remarkjs.github.io/react-markdown/",
   },
   {
-    label: "react-router",
+    label: "react-router-dom",
     url: "https://reactrouter.com/",
   },
   {

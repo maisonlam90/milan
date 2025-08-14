@@ -1,5 +1,5 @@
 // Import Dependencies
-import { Routes, Route, Navigate } from "react-router";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 // Local Imports
 import { routes } from "./routes";

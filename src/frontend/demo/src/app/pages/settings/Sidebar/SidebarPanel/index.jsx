@@ -6,7 +6,7 @@ import {
   DocumentMagnifyingGlassIcon,
   QuestionMarkCircleIcon,
 } from "@heroicons/react/24/outline";
-import { Link, NavLink } from "react-router";
+import { Link, NavLink } from "react-router-dom";
 
 // Local Imports
 import { Header } from "./Header";

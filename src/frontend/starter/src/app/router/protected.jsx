@@ -1,5 +1,5 @@
 // Import Dependencies
-import { Navigate } from "react-router";
+import { Navigate } from "react-router-dom";
 
 // Local Imports
 import { AppLayout } from "app/layouts/AppLayout";

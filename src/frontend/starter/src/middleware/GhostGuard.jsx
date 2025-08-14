@@ -1,5 +1,5 @@
 // Import Dependencies
-import { Navigate, useOutlet } from "react-router";
+import { Navigate, useOutlet } from "react-router-dom";
 
 // Local Imports
 import { useAuthContext } from "app/contexts/auth/context";

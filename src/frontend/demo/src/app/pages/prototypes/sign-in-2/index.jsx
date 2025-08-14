@@ -1,6 +1,6 @@
 // Local Imports
 import { EnvelopeIcon, LockClosedIcon } from "@heroicons/react/24/outline";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 // Import Dependencies
 import Logo from "assets/appLogo.svg?react";

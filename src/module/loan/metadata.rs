@@ -4,7 +4,7 @@ pub fn loan_form_schema() -> serde_json::Value {
     json!({
         "form": {
             "fields": [
-                { "name": "customer_id", "label": "Khách hàng", "type": "select", "width": 12 },
+                { "name": "contact_id", "label": "Khách hàng", "type": "select", "width": 12 },
                 { "name": "name", "label": "Số hợp đồng", "type": "text", "width": 6 },
                 { "name": "principal", "label": "Số tiền vay ban đầu", "type": "number" , "width": 6 },
                 { "name": "interest_rate", "label": "Lãi suất (%)", "type": "number", "width": 6},

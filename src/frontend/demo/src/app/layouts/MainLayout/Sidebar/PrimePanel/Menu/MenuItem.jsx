@@ -1,6 +1,6 @@
 // Import Dependencies
 import PropTypes from "prop-types";
-import { NavLink, useRouteLoaderData } from "react-router";
+import { NavLink, useRouteLoaderData } from "react-router-dom";
 import clsx from "clsx";
 import { useTranslation } from "react-i18next";
 

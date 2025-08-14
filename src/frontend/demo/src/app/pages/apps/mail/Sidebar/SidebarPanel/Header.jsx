@@ -1,7 +1,7 @@
 // Import Dependencies
 import { ChevronLeftIcon } from "@heroicons/react/20/solid";
 import { EnvelopeIcon } from "@heroicons/react/24/outline";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 // Local Imports
 import { useSidebarContext } from "app/contexts/sidebar/context";

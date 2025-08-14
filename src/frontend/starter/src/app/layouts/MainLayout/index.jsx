@@ -1,6 +1,6 @@
 // Import Dependencies
 import clsx from "clsx";
-import { Outlet } from "react-router";
+import { Outlet } from "react-router-dom";
 
 // Local Imports
 import { Header } from "./Header";

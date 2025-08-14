@@ -1,5 +1,5 @@
 // Import Dependencies
-import { useLocation } from "react-router";
+import { useLocation } from "react-router-dom";
 import { useRef, useState } from "react";
 import {
   useDidUpdate,

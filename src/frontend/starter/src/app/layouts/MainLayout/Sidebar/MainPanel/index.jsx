@@ -1,6 +1,6 @@
 // Import Dependencies
 import PropTypes from "prop-types";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import clsx from "clsx";
 
 // Local Imports
