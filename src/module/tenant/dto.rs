@@ -39,3 +39,18 @@ pub struct TenantModuleDto {
     pub config_json: serde_json::Value,
     pub enabled_at: DateTime<Utc>,
 }
+
+#[derive(Debug, Deserialize)]
+pub struct CreateEnterpriseCommand {
+    pub name: String,
+    pub slug: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CreateCompanyCommand {
+    pub enterprise_id: Uuid,
+    pub name: String,
+    pub slug: Option<String>,
+    pub parent_company_id: Option<Uuid>,
+}
+

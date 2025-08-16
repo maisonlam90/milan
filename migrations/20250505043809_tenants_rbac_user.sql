@@ -1,32 +1,41 @@
 -- ============================================================
 -- 5) RBAC (THEO TENANT) + USER (THEO TENANT)
 --    - Role thuộc tenant
---    - user_roles gắn (tenant_id, user_id, role_id) để không lẫn giữa tenant
+--    - user_roles siết FK COMPOSITE để không thể gán role khác tenant
+--    - Email unique theo tenant (không phân biệt hoa–thường)
 -- ============================================================
+
+-- ---------- PERMISSIONS ----------
 CREATE TABLE IF NOT EXISTS permissions (
   id       UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  resource TEXT NOT NULL,                 -- Ví dụ: user, loan, report
-  action   TEXT NOT NULL,                 -- Ví dụ: read, create, update, delete
-  label    TEXT NOT NULL,                 -- Tên hiển thị
+  resource TEXT NOT NULL,     -- Ví dụ: user, loan, report
+  action   TEXT NOT NULL,     -- Ví dụ: read, create, update, delete
+  label    TEXT NOT NULL,     -- Tên hiển thị
   UNIQUE(resource, action)
 );
 
+-- ---------- ROLES (tenant-aware) ----------
 CREATE TABLE IF NOT EXISTS roles (
   id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id  UUID NOT NULL REFERENCES tenant(tenant_id) ON DELETE CASCADE,
-  name       TEXT NOT NULL,               -- Tên role (admin, staff, auditor…)
-  module     TEXT,                        -- Module áp dụng (tùy chọn)
+  name       TEXT NOT NULL,     -- Tên role (admin, staff, auditor…)
+  module     TEXT,              -- Module áp dụng (tùy chọn)
   UNIQUE (tenant_id, name),
-  UNIQUE (tenant_id, id)                  -- thay cho việc ADD CONSTRAINT IF NOT EXISTS
+  -- Duy trì unique để làm đích cho FK composite từ user_roles
+  UNIQUE (tenant_id, id)
 );
 
+-- Tra cứu role theo tenant + name nhanh
+CREATE INDEX IF NOT EXISTS idx_roles_tenant_name ON roles(tenant_id, name);
+
+-- ---------- ROLE ↔ PERMISSION ----------
 CREATE TABLE IF NOT EXISTS role_permissions (
   role_id       UUID NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
   permission_id UUID NOT NULL REFERENCES permissions(id) ON DELETE CASCADE,
   PRIMARY KEY (role_id, permission_id)
 );
 
--- Users: PK có tenant_id để shard
+-- ---------- USERS (tenant-aware) ----------
 CREATE TABLE IF NOT EXISTS users (
   tenant_id     UUID NOT NULL REFERENCES tenant(tenant_id) ON DELETE CASCADE,
   user_id       UUID NOT NULL,
@@ -34,22 +43,44 @@ CREATE TABLE IF NOT EXISTS users (
   password_hash TEXT NOT NULL,
   name          TEXT,
   created_at    TIMESTAMPTZ DEFAULT now(),
-  PRIMARY KEY (tenant_id, user_id),
-  UNIQUE (tenant_id, email)
+  PRIMARY KEY (tenant_id, user_id)
+  -- KHÔNG đặt UNIQUE (tenant_id, email) trực tiếp để tránh phân biệt hoa–thường
 );
 
--- Mapping user ↔ role (tenant-aware)
+-- Unique email theo tenant, KHÔNG phân biệt hoa–thường (functional unique index)
+CREATE UNIQUE INDEX IF NOT EXISTS uq_users_tenant_email_norm
+  ON users (tenant_id, lower(email));
+
+-- Truy vấn phổ biến
+CREATE INDEX IF NOT EXISTS idx_users_tenant_created_at ON users(tenant_id, created_at);
+
+-- ---------- USER ↔ ROLE (tenant-aware, SIẾT CHẶT) ----------
 CREATE TABLE IF NOT EXISTS user_roles (
-  tenant_id UUID NOT NULL REFERENCES tenant(tenant_id) ON DELETE CASCADE,
+  tenant_id UUID NOT NULL,      -- cùng tenant với user & role
   user_id   UUID NOT NULL,
   role_id   UUID NOT NULL,
   PRIMARY KEY (tenant_id, user_id, role_id),
-  -- FK composite đảm bảo role thuộc đúng tenant:
-  FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
-  -- (đã có UNIQUE(tenant_id,id) trên roles, nếu cần siết chặt hơn thì dùng
-  --  FOREIGN KEY (tenant_id, role_id) REFERENCES roles(tenant_id, id) ON DELETE CASCADE
-  --  nhưng khi đó cần định nghĩa FK composite ngay từ đầu ở bảng roles)
+
+  -- FK: user phải thuộc đúng tenant
+  FOREIGN KEY (tenant_id, user_id)
+    REFERENCES users (tenant_id, user_id)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE,
+
+  -- FK COMPOSITE: role cũng phải thuộc CHÍNH tenant đó
+  FOREIGN KEY (tenant_id, role_id)
+    REFERENCES roles (tenant_id, id)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
 );
+
+-- Index hỗ trợ truy vấn
+CREATE INDEX IF NOT EXISTS idx_user_roles_tenant_user ON user_roles(tenant_id, user_id);
+CREATE INDEX IF NOT EXISTS idx_user_roles_tenant_role ON user_roles(tenant_id, role_id);
+
+-- ============================================================
+-- SEED cơ bản
+-- ============================================================
 
 -- Seed permissions cơ bản cho module user
 INSERT INTO permissions (resource, action, label) VALUES
@@ -85,7 +116,7 @@ VALUES (
 )
 ON CONFLICT DO NOTHING;
 
--- Tự gán role admin cho user admin (nếu cần, tìm user_id theo email)
+-- Tự gán role admin cho user admin (theo tenant)
 INSERT INTO user_roles (tenant_id, user_id, role_id)
 SELECT u.tenant_id, u.user_id, r.id
 FROM users u

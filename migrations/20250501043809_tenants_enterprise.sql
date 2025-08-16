@@ -1,18 +1,19 @@
 -- ============================================================
--- 🏢 Multi-tenant Sharded Schema: Enterprise → Company (multi-level) → Tenant→ modules/RBAC → users
--- - Shard theo tenant_id (KHÔNG shard theo enterprise/company)
--- - Company nhiều cấp dùng Closure Table (company_edge)
--- - Modules & RBAC theo tenant
--- - Có seed tối thiểu để khởi động môi trường dev
+-- 🏢 Multi-tenant Sharded Schema: Enterprise → Company → Tenant
+-- - Shard theo tenant_id (KHÔNG shard enterprise/company)
+-- - Ràng buộc "đúng enterprise" sẽ được SIẾT ở company.sql & tenant.sql
 -- ============================================================
--- ============================================================
--- 1) ENTERPRISE: Tập đoàn / Thương hiệu cha
--- ============================================================
+
+-- (Tuỳ chọn/YugabyteDB) gom meta tables vào 1 TABLEGROUP để FK lookup rẻ
+-- CREATE TABLEGROUP IF NOT EXISTS meta_group;
+
+-- 1) ENTERPRISE
 CREATE TABLE IF NOT EXISTS enterprise (
   enterprise_id UUID PRIMARY KEY,                -- ID duy nhất enterprise
   name          TEXT NOT NULL,                   -- Tên enterprise
   slug          TEXT UNIQUE,                     -- Định danh ngắn, unique toàn hệ thống
   created_at    TIMESTAMPTZ DEFAULT now()        -- Thời điểm tạo
+  -- ) TABLEGROUP meta_group                     -- (Tuỳ chọn/YB)
 );
 
 -- Seed enterprise hệ thống (UUID cố định để dễ tham chiếu)
