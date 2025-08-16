@@ -1,20 +1,19 @@
 use crate::module::user::model::User;
 use sqlx::PgPool;
 use uuid::Uuid;
-use chrono::{DateTime, Utc}; // cần cho cast
 
 // 🔍 Truy vấn danh sách user theo tenant
 pub async fn find_users(pool: &PgPool, tenant_id: Uuid) -> sqlx::Result<Vec<User>> {
-    let users = sqlx::query_as!(
+    sqlx::query_as!(
         User,
         r#"
         SELECT
-          tenant_id,
-          user_id,
-          email,
-          password_hash,
-          name as "name!",
-          created_at as "created_at!: DateTime<Utc>"
+            tenant_id,
+            user_id,
+            email,
+            password_hash,
+            name as "name!",
+            created_at as "created_at?: chrono::DateTime<chrono::Utc>"
         FROM users
         WHERE tenant_id = $1
         ORDER BY created_at DESC
@@ -22,9 +21,7 @@ pub async fn find_users(pool: &PgPool, tenant_id: Uuid) -> sqlx::Result<Vec<User
         tenant_id
     )
     .fetch_all(pool)
-    .await?;
-
-    Ok(users)
+    .await
 }
 
 // 🔍 Lấy 1 user theo ID
@@ -33,12 +30,12 @@ pub async fn find_user_by_id(pool: &PgPool, tenant_id: Uuid, user_id: Uuid) -> s
         User,
         r#"
         SELECT
-          tenant_id,
-          user_id,
-          email,
-          password_hash,
-          name as "name!",
-          created_at as "created_at!: DateTime<Utc>"
+            tenant_id,
+            user_id,
+            email,
+            password_hash,
+            name as "name!",
+            created_at as "created_at?: chrono::DateTime<chrono::Utc>"
         FROM users
         WHERE tenant_id = $1 AND user_id = $2
         "#,

@@ -8,6 +8,7 @@ use serde_json::json;
 use jsonwebtoken::{encode, EncodingKey, Header};
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
+use chrono::DateTime;
 
 use crate::core::{auth::AuthUser, state::AppState};
 
@@ -25,7 +26,6 @@ pub async fn register(
     State(state): State<Arc<AppState>>,
     Json(input): Json<RegisterDto>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
-    // Tạm thời gán tenant_id = nil vì chưa xác định được
     let pool = state.shard.get_pool_for_tenant(&Uuid::nil());
     match create_user(pool, input).await {
         Ok(user) => Ok(Json(json!({ "status": "ok", "email": user.email, "name": user.name }))),
@@ -40,10 +40,8 @@ pub async fn login(
 ) -> Result<Json<serde_json::Value>, StatusCode> {
     println!("🔐 Đăng nhập: email='{}' | tenant_slug='{}'", input.email, input.tenant_slug);
 
-    // 📥 Vì chưa biết tenant_id nên dùng shard mặc định (nil)
     let global_pool = state.shard.get_pool_for_tenant(&Uuid::nil());
 
-    // 🔍 Truy tìm tenant_id theo slug
     let tenant = sqlx::query!(
         "SELECT tenant_id, shard_id FROM tenant WHERE slug = $1",
         input.tenant_slug
@@ -63,10 +61,8 @@ pub async fn login(
         }
     };
 
-    // 📦 Lấy pool đúng shard
     let pool = state.shard.get_pool_for_tenant(&tenant_id);
 
-    // 🔐 Tìm user
     let row = sqlx::query!(
         r#"
         SELECT tenant_id, user_id, email, name, password_hash
@@ -184,7 +180,7 @@ pub async fn list_users(
                 "user_id": row.get::<Uuid, _>("user_id"),
                 "email": row.get::<String, _>("email"),
                 "name": row.get::<String, _>("name"),
-                "created_at": row.get::<chrono::NaiveDateTime, _>("created_at"),
+                "created_at": row.get::<DateTime<chrono::Utc>, _>("created_at"),
             })
         })
         .collect();

@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { Page } from "components/shared/Page";
-import { Button, Card, Input, Textarea } from "components/ui";
+import { Button, Card, Input } from "components/ui";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { JWT_HOST_API } from "configs/auth.config";
@@ -9,30 +9,11 @@ const api = axios.create({ baseURL: JWT_HOST_API });
 
 export default function TenantPage() {
   const createForm = useForm();
-  const moduleForm = useForm();
-  const removeForm = useForm();
-  const userForm = useForm();
 
   const [createSuccess, setCreateSuccess] = useState(null);
   const [createError, setCreateError] = useState(null);
-  const [assignSuccess, setAssignSuccess] = useState(null);
-  const [assignError, setAssignError] = useState(null);
-  const [removeSuccess, setRemoveSuccess] = useState(null);
-  const [removeError, setRemoveError] = useState(null);
-  const [userSuccess, setUserSuccess] = useState(null);
-  const [userError, setUserError] = useState(null);
   const [tenantList, setTenantList] = useState([]);
-  const [availableModules, setAvailableModules] = useState([]);
   const [searchText, setSearchText] = useState("");
-
-  const fetchAvailableModules = async () => {
-    try {
-      const res = await api.get("/available-modules");
-      setAvailableModules(res.data);
-    } catch {
-      console.error("❌ Lỗi lấy module khả dụng");
-    }
-  };
 
   const fetchTenantList = async () => {
     try {
@@ -45,68 +26,22 @@ export default function TenantPage() {
 
   useEffect(() => {
     fetchTenantList();
-    fetchAvailableModules();
   }, []);
 
   const onCreateSubmit = async (data) => {
-    try {
-      const res = await api.post("/tenant", data);
-      setCreateSuccess(res.data);
-      setCreateError(null);
-      createForm.reset();
-      fetchTenantList();
-    } catch (err) {
-      console.error("❌ Lỗi tạo tenant:", err);
-      setCreateError(err.response?.data?.message || err.message);
-      setCreateSuccess(null);
-    }
-  };
-
-  const onAssignSubmit = async (data) => {
-    try {
-      const { tenant_id, module_name, config_json } = data;
-      const payload = {
-        module_name,
-        config_json: config_json ? JSON.parse(config_json) : {},
-      };
-      const res = await api.post(`/tenant/${tenant_id}/modules`, payload);
-      setAssignSuccess(res.data);
-      setAssignError(null);
-      moduleForm.reset();
-      fetchTenantList();
-    } catch (err) {
-      console.error("❌ Lỗi gán module:", err);
-      setAssignError(err.response?.data?.message || err.message);
-      setAssignSuccess(null);
-    }
-  };
-
-  const onRemoveSubmit = async (data) => {
-    try {
-      await api.delete(`/tenant/${data.tenant_id}/modules/${data.module_name}`);
-      setRemoveSuccess({ module: data.module_name });
-      setRemoveError(null);
-      removeForm.reset();
-      fetchTenantList();
-    } catch (err) {
-      console.error("❌ Lỗi xoá module:", err);
-      setRemoveError(err.response?.data?.message || err.message);
-      setRemoveSuccess(null);
-    }
-  };
-
-  const onUserSubmit = async (data) => {
-    try {
-      const res = await api.post("/user/register", data);
-      setUserSuccess(res.data);
-      setUserError(null);
-      userForm.reset();
-    } catch (err) {
-      console.error("❌ Lỗi tạo user:", err);
-      setUserError(err.response?.data?.message || err.message);
-      setUserSuccess(null);
-    }
-  };
+  try {
+    const res = await api.post("/tenant", data);
+    setCreateSuccess(res.data);
+    setCreateError(null);
+    createForm.reset();
+    fetchTenantList();
+  } catch (err) {
+    console.error("❌ Lỗi tạo tenant:", err);
+    console.log("📦 Phản hồi lỗi:", err.response?.data); // 👈 thêm dòng này
+    setCreateError(err.response?.data?.message || err.message);
+    setCreateSuccess(null);
+  }
+};
 
   const filteredList = tenantList.filter((t) =>
     t.name.toLowerCase().includes(searchText.toLowerCase()) ||
@@ -120,6 +55,18 @@ export default function TenantPage() {
         <Card className="rounded-lg p-6">
           <h3 className="text-lg font-semibold mb-4">📝 Tạo tổ chức mới</h3>
           <form onSubmit={createForm.handleSubmit(onCreateSubmit)} className="space-y-5">
+            <Input
+              label="Enterprise ID"
+              placeholder="UUID enterprise"
+              {...createForm.register("enterprise_id", { required: "Bắt buộc" })}
+              error={createForm.formState.errors?.enterprise_id?.message}
+            />
+            <Input
+              label="Company ID (tuỳ chọn)"
+              placeholder="UUID company hoặc để trống"
+              {...createForm.register("company_id")}
+              error={createForm.formState.errors?.company_id?.message}
+            />
             <Input
               label="Tên tổ chức"
               placeholder="Công ty ABC"
@@ -144,99 +91,6 @@ export default function TenantPage() {
           </form>
         </Card>
 
-        <Card className="rounded-lg p-6">
-          <h3 className="text-lg font-semibold mb-4">🧩 Gán module cho tổ chức</h3>
-          <form onSubmit={moduleForm.handleSubmit(onAssignSubmit)} className="space-y-5">
-            <Input
-              label="Tenant ID"
-              placeholder="UUID tenant"
-              {...moduleForm.register("tenant_id", { required: "Bắt buộc" })}
-              error={moduleForm.formState.errors?.tenant_id?.message}
-            />
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Tên module</label>
-              <select
-                {...moduleForm.register("module_name", { required: "Bắt buộc" })}
-                className="w-full p-2 border border-gray-300 rounded"
-              >
-                <option value="">-- Chọn module --</option>
-                {availableModules.map((mod) => (
-                  <option key={mod.module_name} value={mod.module_name}>
-                    {mod.module_name} – {mod.display_name}
-                  </option>
-                ))}
-              </select>
-              {moduleForm.formState.errors?.module_name?.message && (
-                <p className="text-red-500 text-sm mt-1">
-                  {moduleForm.formState.errors.module_name.message}
-                </p>
-              )}
-            </div>
-            <Textarea
-              label="Config JSON (tuỳ chọn)"
-              placeholder='{"lang": "vi"}'
-              {...moduleForm.register("config_json")}
-            />
-            <Button type="submit" className="w-full">Gán module</Button>
-            {assignSuccess && <p className="text-green-600 text-sm text-center">✅ Gán thành công: {assignSuccess.module_name}</p>}
-            {assignError && <p className="text-red-500 text-sm text-center">❌ {assignError}</p>}
-          </form>
-        </Card>
-
-        <Card className="rounded-lg p-6">
-          <h3 className="text-lg font-semibold mb-4">📤 Gỡ module khỏi tổ chức</h3>
-          <form onSubmit={removeForm.handleSubmit(onRemoveSubmit)} className="space-y-5">
-            <Input
-              label="Tenant ID"
-              placeholder="UUID tenant"
-              {...removeForm.register("tenant_id", { required: "Bắt buộc" })}
-              error={removeForm.formState.errors?.tenant_id?.message}
-            />
-            <Input
-              label="Tên module"
-              placeholder="user"
-              {...removeForm.register("module_name", { required: "Bắt buộc" })}
-              error={removeForm.formState.errors?.module_name?.message}
-            />
-            <Button type="submit" className="w-full">Gỡ module</Button>
-            {removeSuccess && <p className="text-green-600 text-sm text-center">✅ Đã gỡ: {removeSuccess.module}</p>}
-            {removeError && <p className="text-red-500 text-sm text-center">❌ {removeError}</p>}
-          </form>
-        </Card>
-
-        <Card className="rounded-lg p-6">
-          <h3 className="text-lg font-semibold mb-4">👤 Tạo user cho tổ chức</h3>
-          <form onSubmit={userForm.handleSubmit(onUserSubmit)} className="space-y-5">
-            <Input
-              label="Tenant ID"
-              placeholder="UUID tenant"
-              {...userForm.register("tenant_id", { required: "Bắt buộc" })}
-              error={userForm.formState.errors?.tenant_id?.message}
-            />
-            <Input
-              label="Email"
-              placeholder="email@example.com"
-              {...userForm.register("email", { required: "Bắt buộc" })}
-              error={userForm.formState.errors?.email?.message}
-            />
-            <Input
-              label="Tên người dùng"
-              placeholder="Nguyễn Văn A"
-              {...userForm.register("name", { required: "Bắt buộc" })}
-              error={userForm.formState.errors?.name?.message}
-            />
-            <Input
-              label="Mật khẩu"
-              type="password"
-              {...userForm.register("password", { required: "Bắt buộc" })}
-              error={userForm.formState.errors?.password?.message}
-            />
-            <Button type="submit" className="w-full">Tạo User</Button>
-            {userSuccess && <p className="text-green-600 text-sm text-center">✅ Đã tạo: {userSuccess.email}</p>}
-            {userError && <p className="text-red-500 text-sm text-center">❌ {userError}</p>}
-          </form>
-        </Card>
-
         <Card className="col-span-2 p-6">
           <h3 className="text-lg font-semibold mb-4">📊 Danh sách tất cả tổ chức và module</h3>
           <div className="mb-4">
@@ -252,8 +106,10 @@ export default function TenantPage() {
             <thead className="bg-gray-100">
               <tr>
                 <th className="p-2 border">Tên tổ chức</th>
-                <th className="p-2 border">Slug</th> {/* 🆕 thêm cột slug */}
+                <th className="p-2 border">Slug</th>
                 <th className="p-2 border">Tenant ID</th>
+                <th className="p-2 border">Enterprise</th>
+                <th className="p-2 border">Company</th>
                 <th className="p-2 border">Cluster</th>
                 <th className="p-2 border">Module</th>
               </tr>
@@ -262,15 +118,17 @@ export default function TenantPage() {
               {filteredList.map((t) => (
                 <tr key={t.tenant_id}>
                   <td className="p-2 border">{t.name}</td>
-                  <td className="p-2 border">{t.slug}</td> {/* 🆕 hiển thị slug */}
+                  <td className="p-2 border">{t.slug}</td>
                   <td className="p-2 border">{t.tenant_id}</td>
+                  <td className="p-2 border">{t.enterprise_id}</td>
+                  <td className="p-2 border">{t.company_id || "-"}</td>
                   <td className="p-2 border">{t.shard_id}</td>
                   <td className="p-2 border">{t.modules.join(", ")}</td>
                 </tr>
               ))}
               {filteredList.length === 0 && (
                 <tr>
-                  <td colSpan="4" className="text-center text-gray-500 p-4">
+                  <td colSpan="7" className="text-center text-gray-500 p-4">
                     Không tìm thấy kết quả phù hợp.
                   </td>
                 </tr>

@@ -5,3 +5,4 @@ pub mod query;
 pub mod handler;
 pub mod router;
 pub mod metadata;
+pub mod dto;

@@ -2,21 +2,23 @@ use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
 
-// Struct ánh xạ bảng tenant
+/// Struct ánh xạ bảng `tenant`
 #[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
 pub struct Tenant {
-    pub tenant_id: Uuid,               // ID định danh tenant
-    pub name: String,                  // Tên tổ chức
+    pub tenant_id: Uuid,
+    pub enterprise_id: Uuid,
+    pub company_id: Option<Uuid>,
+    pub name: String,
     pub slug: String,
-    pub shard_id: String,              // Tên shard/cluster chứa tenant
-    pub created_at: Option<DateTime<Utc>>, // Ngày tạo tenant
+    pub shard_id: String,
+    pub created_at: Option<DateTime<Utc>>, // giữ Option để match query_as!
 }
 
-// Struct ánh xạ bảng tenant_module
+/// Struct ánh xạ bảng `tenant_module`
 #[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
 pub struct TenantModule {
-    pub tenant_id: Uuid,               // ID tenant sở hữu module
-    pub module_name: String,           // Tên module (VD: "ERP")
-    pub config_json: serde_json::Value,// Cấu hình riêng cho module đó
-    pub enabled_at: Option<DateTime<Utc>>, // Ngày bật module
+    pub tenant_id: Uuid,
+    pub module_name: String,
+    pub config_json: serde_json::Value,
+    pub enabled_at: Option<DateTime<Utc>>, // giữ Option để match query_as!
 }

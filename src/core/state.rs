@@ -1,5 +1,7 @@
 use std::sync::Arc;
-use crate::infra::{db::ShardManager, telemetry::Telemetry, event_bus::EventPublisher};
+use crate::infra::{ telemetry::Telemetry, event_bus::EventPublisher};
+
+pub use crate::infra::db::ShardManager;
 
 #[derive(Clone)]
 pub struct AppState {

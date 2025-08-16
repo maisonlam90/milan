@@ -6,18 +6,12 @@ use sqlx::PgPool;
 use chrono::{DateTime, Utc};
 use bcrypt::hash;
 
-// ✅ Tạo user mới và ghi vào DB
 pub async fn create_user(
     pool: &PgPool,
     dto: RegisterDto
 ) -> Result<User, Box<dyn std::error::Error + Send + Sync>> {
-    // Chuẩn hoá email để khớp unique index (tenant_id, lower(email))
     let email_norm = dto.email.trim().to_lowercase();
-
-    // Hash mật khẩu
     let hashed = hash(&dto.password, bcrypt::DEFAULT_COST)?;
-
-    // created_at phải là DateTime<Utc> để map TIMESTAMPTZ
     let now: DateTime<Utc> = Utc::now();
 
     let user = User {
@@ -26,11 +20,9 @@ pub async fn create_user(
         email: email_norm.clone(),
         password_hash: hashed.clone(),
         name: dto.name,
-        created_at: now, // <-- DateTime<Utc>, không dùng naive_utc()
+        created_at: Some(now), // 👈 wrapped in Some()
     };
 
-    // Ghi vào bảng users
-    // Nếu bạn muốn dùng DEFAULT now() của DB: bỏ cột created_at khỏi INSERT
     sqlx::query!(
         r#"
         INSERT INTO users (tenant_id, user_id, email, password_hash, name, created_at)
@@ -38,15 +30,14 @@ pub async fn create_user(
         "#,
         user.tenant_id,
         user.user_id,
-        user.email,         // đã được lower-case
+        user.email,
         user.password_hash,
         user.name,
-        user.created_at,    // DateTime<Utc> -> TIMESTAMPTZ
+        user.created_at
     )
     .execute(pool)
     .await?;
 
-    // Gửi event (in log)
     println!(
         "📤 Gửi event: UserCreated: {:?}",
         UserCreated {

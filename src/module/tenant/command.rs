@@ -2,15 +2,17 @@ use serde::Deserialize;
 use uuid::Uuid;
 use serde_json::Value;
 
-// Payload JSON khi tạo tenant mới từ frontend
+/// Payload JSON khi tạo tenant mới từ frontend (đã mở rộng schema)
 #[derive(Debug, Deserialize)]
 pub struct CreateTenantCommand {
-    pub name: String,         // Tên tổ chức
-    pub slug: String,
-    pub shard_id: String,     // Tên shard để map tenant
+    pub enterprise_id: Uuid,          // FK tới enterprise (bắt buộc)
+    pub company_id: Option<Uuid>,     // Gắn công ty nếu có
+    pub name: String,                 // Tên tenant
+    pub slug: String,                 // Slug duy nhất trong enterprise
+    pub shard_id: String,             // Shard chứa tenant
 }
 
-// Payload JSON khi gán module cho tenant
+/// Payload JSON khi gán module cho tenant
 #[derive(Debug, Deserialize)]
 pub struct AssignModuleCommand {
     pub module_name: String,          // Tên module cần bật

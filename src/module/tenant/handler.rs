@@ -1,59 +1,81 @@
-use axum::{Json, extract::{Path, State}};
+use axum::{
+    extract::{Path, State},
+    response::IntoResponse,
+    Json,
+    http::StatusCode,
+    debug_handler,
+};
+use std::{collections::HashMap, sync::Arc};
 use uuid::Uuid;
-use axum::response::IntoResponse;
-use axum::http::StatusCode;
-use axum::debug_handler;
+use chrono::Utc;
 use serde::Serialize;
-use std::collections::HashMap;
-use std::sync::Arc;
+use tracing::debug;
 
 use crate::core::state::AppState;
-use super::model::{Tenant, TenantModule};
-use super::command::{CreateTenantCommand, AssignModuleCommand};
+use crate::core::json_with_log::JsonWithLog;
 
-// POST /tenant — tạo tenant mới
+
+use super::{
+    model::{Tenant, TenantModule},
+    command::{CreateTenantCommand, AssignModuleCommand},
+};
+
+/// POST /tenant — tạo tenant mới
 #[debug_handler]
 pub async fn create_tenant(
     State(state): State<Arc<AppState>>,
-    Json(payload): Json<CreateTenantCommand>,
+    JsonWithLog(payload): JsonWithLog<CreateTenantCommand>,
 ) -> impl IntoResponse {
-    let pool = state.shard.get_pool_for_tenant(&Uuid::nil());
-    let tenant_id = Uuid::new_v4();
-    let created_at = chrono::Utc::now();
+    let pool = match state.shard.get_pool_for_shard(&payload.shard_id) {
+        Ok(p) => p,
+        Err(msg) => {
+            debug!("❌ {}", msg);
+            return (StatusCode::BAD_REQUEST, Json("Shard không hợp lệ")).into_response();
+        }
+    };
 
-    let result = sqlx::query_as::<_, Tenant>(
+    let tenant_id = Uuid::new_v4();
+    let created_at = Utc::now();
+
+    let result = sqlx::query_as!(
+        Tenant,
         r#"
-        INSERT INTO tenant (tenant_id, name, slug, shard_id, created_at)
-        VALUES ($1, $2, $3, $4, $5)
-        RETURNING tenant_id, name, slug, shard_id, created_at
-        "#
+        INSERT INTO tenant (tenant_id, enterprise_id, company_id, name, slug, shard_id, created_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        RETURNING tenant_id, enterprise_id, company_id, name, slug, shard_id, created_at
+        "#,
+        tenant_id,
+        payload.enterprise_id,
+        payload.company_id,
+        payload.name,
+        payload.slug,
+        payload.shard_id,
+        created_at
     )
-    .bind(tenant_id)
-    .bind(&payload.name)
-    .bind(&payload.slug)
-    .bind(&payload.shard_id)
-    .bind(created_at)
     .fetch_one(pool)
     .await;
 
     match result {
         Ok(tenant) => (StatusCode::CREATED, Json(tenant)).into_response(),
-        Err(err) => (StatusCode::INTERNAL_SERVER_ERROR, Json(err.to_string())).into_response(),
+        Err(err) => {
+            debug!("❌ Lỗi khi tạo tenant (shard={}): {:?}", payload.shard_id, err);
+            (StatusCode::INTERNAL_SERVER_ERROR, Json("Tạo tenant thất bại")).into_response()
+        }
     }
 }
 
-// GET /tenant/:tenant_id
+/// GET /tenant/:tenant_id
 #[debug_handler]
 pub async fn get_tenant(
     State(state): State<Arc<AppState>>,
     Path(tenant_id): Path<Uuid>,
 ) -> impl IntoResponse {
-    let pool = state.shard.get_pool_for_tenant(&Uuid::nil());
+    let pool = state.shard.get_pool_for_tenant(&tenant_id); // 👈 đã có tenant_id
 
     let result = sqlx::query_as!(
         Tenant,
         r#"
-        SELECT tenant_id, name, slug, shard_id, created_at
+        SELECT tenant_id, enterprise_id, company_id, name, slug, shard_id, created_at
         FROM tenant
         WHERE tenant_id = $1
         "#,
@@ -68,17 +90,17 @@ pub async fn get_tenant(
     }
 }
 
-// POST /tenant/:id/modules — gán module cho tenant
+/// POST /tenant/:id/modules
 #[debug_handler]
 pub async fn assign_module(
     State(state): State<Arc<AppState>>,
     Path(tenant_id): Path<Uuid>,
     Json(payload): Json<AssignModuleCommand>,
 ) -> impl IntoResponse {
-    let pool = state.shard.get_pool_for_tenant(&Uuid::nil());
+    let pool = state.shard.get_pool_for_tenant(&tenant_id);
 
-    let enabled_at = chrono::Utc::now();
     let config_json = payload.config_json.unwrap_or_else(|| serde_json::json!({}));
+    let enabled_at = Utc::now();
 
     let result = sqlx::query_as!(
         TenantModule,
@@ -101,13 +123,13 @@ pub async fn assign_module(
     }
 }
 
-// GET /tenant/:id/modules — liệt kê module của tenant
+/// GET /tenant/:id/modules
 #[debug_handler]
 pub async fn list_modules(
     State(state): State<Arc<AppState>>,
     Path(tenant_id): Path<Uuid>,
 ) -> impl IntoResponse {
-    let pool = state.shard.get_pool_for_tenant(&Uuid::nil());
+    let pool = state.shard.get_pool_for_tenant(&tenant_id);
 
     let result = sqlx::query_as!(
         TenantModule,
@@ -127,13 +149,13 @@ pub async fn list_modules(
     }
 }
 
-// DELETE /tenant/:id/modules/:module_name
+/// DELETE /tenant/:id/modules/:module_name
 #[debug_handler]
 pub async fn remove_module(
     State(state): State<Arc<AppState>>,
     Path((tenant_id, module_name)): Path<(Uuid, String)>,
 ) -> impl IntoResponse {
-    let pool = state.shard.get_pool_for_tenant(&Uuid::nil());
+    let pool = state.shard.get_pool_for_tenant(&tenant_id);
 
     let result = sqlx::query!(
         r#"
@@ -152,8 +174,8 @@ pub async fn remove_module(
     }
 }
 
-// Struct tổng hợp tenant + module
-#[derive(Serialize)]
+/// Struct tổng hợp tenant + module
+#[derive(Debug, Serialize)]
 pub struct TenantWithModules {
     pub tenant_id: Uuid,
     pub name: String,
@@ -162,12 +184,12 @@ pub struct TenantWithModules {
     pub modules: Vec<String>,
 }
 
-// GET /tenants-with-modules — danh sách tổng hợp
+/// GET /tenants-with-modules
 #[debug_handler]
 pub async fn list_tenants_with_modules(
     State(state): State<Arc<AppState>>,
 ) -> impl IntoResponse {
-    let pool = state.shard.get_pool_for_tenant(&Uuid::nil());
+    let pool = state.shard.get_pool_for_tenant(&Uuid::nil()); // 👈 dùng pool hệ thống
 
     let rows = sqlx::query!(
         r#"
@@ -207,6 +229,91 @@ pub async fn list_tenants_with_modules(
 
             Json(result).into_response()
         }
+        Err(err) => (StatusCode::INTERNAL_SERVER_ERROR, Json(err.to_string())).into_response(),
+    }
+}
+/// GET /enterprise/:id/tenants — liệt kê tenant theo enterprise_id
+#[debug_handler]
+pub async fn list_tenants_by_enterprise(
+    State(state): State<Arc<AppState>>,
+    Path(enterprise_id): Path<Uuid>,
+) -> impl IntoResponse {
+    let pool = state.shard.get_pool_for_tenant(&Uuid::nil());
+
+    let result = sqlx::query_as!(
+        Tenant,
+        r#"
+        SELECT tenant_id, enterprise_id, company_id, name, slug, shard_id, created_at
+        FROM tenant
+        WHERE enterprise_id = $1
+        ORDER BY created_at DESC
+        "#,
+        enterprise_id
+    )
+    .fetch_all(pool)
+    .await;
+
+    match result {
+        Ok(tenants) => Json(tenants).into_response(),
+        Err(err) => (StatusCode::INTERNAL_SERVER_ERROR, Json(err.to_string())).into_response(),
+    }
+}
+
+/// GET /company/:id/tenants — liệt kê tenant theo company_id
+#[debug_handler]
+pub async fn list_tenants_by_company(
+    State(state): State<Arc<AppState>>,
+    Path(company_id): Path<Uuid>,
+) -> impl IntoResponse {
+    let pool = state.shard.get_pool_for_tenant(&Uuid::nil());
+
+    let result = sqlx::query_as!(
+        Tenant,
+        r#"
+        SELECT tenant_id, enterprise_id, company_id, name, slug, shard_id, created_at
+        FROM tenant
+        WHERE company_id = $1
+        ORDER BY created_at DESC
+        "#,
+        company_id
+    )
+    .fetch_all(pool)
+    .await;
+
+    match result {
+        Ok(tenants) => Json(tenants).into_response(),
+        Err(err) => (StatusCode::INTERNAL_SERVER_ERROR, Json(err.to_string())).into_response(),
+    }
+}
+/// GET /company/:id/tenants/subtree — liệt kê tenant theo toàn bộ cây company (closure table)
+#[debug_handler]
+pub async fn list_tenants_by_company_subtree(
+    State(state): State<Arc<AppState>>,
+    Path(company_id): Path<Uuid>,
+) -> impl IntoResponse {
+    let pool = state.shard.get_pool_for_tenant(&Uuid::nil());
+
+    // Tìm tất cả descendant của company_id
+    let result = sqlx::query_as!(
+        Tenant,
+        r#"
+        WITH subtree AS (
+            SELECT descendant_id
+            FROM company_edge
+            WHERE ancestor_id = $1
+        )
+        SELECT t.tenant_id, t.enterprise_id, t.company_id, t.name, t.slug, t.shard_id, t.created_at
+        FROM tenant t
+        JOIN subtree s ON s.descendant_id = t.company_id
+        ORDER BY t.created_at DESC
+        "#,
+        company_id
+    )
+    .fetch_all(pool)
+    .await;
+
+    match result {
+        Ok(tenants) => Json(tenants).into_response(),
         Err(err) => (StatusCode::INTERNAL_SERVER_ERROR, Json(err.to_string())).into_response(),
     }
 }

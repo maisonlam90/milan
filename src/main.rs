@@ -10,7 +10,7 @@ use infra::{db::ShardManager, telemetry::Telemetry, event_bus::EventPublisher};
 use tracing_appender::rolling;
 use tracing_appender::non_blocking;
 use std::io;
-use tracing_subscriber::fmt::writer::MakeWriterExt;
+use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 // Các module con (command bus, query bus, event handler, tenant, etc)
 mod core;
@@ -39,12 +39,13 @@ async fn main() {
 
     let file_appender = rolling::daily("logs", "app.log");
     let (file_writer, guard) = non_blocking(file_appender);
-    Box::leak(Box::new(guard)); // 👈 giữ guard sống đến hết chương trình
+    Box::leak(Box::new(guard));
 
-    tracing_subscriber::fmt()
-        .with_writer(io::stdout.and(file_writer))
-        .with_ansi(false) // 👈 Tắt ANSI cho log file
-        .with_max_level(tracing::Level::INFO)
+    tracing_subscriber::registry()
+        .with(fmt::layer()
+            .with_writer(io::stdout.and(file_writer))
+            .with_ansi(false))
+        .with(EnvFilter::from_default_env())
         .init();
 
 

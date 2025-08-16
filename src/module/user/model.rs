@@ -19,5 +19,5 @@ pub struct User {
     /// Tên hiển thị (NOT NULL theo schema)
     pub name: String,
     /// Thời điểm tạo (TIMESTAMPTZ)
-    pub created_at: DateTime<Utc>,
+    pub created_at: Option<DateTime<Utc>>, // 👈 chuyển thành Option
 }
