@@ -1,72 +1,115 @@
--- Bảng hợp đồng vay (loan_contract)
-CREATE TABLE IF NOT EXISTS loan_contract (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    tenant_id UUID NOT NULL,                         -- FK tới tenant
-    customer_id UUID NOT NULL,                       -- FK tới user/customer
+-- ============================================================
+-- 💳 LOAN MODULE — RESET & CREATE (clean rebuild)
+-- ============================================================
 
-    name TEXT NOT NULL,                              -- Số hợp đồng
-    principal BIGINT NOT NULL,                       -- Số tiền vay ban đầu
-    interest_rate DOUBLE PRECISION NOT NULL,         -- Lãi suất %/năm
-    term_months INT NOT NULL,                        -- Kỳ hạn (tháng)
+-- 0) Extensions & timezone
 
-    -- ❗ Chuyển từ DATE -> TIMESTAMPTZ để lưu cả giờ phút và múi giờ
-    date_start TIMESTAMPTZ NOT NULL,                 -- Ngày bắt đầu vay
-    date_end TIMESTAMPTZ,                            -- Ngày kết thúc
+SET TIME ZONE 'UTC';
 
-    collateral_description TEXT,                     -- Mô tả tài sản thế chấp
-    collateral_value BIGINT DEFAULT 0,               -- Giá trị tài sản
-    storage_fee_rate DOUBLE PRECISION DEFAULT 0,     -- % phí lưu kho/ngày
-    storage_fee BIGINT DEFAULT 0,                    -- Tổng phí lưu kho
+-- ------------------------------------------------------------
+-- 2) HỢP ĐỒNG VAY (loan_contract)
+-- ------------------------------------------------------------
+CREATE TABLE loan_contract (
+    tenant_id UUID NOT NULL,                                   -- 🔑 shard key
+    id        UUID NOT NULL DEFAULT gen_random_uuid(),         -- 🔑 id hợp đồng
+    contact_id UUID NOT NULL,                                  -- KH/đối tác (khớp code: contact_id)
 
-    current_principal BIGINT DEFAULT 0,              -- Số dư gốc hiện tại
-    current_interest BIGINT DEFAULT 0,               -- Lãi chưa thu
-    accumulated_interest BIGINT DEFAULT 0,           -- Lãi tích lũy
-    total_paid_interest BIGINT DEFAULT 0,            -- Tổng lãi đã trả
-    total_settlement_amount BIGINT DEFAULT 0,        -- Tổng tất toán
+    name            TEXT NOT NULL,                             -- Số/tên hợp đồng
+    principal       BIGINT NOT NULL,                           -- Số tiền vay ban đầu (đơn vị nhỏ nhất)
+    interest_rate   DOUBLE PRECISION NOT NULL,                 -- Lãi suất %/năm (vd: 0.18 = 18%)
+    term_months     INT NOT NULL,                              -- Kỳ hạn (tháng)
 
-    state TEXT NOT NULL DEFAULT 'draft',             -- draft/active/paid/default
-    created_at TIMESTAMPTZ DEFAULT NOW(),            -- ❗ Giữ TIMESTAMPTZ
-    updated_at TIMESTAMPTZ DEFAULT NOW()             -- ❗ Giữ TIMESTAMPTZ
+    date_start      TIMESTAMPTZ NOT NULL,                      -- Ngày bắt đầu vay
+    date_end        TIMESTAMPTZ,                               -- Ngày kết thúc (nullable)
+
+    collateral_description TEXT,                               -- Mô tả tài sản thế chấp
+    collateral_value       BIGINT NOT NULL DEFAULT 0,          -- Giá trị tài sản
+    storage_fee_rate       DOUBLE PRECISION NOT NULL DEFAULT 0,-- % phí lưu kho/ngày
+    storage_fee            BIGINT NOT NULL DEFAULT 0,          -- Tổng phí lưu kho
+
+    current_principal       BIGINT NOT NULL DEFAULT 0,         -- Số dư gốc hiện tại
+    current_interest        BIGINT NOT NULL DEFAULT 0,         -- Lãi chưa thu
+    accumulated_interest    BIGINT NOT NULL DEFAULT 0,         -- Lãi tích lũy
+    total_paid_interest     BIGINT NOT NULL DEFAULT 0,         -- Tổng lãi đã trả
+    total_settlement_amount BIGINT NOT NULL DEFAULT 0,         -- Tổng tất toán
+
+    state       TEXT NOT NULL DEFAULT 'draft',                 -- draft/active/paid/default
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+    PRIMARY KEY (tenant_id, id)                                -- ✅ shard by tenant_id
 );
 
--- Bảng giao dịch của hợp đồng vay (loan_transaction)
-CREATE TABLE IF NOT EXISTS loan_transaction (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    contract_id UUID NOT NULL REFERENCES loan_contract(id) ON DELETE CASCADE,
-    tenant_id UUID NOT NULL,                         -- FK tới tenant (để query nhanh)
-    customer_id UUID NOT NULL,                       -- FK tới user/customer (để query nhanh)
+-- Index tối ưu
+CREATE INDEX idx_loan_contract_tenant          ON loan_contract (tenant_id);
+CREATE INDEX idx_loan_contract_tenant_state    ON loan_contract (tenant_id, state);
+CREATE INDEX idx_loan_contract_tenant_contact  ON loan_contract (tenant_id, contact_id);
+CREATE INDEX idx_loan_contract_tenant_dates    ON loan_contract (tenant_id, date_start, date_end);
+
+-- Trigger updated_at
+CREATE OR REPLACE FUNCTION trg_loan_contract_set_updated_at()
+RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  NEW.updated_at := now();
+  RETURN NEW;
+END $$;
+
+CREATE TRIGGER loan_contract_set_updated_at
+BEFORE UPDATE ON loan_contract
+FOR EACH ROW
+EXECUTE FUNCTION trg_loan_contract_set_updated_at();
+
+-- ------------------------------------------------------------
+-- 3) GIAO DỊCH HỢP ĐỒNG (loan_transaction)
+-- ------------------------------------------------------------
+CREATE TABLE loan_transaction (
+    tenant_id   UUID NOT NULL,                                  -- 🔑 shard key
+    id          UUID NOT NULL DEFAULT gen_random_uuid(),        -- 🔑 id giao dịch
+    contract_id UUID NOT NULL,                                  -- id hợp đồng
+    contact_id  UUID NOT NULL,                                  -- KH/đối tác
 
     transaction_type TEXT NOT NULL CHECK (
-        transaction_type IN (
-            'disbursement',    -- Giải ngân
-            'interest',        -- Thu lãi
-            'principal',       -- Thu gốc
-            'additional',      -- Giải ngân bổ sung
-            'liquidation',     -- Thanh lý
-            'settlement'       -- Tất toán
-        )
+      transaction_type IN (
+        'disbursement','interest','principal',
+        'additional','liquidation','settlement'
+      )
     ),
 
-    amount BIGINT NOT NULL,                          -- Số tiền (+/-)
+    amount BIGINT NOT NULL,                                     -- Số tiền (+/-)
+    "date" TIMESTAMPTZ NOT NULL,                                -- Ngày giao dịch (đặt trong "" để tránh nhầm lẫn từ khóa)
+    note   TEXT,
 
-    -- ❗ Chuyển từ DATE -> TIMESTAMPTZ để chính xác theo thời gian
-    date TIMESTAMPTZ NOT NULL,                       -- Ngày giao dịch
+    days_from_prev        INT    NOT NULL DEFAULT 0,            -- Số ngày tính lãi
+    interest_for_period   BIGINT NOT NULL DEFAULT 0,            -- Lãi kỳ này
+    accumulated_interest  BIGINT NOT NULL DEFAULT 0,            -- Lãi lũy kế sau giao dịch
+    principal_balance     BIGINT NOT NULL DEFAULT 0,            -- Dư nợ gốc sau giao dịch
 
-    note TEXT,                                       -- Ghi chú
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 
-    days_from_prev INT DEFAULT 0,                    -- Số ngày tính lãi
-    interest_for_period BIGINT DEFAULT 0,            -- Lãi kỳ này
-    accumulated_interest BIGINT DEFAULT 0,           -- Lãi tích lũy sau giao dịch
-    principal_balance BIGINT DEFAULT 0,              -- Dư nợ gốc sau giao dịch
+    PRIMARY KEY (tenant_id, id),
 
-    created_at TIMESTAMPTZ DEFAULT NOW(),            -- ❗ Giữ TIMESTAMPTZ
-    updated_at TIMESTAMPTZ DEFAULT NOW()             -- ❗ Giữ TIMESTAMPTZ
+    -- ✅ FK composite đúng chuẩn sharding, tránh cross-tenant
+    CONSTRAINT fk_loan_tx_contract
+      FOREIGN KEY (tenant_id, contract_id)
+      REFERENCES loan_contract (tenant_id, id)
+      ON DELETE CASCADE
 );
 
--- Index tối ưu query
-CREATE INDEX IF NOT EXISTS idx_loan_contract_tenant ON loan_contract(tenant_id);
-CREATE INDEX IF NOT EXISTS idx_loan_contract_customer ON loan_contract(customer_id);
+-- Index tối ưu
+CREATE INDEX idx_loan_tx_tenant           ON loan_transaction (tenant_id);
+CREATE INDEX idx_loan_tx_tenant_contract  ON loan_transaction (tenant_id, contract_id);
+CREATE INDEX idx_loan_tx_tenant_contact   ON loan_transaction (tenant_id, contact_id);
 
-CREATE INDEX IF NOT EXISTS idx_loan_transaction_tenant ON loan_transaction(tenant_id);
-CREATE INDEX IF NOT EXISTS idx_loan_transaction_customer ON loan_transaction(customer_id);
-CREATE INDEX IF NOT EXISTS idx_loan_transaction_contract ON loan_transaction(contract_id);
+-- Trigger updated_at
+CREATE OR REPLACE FUNCTION trg_loan_transaction_set_updated_at()
+RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  NEW.updated_at := now();
+  RETURN NEW;
+END $$;
+
+CREATE TRIGGER loan_transaction_set_updated_at
+BEFORE UPDATE ON loan_transaction
+FOR EACH ROW
+EXECUTE FUNCTION trg_loan_transaction_set_updated_at();

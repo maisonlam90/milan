@@ -8,8 +8,8 @@ use axum::{
 use jsonwebtoken::{decode, DecodingKey, Validation};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use tracing::{debug, error}; // 👈 log nhẹ nhàng hơn
 
-/// Giải mã token JWT từ Authorization header
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
     pub sub: String,
@@ -17,7 +17,6 @@ pub struct Claims {
     pub exp: usize,
 }
 
-/// User đã xác thực qua token JWT
 #[derive(Debug, Clone)]
 pub struct AuthUser {
     pub user_id: Uuid,
@@ -38,13 +37,13 @@ where
         let auth_header = parts.headers.get("Authorization")
             .and_then(|h| h.to_str().ok())
             .ok_or_else(|| {
-                eprintln!("❌ Không tìm thấy header Authorization");
+                error!("❌ Không tìm thấy header Authorization");
                 StatusCode::UNAUTHORIZED
             })?;
 
         let token = auth_header.strip_prefix("Bearer ")
             .ok_or_else(|| {
-                eprintln!("❌ Authorization không phải Bearer token");
+                error!("❌ Authorization không phải Bearer token");
                 StatusCode::UNAUTHORIZED
             })?;
 
@@ -54,18 +53,18 @@ where
             &Validation::default(),
         )
         .map_err(|err| {
-            eprintln!("❌ Lỗi decode JWT: {:?}", err);
+            error!("❌ Lỗi decode JWT: {:?}", err);
             StatusCode::UNAUTHORIZED
         })?
         .claims;
 
         let user_id = Uuid::parse_str(&claims.sub).map_err(|err| {
-            eprintln!("❌ Lỗi parse sub UUID: {:?}", err);
+            error!("❌ Lỗi parse sub UUID: {:?}", err);
             StatusCode::UNAUTHORIZED
         })?;
 
         let tenant_id = Uuid::parse_str(&claims.tenant_id).map_err(|err| {
-            eprintln!("❌ Lỗi parse tenant_id UUID: {:?}", err);
+            error!("❌ Lỗi parse tenant_id UUID: {:?}", err);
             StatusCode::UNAUTHORIZED
         })?;
 
@@ -76,22 +75,23 @@ where
     }
 }
 
-/// Middleware kiểm tra token, giải mã và gắn AuthUser vào request
 pub async fn jwt_auth(
     mut req: AxumRequest<axum::body::Body>,
     next: Next,
 ) -> Result<Response, StatusCode> {
+    debug!("🔐 Middleware nhận request: {:?}", req.uri()); // <-- log luôn, không phụ thuộc debug_assertions
+
     let headers = req.headers();
     let auth_header = headers.get("Authorization")
         .and_then(|h| h.to_str().ok())
         .ok_or_else(|| {
-            eprintln!("❌ Không tìm thấy header Authorization (middleware)");
+            error!("❌ Không tìm thấy header Authorization (middleware)");
             StatusCode::UNAUTHORIZED
         })?;
 
     let token = auth_header.strip_prefix("Bearer ")
         .ok_or_else(|| {
-            eprintln!("❌ Authorization không phải Bearer token (middleware)");
+            error!("❌ Authorization không phải Bearer token (middleware)");
             StatusCode::UNAUTHORIZED
         })?;
 
@@ -101,18 +101,18 @@ pub async fn jwt_auth(
         &Validation::default(),
     )
     .map_err(|err| {
-        eprintln!("❌ Middleware decode JWT lỗi: {:?}", err);
+        error!("❌ Middleware decode JWT lỗi: {:?}", err);
         StatusCode::UNAUTHORIZED
     })?
     .claims;
 
     let user = AuthUser {
         user_id: Uuid::parse_str(&claims.sub).map_err(|err| {
-            eprintln!("❌ Middleware parse user_id UUID lỗi: {:?}", err);
+            error!("❌ Middleware parse user_id UUID lỗi: {:?}", err);
             StatusCode::UNAUTHORIZED
         })?,
         tenant_id: Uuid::parse_str(&claims.tenant_id).map_err(|err| {
-            eprintln!("❌ Middleware parse tenant_id UUID lỗi: {:?}", err);
+            error!("❌ Middleware parse tenant_id UUID lỗi: {:?}", err);
             StatusCode::UNAUTHORIZED
         })?,
     };

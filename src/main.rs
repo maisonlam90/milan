@@ -6,6 +6,11 @@ use tower_http::cors::{CorsLayer, Any};
 use api::router::build_router; // 👈 Build router từ module api
 use core::state::AppState;
 use infra::{db::ShardManager, telemetry::Telemetry, event_bus::EventPublisher};
+// log file
+use tracing_appender::rolling;
+use tracing_appender::non_blocking;
+use std::io;
+use tracing_subscriber::fmt::writer::MakeWriterExt;
 
 // Các module con (command bus, query bus, event handler, tenant, etc)
 mod core;
@@ -28,6 +33,20 @@ impl EventPublisher for DummyBus {
 #[tokio::main]
 async fn main() {
     dotenv().ok();
+
+    // 👇 Khởi tạo hệ thống log (rất quan trọng)
+    // Log luân phiên theo ngày, lưu vào thư mục "logs/"
+
+    let file_appender = rolling::daily("logs", "app.log");
+    let (file_writer, guard) = non_blocking(file_appender);
+    Box::leak(Box::new(guard)); // 👈 giữ guard sống đến hết chương trình
+
+    tracing_subscriber::fmt()
+        .with_writer(io::stdout.and(file_writer))
+        .with_ansi(false) // 👈 Tắt ANSI cho log file
+        .with_max_level(tracing::Level::INFO)
+        .init();
+
 
     // 🧪 Đọc DATABASE_URL và khởi tạo ShardManager (hiện chỉ có 1 shard duy nhất)
     let db_url = env::var("DATABASE_URL").expect("⚠️ DATABASE_URL chưa được cấu hình");

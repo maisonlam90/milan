@@ -1,14 +1,13 @@
 use sqlx::PgPool;
 use uuid::Uuid;
-use chrono::{DateTime, Utc, NaiveDateTime};
+use chrono::{DateTime, Utc};
 use crate::module::loan::dto::CreateContractInput;
 use crate::module::loan::model::LoanContract;
 
-// Helper convert epoch seconds -> DateTime<Utc>
+// epoch seconds -> DateTime<Utc> (chrono >= 0.4.38)
 fn epoch_to_utc(ts: i64) -> Result<DateTime<Utc>, sqlx::Error> {
-    let naive = NaiveDateTime::from_timestamp_opt(ts, 0)
-        .ok_or_else(|| sqlx::Error::Protocol("Invalid timestamp".into()))?;
-    Ok(DateTime::<Utc>::from_utc(naive, Utc))
+    DateTime::<Utc>::from_timestamp(ts, 0)
+        .ok_or_else(|| sqlx::Error::Protocol("Invalid timestamp".into()))
 }
 
 pub async fn create_contract(
@@ -17,6 +16,16 @@ pub async fn create_contract(
     input: CreateContractInput,
 ) -> sqlx::Result<LoanContract> {
     let mut tx = pool.begin().await?;
+
+    // tránh NULL cho cột NOT NULL
+    let collateral_value = input.collateral_value.unwrap_or(0);
+    let storage_fee_rate = input.storage_fee_rate.unwrap_or(0.0);
+    let storage_fee = input.storage_fee.unwrap_or(0);
+    let current_principal = input.current_principal.unwrap_or(0);
+    let current_interest = input.current_interest.unwrap_or(0);
+    let accumulated_interest = input.accumulated_interest.unwrap_or(0);
+    let total_paid_interest = input.total_paid_interest.unwrap_or(0);
+    let total_settlement_amount = input.total_settlement_amount.unwrap_or(0);
 
     let contract = sqlx::query_as!(
         LoanContract,
@@ -46,14 +55,14 @@ pub async fn create_contract(
         input.date_start,
         input.date_end,
         input.collateral_description,
-        input.collateral_value,
-        input.storage_fee_rate,
-        input.storage_fee,
-        input.current_principal,
-        input.current_interest,
-        input.accumulated_interest,
-        input.total_paid_interest,
-        input.total_settlement_amount,
+        collateral_value,
+        storage_fee_rate,
+        storage_fee,
+        current_principal,
+        current_interest,
+        accumulated_interest,
+        total_paid_interest,
+        total_settlement_amount,
         input.state
     )
     .fetch_one(&mut *tx)
@@ -65,13 +74,10 @@ pub async fn create_contract(
         sqlx::query!(
             r#"
             INSERT INTO loan_transaction (
-                id, contract_id, tenant_id, contact_id,
-                transaction_type, amount, date, note
+                contract_id, tenant_id, contact_id,
+                transaction_type, amount, "date", note
             )
-            VALUES (
-                uuid_generate_v4(), $1, $2, $3,
-                $4, $5, $6, $7
-            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
             "#,
             contract.id,
             tenant_id,
@@ -144,17 +150,13 @@ pub async fn update_contract(
 
     for t in input.transactions.iter() {
         let date_parsed = epoch_to_utc(t.date)?;
-
         sqlx::query!(
             r#"
             INSERT INTO loan_transaction (
-                id, contract_id, tenant_id, contact_id,
-                transaction_type, amount, date, note
+                contract_id, tenant_id, contact_id,
+                transaction_type, amount, "date", note
             )
-            VALUES (
-                uuid_generate_v4(), $1, $2, $3,
-                $4, $5, $6, $7
-            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
             "#,
             contract_id,
             tenant_id,

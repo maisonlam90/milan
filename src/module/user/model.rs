@@ -1,13 +1,23 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use chrono::{DateTime, Utc};
 
-// 🧾 Struct ánh xạ bảng users
+/// 🧾 Struct ánh xạ bảng `users`
+/// - `created_at`: TIMESTAMPTZ -> `DateTime<Utc>`
+/// - Ẩn `password_hash` khi serialize ra JSON để tránh lộ thông tin nhạy cảm
 #[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
 pub struct User {
-    pub tenant_id: Uuid, // ID của tenant (hệ thống đa tenant)
-    pub user_id: Uuid,   // ID duy nhất cho mỗi user
+    /// ID của tenant (đa-tenant)
+    pub tenant_id: Uuid,
+    /// ID duy nhất cho mỗi user trong tenant
+    pub user_id: Uuid,
+    /// Email đã được chuẩn hoá (lowercase) khi lưu
     pub email: String,
-    pub password_hash: String, // Mật khẩu đã mã hoá
+    /// Mật khẩu đã mã hoá (không serialize khi trả JSON)
+    #[serde(skip_serializing)]
+    pub password_hash: String,
+    /// Tên hiển thị (NOT NULL theo schema)
     pub name: String,
-    pub created_at: chrono::NaiveDateTime, // Ngày giờ tạo user
+    /// Thời điểm tạo (TIMESTAMPTZ)
+    pub created_at: DateTime<Utc>,
 }

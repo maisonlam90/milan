@@ -6,6 +6,7 @@ use axum::{
 use std::sync::Arc;
 use serde_json::json;
 use uuid::Uuid;
+use tracing::error; // 👈 THÊM DÒNG NÀY
 
 use crate::core::auth::AuthUser;
 use crate::core::state::AppState;
@@ -28,11 +29,13 @@ pub async fn create_contract(
 ) -> Result<Json<serde_json::Value>, StatusCode> {
     let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
 
-    let contract = command::create_contract(pool, auth.tenant_id, input)
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
-    Ok(Json(json!({ "contract_id": contract.id })))
+    match command::create_contract(pool, auth.tenant_id, input).await {
+        Ok(contract) => Ok(Json(json!({ "contract_id": contract.id }))),
+        Err(e) => {
+            error!("❌ Lỗi khi tạo hợp đồng vay: {:?}", e);
+            Err(StatusCode::INTERNAL_SERVER_ERROR)
+        }
+    }
 }
 
 pub async fn list_contracts(
@@ -44,7 +47,7 @@ pub async fn list_contracts(
     let contracts = query::list_contracts(&pool, auth.tenant_id)
         .await
         .map_err(|e| {
-            eprintln!("❌ Lỗi query list_contracts: {:?}", e);
+            error!("❌ Lỗi query list_contracts: {:?}", e);
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 
@@ -80,7 +83,10 @@ pub async fn get_contract_by_id(
 
     let mut transactions = query::get_transactions_by_contract(&pool, auth.tenant_id, contract_id)
         .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        .map_err(|e| {
+            error!("❌ Lỗi get_transactions_by_contract: {:?}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
 
     calculator::calculate_interest_fields(&mut contract, &mut transactions);
 
@@ -100,7 +106,10 @@ pub async fn update_contract(
 
     command::update_contract(pool, auth.tenant_id, contract_id, input)
         .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        .map_err(|e| {
+            error!("❌ Lỗi update_contract: {:?}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
 
     Ok(Json(json!({ "updated": true })))
 }
@@ -114,7 +123,10 @@ pub async fn delete_contract(
 
     command::delete_contract(&pool, auth.tenant_id, contract_id)
         .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        .map_err(|e| {
+            error!("❌ Lỗi delete_contract: {:?}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
 
     Ok(StatusCode::NO_CONTENT)
 }

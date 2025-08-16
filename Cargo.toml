@@ -27,7 +27,12 @@ async-trait = "0.1"
 anyhow = "1.0"
 
 uuid = { version = "1", features = ["v4", "serde"] }
-chrono = { version = "0.4", features = ["serde"] }
+chrono = { version = "0.4", features = ["serde", "clock"] }
 bcrypt = "0.15"
 jsonwebtoken = "9"
 chrono-tz = "0.8"
+
+# 🐾 Ghi log ra stdout và file
+tracing = "0.1"
+tracing-subscriber = "0.3"
+tracing-appender = "0.2"

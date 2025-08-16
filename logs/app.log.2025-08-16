@@ -1,0 +1,2 @@
+2025-08-16T02:47:47.534105Z  WARN sqlx_postgres::options::parse: ignoring unrecognized connect parameter key=ssl value=true
+2025-08-16T02:52:13.420611Z  WARN sqlx_postgres::options::parse: ignoring unrecognized connect parameter key=ssl value=true
