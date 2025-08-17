@@ -3,20 +3,18 @@ use std::sync::Arc;
 use crate::core::{state::AppState, auth::jwt_auth};
 use crate::module::acl::handler;
 
-/// ✅ Mount các route ACL với phân chia route public và route cần JWT auth
 pub fn routes() -> Router<Arc<AppState>> {
-    Router::new()
-        // 🔓 Public: lấy danh sách permission không cần auth
-        .route("/acl/permissions", get(handler::list_permissions))
+    let authed = Router::new()
+        .route("/roles", get(handler::list_roles).post(handler::create_role))
+        .route("/role-permissions", post(handler::assign_permissions_to_role))
+        .route("/assign-role", post(handler::assign_role))
+        .route("/me/modules", get(handler::my_modules))
+        .route("/me/permissions", get(handler::my_permissions))
+        .route("/permissions", post(handler::create_permission))   // 👈 thêm dòng này
+        .layer(middleware::from_fn(jwt_auth));
 
-        // 🔐 Các route cần auth (tạo role, gán quyền...)
-        .nest(
-            "/acl",
-            Router::new()
-                .route("/roles", get(handler::list_roles))
-                .route("/roles", post(handler::create_role))
-                .route("/role-permissions", post(handler::assign_permissions_to_role))
-                .route("/assign-role", post(handler::assign_role))
-                .layer(middleware::from_fn(jwt_auth)),
-        )
+    Router::new()
+        .route("/acl/permissions", get(handler::list_permissions)) // public GET
+        .route("/acl/available-modules", get(handler::available_modules)) // 👈 thêm
+        .nest("/acl", authed)
 }

@@ -372,3 +372,14 @@ Dữ liệu: {"company_id":"ưẻ","enterprise_id":"df","name":"ưẻ","shard_id
 2025-08-16T10:46:31.420880Z DEBUG sqlx::query: summary="INSERT INTO available_module (module_name, …" db.statement="\n\nINSERT INTO\n  available_module (module_name, display_name, description, metadata)\nVALUES\n  ($1, $2, $3, $4) ON CONFLICT (module_name) DO\nUPDATE\nSET\n  display_name = EXCLUDED.display_name,\n  description = EXCLUDED.description,\n  metadata = EXCLUDED.metadata\n" rows_affected=1 rows_returned=0 elapsed=142.793753ms elapsed_secs=0.142793753
 2025-08-16T10:48:38.316253Z  WARN sqlx_postgres::options::parse: ignoring unrecognized connect parameter key=ssl value=true
 2025-08-16T14:24:49.719357Z  WARN sqlx_postgres::options::parse: ignoring unrecognized connect parameter key=ssl value=true
+2025-08-16T14:43:37.373555Z  WARN sqlx_postgres::options::parse: ignoring unrecognized connect parameter key=ssl value=true
+2025-08-16T14:47:46.578358Z  WARN sqlx_postgres::options::parse: ignoring unrecognized connect parameter key=ssl value=true
+2025-08-16T15:26:49.821141Z  WARN sqlx_postgres::options::parse: ignoring unrecognized connect parameter key=ssl value=true
+2025-08-16T15:27:02.566416Z  WARN sqlx_postgres::options::parse: ignoring unrecognized connect parameter key=ssl value=true
+2025-08-16T15:36:32.148082Z  WARN sqlx_postgres::options::parse: ignoring unrecognized connect parameter key=ssl value=true
+2025-08-16T15:47:02.667729Z  WARN sqlx_postgres::options::parse: ignoring unrecognized connect parameter key=ssl value=true
+2025-08-16T15:53:57.926591Z  WARN sqlx_postgres::options::parse: ignoring unrecognized connect parameter key=ssl value=true
+2025-08-16T16:28:29.159053Z ERROR axum::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-08-16T16:28:29.160551Z ERROR axum::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-08-16T16:29:14.594425Z ERROR axum::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-08-16T16:47:14.602384Z  WARN sqlx_postgres::options::parse: ignoring unrecognized connect parameter key=ssl value=true

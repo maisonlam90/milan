@@ -23,6 +23,37 @@ const ROOT_DASHBOARDS = '/dashboards'
 
 const path = (root, item) => `${root}${item}`;
 
+
+/**
+ * Lọc cây menu theo module được phép.
+ * - allowed: Set(['acl','user','loan','payment',...])
+ * - Giữ node nếu:
+ *   + node.public === true (luôn hiển thị), HOẶC
+ *   + node.moduleKey thuộc allowed, HOẶC
+ *   + node có children sau khi filter (collapse/group)
+ */
+export function filterByAcl(node, allowed) {
+  // Node copy nông
+  const n = { ...node }
+  // Divider giữ lại nếu có public, còn không thì bỏ để menu gọn
+  if (n.type === NAV_TYPE_DIVIDER) {
+    return n.public ? n : null
+  }
+  // Filter children (nếu có)
+  if (Array.isArray(n.childs)) {
+    const filtered = n.childs
+      .map(child => filterByAcl(child, allowed))
+      .filter(Boolean)
+    n.childs = filtered
+  }
+  const hasChildren = Array.isArray(n.childs) && n.childs.length > 0
+
+  // Quy tắc hiển thị
+  const isAllowed = n.public === true || (n.moduleKey && allowed.has(n.moduleKey)) || hasChildren
+
+  return isAllowed ? n : null
+}
+
 export const dashboards = {
     id: 'dashboards',
     type: NAV_TYPE_ROOT,
@@ -38,6 +69,7 @@ export const dashboards = {
             title: 'Tenants',
             transKey: 'nav.dashboards.tenants',
             Icon: PeopleIcon,
+            moduleKey: 'tenant',
         },
         {
             id: 'dashboards.user',
@@ -46,6 +78,7 @@ export const dashboards = {
             title: 'User',
             transKey: 'nav.dashboards.user',
             Icon: PeopleIcon,
+            moduleKey: 'user',
         },
         {
             id: 'dashboards.acl',
