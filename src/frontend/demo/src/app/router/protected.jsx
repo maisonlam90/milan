@@ -745,27 +745,35 @@ const protectedRoutes = {
             {
               path: "contact/contact-list",
               lazy: async () => ({
-                Component: (await import("app/pages/dashboards/contact-list")).default,
+                Component: (await import("app/pages/dashboards/contact/contact-list")).default,
               }),
             },
             {
               path: "contact/contact-create",
               lazy: async () => ({
-                Component: (await import("app/pages/dashboards/contact-create")).default,
+                Component: (await import("app/pages/dashboards/contact/contact-create"))
+                  .default,
               }),
             },
-      
+
             {
-              path: "loan/loan-1",
+              path: "loan/loan-dashboard",
               lazy: async () => ({
-                Component: (await import("app/pages/dashboards/loan-1"))
+                Component: (await import("app/pages/dashboards/loan/loan-dashboard"))
+                  .default,
+              }),
+            },    
+            {
+              path: "loan/loan-list",
+              lazy: async () => ({
+                Component: (await import("app/pages/dashboards/loan/loan-list"))
                   .default,
               }),
             },
             {
-              path: "loan/loan-2",
+              path: "loan/loan-create",
               lazy: async () => ({
-                Component: (await import("app/pages/dashboards/loan-2"))
+                Component: (await import("app/pages/dashboards/loan/loan-create"))
                   .default,
               }),
             },

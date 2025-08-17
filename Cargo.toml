@@ -18,8 +18,10 @@ sqlx = { version = "0.7", default-features = false, features = [
     "uuid",
     "chrono",
     "migrate",
-    "json"  ,      
+    "json"  ,   
+    "bigdecimal",   
 ] }
+
 tokio-tungstenite = { version = "0.20", features = ["rustls-tls-webpki-roots"] }
 futures-util = "0.3"
 url = "2"
@@ -36,3 +38,6 @@ chrono-tz = "0.8"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 tracing-appender = "0.2"
+
+# Bao cao
+bigdecimal = "0.4"

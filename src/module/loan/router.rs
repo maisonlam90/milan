@@ -17,6 +17,7 @@ pub fn routes() -> Router<Arc<AppState>> {
                 .route("/:id", get(handler::get_contract_by_id))       // lấy chi tiết
                 .route("/:id/update", post(handler::update_contract))  // cập nhật
                 .route("/:id", delete(handler::delete_contract))       // ✅ Xoá hợp đồng
+                .route("/stats", get(handler::get_loan_stats))         //bao cao
                 .layer(middleware::from_fn(jwt_auth)),           // Tất cả require JWT
         )
 }

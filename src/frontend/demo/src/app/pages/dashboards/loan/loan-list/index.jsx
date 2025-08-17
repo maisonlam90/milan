@@ -68,7 +68,7 @@ export default function LoanListPage() {
       return;
     }
     // Truyền preview để trang chi tiết hiển thị ngay (không bị nháy)
-    navigate(`/dashboards/loan/loan-2?id=${row.id}`, { state: { preview: row } });
+    navigate(`/dashboards/loan/loan-create?id=${row.id}`, { state: { preview: row } });
   };
 
   return (

@@ -2,6 +2,8 @@ use sqlx::{PgPool, query_as};
 use uuid::Uuid;
 use crate::module::loan::model::{LoanContract, LoanTransaction};
 use crate::module::loan::calculator::calculate_interest_fields;
+use sqlx::types::BigDecimal;//bao cao
+
 
 pub async fn list_contracts(pool: &PgPool, tenant_id: Uuid) -> sqlx::Result<Vec<LoanContract>> {
     let contracts = sqlx::query_as!(
@@ -111,4 +113,95 @@ pub async fn get_contract_detail(
     calculate_interest_fields(&mut contract, &mut txs);
 
     Ok(ContractDetail { contract, transactions: txs })
+}
+// Bao cao
+#[derive(Debug)]
+pub struct LoanStats {
+    pub group_key: Option<f64>,            // day(1..31) | month(1..12) | year(YYYY)
+    pub total_issued: Option<BigDecimal>,  // SUM các giao dịch giải ngân
+    pub total_repaid: Option<BigDecimal>,  // SUM các giao dịch thu nợ/lãi
+}
+
+// === MONTHLY: group theo tháng của 1 năm ===
+pub async fn aggregate_by_month(
+    pool: &PgPool,
+    tenant_id: Uuid,
+    year: i32,
+) -> sqlx::Result<Vec<LoanStats>> {
+    let rows = sqlx::query_as!(
+        LoanStats,
+        r#"
+        SELECT 
+            EXTRACT(MONTH FROM lt.date) AS group_key,
+            SUM(CASE WHEN lt.transaction_type IN ('disbursement','additional') THEN lt.amount ELSE 0 END)::numeric AS total_issued,
+            SUM(CASE WHEN lt.transaction_type IN ('principal','interest')   THEN lt.amount ELSE 0 END)::numeric     AS total_repaid
+        FROM loan_transaction lt
+        WHERE lt.tenant_id = $1
+          AND EXTRACT(YEAR FROM lt.date) = $2
+        GROUP BY group_key
+        ORDER BY group_key
+        "#,
+        tenant_id,
+        year as f64
+    )
+    .fetch_all(pool)
+    .await?;
+
+    Ok(rows)
+}
+
+// === DAILY: group theo ngày trong 1 tháng của 1 năm ===
+pub async fn aggregate_by_day(
+    pool: &PgPool,
+    tenant_id: Uuid,
+    year: i32,
+    month: u32,
+) -> sqlx::Result<Vec<LoanStats>> {
+    let rows = sqlx::query_as!(
+        LoanStats,
+        r#"
+        SELECT 
+            EXTRACT(DAY FROM lt.date) AS group_key,
+            SUM(CASE WHEN lt.transaction_type IN ('disbursement','additional') THEN lt.amount ELSE 0 END)::numeric AS total_issued,
+            SUM(CASE WHEN lt.transaction_type IN ('principal','interest')   THEN lt.amount ELSE 0 END)::numeric     AS total_repaid
+        FROM loan_transaction lt
+        WHERE lt.tenant_id = $1
+          AND EXTRACT(YEAR  FROM lt.date) = $2
+          AND EXTRACT(MONTH FROM lt.date) = $3
+        GROUP BY group_key
+        ORDER BY group_key
+        "#,
+        tenant_id,
+        year as f64,
+        month as f64
+    )
+    .fetch_all(pool)
+    .await?;
+
+    Ok(rows)
+}
+
+// === YEARLY: group theo năm (tất cả năm có dữ liệu) ===
+pub async fn aggregate_by_year(
+    pool: &PgPool,
+    tenant_id: Uuid,
+) -> sqlx::Result<Vec<LoanStats>> {
+    let rows = sqlx::query_as!(
+        LoanStats,
+        r#"
+        SELECT 
+            EXTRACT(YEAR FROM lt.date) AS group_key,
+            SUM(CASE WHEN lt.transaction_type IN ('disbursement','additional') THEN lt.amount ELSE 0 END)::numeric AS total_issued,
+            SUM(CASE WHEN lt.transaction_type IN ('principal','interest')   THEN lt.amount ELSE 0 END)::numeric     AS total_repaid
+        FROM loan_transaction lt
+        WHERE lt.tenant_id = $1
+        GROUP BY group_key
+        ORDER BY group_key
+        "#,
+        tenant_id
+    )
+    .fetch_all(pool)
+    .await?;
+
+    Ok(rows)
 }
