@@ -8,30 +8,22 @@ import { JWT_HOST_API } from "configs/auth.config";
 const api = axios.create({ baseURL: JWT_HOST_API });
 
 export default function TenantPage() {
-  // New forms
+  // Forms
   const enterpriseForm = useForm();
   const companyForm = useForm();
-  const enableEntForm = useForm(); // 👈 bật module cho enterprise
-
-  // Existing forms
+  const enableEntForm = useForm(); // bật module cho enterprise
   const createForm = useForm();
-  const moduleForm = useForm();
+  const moduleForm = useForm(); // gán module cho tenant
   const removeForm = useForm();
   const userForm = useForm();
 
-  // Enterprise state
+  // States
   const [enterpriseSuccess, setEnterpriseSuccess] = useState(null);
   const [enterpriseError, setEnterpriseError] = useState(null);
-
-  // Company state
   const [companySuccess, setCompanySuccess] = useState(null);
   const [companyError, setCompanyError] = useState(null);
-
-  // Enable module for enterprise state
   const [enableEntSuccess, setEnableEntSuccess] = useState(null);
   const [enableEntError, setEnableEntError] = useState(null);
-
-  // Existing states
   const [createSuccess, setCreateSuccess] = useState(null);
   const [createError, setCreateError] = useState(null);
   const [assignSuccess, setAssignSuccess] = useState(null);
@@ -41,81 +33,81 @@ export default function TenantPage() {
   const [userSuccess, setUserSuccess] = useState(null);
   const [userError, setUserError] = useState(null);
   const [tenantList, setTenantList] = useState([]);
-  const [availableModules, setAvailableModules] = useState([]);
+  const [availableModules, setAvailableModules] = useState([]); // <- sẽ là [{key,label,description}]
+  const [modsLoading, setModsLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
 
-  const fetchAvailableModules = async () => {
-    try {
-      const res = await api.get("/available-modules");
-      setAvailableModules(res.data);
-    } catch {
-      console.error("❌ Lỗi lấy module khả dụng");
-    }
-  };
+  // Chuẩn hoá data: hỗ trợ cả 2 shape {key,label} hoặc {module_name,display_name}
+  const normalizeMods = (rows = []) =>
+    (rows || []).map((r) => ({
+      key: r.key ?? r.module_name,
+      label: r.label ?? r.display_name ?? r.module_name,
+      description: r.description ?? "",
+    })).filter(m => !!m.key);
 
+  // ===== API Fetchers =====
   const fetchTenantList = async () => {
     try {
       const res = await api.get("/tenants-with-modules");
-      setTenantList(res.data);
+      setTenantList(res.data || []);
     } catch {
       console.error("❌ Lỗi lấy danh sách tenants");
     }
   };
 
+  const fetchAvailableModules = async () => {
+    try {
+      setModsLoading(true);
+      // LẤY ĐÚNG TỪ /acl/available-modules
+      const res = await api.get("/acl/available-modules");
+      setAvailableModules(normalizeMods(res.data));
+    } catch {
+      console.error("❌ Lỗi lấy available modules");
+      setAvailableModules([]);
+    } finally {
+      setModsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    fetchTenantList();
-    fetchAvailableModules();
+    // IIFE để không bị eslint warning deps
+    (async () => {
+      await fetchTenantList();
+      await fetchAvailableModules();
+    })();
   }, []);
 
-  // ===== Enterprise handlers =====
+  // ===== Handlers =====
   const onEnterpriseSubmit = async (data) => {
     try {
-      const res = await api.post("/enterprise", data); // backend: POST /enterprise
+      const res = await api.post("/enterprise", data);
       setEnterpriseSuccess(res.data);
       setEnterpriseError(null);
       enterpriseForm.reset();
-    } catch (err) {
-      console.error("❌ Lỗi tạo enterprise:", err);
-      setEnterpriseError(err.response?.data?.message || err.message);
+    } catch (error) {
+      setEnterpriseError(error.response?.data?.message || error.message);
       setEnterpriseSuccess(null);
     }
   };
 
-  // ===== Enable module for Enterprise =====
   const onEnableEntSubmit = async (data) => {
     try {
       const { enterprise_id, module_name, config_json } = data;
-
-      // Parse JSON an toàn
       let cfg = {};
-      if (config_json && config_json.trim() !== "") {
-        try {
-          cfg = JSON.parse(config_json);
-        } catch (err) {
-          console.error("❌ Config JSON không hợp lệ:", err);
-          setEnableEntError("Config JSON không hợp lệ");
-          setEnableEntSuccess(null);
-          return;
-        }
+      if (config_json?.trim()) {
+        try { cfg = JSON.parse(config_json); }
+        catch { setEnableEntError("Config JSON không hợp lệ"); setEnableEntSuccess(null); return; }
       }
-
-      const res = await api.post(`/enterprise/${enterprise_id}/modules`, {
-        module_name,
-        config_json: cfg,
-      });
-
+      const res = await api.post(`/enterprise/${enterprise_id}/modules`, { module_name, config_json: cfg });
       setEnableEntSuccess(res.data);
       setEnableEntError(null);
       enableEntForm.reset();
-    } catch (err) {
-      console.error("❌ Lỗi bật module enterprise:", err);
-      // backend trả 200 nếu đã bật sẵn; còn lỗi khác map về message
-      setEnableEntError(err.response?.data?.error || err.response?.data?.message || err.message);
+    } catch (error) {
+      setEnableEntError(error.response?.data?.error || error.response?.data?.message || error.message);
       setEnableEntSuccess(null);
     }
   };
 
-  // ===== Company handlers =====
   const onCompanySubmit = async (data) => {
     try {
       const payload = {
@@ -124,18 +116,16 @@ export default function TenantPage() {
         slug: data.slug || null,
         parent_company_id: data.parent_company_id || null,
       };
-      const res = await api.post("/company", payload); // backend: POST /company
+      const res = await api.post("/company", payload);
       setCompanySuccess(res.data);
       setCompanyError(null);
       companyForm.reset();
-    } catch (err) {
-      console.error("❌ Lỗi tạo company:", err);
-      setCompanyError(err.response?.data?.message || err.message);
+    } catch (error) {
+      setCompanyError(error.response?.data?.message || error.message);
       setCompanySuccess(null);
     }
   };
 
-  // ===== Tenant handlers (giữ nguyên) =====
   const onCreateSubmit = async (data) => {
     try {
       const res = await api.post("/tenant", data);
@@ -143,9 +133,8 @@ export default function TenantPage() {
       setCreateError(null);
       createForm.reset();
       fetchTenantList();
-    } catch (err) {
-      console.error("❌ Lỗi tạo tenant:", err);
-      setCreateError(err.response?.data?.message || err.message);
+    } catch (error) {
+      setCreateError(error.response?.data?.message || error.message);
       setCreateSuccess(null);
     }
   };
@@ -153,18 +142,18 @@ export default function TenantPage() {
   const onAssignSubmit = async (data) => {
     try {
       const { tenant_id, module_name, config_json } = data;
-      const payload = {
-        module_name,
-        config_json: config_json ? JSON.parse(config_json) : {},
-      };
-      const res = await api.post(`/tenant/${tenant_id}/modules`, payload);
+      let cfg = {};
+      if (config_json?.trim()) {
+        try { cfg = JSON.parse(config_json); }
+        catch { setAssignError("Config JSON không hợp lệ"); setAssignSuccess(null); return; }
+      }
+      const res = await api.post(`/tenant/${tenant_id}/modules`, { module_name, config_json: cfg });
       setAssignSuccess(res.data);
       setAssignError(null);
       moduleForm.reset();
       fetchTenantList();
-    } catch (err) {
-      console.error("❌ Lỗi gán module:", err);
-      setAssignError(err.response?.data?.error || err.response?.data?.message || err.message);
+    } catch (error) {
+      setAssignError(error.response?.data?.error || error.response?.data?.message || error.message);
       setAssignSuccess(null);
     }
   };
@@ -176,9 +165,8 @@ export default function TenantPage() {
       setRemoveError(null);
       removeForm.reset();
       fetchTenantList();
-    } catch (err) {
-      console.error("❌ Lỗi xoá module:", err);
-      setRemoveError(err.response?.data?.message || err.message);
+    } catch (error) {
+      setRemoveError(error.response?.data?.message || error.message);
       setRemoveSuccess(null);
     }
   };
@@ -189,9 +177,8 @@ export default function TenantPage() {
       setUserSuccess(res.data);
       setUserError(null);
       userForm.reset();
-    } catch (err) {
-      console.error("❌ Lỗi tạo user:", err);
-      setUserError(err.response?.data?.message || err.message);
+    } catch (error) {
+      setUserError(error.response?.data?.message || error.message);
       setUserSuccess(null);
     }
   };
@@ -242,19 +229,18 @@ export default function TenantPage() {
               <select
                 {...enableEntForm.register("module_name", { required: "Bắt buộc" })}
                 className="w-full p-2 border border-gray-300 rounded"
+                disabled={modsLoading}
+                defaultValue=""
               >
-                <option value="">-- Chọn module --</option>
-                {availableModules.map((mod) => (
-                  <option key={mod.module_name} value={mod.module_name}>
-                    {mod.module_name} – {mod.display_name}
+                <option value="" disabled>
+                  {modsLoading ? "Đang tải..." : "— Chọn module —"}
+                </option>
+                {availableModules.map((m) => (
+                  <option key={m.key} value={m.key}>
+                    {m.label} ({m.key})
                   </option>
                 ))}
               </select>
-              {enableEntForm.formState.errors?.module_name?.message && (
-                <p className="text-red-500 text-sm mt-1">
-                  {enableEntForm.formState.errors.module_name.message}
-                </p>
-              )}
             </div>
             <Textarea
               label="Config JSON (tuỳ chọn)"
@@ -360,19 +346,18 @@ export default function TenantPage() {
               <select
                 {...moduleForm.register("module_name", { required: "Bắt buộc" })}
                 className="w-full p-2 border border-gray-300 rounded"
+                disabled={modsLoading}
+                defaultValue=""
               >
-                <option value="">-- Chọn module --</option>
-                {availableModules.map((mod) => (
-                  <option key={mod.module_name} value={mod.module_name}>
-                    {mod.module_name} – {mod.display_name}
+                <option value="" disabled>
+                  {modsLoading ? "Đang tải..." : "— Chọn module —"}
+                </option>
+                {availableModules.map((m) => (
+                  <option key={m.key} value={m.key}>
+                    {m.label} ({m.key})
                   </option>
                 ))}
               </select>
-              {moduleForm.formState.errors?.module_name?.message && (
-                <p className="text-red-500 text-sm mt-1">
-                  {moduleForm.formState.errors.module_name.message}
-                </p>
-              )}
             </div>
             <Textarea
               label="Config JSON (tuỳ chọn)"
@@ -434,7 +419,7 @@ export default function TenantPage() {
               error={userForm.formState.errors?.password?.message}
             />
             <Button type="submit" className="w-full">Tạo User</Button>
-            {userSuccess && <p className="text-green-600 text-sm text-center">✅ Đã tạo: {userSuccess.email}</p>}
+            {userSuccess && <p className="text-green-600 text-sm text-center">✅ {userSuccess.email || "Đã tạo user"}</p>}
             {userError && <p className="text-red-500 text-sm text-center">❌ {userError}</p>}
           </form>
         </Card>

@@ -61,12 +61,6 @@ async fn main() {
     // 🧠 AppState — chỉ chứa ShardManager, không còn PgPool cục bộ
     let app_state = AppState::new(shard.clone(), telemetry, event_publisher);
 
-    // 🔄 Đồng bộ metadata module (user, payment,...) vào bảng available_module
-    // 👉 Vì chưa migrate function sync này, ta dùng tạm shard.pool đầu tiên
-    module::sync_available_modules(shard.get_pool_for_tenant(&uuid::Uuid::nil()))
-        .await
-        .expect("❌ Không thể sync available_module");
-
     // 🌐 CORS middleware để frontend gọi được
     let cors = CorsLayer::new()
         .allow_origin(Any)

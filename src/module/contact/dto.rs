@@ -24,6 +24,9 @@ pub struct CreateContactInput {
 
     pub notes: Option<String>,
     pub tags: Option<Vec<String>>, // mảng nhãn
+    // 👇 Thêm vào đây
+    pub assignee_id: Option<Uuid>,
+    pub shared_with: Option<Vec<Uuid>>,
 }
 
 /// Input cập nhật liên hệ (tất cả field đều optional)

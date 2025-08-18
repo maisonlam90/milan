@@ -1,4 +1,6 @@
 use serde_json::json;
+pub const DISPLAY_NAME: &str = "Contact";
+pub const DESCRIPTION: &str = "Quản lí liên hệ";
 
 pub fn contact_form_schema() -> serde_json::Value {
     json!({

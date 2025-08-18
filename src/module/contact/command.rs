@@ -19,6 +19,9 @@ pub struct CreateContactDto {
     pub country_code: Option<String>,
     pub notes: Option<String>,
     pub tags: Option<Vec<String>>,
+    pub created_by: Uuid,
+    pub assignee_id: Option<Uuid>,
+    pub shared_with: Vec<Uuid>,
 }
 
 #[derive(Debug)]
@@ -97,11 +100,13 @@ pub async fn create_contact(
         INSERT INTO contact (
             tenant_id, id, is_company, parent_id,
             name, display_name, email, phone, mobile, website,
-            street, street2, city, state, zip, country_code, notes, tags_cached
+            street, street2, city, state, zip, country_code, notes, tags_cached,
+            created_by, assignee_id, shared_with
         ) VALUES (
             $1, $2, $3, $4,
             $5, $6, $7, $8, $9, $10,
-            $11, $12, $13, $14, $15, $16, $17, $18
+            $11, $12, $13, $14, $15, $16, $17, $18,
+            $19, $20, $21
         )
         "#,
         tenant_id, id, dto.is_company, dto.parent_id,
@@ -117,12 +122,15 @@ pub async fn create_contact(
         norm_str(&dto.zip),
         norm_str(&dto.country_code),
         norm_str(&dto.notes),
-        tags_cached
+        tags_cached,
+        dto.created_by,
+        dto.assignee_id,
+        &dto.shared_with, // 👈 đúng kiểu Vec<Uuid>
     )
     .execute(&mut *tx)
     .await?;
 
-    // TODO (tuỳ schema): upsert bảng tag + link nếu có
+    // TODO: upsert bảng tag + link nếu có
 
     tx.commit().await?;
     Ok(id)

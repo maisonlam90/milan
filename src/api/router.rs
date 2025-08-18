@@ -3,7 +3,7 @@ use axum::{Router, routing::{get, post}, middleware};
 use axum::http::{Method, header};
 use tower_http::cors::{Any, CorsLayer};
 
-use crate::module::{user, tenant, available, acl}; // 👈 Import thêm module acl
+use crate::module::{user, tenant, acl}; // 👈 Import thêm module acl
 use crate::core::{auth::jwt_auth, state::AppState};
 
 /// Build tất cả router từ các module.
@@ -40,9 +40,6 @@ pub fn build_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 
         // 🛡️ Route module loan
         .merge(crate::module::contact::router::routes())
-
-        // 📋 Route public lấy danh sách module khả dụng
-        .route("/available-modules", get(available::get_available_modules))
 
         // 🌐 Gắn state + middleware CORS
         .with_state(state)

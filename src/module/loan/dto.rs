@@ -21,6 +21,12 @@ pub struct CreateContractInput {
     pub total_paid_interest: Option<i64>,
     pub total_settlement_amount: Option<i64>,
     pub state: String,
+    pub created_by: Option<Uuid>,
+    pub assignee_id: Option<Uuid>,
+    pub shared_with: Option<Vec<Uuid>>,
+
+    // 👇 nếu frontend không gửi, sẽ default = []
+    #[serde(default)]
     pub transactions: Vec<TransactionInput>, // input only
 }
 

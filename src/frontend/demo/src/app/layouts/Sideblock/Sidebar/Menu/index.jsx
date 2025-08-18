@@ -17,16 +17,36 @@ const moduleKeyFromPath = (p) => {
   return m ? m[1] : null;
 };
 
-// prune tree theo allowed Set(['acl','user',...])
-const prune = (nodes, allowed) =>
+// prune cây theo allowed permission + allowedKeys
+const prune = (nodes, allowed, allowedKeys) =>
   nodes
     .map((n) => {
       const node = { ...n };
-      if (Array.isArray(node.childs)) node.childs = prune(node.childs, allowed);
+      if (Array.isArray(node.childs)) {
+        node.childs = prune(node.childs, allowed, allowedKeys);
+      }
       const hasChildren = Array.isArray(node.childs) && node.childs.length > 0;
+
       if (node.type === NAV_TYPE_DIVIDER) return node; // giữ divider
-      const key = node.moduleKey ?? moduleKeyFromPath(node.path); // 👈 ưu tiên moduleKey
-      const visible = (key ? allowed.has(key) : node.public === true) || hasChildren;
+
+      // Lấy key module từ path hoặc moduleKey gán sẵn
+      const key = node.moduleKey ?? moduleKeyFromPath(node.path);
+
+      // Quyền cụ thể cho node (nếu config menu có `permission`, dùng trực tiếp)
+      // nếu không, mặc định "<key>.access"
+      const perm = node.permission ?? (key ? `${key}.access` : null);
+
+      // Cho hiển thị nếu:
+      // - public
+      // - hoặc có con
+      // - hoặc khớp quyền cụ thể (loan.access)
+      // - hoặc khớp theo key (tương thích dữ liệu cũ chỉ truyền 'loan')
+      const visible =
+        node.public === true ||
+        hasChildren ||
+        (perm ? allowed.has(perm) : false) ||
+        (key ? allowedKeys.has(key) : false);
+
       return visible ? node : null;
     })
     .filter(Boolean);
@@ -48,14 +68,33 @@ export function Menu() {
       .catch(() => setMods([]));
   }, []);
 
-  // chuẩn hoá: ["module.acl","user"] -> Set(['acl','user'])
+  // chuẩn hoá:
+  // - "module.loan.access" -> "loan.access"
+  // - giữ nguyên "loan.access" nếu đã đúng
+  // - vẫn giữ tương thích nếu API trả về chỉ "loan"
   const allowed = useMemo(() => {
     const arr = Array.isArray(mods) ? mods : [];
     return new Set(arr.map((m) => (m.startsWith("module.") ? m.slice(7) : m)));
   }, [mods]);
 
+  // Tập các module key rút ra từ permission để so khớp theo key:
+  // - "loan.access" -> "loan"
+  // - "user" -> "user"
+  const allowedKeys = useMemo(() => {
+    const s = new Set();
+    allowed.forEach((p) => {
+      if (typeof p !== "string") return;
+      const k = p.includes(".") ? p.split(".")[0] : p;
+      if (k) s.add(k);
+    });
+    return s;
+  }, [allowed]);
+
   // lọc menu
-  const filteredNav = useMemo(() => prune(navigation, allowed), [allowed]);
+  const filteredNav = useMemo(
+    () => prune(navigation, allowed, allowedKeys),
+    [allowed, allowedKeys]
+  );
 
   // điều khiển accordion như cũ, nhưng dựa trên nav đã lọc
   const [expanded, setExpanded] = useState(null);
@@ -76,7 +115,10 @@ export function Menu() {
   const items = filteredNav;
 
   return (
-    <SimpleBar scrollableNodeProps={{ ref: scrollRef }} className="h-full overflow-x-hidden pb-6">
+    <SimpleBar
+      scrollableNodeProps={{ ref: scrollRef }}
+      className="h-full overflow-x-hidden pb-6"
+    >
       {loading && <div className="p-3 text-xs text-gray-500">Đang tải menu…</div>}
 
       <Accordion value={expanded} onChange={setExpanded} className="space-y-1">
@@ -84,7 +126,9 @@ export function Menu() {
           <Group key={nav.id} data={nav} />
         ))}
         {items.length === 0 && !loading && (
-          <div className="p-3 text-xs text-gray-500">Không có mục nào được cấp quyền</div>
+          <div className="p-3 text-xs text-gray-500">
+            Không có mục nào được cấp quyền
+          </div>
         )}
       </Accordion>
     </SimpleBar>

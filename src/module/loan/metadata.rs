@@ -1,19 +1,19 @@
 use serde_json::json;
-
+pub const DISPLAY_NAME: &str = "Loan";
+pub const DESCRIPTION: &str = "Quản lí cho vay";
 pub fn loan_form_schema() -> serde_json::Value {
     json!({
         "form": {
             "fields": [
                 { "name": "contact_id", "label": "Khách hàng", "type": "select", "width": 12 },
                 { "name": "name", "label": "Số hợp đồng", "type": "text", "width": 6 },
-                { "name": "principal", "label": "Số tiền vay ban đầu", "type": "number" , "width": 6 },
                 { "name": "interest_rate", "label": "Lãi suất (%)", "type": "number", "width": 6},
-                { "name": "term_months", "label": "Kỳ hạn (tháng)", "type": "number", "width": 6 },
-                { "name": "date_start", "label": "Ngày giải ngân", "type": "date", "width": 6  },
+                { "name": "date_start", "label": "Ngày hợp đồng", "type": "date", "width": 6  },
                 { "name": "date_end", "label": "Ngày kết thúc", "type": "date", "width": 6  },
+                { "name": "term_months", "label": "Kỳ hạn (tháng)", "type": "number", "width": 6 },
                 { "name": "collateral_description", "label": "Tài sản thế chấp", "type": "text", "width": 6 },
                 { "name": "collateral_value", "label": "Giá trị TS thế chấp", "type": "number", "width": 6 },
-                { "name": "state", "label": "Trạng thái hợp đồng", "type": "textarea", "width": 6 }
+                { "name": "state", "label": "Trạng thái hợp đồng", "type": "text", "width": 6 }
             ]
         },
         "list": {

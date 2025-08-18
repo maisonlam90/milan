@@ -119,7 +119,7 @@ pub async fn my_modules(
     let pool_tenant = state.shard.get_pool_for_tenant(&user.tenant_id);
     let pool_global = state.shard.get_pool_for_tenant(&Uuid::nil());
 
-    // 👑 admin? -> EXISTS → bool (không còn INT4/INT8)
+    // 👑 admin?
     let is_admin = sqlx::query_scalar::<_, bool>(
         r#"
         SELECT EXISTS (
@@ -141,8 +141,9 @@ pub async fn my_modules(
     .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 
     if is_admin {
+        // Admin thấy tất cả: chuẩn hóa thành "<module>.access"
         let all = sqlx::query_scalar::<_, Option<String>>(
-            r#"SELECT module_name FROM available_module ORDER BY module_name"#
+            r#"SELECT (module_name || '.access') AS perm FROM available_module ORDER BY module_name"#
         )
         .fetch_all(pool_global)
         .await
@@ -164,15 +165,30 @@ pub async fn my_modules(
         return Ok(Json(vec![]));
     }
 
-    // module.*.access theo role_ids (global)
-    let mods = sqlx::query_scalar::<_, Option<String>>(
+    // Chuẩn hóa quyền:
+    // - "module.<key>" + action='access'   -> "<key>.access"
+    // - resource LIKE "%.access"           -> resource (đã đúng)
+    // - action='access' & resource ko có . -> resource || ".access"
+    let perms = sqlx::query_scalar::<_, Option<String>>(
         r#"
-        SELECT DISTINCT split_part(p.resource, '.', 2) AS module_key
+        SELECT DISTINCT
+          CASE
+            WHEN p.resource LIKE 'module.%' AND p.action = 'access'
+              THEN split_part(p.resource, '.', 2) || '.access'
+            WHEN p.resource LIKE '%.access'
+              THEN p.resource
+            WHEN p.action = 'access'
+              THEN p.resource || '.access'
+            ELSE NULL
+          END AS perm
         FROM role_permissions rp
         JOIN permissions p ON p.id = rp.permission_id
-        WHERE rp.role_id = ANY($1)        -- $1: uuid[]
-          AND p.resource LIKE 'module.%'
-          AND p.action = 'access'
+        WHERE rp.role_id = ANY($1)
+          AND (
+            p.resource LIKE 'module.%'
+            OR p.resource LIKE '%.access'
+            OR p.action = 'access'
+          )
         ORDER BY 1
         "#
     )
@@ -181,8 +197,9 @@ pub async fn my_modules(
     .await
     .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 
-    Ok(Json(mods.into_iter().flatten().collect()))
+    Ok(Json(perms.into_iter().flatten().collect()))
 }
+
 
 /// (Tuỳ chọn) ✅ Trả effective permissions chi tiết (resource, action) cho user
 /// GET /acl/me/permissions

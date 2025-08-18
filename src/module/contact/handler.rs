@@ -32,7 +32,6 @@ pub async fn create_contact(
     let dto = command::CreateContactDto {
         is_company: input.is_company,
         parent_id: input.parent_id,
-        // name trong input là String -> bọc Some(...)
         name: Some(input.name),
         display_name: input.display_name,
         email: input.email,
@@ -47,6 +46,11 @@ pub async fn create_contact(
         country_code: input.country_code,
         notes: input.notes,
         tags: input.tags,
+
+        // 👇 Gán IAM record-level
+        created_by: auth.user_id,
+        assignee_id: input.assignee_id,
+        shared_with: input.shared_with.unwrap_or_default(), // hoặc Vec::new()
     };
 
     let id = command::create_contact(pool, auth.tenant_id, dto)

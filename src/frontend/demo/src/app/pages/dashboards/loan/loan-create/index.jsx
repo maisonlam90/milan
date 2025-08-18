@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Page } from "components/shared/Page";
@@ -9,6 +9,14 @@ import DynamicForm from "components/shared/DynamicForm";
 import Notebook from "components/shared/Notebook";
 
 const api = axios.create({ baseURL: JWT_HOST_API });
+
+// ✅ helper lấy message lỗi từ BE (AppError -> {code, message})
+const extractErrMsg = (err) => {
+  const data = err?.response?.data;
+  if (data?.message) return data.message;
+  if (typeof data === "string") return data;
+  return err?.message || "Có lỗi xảy ra";
+};
 
 export default function LoanPage() {
   const navigate = useNavigate();
@@ -24,8 +32,14 @@ export default function LoanPage() {
   const [saving, setSaving] = useState(false);
 
   const form = useForm();
-  const token = localStorage.getItem("authToken");
-  const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
+
+  // ✅ giữ ổn định header để tránh loop useEffect
+  const token = localStorage.getItem("authToken") || "";
+  const authHeader = useMemo(
+    () => (token ? { Authorization: `Bearer ${token}` } : undefined),
+    [token]
+  );
+
   const loanId = urlId || localLoanId;
 
   useEffect(() => {
@@ -37,7 +51,7 @@ export default function LoanPage() {
         sessionStorage.setItem(`loan_preview_${state.preview.id}`, JSON.stringify(state.preview));
       }
     }
-  }, [state?.preview]);
+  }, [state?.preview, form]);
 
   const fetchMetadata = useCallback(async () => {
     try {
@@ -55,7 +69,7 @@ export default function LoanPage() {
     } catch (err) {
       console.error("❌ Lỗi load contact:", err);
     }
-  }, [token]);
+  }, [token]); // phụ thuộc token (string) để ổn định
 
   const fetchLoan = useCallback(
     async (id = loanId) => {
@@ -76,13 +90,13 @@ export default function LoanPage() {
         if (cached) {
           form.reset(JSON.parse(cached));
         } else {
-          alert("❌ Lỗi load hợp đồng: " + (err.response?.data || err.message));
+          alert("❌ Lỗi load hợp đồng: " + extractErrMsg(err));
         }
       } finally {
         setLoadingLoan(false);
       }
     },
-    [loanId, token, form]
+    [loanId, token, form] // KHÔNG phụ thuộc object authHeader để tránh thay đổi ref liên tục
   );
 
   useEffect(() => {
@@ -134,7 +148,18 @@ export default function LoanPage() {
         }
       }
     } catch (err) {
-      alert("❌ Lỗi lưu hợp đồng: " + (err.response?.data || err.message));
+      // ✅ Hiển thị lỗi từ BE (Validation: 400 -> {code, message})
+      const dataRes = err?.response?.data;
+      if (dataRes?.code) {
+        setIsEditing(true);
+        if (["interest_overpaid", "principal_overpaid"].includes(dataRes.code)) {
+          document.querySelector("#loan-transactions")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }
+      }
+      alert("❌ " + extractErrMsg(err));
     } finally {
       setSaving(false);
     }
@@ -147,7 +172,7 @@ export default function LoanPage() {
       await api.delete(`/loan/${loanId}`, { headers: authHeader });
       navigate("/dashboards/loan/loan-1");
     } catch (err) {
-      alert("❌ Lỗi xóa hợp đồng: " + (err.response?.data || err.message));
+      alert("❌ Lỗi xóa hợp đồng: " + extractErrMsg(err));
     }
   };
 
@@ -225,7 +250,8 @@ export default function LoanPage() {
                 </div>
               </Card>
 
-              <Card className="p-4 sm:px-5">
+              {/* ✅ gắn id để scroll khi có lỗi giao dịch */}
+              <Card id="loan-transactions" className="p-4 sm:px-5">
                 <Notebook
                   name="transactions"
                   editable={isEditing}
@@ -252,6 +278,12 @@ export default function LoanPage() {
                   </div>
                   <div>
                     Tổng lãi đã trả: {form.watch("total_paid_interest")?.toLocaleString?.("vi-VN") || 0} VNĐ
+                  </div>
+                  <div>
+                    Tổng gốc đã trả: {form.watch("total_paid_principal")?.toLocaleString?.("vi-VN") || 0} VNĐ
+                  </div>
+                  <div className="font-semibold">
+                    Số tiền còn phải trả: {form.watch("payoff_due")?.toLocaleString?.("vi-VN") || 0} VNĐ
                   </div>
                 </div>
               </Card>

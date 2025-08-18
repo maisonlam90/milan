@@ -6,13 +6,13 @@ use axum::{
 use std::sync::Arc;
 use serde_json::json;
 use uuid::Uuid;
-use tracing::error; // 👈 THÊM DÒNG NÀY
- //bao cao
-use axum::{Extension}; // cho Extension
-use axum::extract::Query; // cho Query
+use tracing::error;
+use axum::Extension;
+use axum::extract::Query;
 use bigdecimal::ToPrimitive;
 use chrono::{Datelike, NaiveDate};
-use serde::{Deserialize, Serialize}; // cho Serialize, Deserialize
+use serde::{Deserialize, Serialize};
+use crate::core::error::{AppError, ErrorResponse};
 
 use crate::core::auth::AuthUser;
 use crate::core::state::AppState;
@@ -31,18 +31,30 @@ pub async fn get_metadata() -> Result<Json<serde_json::Value>, StatusCode> {
 pub async fn create_contract(
     State(state): State<Arc<AppState>>,
     auth: AuthUser,
-    Json(input): Json<CreateContractInput>,
-) -> Result<Json<serde_json::Value>, StatusCode> {
+    Json(mut input): Json<CreateContractInput>,
+) -> Result<Json<serde_json::Value>, AppError> {
+    // ✅ validate sớm bằng AppError::Validation (400 + JSON)
+    if input.transactions.is_empty() {
+        return Err(AppError::Validation(ErrorResponse {
+            code: "transactions_empty",
+            message: "Phải có ít nhất 1 giao dịch".into(),
+        }));
+    }
+
     let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
 
-    match command::create_contract(pool, auth.tenant_id, input).await {
-        Ok(contract) => Ok(Json(json!({ "contract_id": contract.id }))),
-        Err(e) => {
-            error!("❌ Lỗi khi tạo hợp đồng vay: {:?}", e);
-            Err(StatusCode::INTERNAL_SERVER_ERROR)
-        }
+    // 👇 Gán IAM mặc định
+    input.created_by = Some(auth.user_id);
+    if input.assignee_id.is_none() {
+        input.assignee_id = Some(auth.user_id);
     }
+    input.shared_with.get_or_insert_with(|| vec![]);
+
+    // 👇 propagate AppError (Validation/Db) lên handler
+    let contract = command::create_contract(pool, auth.tenant_id, input).await?;
+    Ok(Json(json!({ "contract_id": contract.id })))
 }
+
 
 pub async fn list_contracts(
     State(state): State<Arc<AppState>>,
@@ -63,7 +75,7 @@ pub async fn list_contracts(
             json!({
                 "id": c.id,
                 "name": c.name,
-                "principal": c.principal,
+                // "principal": c.principal,   // ❌ đã bỏ ở schema
                 "interest_rate": c.interest_rate,
                 "term_months": c.term_months,
                 "date_start": c.date_start.format("%d-%m-%Y").to_string(),
@@ -94,6 +106,7 @@ pub async fn get_contract_by_id(
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 
+    // tính toán projection từ ledger
     calculator::calculate_interest_fields(&mut contract, &mut transactions);
 
     let mut value = serde_json::to_value(contract).unwrap();
@@ -107,15 +120,19 @@ pub async fn update_contract(
     auth: AuthUser,
     Path(contract_id): Path<Uuid>,
     Json(input): Json<CreateContractInput>,
-) -> Result<Json<serde_json::Value>, StatusCode> {
+) -> Result<Json<serde_json::Value>, AppError> {
+    // ✅ validate policy: update phải có ít nhất 1 giao dịch
+    if input.transactions.is_empty() {
+        return Err(AppError::Validation(ErrorResponse {
+            code: "transactions_empty",
+            message: "Phải có ít nhất 1 giao dịch".into(),
+        }));
+    }
+
     let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
 
-    command::update_contract(pool, auth.tenant_id, contract_id, input)
-        .await
-        .map_err(|e| {
-            error!("❌ Lỗi update_contract: {:?}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?;
+    // propagate AppError (Validation/Db) lên router
+    command::update_contract(pool, auth.tenant_id, contract_id, input).await?;
 
     Ok(Json(json!({ "updated": true })))
 }
@@ -136,7 +153,8 @@ pub async fn delete_contract(
 
     Ok(StatusCode::NO_CONTENT)
 }
-// bao cao
+
+// ================== Báo cáo ==================
 #[derive(Deserialize)]
 pub struct StatsParams {
     pub year: i32,
@@ -165,7 +183,6 @@ pub async fn get_loan_stats(
     let tenant_id: Uuid = auth.tenant_id;
     let range = params.range.clone().unwrap_or_else(|| "monthly".to_string());
 
-    // gọi query theo range
     let rows = match range.as_str() {
         "daily" => {
             let month = params.month.unwrap_or(1);
@@ -179,7 +196,6 @@ pub async fn get_loan_stats(
         }
     };
 
-    // map<group_key, (issued,repaid)>
     use std::collections::BTreeMap;
     let mut m: BTreeMap<i32, (i64, i64)> = BTreeMap::new();
     for r in rows {
@@ -189,7 +205,6 @@ pub async fn get_loan_stats(
         m.insert(k, (issued, repaid));
     }
 
-    // build categories + zero-fill
     let (categories, issued_vec, repaid_vec) = match range.as_str() {
         "daily" => {
             let month = params.month.unwrap_or(1);
@@ -199,7 +214,6 @@ pub async fn get_loan_stats(
             let mut rv = Vec::with_capacity(last_day as usize);
             for d in 1..=last_day {
                 cats.push(d.to_string());
-                // 🔧 cast u32 -> i32 khi tra map
                 let (i, r) = m.get(&(d as i32)).cloned().unwrap_or((0, 0));
                 iv.push(i);
                 rv.push(r);
@@ -218,13 +232,11 @@ pub async fn get_loan_stats(
             (cats, iv, rv)
         }
         _ => {
-            // monthly: 1..=12
             let mut cats = Vec::with_capacity(12);
             let mut iv = Vec::with_capacity(12);
             let mut rv = Vec::with_capacity(12);
             for mth in 1..=12u32 {
                 cats.push(short_month(mth).to_string());
-                // 🔧 cast u32 -> i32 khi tra map
                 let (i, r) = m.get(&(mth as i32)).cloned().unwrap_or((0, 0));
                 iv.push(i);
                 rv.push(r);
