@@ -1,7 +1,7 @@
 use axum::{Router, routing::{get, post}, middleware};
 use std::sync::Arc;
 use crate::core::{state::AppState, auth::jwt_auth};
-use crate::module::acl::handler;
+use crate::module::iam::handler;
 
 pub fn routes() -> Router<Arc<AppState>> {
     let authed = Router::new()
@@ -14,7 +14,7 @@ pub fn routes() -> Router<Arc<AppState>> {
         .layer(middleware::from_fn(jwt_auth));
 
     Router::new()
-        .route("/acl/permissions", get(handler::list_permissions)) // public GET
-        .route("/acl/available-modules", get(handler::available_modules)) // 👈 thêm
-        .nest("/acl", authed)
+        .route("/iam/permissions", get(handler::list_permissions)) // public GET
+        .route("/iam/available-modules", get(handler::available_modules)) // 👈 thêm
+        .nest("/iam", authed)
 }

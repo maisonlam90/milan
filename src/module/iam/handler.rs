@@ -3,8 +3,8 @@ use std::sync::Arc;
 use crate::core::state::AppState;
 use serde::{Deserialize, Serialize}; 
 use uuid::Uuid;
-use crate::module::acl::command::{AssignRoleCommand, CreateRoleCommand, AssignPermissionsCommand};
-use crate::module::acl::model::{Permission, Role};
+use crate::module::iam::command::{AssignRoleCommand, CreateRoleCommand, AssignPermissionsCommand};
+use crate::module::iam::model::{Permission, Role};
 use crate::core::auth::AuthUser;
 
 /// ✅ Gán vai trò cho user trong tenant
@@ -30,7 +30,7 @@ pub async fn assign_role(
     }
 }
 
-/// ✅ Trả danh sách tất cả quyền hệ thống (GET /acl/permissions)
+/// ✅ Trả danh sách tất cả quyền hệ thống (GET /iam/permissions)
 #[axum::debug_handler]
 pub async fn list_permissions(
     State(state): State<Arc<AppState>>,
@@ -46,7 +46,7 @@ pub async fn list_permissions(
     Ok(Json(rows))
 }
 
-/// ✅ Trả danh sách vai trò của tenant hiện tại (GET /acl/roles)
+/// ✅ Trả danh sách vai trò của tenant hiện tại (GET /iam/roles)
 #[axum::debug_handler]
 pub async fn list_roles(
     Extension(user): Extension<AuthUser>,
@@ -110,7 +110,7 @@ pub async fn assign_permissions_to_role(
 }
 
 /// ✅ Trả danh sách module mà user hiện tại được phép sử dụng (để render menu)
-/// GET /acl/me/modules
+/// GET /iam/me/modules
 #[axum::debug_handler]
 pub async fn my_modules(
     Extension(user): Extension<AuthUser>,
@@ -202,7 +202,7 @@ pub async fn my_modules(
 
 
 /// (Tuỳ chọn) ✅ Trả effective permissions chi tiết (resource, action) cho user
-/// GET /acl/me/permissions
+/// GET /iam/me/permissions
 #[derive(serde::Serialize)]
 pub struct EffectivePermission { pub resource: String, pub action: String }
 

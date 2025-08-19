@@ -4,7 +4,7 @@
       "dashboards": "Dashboards",
       "tenants" : "Tenants" ,
       "user" : "Users" ,
-      "acl" : "ACL" ,
+      "iam" : "iam" ,
       "loan" : "Cho Vay" ,
       "contact" : "Liên Hệ" ,
       "contact-list" : "Danh Sách Liên Hệ" ,

@@ -61,7 +61,7 @@ export function Menu() {
     const token = localStorage.getItem("authToken");
     if (!token) return setMods([]);
     axios
-      .get(`${JWT_HOST_API}acl/me/modules`, {
+      .get(`${JWT_HOST_API}iam/me/modules`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((r) => setMods(Array.isArray(r.data) ? r.data : []))

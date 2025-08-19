@@ -736,9 +736,9 @@ const protectedRoutes = {
               }),
             },
             {
-              path: "acl",
+              path: "iam",
               lazy: async () => ({
-                Component: (await import("app/pages/dashboards/acl")).default,
+                Component: (await import("app/pages/dashboards/iam")).default,
               }),
             },
 

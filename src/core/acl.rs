@@ -1,4 +1,4 @@
-// src/core/acl.rs
+// src/core/iam.rs
 use crate::core::auth::AuthUser;
 use uuid::Uuid;
 

@@ -81,11 +81,11 @@ export const dashboards = {
             moduleKey: 'user',
         },
         {
-            id: 'dashboards.acl',
-            path: path(ROOT_DASHBOARDS, '/acl'),
+            id: 'dashboards.iam',
+            path: path(ROOT_DASHBOARDS, '/iam'),
             type: NAV_TYPE_ITEM,
-            title: 'Acl',
-            transKey: 'nav.dashboards.acl',
+            title: 'Iam',
+            transKey: 'nav.dashboards.iam',
             Icon: PeopleIcon,
         },
         {

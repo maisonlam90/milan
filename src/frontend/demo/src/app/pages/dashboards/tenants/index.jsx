@@ -58,8 +58,8 @@ export default function TenantPage() {
   const fetchAvailableModules = async () => {
     try {
       setModsLoading(true);
-      // LẤY ĐÚNG TỪ /acl/available-modules
-      const res = await api.get("/acl/available-modules");
+      // LẤY ĐÚNG TỪ /iam/available-modules
+      const res = await api.get("/iam/available-modules");
       setAvailableModules(normalizeMods(res.data));
     } catch {
       console.error("❌ Lỗi lấy available modules");

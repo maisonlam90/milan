@@ -9,7 +9,7 @@ const api = axios.create({ baseURL: JWT_HOST_API });
 
 function parseJwt(token) { try { return token ? JSON.parse(atob(token.split(".")[1])) : null; } catch { return null; } }
 
-export default function AclManagementPage() {
+export default function IamManagementPage() {
   const [roles, setRoles] = useState([]);
   const [permissions, setPermissions] = useState([]);
   const [selectedPerms, setSelectedPerms] = useState([]);
@@ -25,15 +25,15 @@ export default function AclManagementPage() {
   };
 
   const fetchPermissions = async () => {
-    try { const res = await api.get("/acl/permissions", { headers: authHeader() }); setPermissions(res.data || []); }
+    try { const res = await api.get("/iam/permissions", { headers: authHeader() }); setPermissions(res.data || []); }
     catch (err) { console.error("❌ Lỗi lấy permissions:", err); }
   };
   const fetchRoles = async () => {
-    try { const res = await api.get("/acl/roles", { headers: authHeader() }); setRoles(res.data || []); }
+    try { const res = await api.get("/iam/roles", { headers: authHeader() }); setRoles(res.data || []); }
     catch (err) { console.error("❌ Lỗi lấy roles:", err); }
   };
   const fetchAvailableModules = async () => {                        // 👈
-    try { const res = await api.get("/acl/available-modules"); setAvailableModules(res.data || []); }
+    try { const res = await api.get("/iam/available-modules"); setAvailableModules(res.data || []); }
     catch (err) { console.error("❌ Lỗi lấy available modules:", err); }
   };
 
@@ -46,10 +46,10 @@ export default function AclManagementPage() {
   const onCreateRole = async (data) => {
     try {
       if (!data?.module) { alert("⚠️ Module là bắt buộc."); return; }
-      const res = await api.post("/acl/roles", data, { headers: authHeader() });
+      const res = await api.post("/iam/roles", data, { headers: authHeader() });
       const role_id = res.data.role_id;
       if (selectedPerms.length > 0) {
-        await api.post("/acl/role-permissions", { role_id, permission_ids: selectedPerms }, { headers: authHeader() });
+        await api.post("/iam/role-permissions", { role_id, permission_ids: selectedPerms }, { headers: authHeader() });
       }
       await fetchRoles();
       roleForm.reset();
@@ -67,7 +67,7 @@ export default function AclManagementPage() {
     try {
       const payload = parseJwt(localStorage.getItem("authToken"));
       if (!payload?.tenant_id) { alert("❌ Không thấy tenant_id trong JWT"); return; }
-      await api.post("/acl/assign-role", { ...assignForm, tenant_id: payload.tenant_id }, { headers: authHeader() });
+      await api.post("/iam/assign-role", { ...assignForm, tenant_id: payload.tenant_id }, { headers: authHeader() });
       alert("✅ Gán role thành công");
       setAssignForm({ user_id: "", role_id: "" });
     } catch (err) { alert("❌ Lỗi gán role: " + (err.response?.data || err.message)); }
@@ -76,7 +76,7 @@ export default function AclManagementPage() {
   const onCreatePermission = async (data) => {
     try {
       if (!data.resource || !data.action || !data.label) { alert("⚠️ Điền đủ resource, action, label"); return; }
-      await api.post("/acl/permissions", data, { headers: authHeader() });
+      await api.post("/iam/permissions", data, { headers: authHeader() });
       await fetchPermissions();
       permForm.reset();
       alert("✅ Tạo permission thành công");
@@ -88,7 +88,7 @@ export default function AclManagementPage() {
     if (!key) { alert("⚠️ Chọn module"); return; }
     const body = { resource: `module.${key}`, action: "access", label: `Truy cập module ${key}` };
     try {
-      await api.post("/acl/permissions", body, { headers: authHeader() });
+      await api.post("/iam/permissions", body, { headers: authHeader() });
       await fetchPermissions();
       setModuleKey("");
       alert("✅ Tạo permission module.access thành công");

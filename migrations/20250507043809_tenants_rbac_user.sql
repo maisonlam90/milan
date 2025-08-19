@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS roles (
   tenant_id  UUID NOT NULL REFERENCES tenant(tenant_id) ON DELETE CASCADE,
   id         UUID NOT NULL DEFAULT gen_random_uuid(),
   name       TEXT NOT NULL,      -- admin, staff, auditor...
-  module     TEXT NOT NULL,      -- ví dụ: 'user' | 'payment' | 'loan' | 'acl'
+  module     TEXT NOT NULL,      -- ví dụ: 'user' | 'payment' | 'loan' | 'iam'
   PRIMARY KEY (tenant_id, id),
   UNIQUE (tenant_id, name)
 );
@@ -80,9 +80,9 @@ CREATE INDEX IF NOT EXISTS idx_user_roles_tenant_role ON user_roles(tenant_id, r
 --    - Tenant system = 00000000-0000-0000-0000-000000000000
 --    - Tạo admin có đầy đủ quyền user.* và quyền truy cập tất cả module.*.access
 -- ============================================================
--- Role admin (module đặt 'acl' chỉ để mô tả; quyền menu dựa trên permissions)
+-- Role admin (module đặt 'iam' chỉ để mô tả; quyền menu dựa trên permissions)
 INSERT INTO roles (tenant_id, name, module)
-VALUES ('00000000-0000-0000-0000-000000000000', 'admin', 'acl')
+VALUES ('00000000-0000-0000-0000-000000000000', 'admin', 'iam')
 ON CONFLICT (tenant_id, name) DO NOTHING;
 
 -- Gán toàn bộ quyền user.* cho admin

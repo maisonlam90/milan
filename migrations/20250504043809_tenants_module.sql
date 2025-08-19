@@ -67,7 +67,7 @@ EXECUTE FUNCTION trg_fill_tenant_module_eid();
 -- ===========================
 INSERT INTO available_module (module_name, display_name, description) VALUES
   ('tenant', 'Tenant', 'Quản lý tenant'),
-  ('acl', 'ACL', 'Quản lý phân quyền'),
+  ('iam', 'iam', 'Quản lý phân quyền'),
   ('user', 'User Management', 'Quản lý người dùng')
 ON CONFLICT DO NOTHING;
 
