@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT DISTINCT p.resource, p.action\n        FROM user_roles ur\n        JOIN role_permissions rp ON rp.role_id = ur.role_id\n        JOIN permissions p       ON p.id = rp.permission_id\n        WHERE ur.user_id = $1 AND ur.tenant_id = $2\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "resource",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "action",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "c0916f3cc2c49375fb7798fa990b3cb240507abe86b7eb6f4f2b54b9c445d5e2"
+}

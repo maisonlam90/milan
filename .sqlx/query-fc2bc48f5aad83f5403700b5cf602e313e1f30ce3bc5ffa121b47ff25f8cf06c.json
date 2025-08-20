@@ -1,0 +1,36 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO enterprise_module (enterprise_id, module_name, config_json)\n        VALUES ($1, $2, $3)\n        RETURNING enterprise_id, module_name, enabled_at\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "enterprise_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "module_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "enabled_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Jsonb"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "fc2bc48f5aad83f5403700b5cf602e313e1f30ce3bc5ffa121b47ff25f8cf06c"
+}

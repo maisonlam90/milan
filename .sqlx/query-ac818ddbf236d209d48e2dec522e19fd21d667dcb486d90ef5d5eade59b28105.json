@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO loan_transaction (\n                contract_id, tenant_id, contact_id,\n                transaction_type, amount, \"date\", note,\n                created_by, assignee_id, shared_with\n            )\n            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Int8",
+        "Timestamptz",
+        "Text",
+        "Uuid",
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "ac818ddbf236d209d48e2dec522e19fd21d667dcb486d90ef5d5eade59b28105"
+}

@@ -1,0 +1,56 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT \n            t.tenant_id,\n            t.enterprise_id,\n            t.company_id,\n            t.name,\n            t.slug,\n            t.shard_id,\n            m.module_name as \"module_name?\"\n        FROM tenant t\n        LEFT JOIN tenant_module m \n          ON m.tenant_id = t.tenant_id\n        ORDER BY t.name\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "enterprise_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "company_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "slug",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "shard_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "module_name?",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "d22ddfe615c64093da59814759d5ffa8adde40e1fc1a33d5090ba8681d5782ed"
+}
