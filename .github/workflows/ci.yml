@@ -33,3 +33,4 @@ jobs:
 
       - name: Build project
         run: cargo build --release
+
