@@ -14,6 +14,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Build frontend (Tailux)
+        run: |
+          cd src/frontend/demo
+          yarn install --frozen-lockfile
+          yarn build
+
       - name: Cài Rust stable
         uses: actions-rs/toolchain@v1
         with:
@@ -33,4 +44,3 @@ jobs:
 
       - name: Build project
         run: cargo build --release
-
