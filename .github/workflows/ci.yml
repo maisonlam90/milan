@@ -14,15 +14,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Cài Rust
+      - name: Cài Rust stable
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: 1.82.0
+          toolchain: stable
           profile: minimal
           override: true
 
-      - name: Cài sqlx-cli
-        run: cargo install sqlx-cli --version 0.8.3 --no-default-features --features postgres
+      - name: Pin Rust version
+        run: |
+          echo '[toolchain]' > rust-toolchain.toml
+          echo 'channel = "1.82.0"' >> rust-toolchain.toml
+          echo 'components = ["rustfmt", "clippy"]' >> rust-toolchain.toml
+
+      - name: Cài sqlx-cli (bản cũ tránh edition2024)
+        run: |
+          cargo install sqlx-cli --version 0.7.3 --no-default-features --features postgres --locked
 
       - name: Build project
         run: cargo build --release
