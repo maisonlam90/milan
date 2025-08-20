@@ -1,14 +1,22 @@
-# Build stage
-FROM rust:1.82 as builder
-WORKDIR /app
-COPY . .
-RUN apt-get update && apt-get install -y libpq-dev
-RUN cargo build --release
+#!/bin/bash
+set -e
 
-# Runtime stage
-FROM debian:bullseye-slim
-WORKDIR /app
-RUN apt-get update && apt-get install -y libpq5 ca-certificates && rm -rf /var/lib/apt/lists/*
-COPY --from=builder /app/target/release/axum /app/axum
-EXPOSE 8080
-ENTRYPOINT ["./axum"]
+IMAGE="ghcr.io/maisonlam90/axum:latest"
+CONTAINER_NAME="axum"
+
+echo "🚀 Login GHCR..."
+echo "${GHCR_PAT}" | docker login ghcr.io -u maisonlam90 --password-stdin
+
+echo "📥 Pull image mới..."
+docker pull $IMAGE
+
+echo "♻️ Restart container..."
+docker stop $CONTAINER_NAME || true
+docker rm $CONTAINER_NAME || true
+
+docker run -d \
+  --name $CONTAINER_NAME \
+  -p 8000:8000 \     # Rust API
+  -p 80:80 \         # Frontend static
+  -v /etc/localtime:/etc/localtime:ro \
+  $IMAGE
