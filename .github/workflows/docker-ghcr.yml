@@ -1,5 +1,4 @@
-# .github/workflows/docker-ghcr.yml
-name: Build and Push to GHCR
+name: Build and Push to GHCR vxcvxcvxcv
 
 on:
   push:
@@ -26,6 +25,15 @@ jobs:
 
       - name: Build and push image to GHCR
         run: |
-          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/axum:latest
-          docker build -t $IMAGE_NAME .
-          docker push $IMAGE_NAME
+          IMAGE=ghcr.io/${{ github.repository_owner }}/axum
+          TAG_LATEST=latest
+          TAG_SHA=${{ github.sha }}
+
+          echo "🛠️ Build image: $IMAGE:$TAG_LATEST và $IMAGE:$TAG_SHA"
+          docker build -t $IMAGE:$TAG_LATEST -t $IMAGE:$TAG_SHA .
+
+          echo "🚀 Push image với tag: $TAG_LATEST"
+          docker push $IMAGE:$TAG_LATEST
+
+          echo "📝 Push image với tag: $TAG_SHA"
+          docker push $IMAGE:$TAG_SHA
