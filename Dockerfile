@@ -1,30 +1,32 @@
-# Base layer: build Rust backend
+# ---------- Backend build layer ----------
 FROM rust:1.82 as backend-builder
 
 WORKDIR /app
+
+# Copy project và bật SQLX_OFFLINE nếu có
+ARG SQLX_OFFLINE
+ENV SQLX_OFFLINE=${SQLX_OFFLINE}
+
 COPY . .
+
 RUN cargo build --release
 
-# ───────────────────────────────────────────────────────────
-
-# Base layer: build frontend
+# ---------- Frontend build layer ----------
 FROM node:20-alpine as frontend-builder
 
-ARG VITE_BACKEND_URL
-ENV VITE_BACKEND_URL=$VITE_BACKEND_URL
-
 WORKDIR /frontend
+
 COPY ./src/frontend/demo .
 
 RUN yarn install
+ARG VITE_BACKEND_URL
+ENV VITE_BACKEND_URL=${VITE_BACKEND_URL}
 RUN yarn build
 
-# ───────────────────────────────────────────────────────────
-
-# Final image: chạy BE + serve FE
+# ---------- Final runtime image ----------
 FROM debian:bullseye-slim
 
-# Install serve + CA cert + node
+# Cài đặt các công cụ cần thiết
 RUN apt-get update && apt-get install -y \
     ca-certificates curl \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
@@ -34,20 +36,13 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Copy backend binary
+# Copy binary backend và frontend build
 COPY --from=backend-builder /app/target/release/axum /app/axum
-
-# Copy frontend dist
 COPY --from=frontend-builder /frontend/dist /app/frontend
 
-# Cổng FE là 80, BE vẫn là 3000
-EXPOSE 80
-EXPOSE 3000
-
-# Mặc định chạy cả backend và serve frontend
-CMD ./axum & serve -s /app/frontend -l 80
-
-# Copy file evn
+# Copy file cấu hình nếu có
 COPY .env /app/.env
-# Copy file yugabyte
 COPY yugabyte.crt /app/yugabyte.crt
+
+# Chạy cả backend và frontend
+CMD ./axum & serve -s /app/frontend -l 80
