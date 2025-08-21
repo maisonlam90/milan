@@ -46,5 +46,6 @@ EXPOSE 3000
 
 # Mặc định chạy cả backend và serve frontend
 CMD ./axum & serve -s /app/frontend -l 80
+
 # Copy file evn
 COPY .env /app/.env
