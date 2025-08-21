@@ -21,6 +21,16 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Tạo file .env từ secret DATABASE_URL
+        run: |
+          cat <<EOF > .env
+          ${{ secrets.DATABASE_URL }}
+          EOF
+
+      - name: Giải mã yugabyte.crt từ secret
+        run: |
+          echo "${{ secrets.YUGA_CRT_B64 }}" | base64 -d > yugabyte.crt
+
       - name: Build frontend (Tailux)
         run: |
           cd src/frontend/demo
@@ -40,13 +50,3 @@ jobs:
           IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/axum:latest
           docker build -t $IMAGE_NAME .
           docker push $IMAGE_NAME
-
-      - name: Giải mã yugabyte.crt từ secret
-        run: |
-          echo "${{ secrets.YUGA_CRT_B64 }}" | base64 -d > yugabyte.crt
-
-      - name: Tạo file .env từ secret DATABASE_URL
-        run: |
-          cat <<EOF > .env
-          ${{ secrets.DATABASE_URL }}
-          EOF
