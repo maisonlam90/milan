@@ -7,46 +7,39 @@ on:
 jobs:
   push-ghcr:
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
       packages: write
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
           node-version: '20'
-          cache: 'yarn'
-          cache-dependency-path: |
-            src/frontend/demo/yarn.lock
-            yarn.lock
 
-      # .env cho BE (đúng key=value)
-      - name: Create .env for backend
+      - name: Tạo file .env từ secret DATABASE_URL
         run: |
-          cat <<'EOF' > .env
-          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          cat <<EOF > .env
+          ${{ secrets.DATABASE_URL }}
           EOF
 
-      # giải mã cert (nếu dùng SSL)
-      - name: Decode yugabyte.crt from secret
-        if: ${{ secrets.YUGA_CRT_B64 != '' }}
+      - name: Giải mã yugabyte.crt từ secret
         run: |
           echo "${{ secrets.YUGA_CRT_B64 }}" | base64 -d > yugabyte.crt
-          ls -l yugabyte.crt
 
-      # Build FE một lần, nhúng URL BE (chọn public URL ổn định)
-      - name: Build frontend (Vite)
-        working-directory: src/frontend/demo
+      - name: Build frontend (Tailux)
         run: |
+          cd src/frontend/demo
           yarn install --frozen-lockfile
-          VITE_BACKEND_URL='${{ secrets.VITE_BACKEND_URL }}' yarn build
+          VITE_BACKEND_URL=${{ secrets.VITE_BACKEND_URL }} yarn build
+          cd ../../..
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -55,8 +48,5 @@ jobs:
       - name: Build and push image to GHCR
         run: |
           IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/axum:latest
-          # Nếu Dockerfile copy FE dist từ src/frontend/demo/dist
-          docker build \
-            --build-arg SQLX_OFFLINE=true \
-            -t $IMAGE_NAME .
+          docker build -t $IMAGE_NAME .
           docker push $IMAGE_NAME
