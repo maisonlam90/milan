@@ -49,3 +49,5 @@ CMD ./axum & serve -s /app/frontend -l 80
 
 # Copy file evn
 COPY .env /app/.env
+# Copy file yugabyte
+COPY yugabyte.crt /app/yugabyte.crt
