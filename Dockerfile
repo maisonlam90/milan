@@ -1,22 +1,45 @@
-#!/bin/bash
-set -e
+# Base layer: build Rust backend
+FROM rust:1.82 as backend-builder
 
-IMAGE="ghcr.io/maisonlam90/axum:latest"
-CONTAINER_NAME="axum"
+WORKDIR /app
 
-echo "🚀 Login GHCR..."
-echo "${GHCR_PAT}" | docker login ghcr.io -u maisonlam90 --password-stdin
+# Copy toàn bộ project (tránh cache lại nếu thay đổi)
+COPY . .
 
-echo "📥 Pull image mới..."
-docker pull $IMAGE
+# Build release binary
+RUN cargo build --release
 
-echo "♻️ Restart container..."
-docker stop $CONTAINER_NAME || true
-docker rm $CONTAINER_NAME || true
+# -----------------------------------------
 
-docker run -d \
-  --name $CONTAINER_NAME \
-  -p 8000:8000 \     # Rust API
-  -p 80:80 \         # Frontend static
-  -v /etc/localtime:/etc/localtime:ro \
-  $IMAGE
+# Base layer: build frontend
+FROM node:20-alpine as frontend-builder
+
+WORKDIR /frontend
+
+COPY ./src/frontend/demo .
+
+RUN yarn install && yarn build
+
+# -----------------------------------------
+
+# Final image chạy BE + serve FE
+FROM debian:bullseye-slim
+
+# Install serve + CA
+RUN apt-get update && apt-get install -y \
+    ca-certificates curl \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g serve \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy backend binary
+COPY --from=backend-builder /app/target/release/axum /app/axum
+
+# Copy frontend build
+COPY --from=frontend-builder /frontend/dist /app/frontend
+
+# Mặc định chạy cả hai
+CMD ./axum & serve -s /app/frontend -l 80
