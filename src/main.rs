@@ -63,9 +63,9 @@ async fn main() {
 
     // 🌐 CORS middleware để frontend gọi được
     let cors = CorsLayer::new()
-        .allow_origin(Any)
+        .allow_origin("http://103.82.21.18".parse().unwrap())
         .allow_methods([Method::GET, Method::POST, Method::OPTIONS, Method::DELETE])
-        .allow_headers([AUTHORIZATION, CONTENT_TYPE]);
+        .allow_headers([CONTENT_TYPE, AUTHORIZATION]);
 
     // 🚦 Build Axum router và inject AppState + middleware
     let app = build_router(app_state.clone())
