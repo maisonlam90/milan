@@ -25,7 +25,7 @@ jobs:
         run: |
           cd src/frontend/demo
           yarn install --frozen-lockfile
-          yarn build
+          VITE_BACKEND_URL=${{ secrets.VITE_BACKEND_URL }} yarn build
           cd ../../..
 
       - name: Login to GitHub Container Registry
