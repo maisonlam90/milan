@@ -44,3 +44,10 @@ jobs:
       - name: Giải mã yugabyte.crt từ secret
         run: |
           echo "${{ secrets.YUGA_CRT_B64 }}" | base64 -d > yugabyte.crt
+
+      - name: Tạo file .env từ secret ENV_CONTENT
+        run: |
+          run: |
+          cat <<EOF > .env
+          ${{ secrets.DATABASE_URL }}
+          EOF
