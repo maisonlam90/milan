@@ -16,27 +16,36 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v3
 
-      # CHANGE: Bỏ setup Node.js vì Dockerfile tự build FE ở stage frontend-builder
-      # - name: Setup Node.js
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: '20'
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
 
-      # CHANGE: Không tạo .env từ secret DATABASE_URL trong image (truyền khi RUN)
-      # - name: Tạo file .env từ secret DATABASE_URL
-      #   run: |
-      #     cat <<EOF > .env
-      #     ${{ secrets.DATABASE_URL }}
-      #     EOF
-
-      # (tuỳ chọn) Giải mã cert nếu Dockerfile của bạn có COPY file này
-      - name: Giải mã yugabyte.crt từ secret (optional)
-        if: ${{ secrets.YUGA_CRT_B64 != '' }}
+      - name: Tạo file .env từ secret DATABASE_URL
         run: |
-          echo "${{ secrets.YUGA_CRT_B64 }}" | base64 -d > yugabyte.crt || true
+          cat <<EOF > .env
+          ${{ secrets.DATABASE_URL }}
+          EOF
+
+      # ✅ Sửa step này: bỏ `if:` và kiểm tra trong shell
+      - name: Giải mã yugabyte.crt từ secret (optional)
+        run: |
+          if [ -n "${{ secrets.YUGA_CRT_B64 }}" ]; then
+            echo "${{ secrets.YUGA_CRT_B64 }}" | base64 -d > yugabyte.crt
+            echo "Wrote yugabyte.crt"
+          else
+            echo "No YUGA_CRT_B64 provided, skipping."
+          fi
+
+      - name: Build frontend (Tailux)
+        run: |
+          cd src/frontend/demo
+          yarn install --frozen-lockfile
+          VITE_BACKEND_URL=${{ secrets.VITE_BACKEND_URL }} yarn build
+          cd ../../..
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
