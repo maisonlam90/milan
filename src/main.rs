@@ -67,10 +67,13 @@ async fn main() {
         .allow_methods([Method::GET, Method::POST, Method::OPTIONS, Method::DELETE])
         .allow_headers([AUTHORIZATION, CONTENT_TYPE]);
 
-    // 🚦 Build Axum router và inject AppState + middleware
+    // + Thêm route "/" để test nhanh BE có sống
+    use axum::routing::get;
     let app = build_router(app_state.clone())
         .with_state(app_state)
-        .layer(cors);
+        .layer(cors)
+        .route("/", get(|| async { "BE OK" }));
+
 
     // 🔌 Lắng nghe cổng HTTP
     let port = env::var("PORT")
