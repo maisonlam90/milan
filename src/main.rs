@@ -31,7 +31,9 @@ impl EventPublisher for DummyBus {
     }
 }
 
-/// 🌐 Hàm tạo CORS layer từ biến môi trường ALLOWED_ORIGINS
+/// 🌐 Tạo CORS từ biến môi trường ALLOWED_ORIGINS
+/// - Nếu có giá trị: bật allow_credentials(true) + danh sách origin cụ thể
+/// - Nếu trống: dev-only nới lỏng (Any)
 fn cors_layer_from_env() -> CorsLayer {
     let origins_env = env::var("ALLOWED_ORIGINS").unwrap_or_default();
     let origins: Vec<HeaderValue> = origins_env
@@ -43,14 +45,7 @@ fn cors_layer_from_env() -> CorsLayer {
         .collect();
 
     let mut layer = CorsLayer::new()
-        .allow_methods([
-            Method::GET,
-            Method::POST,
-            Method::PUT,
-            Method::PATCH,
-            Method::DELETE,
-            Method::OPTIONS,
-        ])
+        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::PATCH, Method::DELETE, Method::OPTIONS])
         .allow_headers([ACCEPT, CONTENT_TYPE, AUTHORIZATION, ORIGIN])
         .max_age(Duration::from_secs(24 * 60 * 60));
 
@@ -60,7 +55,6 @@ fn cors_layer_from_env() -> CorsLayer {
         use tower_http::cors::Any;
         layer = layer.allow_origin(Any);
     }
-
     layer
 }
 
@@ -70,6 +64,7 @@ async fn main() {
 
     // 👇 Khởi tạo hệ thống log (rất quan trọng)
     // Log luân phiên theo ngày, lưu vào thư mục "logs/"
+
     let file_appender = rolling::daily("logs", "app.log");
     let (file_writer, guard) = non_blocking(file_appender);
     Box::leak(Box::new(guard));
@@ -94,13 +89,17 @@ async fn main() {
     // 🧠 AppState — chỉ chứa ShardManager, không còn PgPool cục bộ
     let app_state = AppState::new(shard.clone(), telemetry, event_publisher);
 
-    // 🌐 CORS middleware để frontend gọi được (chuẩn hoá bằng ALLOWED_ORIGINS)
+    // 🌐 CORS middleware để frontend gọi được
+    // (đọc từ env: ALLOWED_ORIGINS="http://103.82.21.18,http://localhost:5173")
     let cors = cors_layer_from_env();
 
     // 🚦 Build Axum router và inject AppState + middleware
+    // + Thêm route "/" để test nhanh BE có sống
+    use axum::routing::get;
     let app = build_router(app_state.clone())
         .with_state(app_state)
-        .layer(cors);
+        .layer(cors)
+        .route("/", get(|| async { "BE OK" }));
 
     // 🔌 Lắng nghe cổng HTTP
     let port = env::var("PORT")
