@@ -26,11 +26,11 @@
     
     
     # ---------- Final runtime image ----------
-    # CHANGE: bullseye-slim (glibc 2.31) → bookworm-slim (glibc >= 2.36) để hết lỗi GLIBC_* not found
+    # CHANGE: bullseye-slim -> bookworm-slim (glibc >= 2.36) để hết lỗi GLIBC_* not found
     FROM debian:bookworm-slim
     
     # Cài đặt các công cụ cần thiết (runtime)
-    # CHANGE: chỉ cần ca-certificates + nodejs + npm + serve (không cần NodeSource vì FE đã build ở stage trước)
+    # CHANGE: chỉ cần ca-certificates + nodejs + npm + serve (FE đã build ở stage trên)
     RUN apt-get update && apt-get install -y \
         ca-certificates nodejs npm curl \
      && npm install -g serve \
@@ -42,8 +42,7 @@
     COPY --from=backend-builder /app/target/release/axum /app/axum
     COPY --from=frontend-builder /frontend/dist /app/frontend
     
-    # Copy file cấu hình nếu có
-    # ⚠️ KHÔNG khuyến nghị copy .env vào image prod (dễ lộ secret). Dùng -e/secret khi run.
+    # (tuỳ chọn) KHÔNG khuyến nghị copy .env vào image prod
     # COPY .env /app/.env
     # COPY yugabyte.crt /app/yugabyte.crt
     
@@ -54,7 +53,7 @@
     EXPOSE 80 3000
     
     # CHANGE: chạy cả backend và frontend; dùng 'wait -n' để container thoát nếu 1 trong 2 process chết
-    # - ./axum lắng nghe PORT=3000 (theo main.rs)
+    # - ./axum lắng nghe PORT=3000
     # - serve phục vụ FE build ở cổng 80
     CMD ["sh","-lc","./axum & serve -s /app/frontend -l 80 & wait -n"]
     
