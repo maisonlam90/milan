@@ -26,17 +26,13 @@
     
     
     # ---------- Final runtime image ----------
-    # CHANGE: bullseye-slim (glibc 2.31) → bookworm-slim (glibc >= 2.36) để hết lỗi GLIBC
+    # CHANGE: bullseye-slim (glibc 2.31) → bookworm-slim (glibc >= 2.36) để hết lỗi GLIBC_* not found
     FROM debian:bookworm-slim
     
-    # Cài đặt các công cụ cần thiết
-    # CHANGE: cài ca-certificates + curl + nodejs + serve trên bookworm
+    # Cài đặt các công cụ cần thiết (runtime)
+    # CHANGE: chỉ cần ca-certificates + nodejs + npm + serve (không cần NodeSource vì FE đã build ở stage trước)
     RUN apt-get update && apt-get install -y \
-        ca-certificates curl gnupg \
-     && mkdir -p /etc/apt/keyrings \
-     && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
-     && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" > /etc/apt/sources.list.d/nodesource.list \
-     && apt-get update && apt-get install -y nodejs \
+        ca-certificates nodejs npm curl \
      && npm install -g serve \
      && rm -rf /var/lib/apt/lists/*
     
@@ -46,8 +42,8 @@
     COPY --from=backend-builder /app/target/release/axum /app/axum
     COPY --from=frontend-builder /frontend/dist /app/frontend
     
-    # Copy file cấu hình nếu có (tuỳ chọn)
-    # (GỢI Ý: tránh COPY .env vào image prod; dùng -e / secrets tốt hơn)
+    # Copy file cấu hình nếu có
+    # ⚠️ KHÔNG khuyến nghị copy .env vào image prod (dễ lộ secret). Dùng -e/secret khi run.
     # COPY .env /app/.env
     # COPY yugabyte.crt /app/yugabyte.crt
     
@@ -57,8 +53,8 @@
     # CHANGE: expose cả 80 (FE) và 3000 (BE)
     EXPOSE 80 3000
     
-    # CHANGE: chạy cả backend và frontend; dùng 'wait -n' để container exit nếu 1 trong 2 process chết
-    # - ./axum sẽ nghe ở PORT=3000
-    # - serve sẽ phục vụ FE build ở cổng 80
+    # CHANGE: chạy cả backend và frontend; dùng 'wait -n' để container thoát nếu 1 trong 2 process chết
+    # - ./axum lắng nghe PORT=3000 (theo main.rs)
+    # - serve phục vụ FE build ở cổng 80
     CMD ["sh","-lc","./axum & serve -s /app/frontend -l 80 & wait -n"]
     
