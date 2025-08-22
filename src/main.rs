@@ -1,7 +1,8 @@
-use axum::http::{Method, header::{AUTHORIZATION, CONTENT_TYPE}};
+use axum::http::{Method, header::{AUTHORIZATION, CONTENT_TYPE, ACCEPT, ORIGIN}};
 use dotenvy::dotenv;
-use std::{env, net::SocketAddr, sync::Arc};
-use tower_http::cors::{CorsLayer, Any};
+use std::{env, net::SocketAddr, sync::Arc, time::Duration};
+use tower_http::cors::CorsLayer;
+use axum::http::HeaderValue;
 
 use api::router::build_router; // 👈 Build router từ module api
 use core::state::AppState;
@@ -30,13 +31,45 @@ impl EventPublisher for DummyBus {
     }
 }
 
+/// 🌐 Hàm tạo CORS layer từ biến môi trường ALLOWED_ORIGINS
+fn cors_layer_from_env() -> CorsLayer {
+    let origins_env = env::var("ALLOWED_ORIGINS").unwrap_or_default();
+    let origins: Vec<HeaderValue> = origins_env
+        .split(',')
+        .filter_map(|s| {
+            let s = s.trim();
+            if s.is_empty() { None } else { Some(s.parse().ok()?) }
+        })
+        .collect();
+
+    let mut layer = CorsLayer::new()
+        .allow_methods([
+            Method::GET,
+            Method::POST,
+            Method::PUT,
+            Method::PATCH,
+            Method::DELETE,
+            Method::OPTIONS,
+        ])
+        .allow_headers([ACCEPT, CONTENT_TYPE, AUTHORIZATION, ORIGIN])
+        .max_age(Duration::from_secs(24 * 60 * 60));
+
+    if !origins.is_empty() {
+        layer = layer.allow_origin(origins).allow_credentials(true);
+    } else {
+        use tower_http::cors::Any;
+        layer = layer.allow_origin(Any);
+    }
+
+    layer
+}
+
 #[tokio::main]
 async fn main() {
     dotenv().ok();
 
     // 👇 Khởi tạo hệ thống log (rất quan trọng)
     // Log luân phiên theo ngày, lưu vào thư mục "logs/"
-
     let file_appender = rolling::daily("logs", "app.log");
     let (file_writer, guard) = non_blocking(file_appender);
     Box::leak(Box::new(guard));
@@ -61,11 +94,8 @@ async fn main() {
     // 🧠 AppState — chỉ chứa ShardManager, không còn PgPool cục bộ
     let app_state = AppState::new(shard.clone(), telemetry, event_publisher);
 
-    // 🌐 CORS middleware để frontend gọi được
-    let cors = CorsLayer::new()
-        .allow_origin(Any)
-        .allow_methods([Method::GET, Method::POST, Method::OPTIONS, Method::DELETE])
-        .allow_headers([AUTHORIZATION, CONTENT_TYPE]);
+    // 🌐 CORS middleware để frontend gọi được (chuẩn hoá bằng ALLOWED_ORIGINS)
+    let cors = cors_layer_from_env();
 
     // 🚦 Build Axum router và inject AppState + middleware
     let app = build_router(app_state.clone())
