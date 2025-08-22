@@ -24,7 +24,7 @@
     RUN yarn build
     
     # ---------- Final runtime image ----------
-    FROM debian:bullseye-slim
+    FROM debian:bookworm-slim
     
     # Cài đặt các công cụ cần thiết
     RUN apt-get update && apt-get install -y \
