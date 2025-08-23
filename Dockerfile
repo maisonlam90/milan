@@ -41,7 +41,6 @@
     COPY --from=frontend-builder /frontend/dist /app/frontend
     
     # Copy file cấu hình nếu có
-    COPY .env /app/.env
     COPY yugabyte.crt /app/yugabyte.crt
     
     # Copy entrypoint script (quản lý cả BE + FE)
