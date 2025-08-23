@@ -21,11 +21,6 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Tạo file .env từ secret DATABASE_URL
-        run: |
-          cat <<EOF > .env
-          ${{ secrets.DATABASE_URL }}
-          EOF
 
       # ✅ Sửa step này: bỏ `if:` và kiểm tra trong shell
       - name: Giải mã yugabyte.crt từ secret (optional)
