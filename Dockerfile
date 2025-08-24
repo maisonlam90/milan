@@ -7,7 +7,7 @@
     ENV SQLX_OFFLINE=${SQLX_OFFLINE}
     
     COPY . .
-    RUN cargo build --release && ls -lh /app/target/release/
+    RUN cargo build --release
     
     # ---------- Frontend build layer ----------
     FROM node:20-alpine as frontend-builder
@@ -19,25 +19,28 @@
     RUN yarn build
     
     # ---------- Final runtime image ----------
-    FROM nginx:alpine
+    FROM debian:bookworm-slim
+    
+    # Cài Nginx + tiện ích
+    RUN apt-get update && apt-get install -y nginx curl ca-certificates && \
+        apt-get clean && rm -rf /var/lib/apt/lists/*
     
     # Copy FE build vào Nginx web root
     COPY --from=frontend-builder /frontend/dist /usr/share/nginx/html
     
-    # Copy Axum binary từ build stage (thêm bước debug)
+    # Copy Axum binary
     COPY --from=backend-builder /app/target/release/axum /usr/local/bin/axum
-    RUN chmod +x /usr/local/bin/axum && ls -lh /usr/local/bin/axum
+    RUN chmod +x /usr/local/bin/axum
     
-    # Copy cert nếu dùng Yugabyte Cloud
+    # Copy cert Yugabyte nếu dùng
     COPY yugabyte.crt /app/yugabyte.crt
     
-    # Copy Nginx config để proxy /api
+    # Copy file Nginx config proxy /api → BE
     COPY nginx.conf /etc/nginx/conf.d/default.conf
     
-    # Copy entrypoint để chạy cả BE và FE
+    # Entrypoint để khởi động cả FE + BE
     COPY entrypoint.sh /app/entrypoint.sh
     RUN chmod +x /app/entrypoint.sh
     
-    # Khởi động cả 2
     ENTRYPOINT ["/app/entrypoint.sh"]
     
