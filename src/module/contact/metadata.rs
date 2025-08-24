@@ -19,7 +19,7 @@ pub fn contact_form_schema() -> serde_json::Value {
           { "name": "city", "label": "Thành phố", "type": "text", "width": 4 },
           { "name": "state", "label": "Tỉnh/Bang", "type": "text", "width": 4 },
           { "name": "zip", "label": "Mã bưu chính", "type": "text", "width": 4 },
-          { "name": "country_code", "label": "Quốc gia", "type": "text", "width": 4 },
+          { "name": "country_code", "label": "Mã quốc gia (Ví dụ VN)", "type": "text", "width": 4 },
           { "name": "tags", "label": "Nhãn", "type": "tags", "width": 8 },
           { "name": "notes", "label": "Ghi chú", "type": "textarea", "width": 12 }
         ]

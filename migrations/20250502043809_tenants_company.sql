@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS company (
   company_id    UUID PRIMARY KEY,                                     -- ID công ty
   enterprise_id UUID NOT NULL REFERENCES enterprise(enterprise_id),   -- Thuộc enterprise nào
   name          TEXT NOT NULL,                                        -- Tên công ty
-  slug          TEXT,                                                 -- Định danh ngắn (unique trong 1 enterprise)
+  slug          TEXT NOT NULL CHECK (slug = lower(slug)),                                              -- Định danh ngắn (unique trong 1 enterprise)
   created_at    TIMESTAMPTZ DEFAULT now(),
   UNIQUE (enterprise_id, slug),
 

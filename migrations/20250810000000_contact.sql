@@ -4,16 +4,16 @@
 
 -- Bảng contact
 CREATE TABLE IF NOT EXISTS contact (
-  tenant_id UUID NOT NULL,
-  id        UUID NOT NULL,
-  is_company BOOLEAN NOT NULL DEFAULT FALSE,
-  parent_id UUID,
+  tenant_id   UUID NOT NULL,
+  id          UUID NOT NULL,
+  is_company  BOOLEAN NOT NULL DEFAULT FALSE,
+  parent_id   UUID,
 
   name          TEXT NOT NULL,
   display_name  TEXT,
-  email         TEXT,
-  phone         TEXT,
-  mobile        TEXT,
+  email         TEXT,     -- CHECK + UNIQUE per-tenant ở dưới
+  phone         TEXT,     -- digits only
+  mobile        TEXT,     -- digits only
   website       TEXT,
   street        TEXT,
   street2       TEXT,
@@ -28,12 +28,38 @@ CREATE TABLE IF NOT EXISTS contact (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 
-  -- 👇 IAM phân quyền theo người tạo/giao việc/chia sẻ
-  created_by   UUID NOT NULL,
+  created_by   UUID NOT NULL,    -- FK users cùng tenant
   assignee_id  UUID,
   shared_with  UUID[] DEFAULT '{}',
 
-  PRIMARY KEY (tenant_id, id)
+  PRIMARY KEY (tenant_id, id),
+
+  -- CHECK
+  CONSTRAINT contact_email_lower_check
+    CHECK (email IS NULL OR email = lower(email)),
+  CONSTRAINT contact_email_format_check
+    CHECK (email IS NULL OR email ~ '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$'),
+  CONSTRAINT contact_phone_digits_check
+    CHECK (phone IS NULL OR phone  ~ '^[0-9]{8,15}$'),
+  CONSTRAINT contact_mobile_digits_check
+    CHECK (mobile IS NULL OR mobile ~ '^[0-9]{8,15}$'),
+  CONSTRAINT contact_web_format_check
+    CHECK (website IS NULL OR website ~* '^(https?://)?[a-z0-9.-]+\.[a-z]{2,}(/.*)?$'),
+  CONSTRAINT contact_country_code_check
+    CHECK (country_code IS NULL OR country_code ~ '^[A-Z]{2}$'),
+  CONSTRAINT contact_zip_check
+    CHECK (zip IS NULL OR zip ~ '^[A-Za-z0-9 -]{3,16}$'),
+
+  -- FK composite để bảo đảm đồng-tenant (sharding đúng)
+  CONSTRAINT fk_contact_parent_same_tenant
+    FOREIGN KEY (tenant_id, parent_id) REFERENCES contact(tenant_id, id)
+    ON UPDATE CASCADE ON DELETE SET NULL,
+  CONSTRAINT fk_contact_created_by_user
+    FOREIGN KEY (tenant_id, created_by) REFERENCES users(tenant_id, user_id)
+    ON UPDATE CASCADE ON DELETE RESTRICT,
+  CONSTRAINT fk_contact_assignee_user
+    FOREIGN KEY (tenant_id, assignee_id) REFERENCES users(tenant_id, user_id)
+    ON UPDATE CASCADE ON DELETE SET NULL
 );
 
 ALTER TABLE contact

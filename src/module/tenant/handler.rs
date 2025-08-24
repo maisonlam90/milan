@@ -1,48 +1,43 @@
 use axum::{
-    extract::Path,
-    extract::State,
-    response::Response,
+    extract::{Path, State},
+    response::{IntoResponse, Response},
     http::StatusCode,
-    body::Body,
+    Json,
     debug_handler,
 };
 use std::sync::Arc;
 use uuid::Uuid;
 use chrono::Utc;
-use tracing::debug;
+use tracing::{debug, error};
 use serde_json::{json, Value};
 use std::collections::HashMap;
 
-use crate::core::state::AppState;
-use crate::core::json_with_log::JsonWithLog;
-use crate::module::tenant::command::{AssignModuleCommand, EnableEnterpriseModuleCommand};
-
-
+use crate::{
+    core::{state::AppState, error::AppError, json_with_log::JsonWithLog},
+    module::tenant::command::{AssignModuleCommand, EnableEnterpriseModuleCommand},
+};
 use super::model::Tenant;
 use super::command::CreateTenantCommand;
 use super::dto::{CreateEnterpriseCommand, CreateCompanyCommand};
+
+/// ==============================
+/// Refactored Handlers
+/// ==============================
 
 /// POST /tenant — tạo tenant mới
 pub async fn create_tenant(
     State(state): State<Arc<AppState>>,
     JsonWithLog(payload): JsonWithLog<CreateTenantCommand>,
-) -> Response {
-    // Route theo shard_id được client gửi (nếu sai -> 400)
-    let pool = match state.shard.get_pool_for_shard(&payload.shard_id) {
-        Ok(p) => p,
-        Err(msg) => {
-            debug!("❌ {}", msg);
-            return Response::builder()
-                .status(StatusCode::BAD_REQUEST)
-                .body(Body::from("Shard không hợp lệ"))
-                .unwrap();
-        }
-    };
+) -> Result<impl IntoResponse, AppError> {
+    let pool = state
+        .shard
+        .get_pool_for_shard(&payload.shard_id)
+        .map_err(|msg| AppError::bad_request(msg))?;
 
     let tenant_id = Uuid::new_v4();
     let created_at = Utc::now();
 
-    let res = sqlx::query_as!(
+    let tenant = sqlx::query_as!(
         Tenant,
         r#"
         INSERT INTO tenant (tenant_id, enterprise_id, company_id, name, slug, shard_id, created_at)
@@ -58,33 +53,16 @@ pub async fn create_tenant(
         created_at
     )
     .fetch_one(pool)
-    .await;
+    .await?;
 
-    match res {
-        Ok(tenant) => {
-            let body = serde_json::to_string(&tenant).unwrap();
-            Response::builder()
-                .status(StatusCode::CREATED)
-                .header("content-type", "application/json")
-                .body(Body::from(body))
-                .unwrap()
-        }
-        Err(err) => {
-            debug!("❌ Lỗi khi tạo tenant: {:?}", err);
-            Response::builder()
-                .status(StatusCode::INTERNAL_SERVER_ERROR)
-                .body(Body::from("Tạo tenant thất bại"))
-                .unwrap()
-        }
-    }
+    Ok((StatusCode::CREATED, Json(tenant)))
 }
 
 /// POST /enterprise — tạo enterprise mới
 pub async fn create_enterprise(
     State(state): State<Arc<AppState>>,
     JsonWithLog(payload): JsonWithLog<CreateEnterpriseCommand>,
-) -> Response {
-    // Enterprise/Company dùng pool hệ thống (không theo shard tenant)
+) -> Result<impl IntoResponse, AppError> {
     let pool = state.shard.get_pool_for_tenant(&Uuid::nil());
 
     let res = sqlx::query!(
@@ -97,194 +75,101 @@ pub async fn create_enterprise(
         payload.slug
     )
     .fetch_one(pool)
-    .await;
+    .await?;
 
-    match res {
-        Ok(ent) => {
-            // struct Record do query! tạo ra KHÔNG Serialize, nên build JSON thủ công
-            let body = json!({
-                "enterprise_id": ent.enterprise_id,
-                "name": ent.name,
-                "slug": ent.slug
-            })
-            .to_string();
+    let body = json!({
+        "enterprise_id": res.enterprise_id,
+        "name": res.name,
+        "slug": res.slug
+    });
 
-            Response::builder()
-                .status(StatusCode::CREATED)
-                .header("content-type", "application/json")
-                .body(Body::from(body))
-                .unwrap()
-        }
-        Err(err) => {
-            debug!("❌ Lỗi tạo enterprise: {:?}", err);
-            Response::builder()
-                .status(StatusCode::INTERNAL_SERVER_ERROR)
-                .body(Body::from("Tạo enterprise thất bại"))
-                .unwrap()
-        }
-    }
+    Ok((StatusCode::CREATED, Json(body)))
 }
 
 /// POST /company — tạo company mới (tuỳ chọn parent)
 pub async fn create_company(
     State(state): State<Arc<AppState>>,
     JsonWithLog(payload): JsonWithLog<CreateCompanyCommand>,
-) -> Response {
+) -> Result<impl IntoResponse, AppError> {
     let pool = state.shard.get_pool_for_tenant(&Uuid::nil());
 
     let company_id = Uuid::new_v4();
     let enterprise_id = payload.enterprise_id;
     let parent = payload.parent_company_id;
 
-    let mut tx = match pool.begin().await {
-        Ok(tx) => tx,
-        Err(err) => {
-            debug!("❌ Mở transaction lỗi: {:?}", err);
-            return Response::builder()
-                .status(StatusCode::INTERNAL_SERVER_ERROR)
-                .body(Body::from("Lỗi hệ thống"))
-                .unwrap();
-        }
-    };
+    let mut tx = pool.begin().await?;
 
-    // (1) Nếu có parent, kiểm tra parent thuộc đúng enterprise
     if let Some(parent_id) = parent {
         let row = sqlx::query!(
             r#"SELECT enterprise_id FROM company WHERE company_id = $1"#,
             parent_id
         )
         .fetch_optional(&mut *tx)
-        .await;
+        .await?;
 
         match row {
-            Ok(Some(r)) if r.enterprise_id == enterprise_id => {}
-            Ok(Some(_)) => {
-                let _ = tx.rollback().await;
-                return Response::builder()
-                    .status(StatusCode::BAD_REQUEST)
-                    .body(Body::from("Parent company khác enterprise"))
-                    .unwrap();
+            Some(r) if r.enterprise_id != enterprise_id => {
+                tx.rollback().await?;
+                return Err(AppError::bad_request("Parent company khác enterprise"));
             }
-            Ok(None) => {
-                let _ = tx.rollback().await;
-                return Response::builder()
-                    .status(StatusCode::BAD_REQUEST)
-                    .body(Body::from("Parent company không tồn tại"))
-                    .unwrap();
+            None => {
+                tx.rollback().await?;
+                return Err(AppError::bad_request("Parent company không tồn tại"));
             }
-            Err(err) => {
-                debug!("❌ Lỗi đọc parent: {:?}", err);
-                let _ = tx.rollback().await;
-                return Response::builder()
-                    .status(StatusCode::INTERNAL_SERVER_ERROR)
-                    .body(Body::from("Lỗi hệ thống"))
-                    .unwrap();
-            }
+            _ => {}
         }
     }
 
-    // (2) Insert company
-    if let Err(err) = sqlx::query(
+    sqlx::query(
         r#"INSERT INTO company (company_id, enterprise_id, name, slug)
-           VALUES ($1, $2, $3, $4)"#
+           VALUES ($1, $2, $3, $4)"#,
     )
     .bind(company_id)
     .bind(enterprise_id)
     .bind(&payload.name)
     .bind(&payload.slug)
     .execute(&mut *tx)
-    .await
-    {
-        debug!("❌ Lỗi insert company: {:?}", err);
-        let _ = tx.rollback().await;
-        return Response::builder()
-            .status(StatusCode::INTERNAL_SERVER_ERROR)
-            .body(Body::from("Tạo company thất bại"))
-            .unwrap();
-    }
+    .await?;
 
-    // (3) Cập nhật closure table: self-edge + edges từ ancestor(parent) -> child
-    let edge_res = if let Some(parent_id) = parent {
-        // Gọi function helper (mục A)
+    if let Some(parent_id) = parent {
         sqlx::query("SELECT add_company_edge($1, $2, $3)")
             .bind(enterprise_id)
             .bind(parent_id)
             .bind(company_id)
             .execute(&mut *tx)
-            .await
-
-        // Nếu bạn KHÔNG tạo function ở A, dùng inline:
-        // sqlx::query(
-        //     r#"
-        //     -- self-edge
-        //     INSERT INTO company_edge (enterprise_id, ancestor_id, descendant_id, depth)
-        //     VALUES ($1, $3, $3, 0)
-        //     ON CONFLICT DO NOTHING;
-        //
-        //     -- ancestor(parent) -> child
-        //     INSERT INTO company_edge (enterprise_id, ancestor_id, descendant_id, depth)
-        //     SELECT ce.enterprise_id, ce.ancestor_id, $3, ce.depth + 1
-        //     FROM company_edge ce
-        //     WHERE ce.enterprise_id = $1
-        //       AND ce.descendant_id = $2
-        //     ON CONFLICT DO NOTHING;
-        //     "#
-        // )
-        // .bind(enterprise_id)
-        // .bind(parent_id)
-        // .bind(company_id)
-        // .execute(&mut *tx)
-        // .await
+            .await?;
     } else {
-        // Không có parent: chỉ self-edge
         sqlx::query(
             r#"INSERT INTO company_edge (enterprise_id, ancestor_id, descendant_id, depth)
                VALUES ($1, $2, $2, 0)
-               ON CONFLICT DO NOTHING"#
+               ON CONFLICT DO NOTHING"#,
         )
         .bind(enterprise_id)
         .bind(company_id)
         .execute(&mut *tx)
-        .await
-    };
-
-    if let Err(err) = edge_res {
-        debug!("❌ Lỗi cập nhật company_edge: {:?}", err);
-        let _ = tx.rollback().await;
-        return Response::builder()
-            .status(StatusCode::INTERNAL_SERVER_ERROR)
-            .body(Body::from("Cập nhật company_edge thất bại"))
-            .unwrap();
+        .await?;
     }
 
-    // (4) Commit
-    if let Err(err) = tx.commit().await {
-        debug!("❌ Commit lỗi: {:?}", err);
-        return Response::builder()
-            .status(StatusCode::INTERNAL_SERVER_ERROR)
-            .body(Body::from("Lưu dữ liệu thất bại"))
-            .unwrap();
-    }
+    tx.commit().await?;
 
     let body = json!({
         "company_id": company_id,
         "enterprise_id": enterprise_id,
         "name": payload.name,
         "slug": payload.slug
-    })
-    .to_string();
+    });
 
-    Response::builder()
-        .status(StatusCode::CREATED)
-        .header("content-type", "application/json")
-        .body(Body::from(body))
-        .unwrap()
+    Ok((StatusCode::CREATED, Json(body)))
 }
+
+/// ==============================
+/// Các handler cũ (giữ nguyên)
+/// ==============================
+
 /// GET /tenants-with-modules — liệt kê tất cả tenant + danh sách module đã bật
 pub async fn list_tenants_with_modules(
     State(state): State<Arc<AppState>>,
 ) -> Response {
-    // Dùng pool hệ thống (meta tables enterprise/company/tenant/module không shard theo tenant_id)
     let pool = state.shard.get_pool_for_tenant(&Uuid::nil());
 
     let rows = sqlx::query!(
@@ -308,10 +193,9 @@ pub async fn list_tenants_with_modules(
 
     match rows {
         Ok(records) => {
-            // Gộp các module theo từng tenant
             let mut agg: HashMap<
-                Uuid,                                       // tenant_id
-                (Uuid, Option<Uuid>, String, String, String, Vec<String>) // (enterprise_id, company_id, name, slug, shard_id, modules)
+                Uuid,
+                (Uuid, Option<Uuid>, String, String, String, Vec<String>)
             > = HashMap::new();
 
             for r in records {
@@ -331,7 +215,6 @@ pub async fn list_tenants_with_modules(
                 }
             }
 
-            // Build JSON array thủ công (tránh phụ thuộc Serialize của kiểu ẩn danh)
             let list: Vec<serde_json::Value> = agg
                 .into_iter()
                 .map(|(tenant_id, (enterprise_id, company_id, name, slug, shard_id, modules))| {
@@ -351,20 +234,20 @@ pub async fn list_tenants_with_modules(
             Response::builder()
                 .status(StatusCode::OK)
                 .header("content-type", "application/json")
-                .body(Body::from(body))
+                .body(axum::body::Body::from(body))
                 .unwrap()
         }
         Err(err) => {
             debug!("❌ Lỗi truy vấn tenants-with-modules: {:?}", err);
             Response::builder()
                 .status(StatusCode::INTERNAL_SERVER_ERROR)
-                .body(Body::from("Không lấy được danh sách tenants"))
+                .body(axum::body::Body::from("Không lấy được danh sách tenants"))
                 .unwrap()
         }
     }
 }
-/// POST /tenant/:tenant_id/modules  — gán module cho tenant
-/// YÊU CẦU: enterprise phải bật module trước (enterprise_module)
+
+/// POST /tenant/:tenant_id/modules — gán module cho tenant
 #[debug_handler]
 pub async fn assign_module(
     State(state): State<Arc<AppState>>,
@@ -398,41 +281,29 @@ pub async fn assign_module(
             Response::builder()
                 .status(StatusCode::CREATED)
                 .header("content-type", "application/json")
-                .body(Body::from(body))
+                .body(axum::body::Body::from(body))
                 .unwrap()
         }
         Err(sqlx::Error::Database(db)) => {
-            // Lấy mã lỗi dưới dạng String để tránh mượn tạm gây E0716
-            let code: String = db
-                .code()
-                .map(|c| c.into_owned()) // sở hữu chuỗi (String)
-                .unwrap_or_default();
-        
+            let code: String = db.code().map(|c| c.into_owned()).unwrap_or_default();
             let msg = match code.as_str() {
-                "23503" => {
-                    // FK violation: enterprise chưa bật module, hoặc tenant/module không tồn tại
-                    r#"{"error":"Enterprise chưa bật module này hoặc tenant/module không hợp lệ"}"#
-                }
-                "23505" => {
-                    // unique (tenant_id, module_name)
-                    r#"{"error":"Module đã được bật cho tenant"}"#
-                }
+                "23503" => r#"{"error":"Enterprise chưa bật module này hoặc tenant/module không hợp lệ"}"#,
+                "23505" => r#"{"error":"Module đã được bật cho tenant"}"#,
                 _ => r#"{"error":"Gán module thất bại"}"#,
             };
-        
-            tracing::debug!("❌ assign_module db_error: code={}, detail={:?}", code, db);
+
+            debug!("❌ assign_module db_error: code={}, detail={:?}", code, db);
             Response::builder()
                 .status(StatusCode::BAD_REQUEST)
                 .header("content-type", "application/json")
-                .body(Body::from(msg))
+                .body(axum::body::Body::from(msg))
                 .unwrap()
         }
-        
         Err(err) => {
-            tracing::debug!("❌ assign_module error: {:?}", err);
+            debug!("❌ assign_module error: {:?}", err);
             Response::builder()
                 .status(StatusCode::INTERNAL_SERVER_ERROR)
-                .body(Body::from("Gán module thất bại"))
+                .body(axum::body::Body::from("Gán module thất bại"))
                 .unwrap()
         }
     }
@@ -475,14 +346,14 @@ pub async fn list_modules(
             Response::builder()
                 .status(StatusCode::OK)
                 .header("content-type", "application/json")
-                .body(Body::from(body))
+                .body(axum::body::Body::from(body))
                 .unwrap()
         }
         Err(err) => {
-            tracing::debug!("❌ list_modules error: {:?}", err);
+            debug!("❌ list_modules error: {:?}", err);
             Response::builder()
                 .status(StatusCode::INTERNAL_SERVER_ERROR)
-                .body(Body::from("Không lấy được danh sách module"))
+                .body(axum::body::Body::from("Không lấy được danh sách module"))
                 .unwrap()
         }
     }
@@ -511,31 +382,33 @@ pub async fn remove_module(
         Ok(done) if done.rows_affected() > 0 => {
             Response::builder()
                 .status(StatusCode::NO_CONTENT)
-                .body(Body::empty())
+                .body(axum::body::Body::empty())
                 .unwrap()
         }
         Ok(_) => {
             Response::builder()
                 .status(StatusCode::NOT_FOUND)
-                .body(Body::from("Module không tồn tại ở tenant"))
+                .body(axum::body::Body::from("Module không tồn tại ở tenant"))
                 .unwrap()
         }
         Err(err) => {
-            tracing::debug!("❌ remove_module error: {:?}", err);
+            debug!("❌ remove_module error: {:?}", err);
             Response::builder()
                 .status(StatusCode::INTERNAL_SERVER_ERROR)
-                .body(Body::from("Gỡ module thất bại"))
+                .body(axum::body::Body::from("Gỡ module thất bại"))
                 .unwrap()
         }
     }
 }
+
+/// POST /enterprise/:enterprise_id/modules — bật module cho enterprise
 #[debug_handler]
 pub async fn enable_enterprise_module(
     State(state): State<Arc<AppState>>,
     Path(enterprise_id): Path<Uuid>,
     axum::Json(payload): axum::Json<EnableEnterpriseModuleCommand>,
 ) -> Response {
-    let pool = state.shard.get_pool_for_tenant(&Uuid::nil()); // meta DB
+    let pool = state.shard.get_pool_for_tenant(&Uuid::nil()); 
 
     let cfg = payload.config_json.unwrap_or_else(|| json!({}));
     let res = sqlx::query!(
@@ -562,23 +435,22 @@ pub async fn enable_enterprise_module(
             Response::builder()
                 .status(StatusCode::CREATED)
                 .header("content-type", "application/json")
-                .body(Body::from(body))
+                .body(axum::body::Body::from(body))
                 .unwrap()
         }
         Err(sqlx::Error::Database(db)) if db.code().as_deref() == Some("23505") => {
-            // Đã bật rồi → trả 200
             Response::builder()
                 .status(StatusCode::OK)
                 .header("content-type", "application/json")
-                .body(Body::from(r#"{"ok":"module already enabled"}"#))
+                .body(axum::body::Body::from(r#"{"ok":"module already enabled"}"#))
                 .unwrap()
         }
         Err(err) => {
-            tracing::debug!("❌ enable_enterprise_module: {:?}", err);
+            debug!("❌ enable_enterprise_module: {:?}", err);
             Response::builder()
                 .status(StatusCode::BAD_REQUEST)
                 .header("content-type", "application/json")
-                .body(Body::from(r#"{"error":"Bật module cho enterprise thất bại"}"#))
+                .body(axum::body::Body::from(r#"{"error":"Bật module cho enterprise thất bại"}"#))
                 .unwrap()
         }
     }

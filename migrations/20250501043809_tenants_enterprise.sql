@@ -11,7 +11,7 @@
 CREATE TABLE IF NOT EXISTS enterprise (
   enterprise_id UUID PRIMARY KEY,                -- ID duy nhất enterprise
   name          TEXT NOT NULL,                   -- Tên enterprise
-  slug          TEXT UNIQUE,                     -- Định danh ngắn, unique toàn hệ thống
+  slug          TEXT NOT NULL CHECK (slug = lower(slug)),       -- Định danh ngắn, unique toàn hệ thống
   created_at    TIMESTAMPTZ DEFAULT now()        -- Thời điểm tạo
   -- ) TABLEGROUP meta_group                     -- (Tuỳ chọn/YB)
 );

@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS role_permissions (
 CREATE TABLE IF NOT EXISTS users (
   tenant_id     UUID NOT NULL REFERENCES tenant(tenant_id) ON DELETE CASCADE,
   user_id       UUID NOT NULL,
-  email         TEXT NOT NULL,
+  email         TEXT NOT NULL CHECK (email = lower(email)),
   password_hash TEXT NOT NULL,
   name          TEXT,
   created_at    TIMESTAMPTZ DEFAULT now(),
