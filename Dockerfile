@@ -21,21 +21,22 @@
     # ---------- Final runtime image ----------
     FROM debian:bookworm-slim
     
-    # Cài Nginx + tiện ích
-    RUN apt-get update && apt-get install -y nginx curl ca-certificates && \
+    # Cài Nginx và tiện ích cần thiết
+    RUN apt-get update && apt-get install -y \
+        nginx curl ca-certificates && \
         apt-get clean && rm -rf /var/lib/apt/lists/*
     
-    # Copy FE build vào Nginx web root
+    # FE: Copy build vào Nginx web root
     COPY --from=frontend-builder /frontend/dist /usr/share/nginx/html
     
-    # Copy Axum binary
+    # BE: Copy binary đã build
     COPY --from=backend-builder /app/target/release/axum /usr/local/bin/axum
     RUN chmod +x /usr/local/bin/axum
     
-    # Copy cert Yugabyte nếu dùng
+    # Cert Yugabyte nếu cần
     COPY yugabyte.crt /app/yugabyte.crt
     
-    # Copy file Nginx config proxy /api → BE
+    # Nginx config (proxy /api → BE)
     COPY nginx.conf /etc/nginx/conf.d/default.conf
     
     # Entrypoint để khởi động cả FE + BE
