@@ -32,6 +32,12 @@ jobs:
             echo "No YUGA_CRT_B64 provided, skipping."
           fi
 
+      - name: Build frontend (Tailux)
+        run: |
+          cd src/frontend/demo
+          yarn install --frozen-lockfile
+          yarn build
+          cd ../../..
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
