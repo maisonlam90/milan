@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT tenant_id, user_id, email, name, password_hash\n        FROM users\n        WHERE email = $1 AND tenant_id = $2\n        ",
+  "query": "\n        SELECT tenant_id, user_id, email, name, password_hash\n        FROM users\n        WHERE tenant_id = $1 AND email = $2\n        ",
   "describe": {
     "columns": [
       {
@@ -31,8 +31,8 @@
     ],
     "parameters": {
       "Left": [
-        "Text",
-        "Uuid"
+        "Uuid",
+        "Text"
       ]
     },
     "nullable": [
@@ -43,5 +43,5 @@
       false
     ]
   },
-  "hash": "6230487eb9bd2d8885f5d712b19867a5a145c1eebb02e076d9a2d581778259c1"
+  "hash": "35c17bba8d545470794dd30d6a13f1ef77d69c2895e94a71e1cbe90e3fe20fc1"
 }
