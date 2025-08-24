@@ -3,12 +3,10 @@
 
     WORKDIR /app
     
-    # Copy project và bật SQLX_OFFLINE nếu có
     ARG SQLX_OFFLINE
     ENV SQLX_OFFLINE=${SQLX_OFFLINE}
     
     COPY . .
-    
     RUN cargo build --release
     
     # ---------- Frontend build layer ----------
@@ -16,36 +14,26 @@
     
     WORKDIR /frontend
     
-    COPY ./src/frontend/demo .
-    
+    COPY ./src/frontend/demo ./
     RUN yarn install
-    ARG VITE_BACKEND_URL
-    ENV VITE_BACKEND_URL=${VITE_BACKEND_URL}
+    
     RUN yarn build
     
     # ---------- Final runtime image ----------
-    FROM debian:bookworm-slim
+    FROM nginx:alpine
     
-    # Cài đặt các công cụ cần thiết
-    RUN apt-get update && apt-get install -y \
-        ca-certificates curl \
-        && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-        && apt-get install -y nodejs \
-        && npm install -g serve \
-        && apt-get clean && rm -rf /var/lib/apt/lists/*
+    # Copy FE build vào Nginx web root
+    COPY --from=frontend-builder /frontend/dist /usr/share/nginx/html
     
-    WORKDIR /app
+    # Copy Axum binary từ build stage
+    COPY --from=backend-builder /app/target/release/axum /usr/local/bin/axum
     
-    # Copy binary backend và frontend build
-    COPY --from=backend-builder /app/target/release/axum /app/axum
-    COPY --from=frontend-builder /frontend/dist /app/frontend
-    
-    # Copy file cấu hình nếu có
+    # Copy cert nếu dùng Yugabyte Cloud
     COPY yugabyte.crt /app/yugabyte.crt
     
-    # Copy entrypoint script (quản lý cả BE + FE)
-    COPY entrypoint.sh /app/entrypoint.sh
-    RUN chmod +x /app/entrypoint.sh
+    # Copy file config Nginx để proxy /api/
+    COPY nginx.conf /etc/nginx/conf.d/default.conf
     
-    ENTRYPOINT ["/app/entrypoint.sh"]
+    # Run cả BE + Nginx trong container
+    CMD sh -c "/usr/local/bin/axum & nginx -g 'daemon off;'"
     
