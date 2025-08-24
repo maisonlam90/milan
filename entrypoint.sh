@@ -1,11 +1,12 @@
 #!/bin/sh
 set -e
 
-# Chạy backend (port 3000 hoặc giá trị PORT được truyền vào container)
-./axum &
+echo "🚀 Starting Axum backend..."
+/usr/local/bin/axum &
+AXUM_PID=$!
 
-# Chạy frontend (serve static trên port 80)
-serve -s /app/frontend -l 80 &
+echo "🌐 Starting Nginx to serve frontend..."
+nginx -g 'daemon off;' &
 
-# Giữ container sống, chờ process con
-wait
+# Đợi Axum kết thúc, nếu có lỗi thì container cũng exit
+wait $AXUM_PID
