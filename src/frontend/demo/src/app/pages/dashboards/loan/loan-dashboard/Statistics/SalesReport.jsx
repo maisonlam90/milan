@@ -59,7 +59,10 @@ export function SalesReport() {
         // ✅ monthly/yearly không gửi month; daily mới gửi month(+day)
         const params = { year, range, ...(range === "daily" && { month, day }) };
 
-        const res = await axios.get(`${JWT_HOST_API}loan/stats`, {
+        const baseUrl = JWT_HOST_API.endsWith("/") ? JWT_HOST_API : JWT_HOST_API + "/";
+        const url = baseUrl + "loan/stats";
+
+        const res = await axios.get(url, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
           params,
         });
