@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS tenant (
   enterprise_id UUID NOT NULL REFERENCES enterprise(enterprise_id),   -- Thuộc enterprise nào
   company_id    UUID,                                                 -- Gắn vào company (có thể NULL khi seed)
   name          TEXT NOT NULL,                                        -- Tên tenant
-  slug          TEXT NOT NULL,                                        -- Định danh ngắn, unique trong enterprise
+  slug          TEXT NOT NULL CHECK (slug = lower(slug)),                                        -- Định danh ngắn, unique trong enterprise
   shard_id      TEXT NOT NULL,                                        -- Thông tin shard/cluster
   created_at    TIMESTAMPTZ DEFAULT now(),
   UNIQUE (enterprise_id, slug)

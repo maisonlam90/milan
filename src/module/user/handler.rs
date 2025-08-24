@@ -1,16 +1,20 @@
 use axum::{extract::{State, Extension}, Json};
-use std::sync::Arc;
-use sqlx::Row;
+use axum::response::IntoResponse;
 use axum::http::StatusCode;
-use bcrypt::verify;
-use crate::module::user::{dto::{RegisterDto, LoginDto}, command::create_user};
-use serde_json::json;
+use bcrypt::verify as bcrypt_verify;
+use chrono::DateTime;
 use jsonwebtoken::{encode, EncodingKey, Header};
 use serde::{Serialize, Deserialize};
+use serde_json::json;
+use sqlx::Row;
+use std::sync::Arc;
 use uuid::Uuid;
-use chrono::DateTime;
 
-use crate::core::{auth::AuthUser, state::AppState};
+use crate::core::{auth::AuthUser, state::AppState, error::AppError};
+use crate::module::user::{
+    dto::{RegisterDto, LoginDto},
+    command::create_user,
+};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Claims {
@@ -21,86 +25,75 @@ struct Claims {
 
 const SECRET_KEY: &[u8] = b"super_secret_jwt_key";
 
-/// ✅ Đăng ký người dùng mới
+/// ✅ Đăng ký người dùng mới (dùng AppError)
 pub async fn register(
     State(state): State<Arc<AppState>>,
-    Json(input): Json<RegisterDto>,
-) -> Result<Json<serde_json::Value>, StatusCode> {
+    Json(mut input): Json<RegisterDto>,
+) -> Result<impl IntoResponse, AppError> {
+    // BE normalize để không phụ thuộc FE
+    input.email = input.email.trim().to_lowercase();
+
     let pool = state.shard.get_pool_for_tenant(&Uuid::nil());
-    match create_user(pool, input).await {
-        Ok(user) => Ok(Json(json!({ "status": "ok", "email": user.email, "name": user.name }))),
-        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
-    }
+
+    // create_user trả Result<_, Box<dyn Error>> nên KHÔNG dùng AppError::from
+    let user = create_user(pool, input)
+        .await
+        .map_err(|e| AppError::bad_request(e.to_string()))?;
+
+    Ok(Json(json!({ "status": "ok", "email": user.email, "name": user.name })))
 }
 
-/// ✅ Đăng nhập, trả về token JWT
+/// ✅ Đăng nhập, trả về token JWT (dùng AppError)
 pub async fn login(
     State(state): State<Arc<AppState>>,
     Json(input): Json<LoginDto>,
-) -> Result<Json<serde_json::Value>, StatusCode> {
-    println!("🔐 Đăng nhập: email='{}' | tenant_slug='{}'", input.email, input.tenant_slug);
+) -> Result<impl IntoResponse, AppError> {
+    // 1) Chuẩn hoá input (BE normalize)
+    let tenant_slug = input.tenant_slug.trim().to_lowercase();
+    let email       = input.email.trim().to_lowercase();
+    let password    = input.password;
 
+    // 2) Tra tenant từ meta DB (pool nil)
     let global_pool = state.shard.get_pool_for_tenant(&Uuid::nil());
-
     let tenant = sqlx::query!(
-        "SELECT tenant_id, shard_id FROM tenant WHERE slug = $1",
-        input.tenant_slug
+        r#"SELECT tenant_id, shard_id FROM tenant WHERE slug = $1"#,
+        tenant_slug
     )
     .fetch_optional(global_pool)
     .await
-    .map_err(|err| {
-        eprintln!("❌ Lỗi khi tìm tenant từ slug: {:?}", err);
-        StatusCode::INTERNAL_SERVER_ERROR
-    })?;
+    .map_err(AppError::from)? // chỉ dùng From cho sqlx::Error
+    .ok_or_else(|| AppError::bad_request("Tenant không tồn tại hoặc slug không hợp lệ"))?;
 
-    let (tenant_id, _shard_id) = match tenant {
-        Some(t) => (t.tenant_id, t.shard_id),
-        None => {
-            eprintln!("❌ Không tìm thấy tenant với slug='{}'", input.tenant_slug);
-            return Err(StatusCode::UNAUTHORIZED);
-        }
-    };
+    // 3) Lấy pool theo tenant và tìm user (email đã lowercase)
+    let pool = state.shard.get_pool_for_tenant(&tenant.tenant_id);
 
-    let pool = state.shard.get_pool_for_tenant(&tenant_id);
-
-    let row = sqlx::query!(
+    // Nếu bảng users có CHECK (email = lower(email)) thì so sánh trực tiếp email = $2
+    let user = sqlx::query!(
         r#"
         SELECT tenant_id, user_id, email, name, password_hash
         FROM users
-        WHERE email = $1 AND tenant_id = $2
+        WHERE tenant_id = $1 AND email = $2
         "#,
-        input.email,
-        tenant_id
+        tenant.tenant_id,
+        email
     )
     .fetch_optional(pool)
     .await
-    .map_err(|err| {
-        eprintln!("❌ Lỗi truy vấn DB khi login: {:?}", err);
-        StatusCode::INTERNAL_SERVER_ERROR
-    })?;
+    .map_err(AppError::from)?
+    .ok_or_else(|| AppError::bad_request("Email hoặc mật khẩu không đúng"))?;
 
-    let user = match row {
-        Some(user) => user,
-        None => {
-            eprintln!("❌ Không tìm thấy user với email='{}' và tenant_slug='{}'", input.email, input.tenant_slug);
-            return Err(StatusCode::UNAUTHORIZED);
-        }
-    };
-
-    match verify(&input.password, &user.password_hash) {
+    // 4) Kiểm tra mật khẩu
+    match bcrypt_verify(&password, &user.password_hash) {
         Ok(true) => {
-            let expiration = chrono::Utc::now().timestamp() + 3600;
+            let expiration = (chrono::Utc::now().timestamp() + 3600) as usize;
             let claims = Claims {
                 sub: user.user_id.to_string(),
                 tenant_id: user.tenant_id.to_string(),
-                exp: expiration as usize,
+                exp: expiration,
             };
 
             let token = encode(&Header::default(), &claims, &EncodingKey::from_secret(SECRET_KEY))
-                .map_err(|err| {
-                    eprintln!("❌ Lỗi khi tạo JWT: {:?}", err);
-                    StatusCode::INTERNAL_SERVER_ERROR
-                })?;
+                .map_err(|e| AppError::bad_request(format!("Lỗi tạo JWT: {e}")))?; // KHÔNG dùng internal
 
             Ok(Json(json!({
                 "status": "ok",
@@ -112,32 +105,26 @@ pub async fn login(
                 }
             })))
         }
-        Ok(false) => {
-            eprintln!("❌ Sai mật khẩu cho email='{}'", user.email);
-            Err(StatusCode::UNAUTHORIZED)
-        }
-        Err(err) => {
-            eprintln!("❌ Lỗi khi kiểm tra mật khẩu: {:?}", err);
-            Err(StatusCode::INTERNAL_SERVER_ERROR)
-        }
+        Ok(false) => Err(AppError::bad_request("Email hoặc mật khẩu không đúng")),
+        Err(e) => Err(AppError::bad_request(format!("Lỗi kiểm tra mật khẩu: {e}"))),
     }
 }
 
 /// ✅ Trả về thông tin user đang đăng nhập
 pub async fn whoami(
     Extension(auth_user): Extension<AuthUser>,
-) -> Json<serde_json::Value> {
-    Json(json!({
+) -> Result<impl IntoResponse, AppError> {
+    Ok(Json(json!({
         "user_id": auth_user.user_id,
         "tenant_id": auth_user.tenant_id,
-    }))
+    })))
 }
 
 /// ✅ Lấy danh sách user trong tenant
 pub async fn list_users(
     Extension(auth_user): Extension<AuthUser>,
     State(state): State<Arc<AppState>>,
-) -> Result<Json<serde_json::Value>, StatusCode> {
+) -> Result<impl IntoResponse, AppError> {
     let is_admin = auth_user.tenant_id == Uuid::nil();
     let pool = state.shard.get_pool_for_tenant(&auth_user.tenant_id);
 
@@ -166,10 +153,7 @@ pub async fn list_users(
         .fetch_all(pool)
         .await
     }
-    .map_err(|e| {
-        eprintln!("❌ Lỗi truy vấn danh sách users: {:?}", e);
-        StatusCode::INTERNAL_SERVER_ERROR
-    })?;
+    .map_err(AppError::from)?; // chỉ sqlx::Error mới dùng From
 
     let users: Vec<_> = rows
         .into_iter()

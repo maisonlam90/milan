@@ -40,13 +40,31 @@ impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         match self {
             AppError::Validation(err) => err.into_response(),
-            AppError::Db(e) => {
+            AppError::Db(ref e) => {
+                // Ghi log rõ ràng ở backend
+                tracing::error!("❌ SQLx error: {e:?}");
+
                 let payload = ErrorResponse {
                     code: "db_error",
-                    message: e.to_string(), // hoặc "Internal server error"
+                    message: match e {
+                        sqlx::Error::Database(db_err) => {
+                            // Hiện message chi tiết của DB (ví dụ: CHECK constraint failed)
+                            db_err.message().to_string()
+                        }
+                        _ => "Lỗi hệ thống (DB)".into(),
+                    },
                 };
+
                 (StatusCode::INTERNAL_SERVER_ERROR, Json(payload)).into_response()
             }
         }
+    }
+}
+impl AppError {
+    pub fn bad_request(msg: impl Into<String>) -> Self {
+        AppError::Validation(ErrorResponse {
+            code: "bad_request",
+            message: msg.into(),
+        })
     }
 }
