@@ -16,7 +16,6 @@
     
     COPY ./src/frontend/demo ./
     RUN yarn install
-    
     RUN yarn build
     
     # ---------- Final runtime image ----------
@@ -31,9 +30,13 @@
     # Copy cert nếu dùng Yugabyte Cloud
     COPY yugabyte.crt /app/yugabyte.crt
     
-    # Copy file config Nginx để proxy /api/
+    # Copy Nginx config để proxy /api
     COPY nginx.conf /etc/nginx/conf.d/default.conf
     
-    # Run cả BE + Nginx trong container
-    CMD sh -c "/usr/local/bin/axum & nginx -g 'daemon off;'"
+    # Copy entrypoint để chạy cả BE và FE
+    COPY entrypoint.sh /app/entrypoint.sh
+    RUN chmod +x /app/entrypoint.sh
+    
+    # Khởi động cả 2
+    ENTRYPOINT ["/app/entrypoint.sh"]
     
