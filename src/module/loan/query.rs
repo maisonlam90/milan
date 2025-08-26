@@ -2,7 +2,7 @@ use sqlx::{PgPool, query_as};
 use uuid::Uuid;
 use crate::module::loan::model::{LoanContract, LoanTransaction};
 use crate::module::loan::calculator::calculate_interest_fields;
-use sqlx::types::BigDecimal; // báo cáo
+use sqlx::types::BigDecimal;// báo cáo
 
 pub async fn list_contracts(pool: &PgPool, tenant_id: Uuid) -> sqlx::Result<Vec<LoanContract>> {
     let contracts = sqlx::query_as!(

@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
+use sqlx::types::BigDecimal;
+
+// ================== LOAN ==================
 
 #[derive(Debug, Deserialize)]
 pub struct CreateContractInput {
@@ -25,14 +28,13 @@ pub struct CreateContractInput {
     pub assignee_id: Option<Uuid>,
     pub shared_with: Option<Vec<Uuid>>,
 
-    // 👇 nếu frontend không gửi, sẽ default = []
     #[serde(default)]
-    pub transactions: Vec<TransactionInput>, // input only
+    pub transactions: Vec<TransactionInput>,
 }
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct TransactionInput {
-    pub date: i64,                 // epoch seconds client gửi
+    pub date: i64, // epoch seconds client gửi
     pub transaction_type: String,
     pub amount: i64,
     pub note: Option<String>,
@@ -72,7 +74,7 @@ pub struct ContractView {
 
 #[derive(Debug, Serialize)]
 pub struct TransactionView {
-    pub date: i64,              // vẫn trả epoch/hoặc ISO tuỳ FE
+    pub date: i64, // vẫn trả epoch/hoặc ISO tuỳ FE
     pub transaction_type: String,
     pub amount: i64,
     pub note: Option<String>,
@@ -80,4 +82,23 @@ pub struct TransactionView {
     pub interest_for_period: Option<i64>,
     pub accumulated_interest: Option<i64>,
     pub principal_balance: Option<i64>,
+}
+
+// ================== COLLATERAL ==================
+
+fn default_collateral_status() -> String {
+    "available".to_string()
+}
+
+/// Dùng cho POST /loan/collateral
+#[derive(Debug, Deserialize)]
+pub struct CreateCollateralDto {
+    pub asset_type: String,
+    pub description: Option<String>,
+    pub value_estimate: Option<BigDecimal>,
+    pub owner_contact_id: Option<Uuid>,
+
+    /// available | pledged | released | archived
+    #[serde(default = "default_collateral_status")]
+    pub status: String,
 }

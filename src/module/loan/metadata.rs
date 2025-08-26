@@ -27,6 +27,32 @@ pub fn loan_form_schema() -> serde_json::Value {
                 { "key": "state", "label": "Trạng thái" }
             ]
         },
+        "collateral": {
+            "fields": [
+                {
+                    "name": "asset_type", "label": "Loại tài sản", "type": "select",
+                    "options": json!([
+                        { "value": "vehicle", "label": "Xe cộ" },
+                        { "value": "real_estate", "label": "Bất động sản" },
+                        { "value": "jewelry", "label": "Trang sức" },
+                        { "value": "electronics", "label": "Điện tử" },
+                        { "value": "other", "label": "Khác" }
+                    ])
+                },
+                { "name": "owner_contact_id", "label": "Chủ sở hữu (Contact)", "type": "select" },
+                { "name": "value_estimate", "label": "Giá trị ước tính", "type": "number" },
+                {
+                    "name": "status", "label": "Trạng thái", "type": "select",
+                    "options": json!([
+                        { "value": "available", "label": "available" },
+                        { "value": "pledged",   "label": "pledged" },
+                        { "value": "released",  "label": "released" },
+                        { "value": "sold",      "label": "sold" }
+                    ])
+                },
+                { "name": "description", "label": "Mô tả", "type": "text" }
+            ]
+        },
         "notebook": {
             "fields": [
                 { "name": "date", "label": "Ngày", "type": "date" },
