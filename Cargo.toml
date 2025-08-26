@@ -21,6 +21,7 @@ sqlx = { version = "0.7", default-features = false, features = [
     "migrate",
     "json"  ,   
     "bigdecimal",   
+
 ] }
 convert_case = "0.5"
 tokio-tungstenite = { version = "0.20", features = ["rustls-tls-webpki-roots"] }
@@ -41,7 +42,8 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 tracing-appender = "0.2"
 
 # Bao cao
-bigdecimal = "0.4"
+bigdecimal = { version = "0.3.1", features = ["serde"] }
+rust_decimal = "1.37.2"
 # sinh permission trong db neu co thu muc module chua file metadata.rs ke ca ko co noi dung trong metadata
 [[bin]]
 name = "gen_module"

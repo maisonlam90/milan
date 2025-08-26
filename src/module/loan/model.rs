@@ -2,6 +2,7 @@ use serde::{Serialize, Deserialize};
 use sqlx::FromRow;
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
+use sqlx::types::BigDecimal;
 
 #[derive(Debug, Serialize, Deserialize, Clone, FromRow)]
 pub struct LoanContract {
@@ -9,8 +10,6 @@ pub struct LoanContract {
     pub tenant_id: Uuid,
     pub contact_id: Uuid,
     pub name: String,
-
-    // pub principal: i64,                // ❌ đã drop ở DB
 
     /// %/năm (ví dụ 18.0 = 18%/năm)
     pub interest_rate: f64,
@@ -24,7 +23,7 @@ pub struct LoanContract {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub collateral_description: Option<String>,
 
-    // các cột dưới đây là NOT NULL ở DB nên không dùng Option
+    // các cột dưới đây là NOT NULL ở DB
     pub collateral_value: i64,
     pub storage_fee_rate: f64,
     pub storage_fee: i64,
@@ -34,7 +33,7 @@ pub struct LoanContract {
     pub accumulated_interest: i64,
     pub total_paid_interest: i64,
     pub total_settlement_amount: i64,
-    pub total_paid_principal: i64, // 👈 gốc đã trả (projection)
+    pub total_paid_principal: i64, // projection
 
     pub state: String,
     pub created_at: DateTime<Utc>,
@@ -44,7 +43,7 @@ pub struct LoanContract {
     pub shared_with: Option<Vec<Uuid>>,
 
     #[sqlx(skip)]
-    pub payoff_due: i64,           // 👈 thêm mới: số tiền còn phải trả
+    pub payoff_due: i64, // projection: số tiền còn phải trả
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, FromRow)]
@@ -66,7 +65,7 @@ pub struct LoanTransaction {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub note: Option<String>,
 
-    // DDL hiện để NOT NULL DEFAULT 0 → map sang kiểu không Option
+    // NOT NULL DEFAULT 0 → không dùng Option
     pub days_from_prev: i32,
     pub interest_for_period: i64,
     pub accumulated_interest: i64,
@@ -76,7 +75,20 @@ pub struct LoanTransaction {
     pub updated_at: DateTime<Utc>,
 
     #[sqlx(skip)]
-    pub principal_applied: i64, // 👈 số gốc được áp vào txn này (projection)
+    pub principal_applied: i64, // projection
     #[sqlx(skip)]
-    pub interest_applied: i64,  // 👈 số lãi được áp vào txn này (projection)
+    pub interest_applied: i64,  // projection
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, FromRow)]
+pub struct CollateralAsset {
+    pub tenant_id: Uuid,
+    pub asset_id: Uuid,
+    pub asset_type: String,
+    pub description: Option<String>,
+    pub value_estimate: Option<BigDecimal>,
+    pub owner_contact_id: Option<Uuid>,
+    pub status: String,              // 👈 mới: available | pledged | released | archived
+    pub created_by: Uuid,
+    pub created_at: DateTime<Utc>,   // NOT NULL theo DDL
 }
