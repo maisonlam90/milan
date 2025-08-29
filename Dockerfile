@@ -30,7 +30,7 @@
     COPY --from=frontend-builder /frontend/dist /usr/share/nginx/html
     
     # Copy Axum binary
-    COPY --from=backend-builder /app/target/release/axum /usr/local/bin/axum
+    COPY --from=backend-builder /app/target/release/milan /usr/local/bin/milan
     
     # Copy cert nếu dùng
     COPY yugabyte.crt /app/yugabyte.crt
@@ -40,7 +40,7 @@
     
     # Entrypoint
     COPY entrypoint.sh /app/entrypoint.sh
-    RUN chmod +x /usr/local/bin/axum /app/entrypoint.sh
+    RUN chmod +x /usr/local/bin/milan /app/entrypoint.sh
     
     ENTRYPOINT ["/app/entrypoint.sh"]
     
