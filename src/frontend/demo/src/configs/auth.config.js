@@ -5,6 +5,6 @@
 
 export const JWT_HOST_API =
   window.location.hostname === "localhost" || window.location.port === "5173"
-    ? "http://localhost:3000/"
+    ? "http://localhostttttt:3000/"
     : "/api/";
  
