@@ -1,8 +1,8 @@
 [package]
-name = "axum"
+name = "milan"
 version = "0.1.0"
 edition = "2021"
-default-run = "axum" 
+default-run = "milan"
 
 [dependencies]
 axum = { version = "0.7", features = ["macros"] }
