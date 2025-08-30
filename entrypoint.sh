@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 Starting Milan backend..."
+echo "🚀 Starting Axum backend..."
 /usr/local/bin/milan &
 
 echo "🌐 Starting Nginx to serve frontend..."
