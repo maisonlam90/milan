@@ -9,7 +9,7 @@ pub struct LoanContract {
     pub id: Uuid,
     pub tenant_id: Uuid,
     pub contact_id: Uuid,
-    pub name: String,
+    pub contract_number: String,
 
     /// %/năm (ví dụ 18.0 = 18%/năm)
     pub interest_rate: f64,

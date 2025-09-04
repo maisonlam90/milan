@@ -14,7 +14,7 @@ CREATE TABLE loan_contract (
     id        UUID NOT NULL DEFAULT gen_random_uuid(),         -- 🔑 id hợp đồng
     contact_id UUID NOT NULL,                                  -- KH/đối tác (khớp code: contact_id)
 
-    name            TEXT NOT NULL,                             -- Số/tên hợp đồng
+    contract_number            TEXT NOT NULL,                             -- Số/tên hợp đồng
     interest_rate   DOUBLE PRECISION NOT NULL,                 -- Lãi suất %/năm (vd: 0.18 = 18%)
     term_months     INT NOT NULL,                              -- Kỳ hạn (tháng)
 
@@ -67,6 +67,22 @@ CREATE TRIGGER loan_contract_set_updated_at
 BEFORE UPDATE ON loan_contract
 FOR EACH ROW
 EXECUTE FUNCTION trg_loan_contract_set_updated_at();
+
+-- Tạo số hợp đồng tự động
+-- 1) Counter theo tháng (per-tenant, per-YYYYMM)
+-- Counter theo tenant + tháng (YYYYMM)
+CREATE TABLE IF NOT EXISTS loan_counters_monthly (
+  tenant_id  UUID NOT NULL,
+  period_ym  INT  NOT NULL,
+  counter    BIGINT NOT NULL DEFAULT 0,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (tenant_id, period_ym)
+);
+
+
+-- B) UNIQUE INDEX (idempotent, khuyến nghị)
+CREATE UNIQUE INDEX IF NOT EXISTS uq_loan_contract_tenant_no_idx
+ON loan_contract (tenant_id, contract_number);
 
 -- ------------------------------------------------------------
 -- 3) GIAO DỊCH HỢP ĐỒNG (loan_transaction)

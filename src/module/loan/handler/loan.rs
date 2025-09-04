@@ -3,18 +3,18 @@ use axum::{
     http::StatusCode,
     Json,
 };
+use axum::Extension;
+use axum::extract::Query;
 use std::sync::Arc;
 use serde_json::json;
 use uuid::Uuid;
 use tracing::error;
-use axum::Extension;
-use axum::extract::Query;
 use bigdecimal::ToPrimitive;
 use chrono::{Datelike, NaiveDate};
 use serde::{Deserialize, Serialize};
-use crate::core::error::{AppError, ErrorResponse};
 
 use crate::core::auth::AuthUser;
+use crate::core::error::{AppError, ErrorResponse};
 use crate::core::state::AppState;
 use crate::module::loan::{
     calculator,
@@ -33,7 +33,7 @@ pub async fn create_contract(
     auth: AuthUser,
     Json(mut input): Json<CreateContractInput>,
 ) -> Result<Json<serde_json::Value>, AppError> {
-    // ✅ validate sớm bằng AppError::Validation (400 + JSON)
+    // ✅ validate sớm
     if input.transactions.is_empty() {
         return Err(AppError::Validation(ErrorResponse {
             code: "transactions_empty",
@@ -43,18 +43,17 @@ pub async fn create_contract(
 
     let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
 
-    // 👇 Gán IAM mặc định
+    // 👇 IAM mặc định
     input.created_by = Some(auth.user_id);
     if input.assignee_id.is_none() {
         input.assignee_id = Some(auth.user_id);
     }
     input.shared_with.get_or_insert_with(|| vec![]);
 
-    // 👇 propagate AppError (Validation/Db) lên handler
+    // 👇 tạo HĐ (contract_number tự sinh trong service)
     let contract = command::create_contract(pool, auth.tenant_id, input).await?;
     Ok(Json(json!({ "contract_id": contract.id })))
 }
-
 
 pub async fn list_contracts(
     State(state): State<Arc<AppState>>,
@@ -62,7 +61,7 @@ pub async fn list_contracts(
 ) -> Result<Json<serde_json::Value>, StatusCode> {
     let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
 
-    let contracts = query::list_contracts(&pool, auth.tenant_id)
+    let contracts = query::list_contracts(pool, auth.tenant_id)
         .await
         .map_err(|e| {
             error!("❌ Lỗi query list_contracts: {:?}", e);
@@ -74,8 +73,7 @@ pub async fn list_contracts(
         .map(|c| {
             json!({
                 "id": c.id,
-                "name": c.name,
-                // "principal": c.principal,   // ❌ đã bỏ ở schema
+                "contract_number": c.contract_number,
                 "interest_rate": c.interest_rate,
                 "term_months": c.term_months,
                 "date_start": c.date_start.format("%d-%m-%Y").to_string(),
@@ -95,11 +93,11 @@ pub async fn get_contract_by_id(
 ) -> Result<Json<serde_json::Value>, StatusCode> {
     let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
 
-    let mut contract = query::get_contract_by_id(&pool, auth.tenant_id, contract_id)
+    let mut contract = query::get_contract_by_id(pool, auth.tenant_id, contract_id)
         .await
         .map_err(|_| StatusCode::NOT_FOUND)?;
 
-    let mut transactions = query::get_transactions_by_contract(&pool, auth.tenant_id, contract_id)
+    let mut transactions = query::get_transactions_by_contract(pool, auth.tenant_id, contract_id)
         .await
         .map_err(|e| {
             error!("❌ Lỗi get_transactions_by_contract: {:?}", e);
@@ -121,7 +119,7 @@ pub async fn update_contract(
     Path(contract_id): Path<Uuid>,
     Json(input): Json<CreateContractInput>,
 ) -> Result<Json<serde_json::Value>, AppError> {
-    // ✅ validate policy: update phải có ít nhất 1 giao dịch
+    // ✅ validate policy
     if input.transactions.is_empty() {
         return Err(AppError::Validation(ErrorResponse {
             code: "transactions_empty",
@@ -131,9 +129,8 @@ pub async fn update_contract(
 
     let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
 
-    // propagate AppError (Validation/Db) lên router
+    // contract_number immutable — logic nằm trong service
     command::update_contract(pool, auth.tenant_id, contract_id, input).await?;
-
     Ok(Json(json!({ "updated": true })))
 }
 
@@ -144,7 +141,7 @@ pub async fn delete_contract(
 ) -> Result<StatusCode, StatusCode> {
     let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
 
-    command::delete_contract(&pool, auth.tenant_id, contract_id)
+    command::delete_contract(pool, auth.tenant_id, contract_id)
         .await
         .map_err(|e| {
             error!("❌ Lỗi delete_contract: {:?}", e);
@@ -164,7 +161,7 @@ pub struct StatsParams {
 
 #[derive(Serialize)]
 pub struct Serie {
-    pub name: String,
+    pub contract_number: String,
     pub data: Vec<i64>,
 }
 
@@ -248,8 +245,8 @@ pub async fn get_loan_stats(
     Json(StatsResponse {
         categories,
         series: vec![
-            Serie { name: "Loan Issued".into(), data: issued_vec },
-            Serie { name: "Loan Repaid".into(), data: repaid_vec },
+            Serie { contract_number: "Loan Issued".into(), data: issued_vec },
+            Serie { contract_number: "Loan Repaid".into(), data: repaid_vec },
         ],
     })
 }

@@ -7,7 +7,7 @@ import { JWT_HOST_API } from "configs/auth.config";
 import { Card, Button } from "components/ui";
 import DynamicForm from "components/shared/DynamicForm";
 import Notebook from "components/shared/Notebook";
-import CollateralPanel from "./CollateralPanel";
+
 
 const api = axios.create({ baseURL: JWT_HOST_API });
 
@@ -260,7 +260,7 @@ export default function LoanPage() {
                   fields={metadata?.notebook?.fields || []}
                 />
               </Card>
-              <CollateralPanel token={token} customers={customers} readOnly={!isEditing} />
+              
             </div>
 
             <div className="col-span-12 lg:col-span-4 space-y-4 sm:space-y-5 lg:space-y-6">

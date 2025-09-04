@@ -8,7 +8,6 @@ use sqlx::types::BigDecimal;
 #[derive(Debug, Deserialize)]
 pub struct CreateContractInput {
     pub contact_id: Uuid,
-    pub name: String,
     pub principal: i64,
     pub interest_rate: f64,
     pub term_months: i32,
@@ -27,6 +26,7 @@ pub struct CreateContractInput {
     pub created_by: Option<Uuid>,
     pub assignee_id: Option<Uuid>,
     pub shared_with: Option<Vec<Uuid>>,
+    pub collateral_asset_ids: Option<Vec<Uuid>>,
 
     #[serde(default)]
     pub transactions: Vec<TransactionInput>,
@@ -53,7 +53,7 @@ pub struct TransactionInput {
 #[derive(Debug, Serialize)]
 pub struct ContractView {
     pub contact_id: Uuid,
-    pub name: String,
+    pub contract_number: String,
     pub principal: i64,
     pub interest_rate: f64,
     pub term_months: i32,
@@ -91,14 +91,25 @@ fn default_collateral_status() -> String {
 }
 
 /// Dùng cho POST /loan/collateral
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 pub struct CreateCollateralDto {
     pub asset_type: String,
     pub description: Option<String>,
     pub value_estimate: Option<BigDecimal>,
     pub owner_contact_id: Option<Uuid>,
+    pub status: Option<String>,              // 👈 cho phép FE không gửi
+    pub contract_id: Option<Uuid>,
+}
 
-    /// available | pledged | released | archived
-    #[serde(default = "default_collateral_status")]
-    pub status: String,
+#[derive(Serialize, sqlx::FromRow)]
+pub struct CollateralAsset {
+    pub tenant_id: Uuid,
+    pub asset_id: Uuid,
+    pub asset_type: String,
+    pub description: Option<String>,
+    pub value_estimate: Option<BigDecimal>,
+    pub owner_contact_id: Option<Uuid>,
+    pub status: String,                      // 👈 có status
+    pub created_by: Uuid,
+    pub created_at: DateTime<Utc>,
 }

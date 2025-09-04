@@ -778,6 +778,13 @@ const protectedRoutes = {
               }),
             },
             {
+              path: "loan/loan-collateral",
+              lazy: async () => ({
+                Component: (await import("app/pages/dashboards/loan/loan-collateral"))
+                  .default,
+              }),
+            },
+            {
               path: "sales",
               lazy: async () => ({
                 Component: (await import("app/pages/dashboards/sales")).default,
