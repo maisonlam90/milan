@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT\n            id, tenant_id, contact_id, name,\n            interest_rate, term_months,\n            date_start, date_end,\n            collateral_description, collateral_value,\n            storage_fee_rate, storage_fee,\n            current_principal, current_interest,\n            accumulated_interest, total_paid_interest, total_settlement_amount,\n            state, created_at, updated_at,\n            created_by, assignee_id, shared_with,\n            0::int8 AS \"total_paid_principal!\",\n            0::int8 AS \"payoff_due!\"\n        FROM loan_contract\n        WHERE tenant_id = $1 AND id = $2\n        ",
+  "query": "\n        INSERT INTO loan_contract (\n            tenant_id, contact_id, contract_number, interest_rate, term_months,\n            date_start, date_end, collateral_description, collateral_value,\n            storage_fee_rate, storage_fee, current_principal, current_interest,\n            accumulated_interest, total_paid_interest, total_settlement_amount,\n            state, created_by, assignee_id, shared_with\n        )\n        VALUES (\n            $1, $2, $3, $4, $5,\n            $6, $7, $8, $9, $10,\n            $11, $12, $13, $14, $15,\n            $16, $17, $18, $19, $20\n        )\n        RETURNING\n            id, tenant_id, contact_id, contract_number,\n            interest_rate, term_months,\n            date_start, date_end,\n            collateral_description, collateral_value,\n            storage_fee_rate, storage_fee,\n            current_principal, current_interest,\n            accumulated_interest, total_paid_interest, total_settlement_amount,\n            state, created_at, updated_at,\n            created_by, assignee_id, shared_with,\n            0::int8 AS \"total_paid_principal!\",\n            0::int8 AS \"payoff_due!\"\n        ",
   "describe": {
     "columns": [
       {
@@ -20,7 +20,7 @@
       },
       {
         "ordinal": 3,
-        "name": "name",
+        "name": "contract_number",
         "type_info": "Text"
       },
       {
@@ -132,7 +132,25 @@
     "parameters": {
       "Left": [
         "Uuid",
-        "Uuid"
+        "Uuid",
+        "Text",
+        "Float8",
+        "Int4",
+        "Timestamptz",
+        "Timestamptz",
+        "Text",
+        "Int8",
+        "Float8",
+        "Int8",
+        "Int8",
+        "Int8",
+        "Int8",
+        "Int8",
+        "Int8",
+        "Text",
+        "Uuid",
+        "Uuid",
+        "UuidArray"
       ]
     },
     "nullable": [
@@ -163,5 +181,5 @@
       null
     ]
   },
-  "hash": "c7b577585691102d4a03bf3fce064558c406ea66417e12312ac802b390272897"
+  "hash": "28b6fe361f7c9caaf2567ac4d0d7df87f35c4bdb2096078aa451aa911d623e6d"
 }
