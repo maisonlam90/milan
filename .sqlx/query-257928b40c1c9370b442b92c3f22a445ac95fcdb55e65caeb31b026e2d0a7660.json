@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT\n            id, tenant_id, contact_id, name,\n            interest_rate, term_months,\n            date_start, date_end,\n            collateral_description, collateral_value,\n            storage_fee_rate, storage_fee,\n            current_principal, current_interest,\n            accumulated_interest, total_paid_interest, total_settlement_amount,\n            state, created_at, updated_at,\n            created_by, assignee_id, shared_with,\n            0::int8 AS \"total_paid_principal!\",\n            0::int8 AS \"payoff_due!\"\n        FROM loan_contract\n        WHERE tenant_id = $1\n        ORDER BY date_start DESC\n        ",
+  "query": "\n        UPDATE loan_contract\n        SET\n            contact_id = $1,\n            interest_rate = $2,\n            term_months = $3,\n            date_start = $4,\n            date_end = $5,\n            collateral_description = $6,\n            collateral_value = $7,\n            assignee_id = $8,\n            shared_with = $9,\n            updated_at = NOW()\n        WHERE id = $10 AND tenant_id = $11\n        RETURNING\n            id, tenant_id, contact_id, contract_number,\n            interest_rate, term_months,\n            date_start, date_end,\n            collateral_description, collateral_value,\n            storage_fee_rate, storage_fee,\n            current_principal, current_interest,\n            accumulated_interest, total_paid_interest, total_settlement_amount,\n            state, created_at, updated_at,\n            created_by, assignee_id, shared_with,\n            0::int8 AS \"total_paid_principal!\",\n            0::int8 AS \"payoff_due!\"\n        ",
   "describe": {
     "columns": [
       {
@@ -20,7 +20,7 @@
       },
       {
         "ordinal": 3,
-        "name": "name",
+        "name": "contract_number",
         "type_info": "Text"
       },
       {
@@ -131,6 +131,16 @@
     ],
     "parameters": {
       "Left": [
+        "Uuid",
+        "Float8",
+        "Int4",
+        "Timestamptz",
+        "Timestamptz",
+        "Text",
+        "Int8",
+        "Uuid",
+        "UuidArray",
+        "Uuid",
         "Uuid"
       ]
     },
@@ -162,5 +172,5 @@
       null
     ]
   },
-  "hash": "df6b629fec5d31001cd0da2efe7eed0080d9c6c83d68b0fe56f368915ac91551"
+  "hash": "257928b40c1c9370b442b92c3f22a445ac95fcdb55e65caeb31b026e2d0a7660"
 }
