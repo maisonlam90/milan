@@ -2,7 +2,7 @@ use sqlx::{PgPool, query_as};
 use uuid::Uuid;
 use crate::module::loan::model::{LoanContract, LoanTransaction};
 use crate::module::loan::calculator::calculate_interest_fields;
-use sqlx::types::BigDecimal;// báo cáo
+use sqlx::types::BigDecimal; // báo cáo
 
 pub async fn list_contracts(pool: &PgPool, tenant_id: Uuid) -> sqlx::Result<Vec<LoanContract>> {
     let contracts = sqlx::query_as!(
@@ -12,7 +12,6 @@ pub async fn list_contracts(pool: &PgPool, tenant_id: Uuid) -> sqlx::Result<Vec<
             id, tenant_id, contact_id, contract_number,
             interest_rate, term_months,
             date_start, date_end,
-            collateral_description, collateral_value,
             storage_fee_rate, storage_fee,
             current_principal, current_interest,
             accumulated_interest, total_paid_interest, total_settlement_amount,
@@ -44,7 +43,6 @@ pub async fn get_contract_by_id(
             id, tenant_id, contact_id, contract_number,
             interest_rate, term_months,
             date_start, date_end,
-            collateral_description, collateral_value,
             storage_fee_rate, storage_fee,
             current_principal, current_interest,
             accumulated_interest, total_paid_interest, total_settlement_amount,
@@ -64,7 +62,6 @@ pub async fn get_contract_by_id(
     Ok(contract)
 }
 
-
 /// Lấy giao dịch RAW (không tính trong SQL).
 pub async fn get_transactions_by_contract(
     pool: &PgPool,
@@ -83,13 +80,12 @@ pub async fn get_transactions_by_contract(
             lt.amount,
             lt.date                         AS "date!",
             lt.note,
-            -- ép non-null cho các trường tính toán (map vào i32/i64)
             0::int4                         AS "days_from_prev!",
             0::int8                         AS "interest_for_period!",
             0::int8                         AS "accumulated_interest!",
             0::int8                         AS "principal_balance!",
-            0::int8                         AS "principal_applied!",   -- 👈 mới
-            0::int8                         AS "interest_applied!",    -- 👈 mới
+            0::int8                         AS "principal_applied!",
+            0::int8                         AS "interest_applied!",
             lt.created_at                   AS "created_at!",
             lt.updated_at                   AS "updated_at!"
         FROM loan_transaction lt
@@ -127,9 +123,9 @@ pub async fn get_contract_detail(
 // ================== Báo cáo ==================
 #[derive(Debug)]
 pub struct LoanStats {
-    pub group_key: Option<f64>,            // day(1..31) | month(1..12) | year(YYYY)
-    pub total_issued: Option<BigDecimal>,  // SUM disbursement + additional
-    pub total_repaid: Option<BigDecimal>,  // SUM principal + interest
+    pub group_key: Option<f64>,
+    pub total_issued: Option<BigDecimal>,
+    pub total_repaid: Option<BigDecimal>,
 }
 
 pub async fn aggregate_by_month(

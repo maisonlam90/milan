@@ -136,25 +136,12 @@ pub fn settlement_quote_as_of(
     let mut c = contract.clone();
     calculate_interest_fields_as_of(&mut c, txs_prefix, as_of);
 
-    // Tính thêm phí lưu kho từ lần cộng dồn gần nhất đến as_of (nếu dùng)
-    let mut amount = c.current_principal + c.current_interest;
-
-    if c.storage_fee_rate > 0.0 && c.collateral_value > 0 {
-        // ngày gần nhất để tính chênh lệch ngày
-        let last_biz = if let Some(last) = txs_prefix.last() {
-            super::calculator::biz_date(last.date)
-        } else {
-            super::calculator::biz_date(c.date_start)
-        };
-        let as_of_biz = super::calculator::biz_date(as_of);
-        let days = (as_of_biz - last_biz).num_days().max(0) as f64;
-
-        let storage = (c.collateral_value as f64 * c.storage_fee_rate * days).round() as i64;
-        amount += storage;
-    }
+    // ✅ Bỏ phần tính phí lưu kho theo collateral_value
+    let amount = c.current_principal + c.current_interest;
 
     amount.max(0)
 }
+
 
 pub fn principal_paid_as_of(
     contract: &crate::module::loan::model::LoanContract,

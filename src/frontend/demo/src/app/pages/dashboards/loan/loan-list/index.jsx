@@ -1,6 +1,6 @@
 // loanlist.jsx
 import { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";        // 👈 SPA navigation
+import { useNavigate } from "react-router-dom";
 import { Page } from "components/shared/Page";
 import { Breadcrumbs } from "components/shared/Breadcrumbs";
 import axios from "axios";
@@ -18,16 +18,35 @@ const initialMetadata = (() => {
   try {
     const cached = JSON.parse(localStorage.getItem("loanMetadata"));
     return cached?.list?.columns ? cached : null;
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 })();
 
+// 👉 Format tiền tệ kiểu VN: 10000000 -> 10.000.000
+const formatCurrency = (value) =>
+  typeof value === "number"
+    ? new Intl.NumberFormat("vi-VN").format(value)
+    : value;
+
+// 👉 Convert ISO string to dd-mm-yyyy UTC
+const toUTCDateString = (iso) => {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return `${d.getUTCDate().toString().padStart(2, "0")}-${(d.getUTCMonth() + 1)
+    .toString()
+    .padStart(2, "0")}-${d.getUTCFullYear()}`;
+};
+
 export default function LoanListPage() {
-  const navigate = useNavigate();                      // ✔ dùng thật
+  const navigate = useNavigate();
   const [contracts, setContracts] = useState(() => {
     try {
       const cached = sessionStorage.getItem("loanListCache");
       return cached ? JSON.parse(cached) : [];
-    } catch { return []; }
+    } catch {
+      return [];
+    }
   });
   const [metadata, setMetadata] = useState(initialMetadata);
   const token = localStorage.getItem("authToken");
@@ -61,14 +80,14 @@ export default function LoanListPage() {
     fetchContracts();
   }, [fetchMetadata, fetchContracts]);
 
-  // 👇 SPA điều hướng, không reload HTML
   const handleRowClick = (row) => {
     if (!row?.id) {
       alert("⚠️ Không tìm thấy ID hợp đồng trong dòng dữ liệu");
       return;
     }
-    // Truyền preview để trang chi tiết hiển thị ngay (không bị nháy)
-    navigate(`/dashboards/loan/loan-create?id=${row.id}`, { state: { preview: row } });
+    navigate(`/dashboards/loan/loan-create?id=${row.id}`, {
+      state: { preview: row },
+    });
   };
 
   return (
@@ -93,8 +112,13 @@ export default function LoanListPage() {
         {metadata?.list?.columns && (
           <DynamicList
             columns={metadata.list.columns}
-            data={contracts}
-            onRowClick={handleRowClick}            // ✅ SPA navigation
+            data={contracts.map((c) => ({
+              ...c,
+              current_principal: formatCurrency(c.current_principal),
+              date_start: toUTCDateString(c.date_start),
+              date_end: toUTCDateString(c.date_end),
+            }))}
+            onRowClick={handleRowClick}
           />
         )}
       </div>

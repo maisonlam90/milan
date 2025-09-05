@@ -20,11 +20,10 @@ pub struct LoanContract {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub date_end: Option<DateTime<Utc>>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub collateral_description: Option<String>,
+
 
     // các cột dưới đây là NOT NULL ở DB
-    pub collateral_value: i64,
+
     pub storage_fee_rate: f64,
     pub storage_fee: i64,
 

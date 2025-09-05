@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use axum::{
-    extract::{State, Json},
+    extract::{State, Json, Path},
 };
 use uuid::Uuid;
 use sqlx::PgPool;
@@ -89,4 +89,98 @@ pub async fn create_collateral(
     }
 
     Ok(Json(rec))
+}
+
+pub async fn get_collaterals_by_contract(
+    State(state): State<Arc<AppState>>,
+    user: AuthUser,
+    Path(contract_id): Path<Uuid>,
+) -> Result<Json<Vec<CollateralAsset>>, AppError> {
+    let pool = state.shard.get_pool_for_tenant(&user.tenant_id);
+
+    let items = sqlx::query_as!(
+        CollateralAsset,
+        r#"
+        SELECT a.tenant_id, a.asset_id, a.asset_type, a.description,
+               a.value_estimate, a.owner_contact_id, a.status, a.created_by, a.created_at
+        FROM loan_collateral lc
+        JOIN collateral_assets a
+          ON lc.tenant_id = a.tenant_id AND lc.asset_id = a.asset_id
+        WHERE lc.tenant_id = $1 AND lc.contract_id = $2
+        AND lc.status = 'active'
+        ORDER BY a.created_at DESC
+        "#,
+        user.tenant_id,
+        contract_id,
+    )
+    .fetch_all(pool)
+    .await?;
+
+    Ok(Json(items))
+}
+
+#[derive(Debug, Deserialize)]
+pub struct AddCollateralDto {
+    asset_id: Uuid,
+    pledge_value: Option<BigDecimal>,
+}
+
+pub async fn add_collateral_to_contract(
+    State(state): State<Arc<AppState>>,
+    user: AuthUser,
+    Path(contract_id): Path<Uuid>,
+    Json(payload): Json<AddCollateralDto>,
+) -> Result<(), AppError> {
+    let pool = state.shard.get_pool_for_tenant(&user.tenant_id);
+
+    sqlx::query!(
+        r#"
+        INSERT INTO loan_collateral (
+            tenant_id, contract_id, asset_id,
+            pledge_value, status, created_by, created_at
+        )
+        VALUES ($1, $2, $3, $4, 'active', $5, NOW())
+        "#,
+        user.tenant_id,
+        contract_id,
+        payload.asset_id,
+        payload.pledge_value,
+        user.user_id,
+    )
+    .execute(pool)
+    .await?;
+
+    Ok(())
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ReleaseCollateralDto {
+    asset_id: Uuid,
+}
+
+pub async fn release_collateral_from_contract(
+    State(state): State<Arc<AppState>>,
+    user: AuthUser,
+    Path(contract_id): Path<Uuid>,
+    Json(payload): Json<ReleaseCollateralDto>,
+) -> Result<(), AppError> {
+    let pool = state.shard.get_pool_for_tenant(&user.tenant_id);
+
+    sqlx::query!(
+        r#"
+        UPDATE loan_collateral
+        SET status = 'released',
+            released_at = NOW()
+        WHERE tenant_id = $1
+          AND contract_id = $2
+          AND asset_id = $3
+        "#,
+        user.tenant_id,
+        contract_id,
+        payload.asset_id,
+    )
+    .execute(pool)
+    .await?;
+
+    Ok(())
 }
