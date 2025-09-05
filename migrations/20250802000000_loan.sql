@@ -21,8 +21,7 @@ CREATE TABLE loan_contract (
     date_start      TIMESTAMPTZ NOT NULL,                      -- Ngày bắt đầu vay
     date_end        TIMESTAMPTZ,                               -- Ngày kết thúc (nullable)
 
-    collateral_description TEXT,                               -- Mô tả tài sản thế chấp
-    collateral_value       BIGINT NOT NULL DEFAULT 0,          -- Giá trị tài sản
+
     storage_fee_rate       DOUBLE PRECISION NOT NULL DEFAULT 0,-- % phí lưu kho/ngày
     storage_fee            BIGINT NOT NULL DEFAULT 0,          -- Tổng phí lưu kho
 

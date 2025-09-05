@@ -29,15 +29,12 @@ pub async fn create_contract(
 
     let mut tx = pool.begin().await?;
 
-    // 🔑 Sinh số HĐ theo THÁNG HIỆN TẠI (per-tenant, per-YYYYMM)
     let contract_number = generate_contract_number_monthly(
         tx.as_mut(),
         tenant_id,
-        None, // TODO: nếu có tenant_code (VD "TNT01") thì truyền Some("TNT01".to_string())
+        None,
     ).await?;
 
-    // lấy các giá trị mặc định
-    let collateral_value = input.collateral_value.unwrap_or(0);
     let storage_fee_rate = input.storage_fee_rate.unwrap_or(0.0);
     let storage_fee = input.storage_fee.unwrap_or(0);
     let current_principal = input.current_principal.unwrap_or(0);
@@ -47,28 +44,46 @@ pub async fn create_contract(
     let total_settlement_amount = input.total_settlement_amount.unwrap_or(0);
     let shared_with = input.shared_with.as_deref().unwrap_or(&[]);
 
-    // 👇 dùng contract_number tự sinh, KHÔNG dùng input.contract_number
+    // 👉 Tự động xác định trạng thái ban đầu
+    let mut state = "Nháp".to_string();
+    if !input.transactions.is_empty() {
+        state = "Hoạt động".to_string();
+        for t in &input.transactions {
+            match t.transaction_type.as_str() {
+                "liquidation" => {
+                    state = "Đã thanh lý".to_string();
+                    break;
+                }
+                "settlement" => {
+                    state = "Đã tất toán".to_string();
+                    // vẫn tiếp tục vòng lặp để ưu tiên "liquidated" nếu có
+                }
+                _ => {}
+            }
+        }
+    }
+
     let contract = sqlx::query_as!(
         LoanContract,
         r#"
         INSERT INTO loan_contract (
             tenant_id, contact_id, contract_number, interest_rate, term_months,
-            date_start, date_end, collateral_description, collateral_value,
+            date_start, date_end,
             storage_fee_rate, storage_fee, current_principal, current_interest,
             accumulated_interest, total_paid_interest, total_settlement_amount,
             state, created_by, assignee_id, shared_with
         )
         VALUES (
             $1, $2, $3, $4, $5,
-            $6, $7, $8, $9, $10,
-            $11, $12, $13, $14, $15,
-            $16, $17, $18, $19, $20
+            $6, $7,
+            $8, $9, $10, $11,
+            $12, $13, $14,
+            $15, $16, $17, $18
         )
         RETURNING
             id, tenant_id, contact_id, contract_number,
             interest_rate, term_months,
             date_start, date_end,
-            collateral_description, collateral_value,
             storage_fee_rate, storage_fee,
             current_principal, current_interest,
             accumulated_interest, total_paid_interest, total_settlement_amount,
@@ -79,13 +94,11 @@ pub async fn create_contract(
         "#,
         tenant_id,
         input.contact_id,
-        contract_number, // ✅ số tự sinh theo tháng hiện tại
+        contract_number,
         input.interest_rate,
         input.term_months,
         input.date_start,
         input.date_end,
-        input.collateral_description,
-        collateral_value,
         storage_fee_rate,
         storage_fee,
         current_principal,
@@ -93,7 +106,7 @@ pub async fn create_contract(
         accumulated_interest,
         total_paid_interest,
         total_settlement_amount,
-        input.state,
+        state,
         input.created_by,
         input.assignee_id,
         shared_with
@@ -101,37 +114,10 @@ pub async fn create_contract(
     .fetch_one(tx.as_mut())
     .await?;
 
-    // dãy giao dịch đã “diễn ra” để tính trạng thái dồn
+    // Lưu giao dịch
     let mut prefix: Vec<LoanTransaction> = Vec::new();
-
     for t in input.transactions.iter() {
         let date_parsed = epoch_to_utc(t.date)?;
-
-        // Tính trạng thái đến thời điểm giao dịch rồi VALIDATE
-        let mut c_copy = contract.clone();
-        let mut txs_copy = prefix.clone();
-        calculate_interest_fields_as_of(&mut c_copy, &mut txs_copy, date_parsed);
-
-        match t.transaction_type.as_str() {
-            "interest" => {
-                if t.amount > c_copy.current_interest {
-                    return Err(AppError::Validation(ErrorResponse {
-                        code: "interest_overpaid",
-                        message: "Số tiền thu lãi vượt quá lãi hiện tại".to_string(),
-                    }));
-                }
-            }
-            "principal" => {
-                if t.amount > c_copy.current_principal {
-                    return Err(AppError::Validation(ErrorResponse {
-                        code: "principal_overpaid",
-                        message: "Số tiền thu gốc vượt quá dư nợ gốc".to_string(),
-                    }));
-                }
-            }
-            _ => {}
-        }
-
         let computed_amount = if t.transaction_type == "settlement" {
             settlement_quote_as_of(&contract, &mut prefix, date_parsed)
         } else {
@@ -161,7 +147,6 @@ pub async fn create_contract(
         .execute(tx.as_mut())
         .await?;
 
-        // cập nhật prefix cho giao dịch kế tiếp
         prefix.push(LoanTransaction {
             id: Uuid::new_v4(),
             contract_id: contract.id,
@@ -190,7 +175,7 @@ pub async fn update_contract(
     pool: &PgPool,
     tenant_id: Uuid,
     contract_id: Uuid,
-    input: CreateContractInput, // hoặc tách thành UpdateContractInput
+    input: CreateContractInput,
 ) -> Result<LoanContract, AppError> {
     if input.transactions.is_empty() {
         return Err(AppError::Validation(ErrorResponse {
@@ -202,7 +187,25 @@ pub async fn update_contract(
     let mut tx = pool.begin().await?;
     let shared_with = input.shared_with.as_deref().unwrap_or(&[]);
 
-    // ❌ Không cho phép sửa contract_number
+    // 👉 Tự động cập nhật trạng thái theo giao dịch
+    let mut state = "Nháp".to_string();
+    if !input.transactions.is_empty() {
+        state = "Hoạt động".to_string();
+        for t in &input.transactions {
+            match t.transaction_type.as_str() {
+                "liquidation" => {
+                    state = "Đã thanh lý".to_string();
+                    break;
+                }
+                "settlement" => {
+                    state = "Đã tất toán".to_string();
+                    // vẫn tiếp tục vòng lặp để ưu tiên "liquidated" nếu có
+                }
+                _ => {}
+            }
+        }
+    }
+
     let updated = sqlx::query_as!(
         LoanContract,
         r#"
@@ -213,17 +216,15 @@ pub async fn update_contract(
             term_months = $3,
             date_start = $4,
             date_end = $5,
-            collateral_description = $6,
-            collateral_value = $7,
-            assignee_id = $8,
-            shared_with = $9,
+            assignee_id = $6,
+            shared_with = $7,
+            state = $8,
             updated_at = NOW()
-        WHERE id = $10 AND tenant_id = $11
+        WHERE id = $9 AND tenant_id = $10
         RETURNING
             id, tenant_id, contact_id, contract_number,
             interest_rate, term_months,
             date_start, date_end,
-            collateral_description, collateral_value,
             storage_fee_rate, storage_fee,
             current_principal, current_interest,
             accumulated_interest, total_paid_interest, total_settlement_amount,
@@ -237,17 +238,15 @@ pub async fn update_contract(
         input.term_months,
         input.date_start,
         input.date_end,
-        input.collateral_description,
-        input.collateral_value.unwrap_or(0),
         input.assignee_id,
         shared_with,
+        state,
         contract_id,
         tenant_id,
     )
     .fetch_one(tx.as_mut())
     .await?;
 
-    // Xoá-ghi lại transactions như cũ
     sqlx::query!(
         "DELETE FROM loan_transaction WHERE contract_id = $1 AND tenant_id = $2",
         contract_id,
@@ -259,28 +258,6 @@ pub async fn update_contract(
     let mut prefix: Vec<LoanTransaction> = Vec::new();
     for t in input.transactions.iter() {
         let date_parsed = epoch_to_utc(t.date)?;
-
-        // validate theo trạng thái dồn
-        let mut c_copy = updated.clone();
-        let mut txs_copy = prefix.clone();
-        calculate_interest_fields_as_of(&mut c_copy, &mut txs_copy, date_parsed);
-
-        match t.transaction_type.as_str() {
-            "interest" if t.amount > c_copy.current_interest => {
-                return Err(AppError::Validation(ErrorResponse {
-                    code: "interest_overpaid",
-                    message: "Số tiền thu lãi vượt quá lãi hiện tại".to_string(),
-                }));
-            }
-            "principal" if t.amount > c_copy.current_principal => {
-                return Err(AppError::Validation(ErrorResponse {
-                    code: "principal_overpaid",
-                    message: "Số tiền thu gốc vượt quá dư nợ gốc".to_string(),
-                }));
-            }
-            _ => {}
-        }
-
         let computed_amount = if t.transaction_type == "settlement" {
             settlement_quote_as_of(&updated, &mut prefix, date_parsed)
         } else {
@@ -333,6 +310,7 @@ pub async fn update_contract(
     tx.commit().await?;
     Ok(updated)
 }
+
 
 pub async fn delete_contract(
     pool: &PgPool,

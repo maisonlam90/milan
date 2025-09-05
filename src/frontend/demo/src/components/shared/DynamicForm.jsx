@@ -13,7 +13,6 @@ const widthClass = {
 };
 
 export default function DynamicForm({ form, fields, optionsMap, disabled = false }) {
-  // ===== Helpers format/parse số (đồng nhất với Notebook.jsx) =====
   const nf = useMemo(() => new Intl.NumberFormat("vi-VN"), []);
   const parseNumber = (str) => {
     if (str === null || str === undefined) return null;
@@ -42,7 +41,6 @@ export default function DynamicForm({ form, fields, optionsMap, disabled = false
     e.preventDefault();
   };
 
-  // ===== Helper ngày dd/mm/yyyy (tránh lệch timezone) =====
   const formatDateDisplay = (v) => {
     if (!v) return "";
     if (typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v)) {
@@ -57,11 +55,9 @@ export default function DynamicForm({ form, fields, optionsMap, disabled = false
     return `${dd}/${mm}/${yy}`;
   };
 
-  // Style “compute”
   const roBox = "bg-gray-100 dark:bg-dark-800 text-gray-600 px-2 py-1 rounded";
   const roOneLine = `${roBox} block w-full min-w-0 whitespace-nowrap overflow-hidden text-ellipsis`;
 
-  // Tránh return sớm để không vi phạm hook rules
   const fieldsInvalid = !Array.isArray(fields);
   const safeFields = fieldsInvalid ? [] : fields;
 
@@ -70,17 +66,17 @@ export default function DynamicForm({ form, fields, optionsMap, disabled = false
       {fieldsInvalid && (
         <p className="text-red-500 mb-3">⚠️ Metadata form.fields không hợp lệ</p>
       )}
-
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
         {safeFields.map((field, idx) => {
           const span = widthClass[field.width?.toString()] || "md:col-span-12";
           const error = form.formState.errors?.[field.name]?.message;
+          const isDisabled = disabled || field.disabled;
 
           return (
             <div key={field.name || idx} className={span}>
               {renderField({
                 field, form, optionsMap, error,
-                disabled,
+                disabled: isDisabled,
                 formatNumber, parseNumber, allowNumericKeystroke,
                 roBox, roOneLine, formatDateDisplay,
               })}
@@ -111,7 +107,6 @@ function renderField({
 }) {
   const rules = field.required ? { required: `${field.label} là bắt buộc` } : {};
 
-  // Textarea
   if (field.type === "textarea") {
     if (disabled) {
       const val = form.watch(field.name);
@@ -133,7 +128,6 @@ function renderField({
     );
   }
 
-  // Select
   if (field.type === "select") {
     const options = optionsMap?.[field.name] || field.options || [];
     const getSelectLabel = (val) =>
@@ -167,7 +161,6 @@ function renderField({
     );
   }
 
-  // Date
   if (field.type === "date") {
     if (disabled) {
       const val = form.watch(field.name);
@@ -203,7 +196,6 @@ function renderField({
     );
   }
 
-  // Number
   if (field.type === "number") {
     if (disabled) {
       const v = form.watch(field.name);
@@ -256,7 +248,6 @@ function renderField({
     );
   }
 
-  // Default: text
   if (disabled) {
     const val = form.watch(field.name);
     return (

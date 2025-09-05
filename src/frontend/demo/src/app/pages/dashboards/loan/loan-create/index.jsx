@@ -27,6 +27,7 @@ export default function LoanPage() {
 
   const [metadata, setMetadata] = useState(null);
   const [customers, setCustomers] = useState([]);
+  const [collaterals, setCollaterals] = useState([]);
   const [loadingLoan, setLoadingLoan] = useState(!state?.preview);
   const [isEditing, setIsEditing] = useState(!urlId);
   const [localLoanId, setLocalLoanId] = useState(null);
@@ -43,6 +44,20 @@ export default function LoanPage() {
 
   const loanId = urlId || localLoanId;
 
+  const fetchCollaterals = useCallback(async () => {
+    if (!loanId) return;
+    try {
+      const res = await api.get(`/loan/${loanId}/collaterals`, { headers: authHeader });
+      setCollaterals(res.data || []);
+    } catch (err) {
+      console.error("❌ Lỗi load tài sản thế chấp:", err);
+    }
+  }, [loanId, token]);
+
+  useEffect(() => {
+    fetchCollaterals();
+  }, [fetchCollaterals]);
+
   useEffect(() => {
     if (state?.preview) {
       form.reset(state.preview);
@@ -53,6 +68,59 @@ export default function LoanPage() {
       }
     }
   }, [state?.preview, form]);
+
+  // ✅ Tự động tính % năm từ lãi mỗi triệu mỗi ngày
+  useEffect(() => {
+    const subscription = form.watch((values, { name }) => {
+      if (name === "interest_amount_per_million") {
+        const perDay = values.interest_amount_per_million;
+        if (typeof perDay === "number" && !isNaN(perDay)) {
+          const annualRate = (perDay / 1_000_000) * 100 * 365;
+          form.setValue("interest_rate", parseFloat(annualRate.toFixed(2)));
+        }
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
+
+
+  // ✅ Tạo danh sách fields đã chỉnh sửa:
+  // - Luôn khóa không cho sửa `contract_number`
+  // - Nếu có `loanId`, chèn thêm `contract_id` readonly vào ngay sau
+  const adjustedFields = useMemo(() => {
+  if (!metadata?.form?.fields) return [];
+
+  // 👉 clone fields & luôn khoá trường contract_number
+  const base = metadata.form.fields.map((f) =>
+    f.name === "contract_number" ? { ...f, disabled: true } : f
+  );
+
+  // 👉 luôn chèn contract_id readonly ngay sau contract_number
+  const idx = base.findIndex((f) => f.name === "contract_number");
+    if (idx !== -1) {
+      base.splice(idx + 1, 0, {
+        name: "contract_id",
+        label: "Mã hợp đồng",
+        type: "text",
+        width: 6,
+        disabled: true,
+      });
+    }
+
+    // 👉 chèn thêm trường nhập lãi theo tiền ngay sau interest_rate
+    const irIdx = base.findIndex((f) => f.name === "interest_rate");
+    if (irIdx !== -1) {
+      base.splice(irIdx + 1, 0, {
+        name: "interest_amount_per_million",
+        label: "Lãi theo tiền (VNĐ mỗi triệu)",
+        type: "number",
+        width: 6,
+      });
+    }
+
+    return base;
+  }, [metadata]);
+  
 
   const fetchMetadata = useCallback(async () => {
     try {
@@ -85,6 +153,7 @@ export default function LoanPage() {
       try {
         const res = await api.get(`/loan/${id}`, { headers: authHeader });
         form.reset(res.data);
+        form.setValue("contract_id", res.data?.id || "");
         setIsEditing(false);
       } catch (err) {
         const cached = sessionStorage.getItem(`loan_preview_${id}`);
@@ -239,7 +308,8 @@ export default function LoanPage() {
                 <div className="mt-5 space-y-5">
                   <DynamicForm
                     form={form}
-                    fields={metadata?.form?.fields || []}
+                    fields={adjustedFields} // ✅ dùng danh sách field đã chỉnh sửa
+
                     optionsMap={{
                       contact_id: (customers || []).map((c) => ({
                         value: c.id,
@@ -259,6 +329,26 @@ export default function LoanPage() {
                   form={form}
                   fields={metadata?.notebook?.fields || []}
                 />
+              </Card>
+
+              <Card className="p-4 sm:px-5 mb-6 mt-6">
+                <h3 className="text-base font-medium text-gray-800 dark:text-dark-100">
+                  Tài sản thế chấp
+                </h3>
+                {collaterals.length === 0 ? (
+                  <p className="text-sm text-gray-500 mt-2">Không có tài sản nào được gắn.</p>
+                ) : (
+                  <ul className="mt-3 space-y-2 text-sm text-gray-700">
+                    {collaterals.map((c) => (
+                      <li key={c.asset_id} className="border p-2 rounded">
+                        <div className="font-semibold">{c.asset_type}</div>
+                        <div>Mô tả: {c.description}</div>
+                        <div>Giá trị ước tính: {Number(c.value_estimate || 0).toLocaleString("vi-VN")} VNĐ</div>
+                        <div>Trạng thái: {c.status}</div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </Card>
               
             </div>

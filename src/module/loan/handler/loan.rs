@@ -61,12 +61,20 @@ pub async fn list_contracts(
 ) -> Result<Json<serde_json::Value>, StatusCode> {
     let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
 
-    let contracts = query::list_contracts(pool, auth.tenant_id)
+    let mut contracts = query::list_contracts(pool, auth.tenant_id)
         .await
         .map_err(|e| {
             error!("❌ Lỗi query list_contracts: {:?}", e);
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
+
+    // 👇 Load và gán giao dịch cho từng contract để tính toán lại current_principal
+    for c in &mut contracts {
+        let mut txs = query::get_transactions_by_contract(pool, auth.tenant_id, c.id)
+            .await
+            .unwrap_or_default();
+        calculator::calculate_interest_fields(c, &mut txs);
+    }
 
     let data: Vec<_> = contracts
         .into_iter()
@@ -74,10 +82,11 @@ pub async fn list_contracts(
             json!({
                 "id": c.id,
                 "contract_number": c.contract_number,
+                "current_principal": c.current_principal,
                 "interest_rate": c.interest_rate,
                 "term_months": c.term_months,
-                "date_start": c.date_start.format("%d-%m-%Y").to_string(),
-                "date_end": c.date_end.map(|d| d.format("%d-%m-%Y").to_string()).unwrap_or_default(),
+                "date_start": c.date_start.format("%Y-%m-%d").to_string(),
+                "date_end": c.date_end.map(|d| d.format("%Y-%m-%d").to_string()).unwrap_or_default(),
                 "state": c.state
             })
         })
