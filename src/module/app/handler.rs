@@ -101,6 +101,8 @@ pub struct ScannedModule {
 pub async fn scan_and_seed_modules(
     State(state): State<Arc<AppState>>,
 ) -> Result<Json<Vec<ScannedModule>>, AppError> {
+    use sqlx::Acquire;
+
     let module_root = FsPath::new("src/module");
     let mut result = Vec::new();
     let pool = state.shard.get_pool_for_system();
@@ -135,15 +137,53 @@ pub async fn scan_and_seed_modules(
                     .unwrap_or(&format!("Module {}", display_name))
                     .to_string();
 
+                // 🔒 Transaction: insert available_module + permissions atomically
+                let mut tx = pool
+                    .begin()
+                    .await
+                    .map_err(|e| AppError::InternalServerError(e.to_string()))?;
+
+                // 1) available_module
                 sqlx::query!(
-                    "INSERT INTO available_module (module_name, display_name, description)
-                     VALUES ($1, $2, $3) ON CONFLICT DO NOTHING",
+                    r#"
+                    INSERT INTO available_module (module_name, display_name, description)
+                    VALUES ($1, $2, $3)
+                    ON CONFLICT DO NOTHING
+                    "#,
                     module_name,
                     display_name,
                     description
                 )
-                .execute(pool)
+                .execute(&mut *tx)
                 .await?;
+
+                // 2) permissions (resource, action, label)
+                const ACTIONS: [&str; 5] = ["access", "read", "create", "update", "delete"];
+                for action in ACTIONS {
+                    let label = match action {
+                        "access" => format!("Truy cập module {}", display_name),
+                        "read"   => format!("Xem {}", display_name),
+                        "create" => format!("Tạo {}", display_name),
+                        "update" => format!("Cập nhật {}", display_name),
+                        "delete" => format!("Xoá {}", display_name),
+                        _ => format!("{} {}", action, display_name),
+                    };
+
+                    sqlx::query!(
+                        r#"
+                        INSERT INTO permissions (resource, action, label)
+                        VALUES ($1, $2, $3)
+                        ON CONFLICT DO NOTHING
+                        "#,
+                        module_name,   // resource
+                        action,        // action
+                        label          // label
+                    )
+                    .execute(&mut *tx)
+                    .await?;
+                }
+
+                tx.commit().await?;
 
                 result.push(ScannedModule {
                     module_name,
