@@ -38,8 +38,11 @@ pub fn build_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
         // 🛡️ Route module loan
         .merge(crate::module::loan::router::routes())
 
-        // 🛡️ Route module loan
+        // 🛡️ Route module contact
         .merge(crate::module::contact::router::routes())
+
+        // 🛡️ Route module app
+        .merge(crate::module::app::router::routes())
 
         // 🌐 Gắn state + middleware CORS
         .with_state(state)
