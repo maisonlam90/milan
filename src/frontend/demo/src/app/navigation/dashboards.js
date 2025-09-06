@@ -148,6 +148,13 @@ export const dashboards = {
                     title: 'loan collateral',
                     transKey: 'nav.dashboards.loan-collateral',
                 },
+                {
+                    id: 'dashboards.loan-report',
+                    type: NAV_TYPE_ITEM,
+                    path: path(ROOT_DASHBOARDS, '/loan/loan-report'),
+                    title: 'loan report',
+                    transKey: 'nav.dashboards.loan-report',
+                },
             ],
         },
         {

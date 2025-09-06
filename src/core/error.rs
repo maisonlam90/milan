@@ -28,6 +28,7 @@ impl IntoResponse for ErrorResponse {
 pub enum AppError {
     Validation(ErrorResponse),
     Db(sqlx::Error),
+    InternalServerError(String), // ✅ Thêm variant mới
 }
 
 impl From<sqlx::Error> for AppError {
@@ -40,31 +41,42 @@ impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         match self {
             AppError::Validation(err) => err.into_response(),
+
             AppError::Db(ref e) => {
-                // Ghi log rõ ràng ở backend
                 tracing::error!("❌ SQLx error: {e:?}");
 
                 let payload = ErrorResponse {
                     code: "db_error",
                     message: match e {
-                        sqlx::Error::Database(db_err) => {
-                            // Hiện message chi tiết của DB (ví dụ: CHECK constraint failed)
-                            db_err.message().to_string()
-                        }
+                        sqlx::Error::Database(db_err) => db_err.message().to_string(),
                         _ => "Lỗi hệ thống (DB)".into(),
                     },
                 };
 
                 (StatusCode::INTERNAL_SERVER_ERROR, Json(payload)).into_response()
             }
+
+            AppError::InternalServerError(msg) => {
+                tracing::error!("❌ Internal error: {msg}");
+                let payload = ErrorResponse {
+                    code: "internal_error",
+                    message: msg,
+                };
+                (StatusCode::INTERNAL_SERVER_ERROR, Json(payload)).into_response()
+            }
         }
     }
 }
+
 impl AppError {
     pub fn bad_request(msg: impl Into<String>) -> Self {
         AppError::Validation(ErrorResponse {
             code: "bad_request",
             message: msg.into(),
         })
+    }
+
+    pub fn internal(msg: impl Into<String>) -> Self {
+        AppError::InternalServerError(msg.into())
     }
 }

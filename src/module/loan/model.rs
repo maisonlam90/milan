@@ -1,7 +1,7 @@
 use serde::{Serialize, Deserialize};
 use sqlx::FromRow;
 use uuid::Uuid;
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Utc, NaiveDate};
 use sqlx::types::BigDecimal;
 
 #[derive(Debug, Serialize, Deserialize, Clone, FromRow)]
@@ -90,4 +90,19 @@ pub struct CollateralAsset {
     pub status: String,              // 👈 mới: available | pledged | released | archived
     pub created_by: Uuid,
     pub created_at: DateTime<Utc>,   // NOT NULL theo DDL
+}
+
+#[derive(Debug, Clone, sqlx::FromRow, serde::Serialize)]
+pub struct LoanReport {
+    pub tenant_id: Uuid,
+    pub contract_id: Uuid,
+    pub contact_id: Uuid,
+    pub date: NaiveDate,
+    pub current_principal: Option<i64>,
+    pub current_interest: Option<i64>,
+    pub accumulated_interest: Option<i64>,
+    pub total_paid_interest: Option<i64>,
+    pub total_paid_principal: Option<i64>,
+    pub payoff_due: Option<i64>,
+    pub state: String,
 }
