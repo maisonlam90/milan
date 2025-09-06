@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        INSERT INTO loan_contract (\n            tenant_id, contact_id, contract_number, interest_rate, term_months,\n            date_start, date_end, collateral_description, collateral_value,\n            storage_fee_rate, storage_fee, current_principal, current_interest,\n            accumulated_interest, total_paid_interest, total_settlement_amount,\n            state, created_by, assignee_id, shared_with\n        )\n        VALUES (\n            $1, $2, $3, $4, $5,\n            $6, $7, $8, $9, $10,\n            $11, $12, $13, $14, $15,\n            $16, $17, $18, $19, $20\n        )\n        RETURNING\n            id, tenant_id, contact_id, contract_number,\n            interest_rate, term_months,\n            date_start, date_end,\n            collateral_description, collateral_value,\n            storage_fee_rate, storage_fee,\n            current_principal, current_interest,\n            accumulated_interest, total_paid_interest, total_settlement_amount,\n            state, created_at, updated_at,\n            created_by, assignee_id, shared_with,\n            0::int8 AS \"total_paid_principal!\",\n            0::int8 AS \"payoff_due!\"\n        ",
+  "query": "\n        UPDATE loan_contract\n        SET\n            contact_id = $1,\n            interest_rate = $2,\n            term_months = $3,\n            date_start = $4,\n            date_end = $5,\n            assignee_id = $6,\n            shared_with = $7,\n            state = $8,\n            updated_at = NOW()\n        WHERE id = $9 AND tenant_id = $10\n        RETURNING\n            id, tenant_id, contact_id, contract_number,\n            interest_rate, term_months,\n            date_start, date_end,\n            storage_fee_rate, storage_fee,\n            current_principal, current_interest,\n            accumulated_interest, total_paid_interest, total_settlement_amount,\n            state, created_at, updated_at,\n            created_by, assignee_id, shared_with,\n            0::int8 AS \"total_paid_principal!\",\n            0::int8 AS \"payoff_due!\"\n        ",
   "describe": {
     "columns": [
       {
@@ -45,86 +45,76 @@
       },
       {
         "ordinal": 8,
-        "name": "collateral_description",
-        "type_info": "Text"
-      },
-      {
-        "ordinal": 9,
-        "name": "collateral_value",
-        "type_info": "Int8"
-      },
-      {
-        "ordinal": 10,
         "name": "storage_fee_rate",
         "type_info": "Float8"
       },
       {
-        "ordinal": 11,
+        "ordinal": 9,
         "name": "storage_fee",
         "type_info": "Int8"
       },
       {
-        "ordinal": 12,
+        "ordinal": 10,
         "name": "current_principal",
         "type_info": "Int8"
       },
       {
-        "ordinal": 13,
+        "ordinal": 11,
         "name": "current_interest",
         "type_info": "Int8"
       },
       {
-        "ordinal": 14,
+        "ordinal": 12,
         "name": "accumulated_interest",
         "type_info": "Int8"
       },
       {
-        "ordinal": 15,
+        "ordinal": 13,
         "name": "total_paid_interest",
         "type_info": "Int8"
       },
       {
-        "ordinal": 16,
+        "ordinal": 14,
         "name": "total_settlement_amount",
         "type_info": "Int8"
       },
       {
-        "ordinal": 17,
+        "ordinal": 15,
         "name": "state",
         "type_info": "Text"
       },
       {
-        "ordinal": 18,
+        "ordinal": 16,
         "name": "created_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 19,
+        "ordinal": 17,
         "name": "updated_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 20,
+        "ordinal": 18,
         "name": "created_by",
         "type_info": "Uuid"
       },
       {
-        "ordinal": 21,
+        "ordinal": 19,
         "name": "assignee_id",
         "type_info": "Uuid"
       },
       {
-        "ordinal": 22,
+        "ordinal": 20,
         "name": "shared_with",
         "type_info": "UuidArray"
       },
       {
-        "ordinal": 23,
+        "ordinal": 21,
         "name": "total_paid_principal!",
         "type_info": "Int8"
       },
       {
-        "ordinal": 24,
+        "ordinal": 22,
         "name": "payoff_due!",
         "type_info": "Int8"
       }
@@ -132,25 +122,15 @@
     "parameters": {
       "Left": [
         "Uuid",
-        "Uuid",
-        "Text",
         "Float8",
         "Int4",
         "Timestamptz",
         "Timestamptz",
-        "Text",
-        "Int8",
-        "Float8",
-        "Int8",
-        "Int8",
-        "Int8",
-        "Int8",
-        "Int8",
-        "Int8",
+        "Uuid",
+        "UuidArray",
         "Text",
         "Uuid",
-        "Uuid",
-        "UuidArray"
+        "Uuid"
       ]
     },
     "nullable": [
@@ -162,8 +142,6 @@
       false,
       false,
       true,
-      true,
-      false,
       false,
       false,
       false,
@@ -181,5 +159,5 @@
       null
     ]
   },
-  "hash": "28b6fe361f7c9caaf2567ac4d0d7df87f35c4bdb2096078aa451aa911d623e6d"
+  "hash": "439653433d2e5ec290519054a5c629669595b6e26a95e8e521d4be95c5d54aad"
 }

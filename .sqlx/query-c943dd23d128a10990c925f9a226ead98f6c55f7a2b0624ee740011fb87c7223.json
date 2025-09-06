@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO loan_collateral (\n            tenant_id, contract_id, asset_id,\n            pledge_value, status, created_by, created_at\n        )\n        VALUES ($1, $2, $3, $4, 'active', $5, NOW())\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Numeric",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c943dd23d128a10990c925f9a226ead98f6c55f7a2b0624ee740011fb87c7223"
+}
