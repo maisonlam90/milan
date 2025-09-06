@@ -44,6 +44,7 @@ tracing-appender = "0.2"
 # Bao cao
 bigdecimal = { version = "0.3.1", features = ["serde"] }
 rust_decimal = "1.37.2"
+futures = "0.3.31"
 # sinh permission trong db neu co thu muc module chua file metadata.rs ke ca ko co noi dung trong metadata
 [[bin]]
 name = "gen_module"

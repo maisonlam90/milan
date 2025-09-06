@@ -4,6 +4,7 @@ use std::sync::Arc;
 use axum::routing::delete; // 👈 để dùng delete()
 use crate::core::{state::AppState, auth::jwt_auth};
 use crate::module::loan::handler;
+use crate::module::loan::handler::report::pivot_now_contract;
 
 pub fn routes() -> Router<Arc<AppState>> {
     Router::new()
@@ -18,6 +19,11 @@ pub fn routes() -> Router<Arc<AppState>> {
                 .route("/:id/update", post(handler::update_contract))  // cập nhật
                 .route("/:id", delete(handler::delete_contract))       // ✅ Xoá hợp đồng
                 .route("/stats", get(handler::get_loan_stats))         //bao cao
+                .nest("/report", Router::new()
+                    .route("/", get(handler::get_loan_report)) // ✅ API load báo cáo pivot
+                    .route("/pivot-now", post(handler::pivot_now_all_contracts)) // ✅ Tính tất cả
+                    .route("/:id/pivot-now", post(handler::pivot_now_contract))  // ✅ Tính 1 hợp đồng
+                )
                 // ✅ Các route tài sản thế chấp theo hợp đồng
                 .route("/:id/collaterals", get(handler::get_collaterals_by_contract))
                 .route("/:id/collaterals/add", post(handler::add_collateral_to_contract))
