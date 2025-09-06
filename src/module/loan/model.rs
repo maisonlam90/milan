@@ -106,3 +106,21 @@ pub struct LoanReport {
     pub payoff_due: Option<i64>,
     pub state: String,
 }
+
+#[derive(sqlx::FromRow)]
+pub struct LoanTransactionRow {
+    pub id: Uuid,
+    pub contract_id: Uuid,
+    pub tenant_id: Uuid,
+    pub contact_id: Uuid,
+    pub transaction_type: String,
+    pub amount: i64,
+    pub date: DateTime<Utc>,
+    pub note: Option<String>,
+    pub days_from_prev: i32,
+    pub interest_for_period: i64,
+    pub accumulated_interest: i64,
+    pub principal_balance: i64,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
