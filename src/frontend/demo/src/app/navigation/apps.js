@@ -76,6 +76,14 @@ export const apps = {
             Icon: Nft1Icon,
         },
         {
+            id: 'apps.app',
+            path: path(ROOT_APPS, '/app'),
+            type: NAV_TYPE_ITEM,
+            title: 'App Store',
+            transKey: 'nav.apps.app',
+            Icon: Nft1Icon,
+        },
+        {
             id: 'apps.nft-2',
             path: path(ROOT_APPS, '/nft-2'),
             type: NAV_TYPE_ITEM,

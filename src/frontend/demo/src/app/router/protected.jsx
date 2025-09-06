@@ -955,6 +955,12 @@ const protectedRoutes = {
               }),
             },
             {
+              path: "app",
+              lazy: async () => ({
+                Component: (await import("app/pages/apps/app")).default,
+              }),
+            },
+            {
               path: "nft-2",
               lazy: async () => ({
                 Component: (await import("app/pages/apps/nft-2")).default,
@@ -1037,6 +1043,7 @@ const protectedRoutes = {
                 Component: (await import("app/pages/apps/filemanager")).default,
               }),
             },
+
             {
               path: "chat",
               lazy: async () => ({
