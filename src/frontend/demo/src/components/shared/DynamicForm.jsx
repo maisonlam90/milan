@@ -183,7 +183,12 @@ function renderField({
           render={({ field: { value, onChange, ...rest } }) => (
             <DatePicker
               value={value || ""}
-              onChange={onChange}
+              onChange={(val) => {
+                if (!val) return onChange(null);
+                const d = new Date(val);
+                const utc = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+                onChange(utc.toISOString());
+              }}
               placeholder="Chọn ngày..."
               className="w-full"
               options={{ disableMobile: true, dateFormat: "d/m/Y" }}

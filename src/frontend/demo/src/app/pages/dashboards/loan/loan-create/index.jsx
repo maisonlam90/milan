@@ -175,11 +175,12 @@ export default function LoanPage() {
     fetchLoan();
   }, [fetchMetadata, fetchCustomers, fetchLoan]);
 
+  // ✅ Helper chuyển ngày về 00:00 UTC
   const onSubmit = async (data) => {
     const payload = {
       ...data,
-      date_start: data.date_start ? new Date(data.date_start).toISOString() : null,
-      date_end: data.date_end ? new Date(data.date_end).toISOString() : null,
+      date_start: data.date_start,
+      date_end: data.date_end,
       principal: data.principal !== undefined ? parseInt(data.principal, 10) : 0,
       collateral_value:
         data.collateral_value !== undefined ? parseInt(data.collateral_value, 10) : 0,
@@ -218,7 +219,6 @@ export default function LoanPage() {
         }
       }
     } catch (err) {
-      // ✅ Hiển thị lỗi từ BE (Validation: 400 -> {code, message})
       const dataRes = err?.response?.data;
       if (dataRes?.code) {
         setIsEditing(true);
@@ -234,6 +234,7 @@ export default function LoanPage() {
       setSaving(false);
     }
   };
+
 
   const handleDelete = async () => {
     if (!loanId) return;

@@ -24,7 +24,6 @@ export default function Notebook({ name = "transactions", editable = true, form,
     append(row);
   };
 
-  // ===== Helpers số =====
   const nf = useMemo(() => new Intl.NumberFormat("vi-VN"), []);
   const formatNumber = (value) => {
     if (value === null || value === undefined || value === "") return "";
@@ -52,10 +51,8 @@ export default function Notebook({ name = "transactions", editable = true, form,
     e.preventDefault();
   };
 
-  // ===== Helper ngày dd/mm/yyyy (tránh lệch timezone) =====
   const formatDateDisplay = (v) => {
     if (!v) return "";
-    // yyyy-mm-dd -> parse UTC để không lệch múi giờ
     if (typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v)) {
       const [y,m,d] = v.split("-").map(Number);
       const dd = String(d).padStart(2,"0");
@@ -70,7 +67,6 @@ export default function Notebook({ name = "transactions", editable = true, form,
     return `${dd}/${mm}/${yy}`;
   };
 
-  // Style: giống compute + ép 1 dòng (ellipsis)
   const roBox = "bg-gray-100 dark:bg-dark-800 text-gray-600 px-2 py-1 rounded";
   const roOneLine = `${roBox} block w-full min-w-0 whitespace-nowrap overflow-hidden text-ellipsis`;
 
@@ -129,7 +125,12 @@ export default function Notebook({ name = "transactions", editable = true, form,
                             render={({ field: { value, onChange, ...rest } }) => (
                               <DatePicker
                                 value={value || ""}
-                                onChange={onChange}
+                                onChange={(val) => {
+                                  if (!val) return onChange(null);
+                                  const d = new Date(val);
+                                  const utc = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+                                  onChange(utc.toISOString());
+                                }}
                                 placeholder="Chọn ngày..."
                                 className="w-full"
                                 options={{ disableMobile: true, dateFormat: "d/m/Y" }}
@@ -164,7 +165,6 @@ export default function Notebook({ name = "transactions", editable = true, form,
                             {...form.register(path)}
                           />
                         ) : (
-                          // textarea read-only vẫn cho nhiều dòng
                           <div className={clsx(roBox, "whitespace-pre-line")}>
                             {watched || ""}
                           </div>
@@ -219,7 +219,6 @@ export default function Notebook({ name = "transactions", editable = true, form,
                             {...register(path)}
                           />
                         ) : (
-                          // text read-only: ép 1 dòng
                           <div className={roOneLine}>{watched || ""}</div>
                         )
                       )}
