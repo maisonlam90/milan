@@ -39,4 +39,9 @@ impl ShardManager {
     pub fn get_pool_for_shard(&self, shard_id: &str) -> Result<&PgPool, String> {
         self.pools.get(shard_id).ok_or_else(|| format!("Không tìm thấy shard '{}'", shard_id))
     }
+
+    /// Lấy pool dùng cho các thao tác hệ thống (không gắn với tenant cụ thể)
+    pub fn get_pool_for_system(&self) -> &PgPool {
+        &self.pool
+    }
 }
