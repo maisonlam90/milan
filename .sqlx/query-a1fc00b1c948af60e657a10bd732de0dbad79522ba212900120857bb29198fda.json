@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO tenant_module (tenant_id, enterprise_id, module_name)\n        SELECT $1, t.enterprise_id, $2\n        FROM tenant t\n        WHERE t.tenant_id = $1\n        ON CONFLICT DO NOTHING\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a1fc00b1c948af60e657a10bd732de0dbad79522ba212900120857bb29198fda"
+}
