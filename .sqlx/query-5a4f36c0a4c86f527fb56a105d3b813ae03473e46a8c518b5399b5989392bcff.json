@@ -1,0 +1,71 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT a.tenant_id, a.asset_id, a.asset_type, a.description,\n               a.value_estimate, a.owner_contact_id, a.status, a.created_by, a.created_at\n        FROM loan_collateral lc\n        JOIN collateral_assets a\n          ON lc.tenant_id = a.tenant_id AND lc.asset_id = a.asset_id\n        WHERE lc.tenant_id = $1 AND lc.contract_id = $2\n        AND lc.status = 'active'\n        ORDER BY a.created_at DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "asset_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "asset_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "value_estimate",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 5,
+        "name": "owner_contact_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "created_by",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "5a4f36c0a4c86f527fb56a105d3b813ae03473e46a8c518b5399b5989392bcff"
+}

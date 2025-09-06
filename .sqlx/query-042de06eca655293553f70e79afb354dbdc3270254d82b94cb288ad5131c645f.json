@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT\n            lt.id,\n            lt.contract_id,\n            lt.tenant_id,\n            lt.contact_id,\n            lt.transaction_type,\n            lt.amount,\n            lt.date                         AS \"date!\",\n            lt.note,\n            -- ép non-null cho các trường tính toán (map vào i32/i64)\n            0::int4                         AS \"days_from_prev!\",\n            0::int8                         AS \"interest_for_period!\",\n            0::int8                         AS \"accumulated_interest!\",\n            0::int8                         AS \"principal_balance!\",\n            0::int8                         AS \"principal_applied!\",   -- 👈 mới\n            0::int8                         AS \"interest_applied!\",    -- 👈 mới\n            lt.created_at                   AS \"created_at!\",\n            lt.updated_at                   AS \"updated_at!\"\n        FROM loan_transaction lt\n        WHERE lt.tenant_id = $1\n          AND lt.contract_id = $2\n        ORDER BY lt.date ASC, lt.id ASC\n        ",
+  "query": "\n        SELECT\n            lt.id,\n            lt.contract_id,\n            lt.tenant_id,\n            lt.contact_id,\n            lt.transaction_type,\n            lt.amount,\n            lt.date                         AS \"date!\",\n            lt.note,\n            0::int4                         AS \"days_from_prev!\",\n            0::int8                         AS \"interest_for_period!\",\n            0::int8                         AS \"accumulated_interest!\",\n            0::int8                         AS \"principal_balance!\",\n            0::int8                         AS \"principal_applied!\",\n            0::int8                         AS \"interest_applied!\",\n            lt.created_at                   AS \"created_at!\",\n            lt.updated_at                   AS \"updated_at!\"\n        FROM loan_transaction lt\n        WHERE lt.tenant_id = $1\n          AND lt.contract_id = $2\n        ORDER BY lt.date ASC, lt.id ASC\n        ",
   "describe": {
     "columns": [
       {
@@ -109,5 +109,5 @@
       false
     ]
   },
-  "hash": "d0fb2d78e30bff0781c2865d7f3af8ef11ffa10f4c894f442bf02924fe12c9d4"
+  "hash": "042de06eca655293553f70e79afb354dbdc3270254d82b94cb288ad5131c645f"
 }
