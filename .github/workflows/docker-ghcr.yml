@@ -44,6 +44,21 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Cài Rust & sqlx-cli
+        run: |
+          rustup default 1.89.0
+          cargo install sqlx-cli --version 0.8.3 --no-default-features --features postgres
+
+      - name: Chuẩn bị sqlx-data.json cho SQLX_OFFLINE
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/sqlx
+        run: |
+          sudo apt update
+          sudo apt install -y postgresql libpq-dev
+          sudo service postgresql start
+          psql -U postgres -c 'CREATE DATABASE sqlx;'
+          cargo sqlx prepare --workspace
+
       - name: Build and push image to GHCR
         run: |
           IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/milan:latest
