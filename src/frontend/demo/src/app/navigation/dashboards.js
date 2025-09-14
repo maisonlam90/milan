@@ -63,6 +63,14 @@ export const dashboards = {
     Icon: DashboardsIcon,
     childs: [
         {
+            id: 'dashboards.sales',
+            path: path(ROOT_DASHBOARDS, '/sales'),
+            type: NAV_TYPE_ITEM,
+            title: 'Sales',
+            transKey: 'nav.dashboards.sales',
+            Icon: StatisticIcon,
+        },
+        {
             id: 'dashboards.tenants',
             path: path(ROOT_DASHBOARDS, '/tenants'),
             type: NAV_TYPE_ITEM,
@@ -157,14 +165,7 @@ export const dashboards = {
                 },
             ],
         },
-        {
-            id: 'dashboards.sales',
-            path: path(ROOT_DASHBOARDS, '/sales'),
-            type: NAV_TYPE_ITEM,
-            title: 'Sales',
-            transKey: 'nav.dashboards.sales',
-            Icon: StatisticIcon,
-        },
+
         {
             id: 'dashboards.crm-analytics',
             path: path(ROOT_DASHBOARDS, '/crm-analytics'),
