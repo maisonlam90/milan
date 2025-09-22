@@ -21,12 +21,15 @@ RUN yarn build
 # ---------- Final runtime image ----------
 FROM debian:bookworm-slim
 
-# Cài tiện ích cần thiết (bỏ Nginx)
-RUN apt-get update && apt-get install -y curl ca-certificates && \
+# Cài tiện ích + Node.js (để serve FE)
+RUN apt-get update && \
+    apt-get install -y curl ca-certificates && \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    npm install -g serve && \
     rm -rf /var/lib/apt/lists/*
 
-# Copy FE build → dùng serve để chạy
-RUN apt-get install -y nodejs npm && npm install -g serve
+# Copy FE build
 COPY --from=frontend-builder /frontend/dist /app/frontend
 
 # Copy backend binary
