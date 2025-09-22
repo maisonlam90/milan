@@ -3,5 +3,5 @@
 echo "🚀 Starting Milan backend..."
 /usr/local/bin/milan &
 
-echo "🌐 Starting Nginx to serve frontend..."
-nginx -g 'daemon off;'
+echo "🌐 Serving frontend with serve on port 80..."
+serve -s /app/frontend -l 80
