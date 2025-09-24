@@ -18,6 +18,14 @@ export const dashboards: NavigationTree = {
       icon: "dashboards.sales",
     },
     {
+      id: "dashboards.tenants",
+      path: path(ROOT_DASHBOARDS, "/tenants"),
+      type: "item",
+      title: "Tenants",
+      transKey: "nav.dashboards.tenants",
+      icon: "dashboards.meetings",
+    },
+    {
       id: "dashboards.crm-analytics",
       path: path(ROOT_DASHBOARDS, "/crm-analytics"),
       type: "item",
