@@ -3,6 +3,7 @@
     "dashboards": {
       "dashboards": "Dashboards",
       "sales": "Sales",
+      "tenants": "Tenants",
       "crm-analytics": "CRM Analytics",
       "orders": "Orders",
       "crypto": "Cryptocurrency",
