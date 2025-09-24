@@ -21,7 +21,7 @@ const people: Person[] = [
 ];
 
 export function Styled() {
-  const [selected, setSelected] = useState<Person>(people[0]);
+  const [selected, setSelected] = useState<Person | null>(people[0]);
 
   return (
     <div className="max-w-xl">
@@ -29,7 +29,7 @@ export function Styled() {
         data={people}
         displayField="name"
         value={selected}
-        onChange={setSelected}
+        onChange={(val) => setSelected(val as Person | null)}
         placeholder="Please Select User"
         label="Select User"
         searchFields={["name"]}

@@ -88,8 +88,12 @@ function Content({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleChange = (list: FilterOption[]) => {
-    setToolbarFilters(list?.map((item) => item.value));
+  // sửa lại: nhận (FilterOption | undefined)[], lọc bỏ undefined
+  const handleChange = (list: (FilterOption | undefined)[]) => {
+    const filtered = list.filter(
+      (item): item is FilterOption => item !== undefined
+    );
+    setToolbarFilters(filtered.map((item) => item.value));
   };
 
   return (
@@ -97,7 +101,8 @@ function Content({
       value={selectedValues.map((value) =>
         options.find((obj) => obj.value === value),
       )}
-      onChange={handleChange}
+      // ✅ wrap lại để tránh lỗi type
+      onChange={(val) => handleChange(val as (FilterOption | undefined)[])}
       as="div"
       multiple
       className="sm:w-56"

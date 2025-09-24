@@ -26,14 +26,15 @@ export function StyledMultiple() {
   return (
     <div className="max-w-xl">
       <Combobox
+        multiple
         data={people}
         displayField="name"
         value={selected}
-        onChange={setSelected}
+        // ✅ ép kiểu Person[] cho khớp TS
+        onChange={(val) => setSelected(val as Person[])}
         placeholder="Please Select User"
         label="Select User"
         searchFields={["name"]}
-        multiple
         // Remove Item on Backspace
         inputProps={{
           onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => {

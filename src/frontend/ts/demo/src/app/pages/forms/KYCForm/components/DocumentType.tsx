@@ -6,7 +6,7 @@ import { forwardRef, SVGProps } from "react";
 // ----------------------------------------------------------------------
 
 // Define document type interface
-interface DocumentType {
+interface DocumentTypeItem {
   key: string;
   label: string;
   description: string;
@@ -17,7 +17,7 @@ interface DocumentType {
 interface DocumentTypeProps {
   value: string;
   onChange: (value: string) => void;
-  documentTypes: DocumentType[];
+  documentTypes: DocumentTypeItem[];
   name: string;
 }
 
@@ -36,14 +36,14 @@ function CheckIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-
 const DocumentType = forwardRef<HTMLElement, DocumentTypeProps>(
   ({ value, onChange, documentTypes, name }, ref) => {
     return (
       <RadioGroup
         ref={ref}
-        value={documentTypes.find((doc) => doc.key === value) || null}
-        onChange={(val: DocumentType) => onChange(val.key)}
+        // ✅ sửa: dùng ?? undefined thay cho || null
+        value={documentTypes.find((doc) => doc.key === value) ?? undefined}
+        onChange={(val: DocumentTypeItem) => onChange(val.key)}
         name={name}
       >
         <Label className="sr-only">Document Type</Label>
