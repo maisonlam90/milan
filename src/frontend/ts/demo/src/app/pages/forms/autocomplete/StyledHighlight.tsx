@@ -21,15 +21,18 @@ const people: Person[] = [
 ];
 
 export function StyledHighlight() {
+  // Nếu muốn chọn nhiều giá trị thì giữ Person[]
   const [selected, setSelected] = useState<Person[]>([]);
 
   return (
     <div className="max-w-xl">
       <Combobox
+        multiple
         data={people}
         displayField="name"
         value={selected}
-        onChange={setSelected}
+        // ✅ wrap lại, ép kiểu Person[]
+        onChange={(val) => setSelected(val as Person[])}
         placeholder="Please Select User"
         label="Select User"
         searchFields={["name"]}

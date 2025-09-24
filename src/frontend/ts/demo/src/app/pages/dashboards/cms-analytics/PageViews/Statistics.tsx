@@ -31,7 +31,7 @@ export function Statistics() {
         data={pages}
         displayField="name"
         value={selectedPage}
-        onChange={setSelectedPage}
+        onChange={(val) => setSelectedPage(val as Page)} 
         placeholder="Please Select Post"
         searchFields={["name"]}
       />
