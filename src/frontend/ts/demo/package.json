@@ -26,6 +26,8 @@
     "@types/cleave.js": "^1.4.12",
     "@types/lodash": "^4.17.20",
     "@types/react-syntax-highlighter": "^15.5.13",
+    "ag-grid-community": "^34.2.0",
+    "ag-grid-react": "^34.2.0",
     "apexcharts": "^5.3.3",
     "axios": "^1.11.0",
     "cleave.js": "^1.6.0",
