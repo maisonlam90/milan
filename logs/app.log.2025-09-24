@@ -1,1 +1,2 @@
 2025-09-24T14:39:15.337431Z ERROR milan::core::error: ❌ SQLx error: PoolTimedOut
+2025-09-24T16:00:45.625981Z ERROR milan::core::auth: ❌ Không tìm thấy header Authorization (middleware)
