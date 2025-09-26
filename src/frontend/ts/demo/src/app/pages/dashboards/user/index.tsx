@@ -1,28 +1,38 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import axios from "axios";
 import { AgGridReact } from "ag-grid-react";
 import {
   ModuleRegistry,
-  AllCommunityModule,
+  ClientSideRowModelModule,
+  TextFilterModule,
+  NumberFilterModule,
+  RowDragModule,
+  RowSelectionModule,
+  ValidationModule,
   ColDef,
+  RowSelectionOptions,
+  // Themes
+  themeAlpine,
+  themeBalham,
+  themeMaterial,
   themeQuartz,
 } from "ag-grid-community";
 
-// Đăng ký community modules
-ModuleRegistry.registerModules([AllCommunityModule]);
+// Nếu bạn đã COPY CSS theme về cùng thư mục, có thể import tương đối:
+// import "./ag-grid.css";
+// import "./ag-theme-quartz.css";
 
-// Tùy biến theme
-const myTheme = themeQuartz.withParams({
-  browserColorScheme: "dark",
-  fontFamily: {
-    googleFont: "IBM Plex Sans",
-  },
-  headerFontSize: 14,
-});
+ModuleRegistry.registerModules([
+  TextFilterModule,
+  NumberFilterModule,
+  RowDragModule,
+  RowSelectionModule,
+  ClientSideRowModelModule,
+  ...(process.env.NODE_ENV !== "production" ? [ValidationModule] : []),
+]);
 
-// ==== Types ====
 interface User {
   user_id: string;
   name: string;
@@ -32,116 +42,157 @@ interface User {
   created_at: string;
 }
 
+const themes = [
+  { id: "themeQuartz", theme: themeQuartz },
+  { id: "themeBalham", theme: themeBalham },
+  { id: "themeMaterial", theme: themeMaterial },
+  { id: "themeAlpine", theme: themeAlpine },
+];
+
+type PartSelectorProps<T extends { id: string } | null> = {
+  options: T[];
+  value: T;
+  setValue: (value: T) => void;
+};
+const PartSelector = <T extends { id: string; variant?: string } | null>({
+  options,
+  value,
+  setValue,
+}: PartSelectorProps<T>) => (
+  <select
+    onChange={(e) =>
+      setValue(options.find((t) => t?.id === e.currentTarget.value)! || null)
+    }
+    style={{ marginRight: 16 }}
+    value={value?.id}
+  >
+    {options.map((option, i) => (
+      <option key={i} value={option?.id}>
+        {option?.variant || option?.id || "(unchanged)"}
+      </option>
+    ))}
+  </select>
+);
+
 export default function UserTable() {
   const [rowData, setRowData] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTheme, setActiveTheme] = useState(themes[0]);
+
+  const themed = useMemo(
+    () =>
+      activeTheme.theme.withParams({
+        browserColorScheme: "dark",
+        fontFamily: { googleFont: "IBM Plex Sans" },
+        headerFontSize: 14,
+      }),
+    [activeTheme]
+  );
+
+  const containerStyle = useMemo<CSSProperties>(
+    () => ({ width: "100%", height: "100%", display: "flex", flexDirection: "column" }),
+    []
+  );
+  const gridStyle = useMemo<CSSProperties>(() => ({ height: 500, width: "100%" }), []);
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    (async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const res = await axios.get<User[]>(
-          "http://localhost:3000/user/users",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const res = await axios.get<User[]>("http://localhost:3000/user/users", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setRowData(res.data || []);
       } catch (err) {
         console.error("❌ Lỗi lấy danh sách user:", err);
       } finally {
         setLoading(false);
       }
-    };
-    fetchUsers();
+    })();
   }, []);
 
-  const columnDefs: ColDef<User | any>[] = [
+  const columnDefs = useMemo<ColDef<User | any>[]>(() => [
     {
       headerName: "#",
       field: "stt" as any,
-      width: 50,
-      minWidth: 50,
-      maxWidth: 50,
-      valueGetter: (params) => (params.node ? params.node.rowIndex! + 1 : ""),
+      width: 60,
+      minWidth: 60,
+      valueGetter: (p) => (p.node ? p.node.rowIndex! + 1 : ""),
       sortable: false,
       filter: false,
-      floatingFilter: false,
-      suppressSizeToFit: true,
-      flex: 0,
+      suppressMenu: true,
+      resizable: false,
+      pinned: "left",
     },
+    // ✅ Cột "Tên": CHỈ drag + filter, KHÔNG checkbox
     {
-      headerName: "",
-      field: "checkbox" as any,
-      width: 50,
-      minWidth: 50,
-      maxWidth: 50,
-      checkboxSelection: true,
-      headerCheckboxSelection: true,
-      sortable: false,
-      filter: false,
-      floatingFilter: false,
-      suppressSizeToFit: true,
-      flex: 0,
-    },
-    { field: "user_id", headerName: "ID", sortable: true, filter: true, floatingFilter: true },
-    { field: "name", headerName: "Tên", sortable: true, filter: true, floatingFilter: true },
-    { field: "email", headerName: "Email", sortable: true, filter: true, floatingFilter: true },
-    { field: "tenant_id", headerName: "Tenant ID", sortable: true, filter: true, floatingFilter: true },
-    {
-      field: "tenant_name",
-      headerName: "Tên tổ chức",
-      sortable: true,
+      field: "name",
+      headerName: "Tên",
+      rowDrag: true,
       filter: true,
       floatingFilter: true,
+      // ❌ bỏ checkboxSelection và headerCheckboxSelection
     },
+    { field: "email", headerName: "Email", filter: true, floatingFilter: true },
+    { field: "tenant_id", headerName: "Tenant ID", filter: true, floatingFilter: true },
+    { field: "tenant_name", headerName: "Tên tổ chức", filter: true, floatingFilter: true },
     {
       field: "created_at",
       headerName: "Ngày tạo",
-      sortable: true,
       filter: true,
       floatingFilter: true,
-      valueFormatter: (params) =>
-        new Date(params.value as string).toLocaleDateString("vi-VN"),
+      valueFormatter: (p) =>
+        p.value ? new Date(p.value as string).toLocaleDateString("vi-VN") : "",
     },
-  ];
+    { field: "user_id", headerName: "ID", filter: true, floatingFilter: true },
+  ], []);
 
-  const defaultColDef: ColDef = {
+  const defaultColDef = useMemo<ColDef>(() => ({
+    editable: false,
     flex: 1,
     minWidth: 120,
-    resizable: true,
-    sortable: true,
     filter: true,
-  };
+    sortable: true,
+    resizable: true,
+  }), []);
+
+  // vẫn cho phép chọn nhiều dòng bằng click (không cần checkbox)
+  const rowSelection = useMemo<RowSelectionOptions | "single" | "multiple">(
+    () => ({ mode: "multiRow", headerCheckbox: false }),
+    []
+  );
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2 className="text-xl font-semibold mb-4">📊 Danh sách User</h2>
+    <div style={{ padding: 20 }}>
+      <h2 className="text-xl font-semibold mb-3">Danh sách User</h2>
 
-      {loading ? (
-        <p>⏳ Đang tải dữ liệu...</p>
-      ) : (
-        <div
-          style={{
-            height: 500,
-            width: "100%",
-            border: "1px solid #ddd",
-            borderRadius: 6,
-            overflow: "hidden",
-          }}
-        >
+      <div style={{ marginBottom: 8 }}>
+        Theme:{" "}
+        <PartSelector options={themes} value={activeTheme} setValue={setActiveTheme} />
+      </div>
+
+      <div style={containerStyle}>
+        <div style={gridStyle}>
           <AgGridReact<User>
-            theme={myTheme}
+            theme={themed}
             rowData={rowData}
+            loading={loading}
             columnDefs={columnDefs}
             defaultColDef={defaultColDef}
-            animateRows={true}
-            pagination={true}
-            paginationPageSize={10}
-            rowSelection="multiple"
+            rowSelection={rowSelection}
+            rowDragManaged={true}
+            rowDragMultiRow={true}
+            onRowDragEnd={(event) => {
+              const ordered: User[] = [];
+              for (let i = 0; i < event.api.getDisplayedRowCount(); i++) {
+                const r = event.api.getDisplayedRowAtIndex(i);
+                if (r?.data) ordered.push(r.data);
+              }
+              console.log("New order:", ordered.map(x => x.user_id));
+            }}
           />
         </div>
-      )}
+      </div>
     </div>
   );
 }
