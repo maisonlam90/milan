@@ -753,6 +753,27 @@ const protectedRoutes: RouteObject = {
               }),
             },
             {
+              path: "iam",
+              lazy: async () => ({
+                Component: (await import("@/app/pages/dashboards/iam"))
+                  .default,
+              }),
+            },
+            {
+              path: "contact/contact-create",
+              lazy: async () => ({
+                Component: (await import("@/app/pages/dashboards/contact/contact-create"))
+                  .default,
+              }),
+            },
+            {
+              path: "contact/contact-list",
+              lazy: async () => ({
+                Component: (await import("@/app/pages/dashboards/contact/contact-list"))
+                  .default,
+              }),
+            },
+            {
               path: "crm-analytics",
               lazy: async () => ({
                 Component: (
