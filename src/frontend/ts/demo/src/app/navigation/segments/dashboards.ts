@@ -34,6 +34,38 @@ export const dashboards: NavigationTree = {
       icon: "dashboards.meetings",
     },
     {
+      id: "dashboards.iam",
+      path: path(ROOT_DASHBOARDS, "/iam"),
+      type: "item",
+      title: "Iam",
+      transKey: "nav.dashboards.iam",
+      icon: "dashboards.meetings",
+    },
+    {
+      id: "dashboards.contact",
+      path: path(ROOT_DASHBOARDS, "/contact"),
+      type: "collapse",
+      title: "Contact",
+      transKey: "nav.dashboards.contact",
+      icon: "dashboards.meetings",
+      childs: [
+        {
+          id: "dashboards.contact-create",
+          type: "item",
+          path: path(ROOT_DASHBOARDS, "/contact/contact-create"),
+          title: "Contact create",
+          transKey: "nav.dashboards.contact-create",
+        },
+        {
+          id: "dashboards.contact-list",
+          type: "item",
+          path: path(ROOT_DASHBOARDS, "/contact/contact-list"),
+          title: "Contact list",
+          transKey: "nav.dashboards.contact-list",
+        },
+      ],
+    },
+    {
       id: "dashboards.crm-analytics",
       path: path(ROOT_DASHBOARDS, "/crm-analytics"),
       type: "item",
