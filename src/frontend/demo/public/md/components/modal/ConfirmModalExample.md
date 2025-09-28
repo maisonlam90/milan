@@ -1,20 +1,28 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useState } from "react";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 
 // Local Imports
-import { ConfirmModal } from "components/shared/ConfirmModal";
-import { Button } from "components/ui";
-import { useDisclosure } from "hooks";
+import {
+  ConfirmModal,
+  ModalState,
+  ConfirmMessages,
+} from "@/components/shared/ConfirmModal";
+import { Button } from "@/components/ui";
+import { useDisclosure } from "@/hooks";
 
 // ----------------------------------------------------------------------
 
 const promise = () =>
-  new Promise((resolve, reject) =>
+  new Promise<void>((resolve, reject) =>
     setTimeout(() => {
-      Math.random() > 0.5 ? resolve() : reject();
-    }, 2000)
+      if (Math.random() > 0.5) {
+        resolve();
+      } else {
+        reject(new Error("Random failure"));
+      }
+    }, 2000),
   );
 
 export function ConfirmModalExample() {
@@ -23,9 +31,9 @@ export function ConfirmModalExample() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
 
-  const state = error ? "error" : success ? "success" : "pending";
+  const state: ModalState = error ? "error" : success ? "success" : "pending";
 
-  const messages = {
+  const messages: ConfirmMessages = {
     pending: {
       Icon: ExclamationTriangleIcon,
       title: "Are you sure?",
@@ -37,7 +45,8 @@ export function ConfirmModalExample() {
       title: "Record Deleted",
     },
     error: {
-      description: 'Ensure internet is on and retry. Contact support if issue remains.',
+      description:
+        "Ensure internet is on and retry. Contact support if issue remains.",
     },
   };
 
@@ -78,4 +87,5 @@ export function ConfirmModalExample() {
     </>
   );
 }
+
 ```

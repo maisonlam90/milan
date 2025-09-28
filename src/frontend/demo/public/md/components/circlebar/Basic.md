@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import {
   CheckCircleIcon,
@@ -7,7 +7,7 @@ import {
 } from "@heroicons/react/24/solid";
 
 // Local Imports
-import { Circlebar } from "components/ui";
+import { Circlebar } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -45,5 +45,5 @@ const Basic = () => {
   );
 };
 
-export { Basic };
+export { Basic }; 
 ```

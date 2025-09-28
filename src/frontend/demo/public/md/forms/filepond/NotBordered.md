@@ -1,5 +1,5 @@
-```jsx
-import { FilePond } from "components/shared/form/Filepond";
+﻿```tsx
+import { FilePond } from "@/components/shared/form/Filepond";
 
 const NotBordered = () => {
   return (
@@ -10,4 +10,5 @@ const NotBordered = () => {
 };
 
 export { NotBordered };
+
 ```

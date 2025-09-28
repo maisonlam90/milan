@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import {
   ArrowTrendingUpIcon,
@@ -11,7 +11,7 @@ import {
 
 
 // Local Imports
-import { Badge } from "components/ui";
+import { Badge } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -49,19 +49,19 @@ const Custom = () => {
       </Badge>
       <Badge
         unstyled
-        className="rounded-full bg-gradient-to-r from-purple-500 to-orange-600 px-3 py-1.5 text-xs text-white "
+        className="rounded-full bg-linear-to-r from-purple-500 to-orange-600 px-3 py-1.5 text-xs text-white "
       >
         Live
       </Badge>
       <Badge
         unstyled
-        className="rounded bg-gray-200 px-2 py-1.5 text-xs text-gray-900"
+        className="rounded-sm bg-gray-200 px-2 py-1.5 text-xs text-gray-900"
       >
         White
       </Badge>
       <Badge
         unstyled
-        className="rounded bg-dark-800 px-2 py-1.5 text-xs text-white"
+        className="rounded-sm bg-dark-800 px-2 py-1.5 text-xs text-white"
       >
         Dark
       </Badge>

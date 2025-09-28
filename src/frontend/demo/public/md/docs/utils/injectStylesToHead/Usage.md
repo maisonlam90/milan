@@ -1,16 +1,15 @@
-```jsx
+﻿```tsx
 // Import Dependencies
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 
 // Local Imports
-import { Button } from "components/ui";
-import { useIsomorphicEffect } from "hooks";
+import { Button } from "@/components/ui";
 import {
   injectStyles,
   insertStylesToHead,
   makeStyleTag,
   removeStylesFromHead,
-} from "utils/dom/injectStylesToHead";
+} from "@/utils/dom/injectStylesToHead";
 
 // ----------------------------------------------------------------------
 
@@ -57,7 +56,7 @@ const css = `
 export function Usage() {
   const [append, setAppend] = useState(false);
 
-  useIsomorphicEffect(() => {
+  useLayoutEffect(() => {
     if (!append) return;
 
     const sheet = makeStyleTag();
@@ -77,4 +76,5 @@ export function Usage() {
     </div>
   );
 }
+
 ```

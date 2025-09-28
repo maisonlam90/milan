@@ -1,11 +1,10 @@
-```jsx
+﻿```tsx
 // Local Imports
-import { Button } from "components/ui";
-import { createScopedKeydownHandler } from "utils/dom/createScopedKeydownHandler";
-import { range } from "utils/range";
+import { Button } from "@/components/ui";
+import { createScopedKeydownHandler } from "@/utils/dom/createScopedKeydownHandler";
+import { range } from "@/utils/range";
 
 // ----------------------------------------------------------------------
-
 
 export function Usage() {
   const items = range(1, 6);
@@ -31,4 +30,5 @@ export function Usage() {
     </div>
   );
 }
+
 ```

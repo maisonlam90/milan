@@ -1,5 +1,5 @@
-```jsx
-import { Badge } from "components/ui";
+﻿```tsx
+import { Badge } from "@/components/ui";
 
 const Basic = () => {
   return (

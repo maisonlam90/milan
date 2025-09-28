@@ -1,10 +1,10 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useState } from "react";
 
 // Local Imports
-import { ApplyWrapper } from "components/shared/ApplyWrapper";
-import { Badge, Button } from "components/ui";
+import { ApplyWrapper } from "@/components/shared/ApplyWrapper";
+import { Badge, Button } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -26,4 +26,5 @@ export function Basic() {
     </div>
   );
 }
+
 ```

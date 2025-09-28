@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import clsx from "clsx";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
@@ -10,7 +10,7 @@ import {
   AccordionItem,
   AccordionPanel,
   Tag,
-} from "components/ui";
+} from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -23,7 +23,7 @@ const NoAnimation = () => {
         className="flex flex-col divide-y divide-gray-150 dark:divide-dark-500"
       >
         <AccordionItem value="item-1">
-          <AccordionButton className="flex w-full cursor-pointer items-center justify-between rounded py-4 text-base font-medium text-gray-700 outline-none ring-primary-500/50 ring-offset-2 ring-offset-white focus-visible:ring dark:text-dark-100 dark:ring-offset-dark-700">
+          <AccordionButton className="flex w-full cursor-pointer items-center justify-between rounded-sm py-4 text-base font-medium text-gray-700 outline-hidden ring-primary-500/50 ring-offset-2 ring-offset-white focus-visible:ring-3 dark:text-dark-100 dark:ring-offset-dark-700">
             {({ open }) => (
               <>
                 <p>Accordion Item 1</p>
@@ -44,14 +44,14 @@ const NoAnimation = () => {
               earum magni officiis possimus repellendus. Accusantium adipisci
               aliquid praesentium quaerat voluptate.
             </p>
-            <div className="mt-3 space-x-2 ">
+            <div className="mt-3 space-x-2 rtl:space-x-reverse">
               <Tag href="#">Tag 1</Tag>
               <Tag href="#">Tag 2</Tag>
             </div>
           </AccordionPanel>
         </AccordionItem>
         <AccordionItem value="item-2">
-          <AccordionButton className="flex w-full cursor-pointer items-center justify-between rounded py-4 text-base font-medium text-gray-700 outline-none ring-primary-500/50 ring-offset-2 ring-offset-white focus-visible:ring dark:text-dark-100 dark:ring-offset-dark-700">
+          <AccordionButton className="flex w-full cursor-pointer items-center justify-between rounded-sm py-4 text-base font-medium text-gray-700 outline-hidden ring-primary-500/50 ring-offset-2 ring-offset-white focus-visible:ring-3 dark:text-dark-100 dark:ring-offset-dark-700">
             {({ open }) => (
               <>
                 <p>Accordion Item 2</p>
@@ -72,14 +72,14 @@ const NoAnimation = () => {
               earum magni officiis possimus repellendus. Accusantium adipisci
               aliquid praesentium quaerat voluptate.
             </p>
-            <div className="mt-3 space-x-2 ">
+            <div className="mt-3 space-x-2 rtl:space-x-reverse">
               <Tag href="#">Tag 1</Tag>
               <Tag href="#">Tag 2</Tag>
             </div>
           </AccordionPanel>
         </AccordionItem>
         <AccordionItem value="item-3">
-          <AccordionButton className="flex w-full cursor-pointer items-center justify-between rounded py-4 text-base font-medium text-gray-700 outline-none ring-primary-500/50 ring-offset-2 ring-offset-white focus-visible:ring dark:text-dark-100 dark:ring-offset-dark-700">
+          <AccordionButton className="flex w-full cursor-pointer items-center justify-between rounded-sm py-4 text-base font-medium text-gray-700 outline-hidden ring-primary-500/50 ring-offset-2 ring-offset-white focus-visible:ring-3 dark:text-dark-100 dark:ring-offset-dark-700">
             {({ open }) => (
               <>
                 <p>Accordion Item 3</p>
@@ -100,7 +100,7 @@ const NoAnimation = () => {
               earum magni officiis possimus repellendus. Accusantium adipisci
               aliquid praesentium quaerat voluptate.
             </p>
-            <div className="mt-3 space-x-2 ">
+            <div className="mt-3 space-x-2 rtl:space-x-reverse">
               <Tag href="#">Tag 1</Tag>
               <Tag href="#">Tag 2</Tag>
             </div>
@@ -112,4 +112,5 @@ const NoAnimation = () => {
 };
 
 export { NoAnimation };
+
 ```

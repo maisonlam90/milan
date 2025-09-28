@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import {
   Dialog,
@@ -10,8 +10,8 @@ import {
 import { Fragment, useRef } from "react";
 
 // Local Imports
-import { useDisclosure } from "hooks";
-import { Avatar, AvatarDot, Button } from "components/ui";
+import { useDisclosure } from "@/hooks";
+import { Avatar, AvatarDot, Button } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -27,7 +27,7 @@ export function ShiftUp() {
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog
           as="div"
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden px-4 py-6 sm:px-5"
+          className="fixed inset-0 z-100 flex flex-col items-center justify-center overflow-hidden px-4 py-6 sm:px-5"
           onClose={close}
           initialFocus={applyRef}
         >
@@ -40,7 +40,7 @@ export function ShiftUp() {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="absolute inset-0 bg-gray-900/50 backdrop-blur transition-opacity dark:bg-black/30" />
+            <div className="absolute inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity dark:bg-black/30" />
           </TransitionChild>
 
           <TransitionChild
@@ -57,7 +57,7 @@ export function ShiftUp() {
                 <Avatar
                   size={20}
                   className="mx-auto"
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-19.jpg"
                   indicator={
                     <AvatarDot color="primary" className="right-0 m-1 size-4" />
                   }
@@ -75,7 +75,7 @@ export function ShiftUp() {
                   </p>
                 </div>
                 <hr className="my-4 mt-16 h-px border-gray-200 dark:border-dark-500" />
-                <div className="space-x-3 ">
+                <div className="space-x-3 rtl:space-x-reverse">
                   <Button
                     onClick={close}
                     variant="outlined"
@@ -100,4 +100,5 @@ export function ShiftUp() {
     </>
   );
 }
+
 ```

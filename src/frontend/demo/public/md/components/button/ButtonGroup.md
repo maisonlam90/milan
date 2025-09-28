@@ -1,8 +1,8 @@
-```jsx
+﻿```tsx
 // Local Imports
-import { Button } from "components/ui";
-import { useLocaleContext } from "app/contexts/locale/context";
-import { createScopedKeydownHandler } from "utils/dom/createScopedKeydownHandler";
+import { Button } from "@/components/ui";
+import { createScopedKeydownHandler } from "@/utils/dom/createScopedKeydownHandler";
+import { useLocaleContext } from "@/app/contexts/locale/context";
 
 // ----------------------------------------------------------------------
 
@@ -20,7 +20,7 @@ const ButtonGroup = () => {
 
   return (
     <div
-      className="flex flex-wrap -space-x-px "
+      className="flex flex-wrap -space-x-px rtl:space-x-reverse"
       data-button-group
     >
       <Button

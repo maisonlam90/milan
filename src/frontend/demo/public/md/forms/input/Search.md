@@ -1,11 +1,11 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useState } from "react";
-import { useDebounceValue } from "hooks";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 // Local Imports
-import { Input, Spinner } from "components/ui";
+import { Input, Spinner } from "@/components/ui";
+import { useDebounceValue } from "@/hooks";
 
 function Icon() {
   return (
@@ -37,7 +37,7 @@ const Search = () => {
         label="Label input"
         placeholder="Search here..."
         unstyled
-        className="rounded-lg bg-gray-150 px-9 py-2 ring-primary-500/50 placeholder:text-gray-400 focus:ring dark:bg-dark-900 dark:placeholder:text-dark-200/70"
+        className="rounded-lg bg-gray-150 px-9 py-2 ring-primary-500/50 placeholder:text-gray-400 focus:ring-3 dark:bg-dark-900 dark:placeholder:text-dark-200/70"
         value={search}
         onChange={(event) => setSearch(event.target.value)}
         prefix={
@@ -58,4 +58,5 @@ const Search = () => {
 };
 
 export { Search };
+
 ```

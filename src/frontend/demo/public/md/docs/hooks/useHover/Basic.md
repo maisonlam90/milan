@@ -1,9 +1,9 @@
-```jsx
-import { Button } from "components/ui";
-import { useHover } from "hooks";
+﻿```tsx
+import { Button } from "@/components/ui";
+import { useHover } from "@/hooks";
 
 export function Basic() {
-  const [ref, isHovered] = useHover();
+  const [ref, isHovered] = useHover<HTMLButtonElement>();
 
   return (
     <div>
@@ -15,4 +15,5 @@ export function Basic() {
     </div>
   );
 }
+
 ```

@@ -1,33 +1,32 @@
-```jsx
+﻿```tsx
 // Import Dependencies
+import { useRef, useLayoutEffect } from "react";
 import { register } from "swiper/element/bundle";
-import { useRef } from "react";
-import invariant from "tiny-invariant";
+import type { SwiperContainer } from "swiper/element";
 
 // Local Imports
-import { randomId } from "utils/randomId";
-import { useThemeContext } from "app/contexts/theme/context";
-import { useLocaleContext } from "app/contexts/locale/context";
-import { useIsomorphicEffect } from "hooks";
+import { randomId } from "@/utils/randomId";
+import { useLocaleContext } from "@/app/contexts/locale/context";
+import invariant from "tiny-invariant";
 
 // ----------------------------------------------------------------------
 
 register();
 
 const images = [
-  { id: randomId(), img: "/images/800x600.png" },
-  { id: randomId(), img: "/images/800x600.png" },
-  { id: randomId(), img: "/images/800x600.png" },
-  { id: randomId(), img: "/images/800x600.png" },
+  { id: randomId(), img: "/images/objects/object-13.jpg" },
+  { id: randomId(), img: "/images/objects/object-3.jpg" },
+  { id: randomId(), img: "/images/objects/object-2.jpg" },
+  { id: randomId(), img: "/images/objects/object-9.jpg" },
 ];
 
 export function WithScrollbar() {
   const { direction } = useLocaleContext();
+  const carouselRef = useRef<SwiperContainer | null>(null);
 
-  const carouselRef = useRef(null);
-
-  useIsomorphicEffect(() => {
+  useLayoutEffect(() => {
     invariant(carouselRef.current, "carouselRef is null");
+
     const params = {
       scrollbar: {
         draggable: true,
@@ -37,12 +36,13 @@ export function WithScrollbar() {
     Object.assign(carouselRef.current, params);
 
     setTimeout(() => {
-      carouselRef.current.initialize();
+      carouselRef.current?.initialize();
     });
   }, []);
 
   return (
     <div className="max-w-md">
+      {/* @ts-expect-error - Swiper web components */}
       <swiper-container
         ref={carouselRef}
         init="false"
@@ -51,6 +51,7 @@ export function WithScrollbar() {
         dir={direction}
       >
         {images.map(({ img, id }) => (
+          // @ts-expect-error - Swiper web components
           <swiper-slide key={id}>
             <img
               className="h-full w-full rounded-lg object-cover"
@@ -58,10 +59,13 @@ export function WithScrollbar() {
               alt="object"
               loading="lazy"
             />
+            {/* @ts-expect-error - Swiper web components */}
           </swiper-slide>
         ))}
+        {/* @ts-expect-error - Swiper web components */}
       </swiper-container>
     </div>
   );
 }
+
 ```

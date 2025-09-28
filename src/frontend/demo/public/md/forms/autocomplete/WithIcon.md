@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import {
   Combobox,
@@ -14,11 +14,17 @@ import clsx from "clsx";
 import { Fragment, useState } from "react";
 
 // Local Imports
-import { Input } from "components/ui";
+import { Input } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
-const languages = [
+type Language = {
+  id: number;
+  name: string;
+  flagUrl: string;
+};
+
+const languages: Language[] = [
   {
     id: 1,
     name: "English",
@@ -47,7 +53,7 @@ const languages = [
 ];
 
 export function WithIcon() {
-  const [selected, setSelected] = useState(languages[0]);
+  const [selected, setSelected] = useState<Language | null>(languages[0]);
   const [query, setQuery] = useState("");
 
   const filteredLangs =
@@ -73,20 +79,23 @@ export function WithIcon() {
                   as={Input}
                   autoComplete="off"
                   className="px-10"
-                  displayValue={(language) => language.name}
+                  displayValue={(language: Language) => language?.name}
                   onChange={(event) => setQuery(event.target.value)}
                 />
-                <div className="pointer-events-none absolute inset-y-0 flex items-center ltr:left-0 ltr:pl-3 rtl:right-0 rtl:pr-3">
-                  <img
-                    className="size-5"
-                    src={selected.flagUrl}
-                    alt={selected.name}
-                  />
-                </div>
+                {selected && (
+                  <div className="pointer-events-none absolute inset-y-0 flex items-center ltr:left-0 ltr:pl-3 rtl:right-0 rtl:pr-3">
+                    <img
+                      className="size-5"
+                      src={selected.flagUrl}
+                      alt={selected.name}
+                    />
+                  </div>
+                )}
+
                 <ComboboxButton className="absolute inset-y-0 flex items-center ltr:right-0 ltr:pr-2 rtl:left-0 rtl:pl-2">
                   <ChevronDownIcon
                     className={clsx(
-                      "size-5 text-gray-400 transition-transform dark:text-dark-300",
+                      "dark:text-dark-300 size-5 text-gray-400 transition-transform",
                       open && "rotate-180",
                     )}
                     aria-hidden="true"
@@ -105,10 +114,10 @@ export function WithIcon() {
               >
                 <ComboboxOptions
                   anchor={{ to: "bottom end", gap: 8 }}
-                  className="absolute z-10 max-h-60 w-[--input-width] overflow-y-auto overflow-x-hidden rounded-lg border border-gray-300 bg-white py-1 shadow-lg shadow-gray-200/50 outline-none focus-visible:outline-none dark:border-dark-500 dark:bg-dark-750 dark:shadow-none"
+                  className="dark:border-dark-500 dark:bg-dark-750 absolute z-10 max-h-60 w-(--input-width) overflow-x-hidden overflow-y-auto rounded-lg border border-gray-300 bg-white py-1 shadow-lg shadow-gray-200/50 outline-hidden focus-visible:outline-hidden dark:shadow-none"
                 >
                   {filteredLangs.length === 0 && query !== "" ? (
-                    <div className="relative cursor-default select-none px-4 py-2 text-gray-800 dark:text-dark-100">
+                    <div className="dark:text-dark-100 relative cursor-default px-4 py-2 text-gray-800 select-none">
                       Nothing found for {query}
                     </div>
                   ) : (
@@ -117,13 +126,13 @@ export function WithIcon() {
                         key={language.id}
                         className={({ selected, focus }) =>
                           clsx(
-                            "relative cursor-pointer select-none px-4 py-2 outline-none transition-colors",
+                            "relative cursor-pointer px-4 py-2 outline-hidden transition-colors select-none",
                             focus &&
                               !selected &&
-                              "bg-gray-100 dark:bg-dark-600",
+                              "dark:bg-dark-600 bg-gray-100",
                             selected
-                              ? "bg-primary-600 text-white dark:bg-primary-500"
-                              : "text-gray-800 dark:text-dark-100",
+                              ? "bg-primary-600 dark:bg-primary-500 text-white"
+                              : "dark:text-dark-100 text-gray-800",
                           )
                         }
                         value={language}
@@ -150,4 +159,5 @@ export function WithIcon() {
     </div>
   );
 }
+
 ```

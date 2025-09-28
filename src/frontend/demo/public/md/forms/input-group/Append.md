@@ -1,11 +1,11 @@
-```jsx
-import { Input } from "components/ui";
+﻿```tsx
+import { Input } from "@/components/ui";
 
 const Append = () => {
   return (
     <div className="max-w-xl">
       <label htmlFor="appendAddon">Append Addon</label>
-      <div className="mt-1.5 flex -space-x-px ">
+      <div className="mt-1.5 flex -space-x-px rtl:space-x-reverse">
         <Input
           id="appendAddon"
           placeholder="Username"
@@ -24,4 +24,5 @@ const Append = () => {
 };
 
 export { Append };
+
 ```

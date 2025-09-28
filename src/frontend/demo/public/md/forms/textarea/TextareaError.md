@@ -1,5 +1,5 @@
-```jsx
-import { Textarea } from "components/ui";
+﻿```tsx
+import { Textarea } from "@/components/ui";
 
 const TextareaError = () => {
   return (
@@ -8,11 +8,12 @@ const TextareaError = () => {
         placeholder="Enter text"
         label="With Error"
         error="This is error message"
-        rows="5"
+        rows={5}
       />
     </div>
   );
 };
 
 export { TextareaError };
+
 ```

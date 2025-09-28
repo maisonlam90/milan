@@ -1,12 +1,19 @@
-```jsx
+﻿```tsx
 // Local Imports
-import { Table, THead, TBody, Th, Tr, Td } from "components/ui";
+import { Table, THead, TBody, Th, Tr, Td } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
 const cols = ["#", "Name", "Job", "FAVORITE COLOR"];
 
-const data = [
+interface Data {
+  uid: string;
+  name: string;
+  job: string;
+  favColor: string;
+}
+
+const data: Data[] = [
   {
     uid: "1",
     name: "Cy Ganderton",
@@ -42,7 +49,7 @@ export function Zebra() {
             {cols.map((title, index) => (
               <Th
                 key={index}
-                className="bg-gray-200 font-semibold uppercase text-gray-800 ltr:first:rounded-l-lg ltr:last:rounded-r-lg rtl:first:rounded-r-lg rtl:last:rounded-l-lg dark:bg-dark-800 dark:text-dark-100"
+                className="dark:bg-dark-800 dark:text-dark-100 bg-gray-200 font-semibold text-gray-800 uppercase first:ltr:rounded-l-lg last:ltr:rounded-r-lg first:rtl:rounded-r-lg last:rtl:rounded-l-lg"
               >
                 {title}
               </Th>
@@ -65,4 +72,5 @@ export function Zebra() {
     </div>
   );
 }
+
 ```

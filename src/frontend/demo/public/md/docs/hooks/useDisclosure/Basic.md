@@ -1,6 +1,6 @@
-```jsx
-import { Button, Card } from "components/ui";
-import { useDisclosure } from "hooks";
+﻿```tsx
+import { Button, Card } from "@/components/ui";
+import { useDisclosure } from "@/hooks";
 
 export function Basic() {
   const [isOpen, { open, close, toggle }] = useDisclosure(true);
@@ -26,7 +26,7 @@ export function Basic() {
         <div>isOpen: {isOpen.toString()}</div>
       </Card>
 
-      <div className="flex gap-2 mt-4">
+      <div className="mt-4 flex gap-2">
         <Button onClick={open}>Open</Button>
         <Button onClick={close}>Close</Button>
         <Button onClick={toggle}>Toggle</Button>
@@ -34,4 +34,5 @@ export function Basic() {
     </div>
   );
 }
+
 ```

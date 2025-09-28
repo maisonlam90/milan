@@ -1,5 +1,5 @@
-```jsx
-import { CollapsibleSearch } from "components/shared/CollapsibleSearch";
+﻿```tsx
+import { CollapsibleSearch } from "@/components/shared/CollapsibleSearch";
 
 export function Basic() {
   return (
@@ -8,4 +8,5 @@ export function Basic() {
     </div>
   );
 }
+
 ```

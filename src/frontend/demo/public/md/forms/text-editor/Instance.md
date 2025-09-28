@@ -1,18 +1,21 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useEffect, useRef, useState } from "react";
 
 // Local Imports
-import { TextEditor } from "components/shared/form/TextEditor";
+import { TextEditor, TextEditorRef } from "@/components/shared/form/TextEditor";
+import invariant from "tiny-invariant";
 
 // ----------------------------------------------------------------------
 
 const Instance = () => {
   const [wordLength, setWordLength] = useState(0);
-  const ref = useRef();
+  const ref = useRef<TextEditorRef>(null);
 
   useEffect(() => {
     const ql = ref.current?.getQuillInstance();
+
+    invariant(ql, "Quill not found");
 
     const calc = () => {
       const trimmed = ql.getText().trim();
@@ -21,7 +24,9 @@ const Instance = () => {
 
     ql.on("text-change", calc);
 
-    return () => ql.off("text-change", calc);
+    return () => {
+      ql.off("text-change", calc);
+    };
   }, []);
 
   return (
@@ -33,4 +38,5 @@ const Instance = () => {
 };
 
 export { Instance };
+
 ```

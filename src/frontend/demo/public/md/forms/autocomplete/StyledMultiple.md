@@ -1,13 +1,18 @@
-```jsx
+﻿```tsx
 // Import Dependencies
-import { useState } from "react";
+import { useState, KeyboardEvent } from "react";
 
 // Local Imports
-import { Combobox } from "components/shared/form/Combobox";
+import { Combobox } from "@/components/shared/form/StyledCombobox";
 
 // ----------------------------------------------------------------------
 
-const people = [
+type Person = {
+  id: number;
+  name: string;
+};
+
+const people: Person[] = [
   { id: 1, name: "Wade Cooper" },
   { id: 2, name: "Arlene Mccoy" },
   { id: 3, name: "Devon Webb" },
@@ -17,7 +22,7 @@ const people = [
 ];
 
 export function StyledMultiple() {
-  const [selected, setSelected] = useState([]);
+  const [selected, setSelected] = useState<Person[]>([]);
 
   return (
     <div className="max-w-xl">
@@ -32,15 +37,19 @@ export function StyledMultiple() {
         multiple
         // Remove Item on Backspace
         inputProps={{
-          onKeyDown: (event) => {
-            selected.length > 0 &&
-              event.keyCode === 8 &&
-              event.target.value === "" &&
+          onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => {
+            if (
+              selected.length > 0 &&
+              event.key === "Backspace" &&
+              (event.target as HTMLInputElement).value === ""
+            ) {
               setSelected((current) => current.slice(0, -1));
+            }
           },
         }}
       />
     </div>
   );
 }
+
 ```

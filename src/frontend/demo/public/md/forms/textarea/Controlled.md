@@ -1,13 +1,13 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useState } from "react";
 
 // Local Imports
-import { Textarea } from "components/ui";
+import { Textarea } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
-const getTextLength = (text) => [...text].length;
+const getTextLength = (text: string) => [...text].length;
 
 const Controlled = () => {
   const [value, setValue] = useState("The text");
@@ -18,7 +18,7 @@ const Controlled = () => {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder="Enter text"
-        rows="5"
+        rows={5}
         maxLength={100}
       />
 
@@ -30,4 +30,5 @@ const Controlled = () => {
 };
 
 export { Controlled };
+
 ```

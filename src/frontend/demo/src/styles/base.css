@@ -99,7 +99,11 @@ body.is-monochrome::before {
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-gray-300/80 dark:bg-dark-400;
+    @apply bg-gray-300/80;
+  }
+
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-dark-400;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
@@ -109,7 +113,11 @@ body.is-monochrome::before {
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    @apply bg-gray-400 dark:bg-dark-300;
+    @apply bg-gray-400;
+  }
+
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-dark-300;
   }
 }
 

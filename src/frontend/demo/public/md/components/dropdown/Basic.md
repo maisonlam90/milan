@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { Fragment } from "react";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
@@ -12,7 +12,7 @@ import {
 } from "@headlessui/react";
 
 // Local Imports
-import { Button } from "components/ui";
+import { Button } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ export function Basic() {
       <Menu as="div" className="relative inline-block text-start">
         <MenuButton
           as={Button}
-          className="space-x-2 rounded-full "
+          className="space-x-2 rounded-full rtl:space-x-reverse"
         >
           {({ open }) => (
             <>
@@ -46,12 +46,12 @@ export function Basic() {
           leaveFrom="opacity-100 translate-y-0"
           leaveTo="opacity-0 translate-y-2"
         >
-          <MenuItems className="absolute z-[100] mt-1.5 min-w-[11rem] rounded-lg border border-gray-300 bg-white py-1 font-medium shadow-lg shadow-gray-200/50 outline-none focus-visible:outline-none dark:border-dark-500 dark:bg-dark-700 dark:shadow-none">
+          <MenuItems className="absolute z-100 mt-1.5 min-w-[11rem] rounded-lg border border-gray-300 bg-white py-1 font-medium shadow-lg shadow-gray-200/50 outline-hidden focus-visible:outline-hidden dark:border-dark-500 dark:bg-dark-700 dark:shadow-none">
             <MenuItem>
               {({ focus }) => (
                 <button
                   className={clsx(
-                    "flex h-9 w-full items-center  px-3 tracking-wide outline-none transition-colors",
+                    "flex h-9 w-full items-center px-3 tracking-wide outline-hidden transition-colors",
                     focus &&
                       "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
                   )}
@@ -64,7 +64,7 @@ export function Basic() {
               {({ focus }) => (
                 <button
                   className={clsx(
-                    "flex h-9 w-full items-center px-3 tracking-wide outline-none transition-colors",
+                    "flex h-9 w-full items-center px-3 tracking-wide outline-hidden transition-colors",
                     focus &&
                       "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
                   )}
@@ -77,7 +77,7 @@ export function Basic() {
               {({ focus }) => (
                 <button
                   className={clsx(
-                    "flex h-9 w-full items-center px-3 tracking-wide outline-none transition-colors",
+                    "flex h-9 w-full items-center px-3 tracking-wide outline-hidden transition-colors",
                     focus &&
                       "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
                   )}
@@ -93,7 +93,7 @@ export function Basic() {
               {({ focus }) => (
                 <button
                   className={clsx(
-                    "flex h-9 w-full items-center  px-3 tracking-wide outline-none transition-colors",
+                    "flex h-9 w-full items-center px-3 tracking-wide outline-hidden transition-colors",
                     focus &&
                       "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
                   )}
@@ -108,4 +108,5 @@ export function Basic() {
     </div>
   );
 }
+
 ```

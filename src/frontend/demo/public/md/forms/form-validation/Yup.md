@@ -1,11 +1,11 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 // Local Imports
-import { Input, Button } from "components/ui";
+import { Input, Button } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -16,6 +16,8 @@ const schema = yup.object({
   website: yup.string().url().nullable(),
 });
 
+type ValidationSchema = yup.InferType<typeof schema>;
+
 export function Yup() {
   const {
     register,
@@ -25,7 +27,7 @@ export function Yup() {
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = (data) => console.log(data);
+  const onSubmit = (data: ValidationSchema) => console.log(data);
 
   return (
     <div className="max-w-xl">
@@ -73,4 +75,5 @@ export function Yup() {
     </div>
   );
 }
+
 ```

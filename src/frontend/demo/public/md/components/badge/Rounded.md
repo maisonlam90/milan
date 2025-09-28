@@ -1,5 +1,5 @@
-```jsx
-import { Badge } from "components/ui";
+﻿```tsx
+import { Badge } from "@/components/ui";
 
 const Rounded = () => {
   return (
@@ -28,4 +28,5 @@ const Rounded = () => {
 };
 
 export { Rounded };
+
 ```

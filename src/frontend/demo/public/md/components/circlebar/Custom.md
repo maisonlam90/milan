@@ -1,10 +1,12 @@
-```jsx
-import { Button, Circlebar } from "components/ui";
+﻿```tsx
+import { Button, Circlebar } from "@/components/ui";
+
+// ----------------------------------------------------------------------
 
 export function Custom() {
   return (
     <div className="flex flex-wrap justify-start gap-4">
-      <div className="rounded-lg bg-gradient-to-br from-green-400 to-blue-600 px-4 pb-4 pt-5 text-center">
+      <div className="rounded-lg bg-linear-to-br from-green-400 to-blue-600 px-4 pb-4 pt-5 text-center">
         <div className="mx-8">
           <Circlebar
             value={83}
@@ -21,7 +23,7 @@ export function Custom() {
           Show Info
         </Button>
       </div>
-      <div className="rounded-lg bg-gradient-to-r from-fuchsia-600 to-pink-600 px-4 pb-4 pt-5 text-center">
+      <div className="rounded-lg bg-linear-to-r from-fuchsia-600 to-pink-600 px-4 pb-4 pt-5 text-center">
         <div className="mx-8">
           <Circlebar
             value={65}
@@ -41,4 +43,5 @@ export function Custom() {
     </div>
   );
 }
+
 ```

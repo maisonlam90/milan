@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 export function VerticalWithLineSpace() {
   return (
     <div className="max-w-xl">
@@ -22,4 +22,5 @@ export function VerticalWithLineSpace() {
     </div>
   );
 }
+
 ```

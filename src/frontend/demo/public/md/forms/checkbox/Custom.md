@@ -1,17 +1,25 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { RiSvelteLine, RiReactjsLine, RiVuejsLine } from "react-icons/ri";
 import { TbBrandSolidjs } from "react-icons/tb";
 import clsx from "clsx";
 
 // Local Imports
-import { Checkbox } from "components/ui";
-import { randomId } from "utils/randomId";
-import { useListState } from "hooks";
+import { Checkbox } from "@/components/ui";
+import { randomId } from "@/utils/randomId";
+import { useListState } from "@/hooks";
 
 // ----------------------------------------------------------------------
 
-const initialValues = [
+interface CheckboxOption {
+  value: string;
+  icon: React.ElementType;
+  label: string;
+  checked: boolean;
+  key: string;
+}
+
+const initialValues: CheckboxOption[] = [
   {
     value: "svelte",
     icon: RiSvelteLine,
@@ -92,4 +100,5 @@ const Custom = () => {
 };
 
 export { Custom };
+
 ```

@@ -1,9 +1,9 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { SpeakerWaveIcon, SpeakerXMarkIcon } from "@heroicons/react/20/solid";
 
 // Local Imports
-import { Swap, SwapOff, SwapOn } from "components/ui";
+import { Swap, SwapOff, SwapOn } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -21,4 +21,5 @@ const Icon = () => {
 };
 
 export { Icon };
+
 ```

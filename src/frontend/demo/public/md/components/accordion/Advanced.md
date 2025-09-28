@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import clsx from "clsx";
 import { ArrowUpRightIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
@@ -11,7 +11,7 @@ import {
   AccordionPanel,
   Avatar,
   Button,
-} from "components/ui";
+} from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -27,8 +27,8 @@ const Advanced = () => {
           className="overflow-hidden rounded-lg border border-gray-150 dark:border-dark-500"
         >
           <div className="flex items-center justify-between bg-gray-150 p-4 dark:bg-dark-500 sm:px-5">
-            <div className="mr-2 flex min-w-0 items-center space-x-3 tracking-wide outline-none ">
-              <Avatar size={10} src="/images/200x200.png" />
+            <div className="mr-2 flex min-w-0 items-center space-x-3 tracking-wide outline-hidden rtl:space-x-reverse">
+              <Avatar size={10} src="/images/avatar/avatar-20.jpg" />
               <div className="min-w-0">
                 <p className="truncate text-gray-800 dark:text-dark-50">
                   Simon Tods
@@ -61,41 +61,41 @@ const Advanced = () => {
               earum magni officiis possimus repellendus. Accusantium adipisci
               aliquid praesentium quaerat voluptate.
             </p>
-            <div className="mt-4 flex justify-between space-x-2 ">
-              <div className="flex flex-wrap -space-x-1.5 ">
+            <div className="mt-4 flex justify-between space-x-2 rtl:space-x-reverse">
+              <div className="flex flex-wrap -space-x-1.5 rtl:space-x-reverse">
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-5.jpg"
                   classNames={{
                     root: "origin-bottom transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-5.jpg"
                   initialColor="info"
                   name="John Doe"
                   classNames={{
                     root: "origin-bottom text-xs transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
 
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-18.jpg"
                   classNames={{
                     root: "origin-bottom transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-19.jpg"
                   classNames={{
                     root: "origin-bottom transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
               </div>
@@ -110,8 +110,8 @@ const Advanced = () => {
           className="overflow-hidden rounded-lg border border-gray-150 dark:border-dark-500"
         >
           <div className="flex items-center justify-between bg-gray-150 p-4 dark:bg-dark-500 sm:px-5">
-            <div className="mr-2 flex min-w-0 items-center space-x-3 tracking-wide outline-none ">
-              <Avatar size={10} src="/images/200x200.png" />
+            <div className="mr-2 flex min-w-0 items-center space-x-3 tracking-wide outline-hidden rtl:space-x-reverse">
+              <Avatar size={10} src="/images/avatar/avatar-5.jpg" />
               <div className="min-w-0">
                 <p className="truncate text-gray-800 dark:text-dark-50">
                   Konnor Guzman
@@ -144,41 +144,41 @@ const Advanced = () => {
               earum magni officiis possimus repellendus. Accusantium adipisci
               aliquid praesentium quaerat voluptate.
             </p>
-            <div className="mt-4 flex justify-between space-x-2 ">
-              <div className="flex flex-wrap -space-x-1.5 ">
+            <div className="mt-4 flex justify-between space-x-2 rtl:space-x-reverse">
+              <div className="flex flex-wrap -space-x-1.5 rtl:space-x-reverse">
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-5.jpg"
                   classNames={{
                     root: "origin-bottom transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-5.jpg"
                   initialColor="info"
                   name="John Doe"
                   classNames={{
                     root: "origin-bottom text-xs transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
 
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-18.jpg"
                   classNames={{
                     root: "origin-bottom transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-19.jpg"
                   classNames={{
                     root: "origin-bottom transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
               </div>
@@ -193,8 +193,8 @@ const Advanced = () => {
           className="overflow-hidden rounded-lg border border-gray-150 dark:border-dark-500"
         >
           <div className="flex items-center justify-between bg-gray-150 p-4 dark:bg-dark-500 sm:px-5">
-            <div className="mr-2 flex min-w-0 items-center space-x-3 tracking-wide outline-none ">
-              <Avatar size={10} src="/images/200x200.png" />
+            <div className="mr-2 flex min-w-0 items-center space-x-3 tracking-wide outline-hidden rtl:space-x-reverse">
+              <Avatar size={10} src="/images/avatar/avatar-19.jpg" />
               <div className="min-w-0">
                 <p className="truncate text-gray-800 dark:text-dark-50">
                   Derrick Simmons
@@ -227,41 +227,41 @@ const Advanced = () => {
               earum magni officiis possimus repellendus. Accusantium adipisci
               aliquid praesentium quaerat voluptate.
             </p>
-            <div className="mt-4 flex justify-between space-x-2 ">
-              <div className="flex flex-wrap -space-x-1.5 ">
+            <div className="mt-4 flex justify-between space-x-2 rtl:space-x-reverse">
+              <div className="flex flex-wrap -space-x-1.5 rtl:space-x-reverse">
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-5.jpg"
                   classNames={{
                     root: "origin-bottom transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-5.jpg"
                   initialColor="info"
                   name="John Doe"
                   classNames={{
                     root: "origin-bottom text-xs transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
 
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-18.jpg"
                   classNames={{
                     root: "origin-bottom transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-19.jpg"
                   classNames={{
                     root: "origin-bottom transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
               </div>

@@ -1,5 +1,5 @@
-```jsx
-import { Avatar, AvatarDot } from "components/ui";
+﻿```tsx
+import { Avatar, AvatarDot } from "@/components/ui";
 
 const ActiveIndicator = () => {
   return (
@@ -37,4 +37,5 @@ const ActiveIndicator = () => {
 };
 
 export { ActiveIndicator };
+
 ```

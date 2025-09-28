@@ -22,24 +22,44 @@
 
 .apexcharts-xaxistooltip,
 .apexcharts-yaxistooltip {
-  @apply rounded-sm border-gray-300! bg-gray-150! text-gray-600! dark:border-dark-600!
-     dark:bg-dark-900! dark:text-dark-100!;
+  @apply rounded-sm border-gray-300! bg-gray-150! text-gray-600!;
+}
+
+.dark .apexcharts-xaxistooltip:before,
+.dark .apexcharts-yaxistooltip:before  {
+  @apply border-dark-600! bg-dark-900! text-dark-100!;
 }
 
 .apexcharts-xaxistooltip:before {
-  @apply border-b-current! text-gray-300 dark:text-dark-600!;
+  @apply border-b-current! text-gray-300;
+}
+
+.dark .apexcharts-xaxistooltip:before {
+  @apply text-dark-600!;
 }
 
 .apexcharts-xaxistooltip:after {
-  @apply border-b-current! text-gray-150 dark:text-dark-900;
+  @apply border-b-current! text-gray-150;
+}
+
+.dark .apexcharts-xaxistooltip:after {
+  @apply text-dark-900;
 }
 
 .apexcharts-yaxistooltip:before {
-  @apply border-l-current! text-gray-300 dark:text-dark-600;
+  @apply border-l-current! text-gray-300;
 }
 
 .apexcharts-yaxistooltip:after {
-  @apply border-l-current! text-gray-150 dark:text-dark-900;
+  @apply border-l-current! text-gray-150;
+}
+
+.dark .apexcharts-yaxistooltip:before {
+  @apply text-dark-600!;
+}
+
+.dark .apexcharts-yaxistooltip:after {
+  @apply text-dark-900;
 }
 
 .apexcharts-canvas .apexcharts-heatmap-rect,

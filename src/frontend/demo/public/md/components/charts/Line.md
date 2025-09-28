@@ -1,10 +1,11 @@
-```jsx
+﻿```tsx
 // Import Dependencies
+import { ApexOptions } from "apexcharts";
 import Chart from "react-apexcharts";
 
 // ----------------------------------------------------------------------
 
-const options = {
+const options: ApexOptions = {
   colors: ["#a855f7"],
   chart: {
     dropShadow: {
@@ -33,8 +34,8 @@ const options = {
     ],
     tickAmount: 10,
     labels: {
-      formatter: function (value, timestamp, opts) {
-        return opts.dateFormatter(new Date(timestamp), "dd MMM");
+      formatter: function (_value, timestamp, opts) {
+        return timestamp ? opts.dateFormatter(new Date(timestamp), "dd MMM") : "";
       },
     },
   },
@@ -70,4 +71,5 @@ export function Line() {
     </div>
   );
 }
+
 ```

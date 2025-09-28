@@ -1,9 +1,10 @@
-```jsx
-import { Checkbox } from "components/ui";
+﻿```tsx
+import { Checkbox } from "@/components/ui";
 
 const Default = () => {
   return <Checkbox defaultChecked />;
 };
 
 export { Default };
+
 ```

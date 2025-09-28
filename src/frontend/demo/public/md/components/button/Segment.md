@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { RadioGroup, Radio } from "@headlessui/react";
 import clsx from "clsx";
@@ -10,8 +10,8 @@ import {
 } from "@heroicons/react/24/outline";
 
 // Local Imports
-import { Button } from "components/ui";
-import { randomId } from "utils/randomId";
+import { Button } from "@/components/ui";
+import { randomId } from "@/utils/randomId";
 
 // ----------------------------------------------------------------------
 
@@ -39,7 +39,7 @@ const Segment = () => {
     <RadioGroup
       name="options"
       defaultValue={items[1].id}
-      className="mt-4 flex flex-wrap -space-x-px "
+      className="mt-4 flex flex-wrap -space-x-px rtl:space-x-reverse"
     >
       {items.map((item) => (
         <Radio
@@ -47,9 +47,9 @@ const Segment = () => {
           unstyled
           key={item.id}
           value={item.id}
-          className={({ checked }) =>
+          className={({ checked }: { checked: boolean }) =>
             clsx(
-              "size-9 border border-gray-300 text-gray-800 dark:border-dark-450 dark:text-dark-100 ltr:first:rounded-l-lg ltr:last:rounded-r-lg rtl:first:rounded-r-lg rtl:last:rounded-l-lg",
+              "size-9 border border-gray-300 text-gray-800 dark:border-dark-450 dark:text-dark-100 first:ltr:rounded-l-lg last:ltr:rounded-r-lg first:rtl:rounded-r-lg last:rtl:rounded-l-lg",
               checked && "bg-gray-200 dark:bg-dark-500",
             )
           }

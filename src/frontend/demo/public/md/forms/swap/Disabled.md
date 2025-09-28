@@ -1,5 +1,5 @@
-```jsx
-import { Swap, SwapOff, SwapOn } from "components/ui";
+﻿```tsx
+import { Swap, SwapOff, SwapOn } from "@/components/ui";
 
 const Disabled = () => {
   return (
@@ -11,4 +11,5 @@ const Disabled = () => {
 };
 
 export { Disabled };
+
 ```

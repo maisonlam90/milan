@@ -1,9 +1,9 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useState } from "react";
 
 // Local Imports
-import { Range } from "components/ui";
+import { Range } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -19,7 +19,7 @@ const Controlled = () => {
       <Range
         className="mt-1"
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={(e) => setValue(Number(e.target.value))}
       />
       <p className="mt-2">
         Value: <span>{value}</span>
@@ -29,4 +29,5 @@ const Controlled = () => {
 };
 
 export { Controlled };
+
 ```

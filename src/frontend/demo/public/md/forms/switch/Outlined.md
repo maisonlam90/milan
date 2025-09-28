@@ -1,5 +1,5 @@
-```jsx
-import { Switch } from "components/ui";
+﻿```tsx
+import { Switch } from "@/components/ui";
 
 const Outlined = () => {
   return (
@@ -32,4 +32,5 @@ const Outlined = () => {
 };
 
 export { Outlined };
+
 ```

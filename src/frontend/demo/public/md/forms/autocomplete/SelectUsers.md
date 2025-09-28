@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useState } from "react";
 import {
@@ -14,50 +14,56 @@ import { CheckIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
 
 // Local Imports
-import { Avatar, Input, Tag } from "components/ui";
+import { Avatar, Input, Tag } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
-const users = [
+type User = {
+  uid: string;
+  name: string;
+  avatar?: string;
+};
+
+const users: User[] = [
   {
     uid: "1",
     name: "John Doe",
-    avatar: null,
+    avatar: undefined,
   },
   {
     uid: "2",
     name: "Emilia Clarke",
-    avatar: "/images/200x200.png",
+    avatar: "/images/avatar/avatar-11.jpg",
   },
   {
     uid: "3",
     name: "Travis Fuller",
-    avatar: null,
+    avatar: undefined,
   },
   {
     uid: "4",
     name: "Alfredo Elliott",
-    avatar: "/images/200x200.png",
+    avatar: "/images/avatar/avatar-4.jpg",
   },
   {
     uid: "5",
     name: "Henry Curtis",
-    avatar: null,
+    avatar: undefined,
   },
   {
     uid: "6",
     name: "Lance Tucker",
-    avatar: "/images/200x200.png",
+    avatar: "/images/avatar/avatar-18.jpg",
   },
   {
     uid: "7",
     name: "Katrina West",
-    avatar: "/images/200x200.png",
+    avatar: "/images/avatar/avatar-11.jpg",
   },
 ];
 
 export function SelectUsers() {
-  const [selected, setSelected] = useState([]);
+  const [selected, setSelected] = useState<User[]>([]);
   const [query, setQuery] = useState("");
 
   const filteredMembers =
@@ -70,7 +76,7 @@ export function SelectUsers() {
             .includes(query.toLowerCase().replace(/\s+/g, "")),
         );
 
-  const removeItem = (uid) => {
+  const removeItem = (uid: string) => {
     const newValue = selected.filter((item) => item.uid !== uid);
     setSelected(newValue);
   };
@@ -133,7 +139,7 @@ export function SelectUsers() {
                 )}
               </ul>
 
-              <div className="relative w-full cursor-default overflow-hidden py-2 text-start outline-none ltr:pr-9 rtl:pl-9">
+              <div className="relative w-full cursor-default overflow-hidden py-2 text-start outline-hidden ltr:pr-9 rtl:pl-9">
                 <ComboboxInput
                   as={Input}
                   unstyled
@@ -142,7 +148,7 @@ export function SelectUsers() {
                     input:
                       "px-3 placeholder:font-light placeholder:text-gray-600 dark:placeholder:text-dark-200",
                   }}
-                  displayValue={(user) => user.text}
+                  displayValue={(user: User) => user.name}
                   autoComplete="off"
                   onChange={(event) => {
                     setQuery(event.target.value);
@@ -170,7 +176,7 @@ export function SelectUsers() {
                 leave="transition ease-in"
                 leaveFrom="opacity-100 translate-y-0"
                 leaveTo="opacity-0 translate-y-2"
-                className="absolute z-10 mt-1 max-h-60 w-[--input-width] overflow-y-auto overflow-x-hidden rounded-lg border border-gray-300 bg-white py-1 shadow-lg shadow-gray-200/50 outline-none focus-visible:outline-none dark:border-dark-500 dark:bg-dark-700 dark:shadow-none"
+                className="absolute z-10 mt-1 max-h-60 w-(--input-width) overflow-y-auto overflow-x-hidden rounded-lg border border-gray-300 bg-white py-1 shadow-lg shadow-gray-200/50 outline-hidden focus-visible:outline-hidden dark:border-dark-500 dark:bg-dark-700 dark:shadow-none"
               >
                 {filteredMembers.length === 0 && query !== "" ? (
                   <div className="relative cursor-default select-none px-4 py-2 text-gray-800 dark:text-dark-100">
@@ -182,7 +188,7 @@ export function SelectUsers() {
                       key={user.uid}
                       className={({ selected, focus }) =>
                         clsx(
-                          "relative cursor-pointer select-none px-3 py-2 outline-none transition-colors",
+                          "relative cursor-pointer select-none px-3 py-2 outline-hidden transition-colors",
                           (focus || selected) &&
                             "text-gray-800 dark:text-dark-100",
                           focus && !selected && "bg-gray-100 dark:bg-dark-600",
@@ -225,4 +231,5 @@ export function SelectUsers() {
     </div>
   );
 }
+
 ```

@@ -1,15 +1,15 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useState } from "react";
 
 // Local Imports
-import { AnimatedTick } from "components/shared/AnimatedTick";
-import { Button } from "components/ui";
+import { AnimatedTick } from "@/components/shared/AnimatedTick";
+import { Button } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
-export function WithoutAnimation() {
-  const [state, setState] = useState(false);
+export const WithoutAnimation = () => {
+  const [state, setState] = useState<boolean>(false);
 
   return (
     <div className="flex gap-4">
@@ -18,10 +18,11 @@ export function WithoutAnimation() {
       {state && (
         <AnimatedTick
           animate={false}
-          className="size-9 text-primary-600 dark:text-primary-400"
+          className="text-primary-600 dark:text-primary-400 size-9"
         />
       )}
     </div>
   );
-}
+};
+
 ```

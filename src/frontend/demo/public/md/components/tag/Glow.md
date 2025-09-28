@@ -1,5 +1,5 @@
-```jsx
-import { Tag } from "components/ui";
+﻿```tsx
+import { Tag } from "@/components/ui";
 
 const Glow = () => {
   return (
@@ -33,4 +33,5 @@ const Glow = () => {
 };
 
 export { Glow };
+
 ```

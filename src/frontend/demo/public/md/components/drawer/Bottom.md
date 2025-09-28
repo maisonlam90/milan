@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import {
   Dialog,
@@ -11,8 +11,8 @@ import { XMarkIcon } from "@heroicons/react/24/solid";
 import { Fragment } from "react";
 
 // Local Imports
-import { Button } from "components/ui";
-import { useDisclosure } from "hooks";
+import { Button } from "@/components/ui";
+import { useDisclosure } from "@/hooks";
 
 // ----------------------------------------------------------------------
 
@@ -24,7 +24,7 @@ export function Bottom() {
       <Button onClick={open}>Bottom Drawer</Button>
 
       <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-[100]" onClose={close}>
+        <Dialog as="div" className="relative z-100" onClose={close}>
           <TransitionChild
             as={Fragment}
             enter="ease-out duration-300"
@@ -34,7 +34,7 @@ export function Bottom() {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-gray-900/50 backdrop-blur transition-opacity dark:bg-black/40" />
+            <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity dark:bg-black/40" />
           </TransitionChild>
 
           <TransitionChild
@@ -73,4 +73,5 @@ export function Bottom() {
     </>
   );
 }
+
 ```

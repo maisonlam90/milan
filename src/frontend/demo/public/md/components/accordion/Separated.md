@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import clsx from "clsx";
 import { ChevronDownIcon, ArrowUpRightIcon } from "@heroicons/react/20/solid";
@@ -11,7 +11,7 @@ import {
   AccordionPanel,
   Avatar,
   Button,
-} from "components/ui";
+} from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -26,7 +26,7 @@ const Separated = () => {
           value="item-1"
           className="rounded-lg border border-gray-150 dark:border-dark-500"
         >
-          <AccordionButton className="flex w-full cursor-pointer items-center justify-between rounded-lg p-4 text-base font-medium text-gray-700 outline-none ring-primary-500/50 ring-offset-2 ring-offset-white focus-visible:ring dark:text-dark-100 dark:ring-offset-dark-700 sm:px-5">
+          <AccordionButton className="flex w-full cursor-pointer items-center justify-between rounded-lg p-4 text-base font-medium text-gray-700 outline-hidden ring-primary-500/50 ring-offset-2 ring-offset-white focus-visible:ring-3 dark:text-dark-100 dark:ring-offset-dark-700 sm:px-5">
             {({ open }) => (
               <>
                 <p>Accordion Item 1</p>
@@ -47,41 +47,41 @@ const Separated = () => {
               earum magni officiis possimus repellendus. Accusantium adipisci
               aliquid praesentium quaerat voluptate.
             </p>
-            <div className="mt-4 flex justify-between space-x-2 ">
-              <div className="flex flex-wrap -space-x-1.5 ">
+            <div className="mt-4 flex justify-between space-x-2 rtl:space-x-reverse">
+              <div className="flex flex-wrap -space-x-1.5 rtl:space-x-reverse">
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-5.jpg"
                   classNames={{
                     root: "origin-bottom transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-5.jpg"
                   initialColor="info"
                   name="John Doe"
                   classNames={{
                     root: "origin-bottom text-xs transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
 
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-18.jpg"
                   classNames={{
                     root: "origin-bottom transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-19.jpg"
                   classNames={{
                     root: "origin-bottom transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
               </div>
@@ -95,7 +95,7 @@ const Separated = () => {
           value="item-2"
           className="rounded-lg border border-gray-150 dark:border-dark-500"
         >
-          <AccordionButton className="flex w-full cursor-pointer items-center justify-between rounded-lg p-4 text-base font-medium text-gray-700 outline-none ring-primary-500/50 ring-offset-2 ring-offset-white focus-visible:ring dark:text-dark-100 dark:ring-offset-dark-700 sm:px-5">
+          <AccordionButton className="flex w-full cursor-pointer items-center justify-between rounded-lg p-4 text-base font-medium text-gray-700 outline-hidden ring-primary-500/50 ring-offset-2 ring-offset-white focus-visible:ring-3 dark:text-dark-100 dark:ring-offset-dark-700 sm:px-5">
             {({ open }) => (
               <>
                 <p>Accordion Item 2</p>
@@ -116,41 +116,41 @@ const Separated = () => {
               earum magni officiis possimus repellendus. Accusantium adipisci
               aliquid praesentium quaerat voluptate.
             </p>
-            <div className="mt-4 flex justify-between space-x-2 ">
-              <div className="flex flex-wrap -space-x-1.5 ">
+            <div className="mt-4 flex justify-between space-x-2 rtl:space-x-reverse">
+              <div className="flex flex-wrap -space-x-1.5 rtl:space-x-reverse">
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-5.jpg"
                   classNames={{
                     root: "origin-bottom transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-5.jpg"
                   initialColor="info"
                   name="John Doe"
                   classNames={{
                     root: "origin-bottom text-xs transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
 
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-18.jpg"
                   classNames={{
                     root: "origin-bottom transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-19.jpg"
                   classNames={{
                     root: "origin-bottom transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
               </div>
@@ -164,7 +164,7 @@ const Separated = () => {
           value="item-3"
           className="rounded-lg border border-gray-150 dark:border-dark-500"
         >
-          <AccordionButton className="flex w-full cursor-pointer items-center justify-between rounded-lg p-4 text-base font-medium text-gray-700 outline-none ring-primary-500/50 ring-offset-2 ring-offset-white focus-visible:ring dark:text-dark-100 dark:ring-offset-dark-700 sm:px-5">
+          <AccordionButton className="flex w-full cursor-pointer items-center justify-between rounded-lg p-4 text-base font-medium text-gray-700 outline-hidden ring-primary-500/50 ring-offset-2 ring-offset-white focus-visible:ring-3 dark:text-dark-100 dark:ring-offset-dark-700 sm:px-5">
             {({ open }) => (
               <>
                 <p>Accordion Item 3</p>
@@ -185,41 +185,41 @@ const Separated = () => {
               earum magni officiis possimus repellendus. Accusantium adipisci
               aliquid praesentium quaerat voluptate.
             </p>
-            <div className="mt-4 flex justify-between space-x-2 ">
-              <div className="flex flex-wrap -space-x-1.5 ">
+            <div className="mt-4 flex justify-between space-x-2 rtl:space-x-reverse">
+              <div className="flex flex-wrap -space-x-1.5 rtl:space-x-reverse">
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-5.jpg"
                   classNames={{
                     root: "origin-bottom transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-5.jpg"
                   initialColor="info"
                   name="John Doe"
                   classNames={{
                     root: "origin-bottom text-xs transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
 
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-18.jpg"
                   classNames={{
                     root: "origin-bottom transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-19.jpg"
                   classNames={{
                     root: "origin-bottom transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
               </div>

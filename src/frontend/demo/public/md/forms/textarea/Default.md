@@ -1,13 +1,14 @@
-```jsx
-import { Textarea } from "components/ui";
+﻿```tsx
+import { Textarea } from "@/components/ui";
 
 const Default = () => {
   return (
     <div className="max-w-xl">
-      <Textarea placeholder="Enter text" rows="5" />
+      <Textarea placeholder="Enter text" rows={5} />
     </div>
   );
 };
 
 export { Default };
+
 ```

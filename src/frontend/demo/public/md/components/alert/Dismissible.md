@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { Transition } from "@headlessui/react";
 import { Fragment } from "react";
@@ -9,8 +9,8 @@ import {
 } from "@heroicons/react/24/solid";
 
 // Local Imports
-import { Button } from "components/ui";
-import { useDisclosure } from "hooks";
+import { Button } from "@/components/ui";
+import { useDisclosure } from "@/hooks";
 
 // ----------------------------------------------------------------------
 
@@ -29,7 +29,7 @@ const Dismissible = () => {
       >
         <div
           role="alert"
-          className="this:info flex items-center space-x-2 rounded-lg border border-this-darker p-4 text-this-darker dark:border-this-lighter dark:text-this-lighter "
+          className="this:info flex items-center space-x-2 rounded-lg border border-this-darker p-4 text-this-darker dark:border-this-lighter dark:text-this-lighter rtl:space-x-reverse"
         >
           <ExclamationCircleIcon className="size-7" />
           <span className="flex-1">This is simple alert</span>
@@ -55,14 +55,14 @@ const Dismissible = () => {
       >
         <div
           role="alert"
-          className="flex flex-col items-center space-y-4 rounded-lg border border-gray-200 p-4 text-gray-800 dark:border-dark-450 dark:text-dark-100 sm:flex-row sm:space-x-2 sm:space-y-0 rtl:sm:space-x-reverse"
+          className="flex flex-col items-center space-y-4 rounded-lg border border-gray-200 p-4 text-gray-800 dark:border-dark-450 dark:text-dark-100 sm:flex-row sm:space-x-2 sm:space-y-0 sm:rtl:space-x-reverse"
         >
           <span className="flex-1 text-center sm:text-start">
             Lorem ipsum dolor sit amet consectetur.
           </span>
           <Button
             onClick={handler2.close}
-            className="space-x-2 rounded-full uppercase "
+            className="space-x-2 rounded-full uppercase rtl:space-x-reverse"
           >
             <BellAlertIcon className="size-4" />
             <span>Remind me later</span>
@@ -74,4 +74,5 @@ const Dismissible = () => {
 };
 
 export { Dismissible };
+
 ```

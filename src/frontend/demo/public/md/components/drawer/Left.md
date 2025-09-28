@@ -1,6 +1,6 @@
-```jsx
+﻿```tsx
 // Import Dependencies
-import PropTypes from "prop-types";
+import React from "react";
 import {
   Dialog,
   DialogPanel,
@@ -19,14 +19,32 @@ import clsx from "clsx";
 import { Fragment } from "react";
 
 // Local Imports
-import { Avatar, Button } from "components/ui";
-import { useDisclosure } from "hooks";
-import { createScopedKeydownHandler } from "utils/dom/createScopedKeydownHandler";
-import { randomId } from "utils/randomId";
+import { Avatar, Button } from "@/components/ui";
+import { useDisclosure } from "@/hooks";
+import { createScopedKeydownHandler } from "@/utils/dom/createScopedKeydownHandler";
+import { randomId } from "@/utils/randomId";
+
+// Types
+type IconProps = React.SVGProps<SVGSVGElement>;
+
+interface ListItemProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+  isActive?: boolean;
+  label: string;
+  Icon: React.ComponentType<IconProps>;
+  link?: string;
+}
+
+interface ListItemType {
+  id: string;
+  label: string;
+  icon: React.ComponentType<IconProps>;
+  link: string;
+  isActive: boolean;
+}
 
 // ----------------------------------------------------------------------
 
-function CopyrightIcon(props) {
+function CopyrightIcon(props: IconProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -48,7 +66,7 @@ function CopyrightIcon(props) {
   );
 }
 
-function ShippingIcon(props) {
+function ShippingIcon(props: IconProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -67,7 +85,7 @@ function ShippingIcon(props) {
   );
 }
 
-const listItems = [
+const listItems: ListItemType[] = [
   {
     id: randomId(),
     label: "Getting Started",
@@ -82,7 +100,6 @@ const listItems = [
     link: "##",
     isActive: false,
   },
-
   {
     id: randomId(),
     label: "Payments",
@@ -115,13 +132,19 @@ const listItems = [
   },
 ];
 
-const ListItem = ({ isActive = false, label, Icon, link = "##", ...rest }) => (
+const ListItem = ({
+  isActive = false,
+  label,
+  Icon,
+  link = "##",
+  ...rest
+}: ListItemProps) => (
   <li>
     <a
       data-list-control
       href={link}
       className={clsx(
-        " flex items-center space-x-2 rounded-full px-5 py-2.5 tracking-wide outline-none transition-all ",
+        "flex items-center space-x-2 rounded-full px-5 py-2.5 tracking-wide outline-hidden transition-all rtl:space-x-reverse",
         isActive
           ? "bg-primary-600 text-white dark:bg-primary-500"
           : "text-gray-600 hover:bg-gray-300/20 focus:bg-gray-300/20 active:bg-gray-300/25 dark:text-dark-200 dark:hover:bg-dark-300/20 dark:focus:bg-dark-300/20 dark:active:bg-dark-300/25",
@@ -149,7 +172,7 @@ export function Left() {
       <Button onClick={open}>Left Drawer</Button>
 
       <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-[100]" onClose={close}>
+        <Dialog as="div" className="relative z-100" onClose={close}>
           <TransitionChild
             as={Fragment}
             enter="ease-out duration-300"
@@ -159,7 +182,7 @@ export function Left() {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-gray-900/50 backdrop-blur transition-opacity dark:bg-black/40" />
+            <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity dark:bg-black/40" />
           </TransitionChild>
 
           <TransitionChild
@@ -175,14 +198,14 @@ export function Left() {
               <div className="h-24">
                 <img
                   className="h-full w-full object-cover object-center"
-                  src="/images/800x600.png"
+                  src="/images/objects/object-2.jpg"
                   alt="proflie-background"
                 />
               </div>
-              <div className="flex space-x-4 px-4 ">
+              <div className="flex space-x-4 px-4 rtl:space-x-reverse">
                 <Avatar
                   size={20}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-19.jpg"
                   className="-mt-5"
                 />
                 <div className="mt-2 w-full min-w-0">
@@ -202,14 +225,14 @@ export function Left() {
 
                   <a
                     href="##"
-                    className="cursor-pointer text-xs-plus font-medium text-primary-600 outline-none transition-colors duration-300 hover:text-primary-600/70 focus:text-primary-600/70 dark:text-primary-400 dark:hover:text-primary-400/70 dark:focus:text-primary-400/70"
+                    className="cursor-pointer text-xs-plus font-medium text-primary-600 outline-hidden transition-colors duration-300 hover:text-primary-600/70 focus:text-primary-600/70 dark:text-primary-400 dark:hover:text-primary-400/70 dark:focus:text-primary-400/70"
                   >
                     @johndoe
                   </a>
                 </div>
               </div>
               <hr className="mx-5 my-4 h-px border-gray-200 dark:border-dark-500" />
-              <ul className=" grow space-y-1.5 px-5 font-medium" data-list>
+              <ul className="grow space-y-1.5 px-5 font-medium" data-list>
                 {listItems.map((item) => (
                   <ListItem
                     key={item.id}
@@ -223,7 +246,7 @@ export function Left() {
               <div className="p-5">
                 <Button
                   variant="outlined"
-                  className="h-10 w-full space-x-2 "
+                  className="h-10 w-full space-x-2 rtl:space-x-reverse"
                 >
                   <ArrowLeftStartOnRectangleIcon className="size-5 text-primary-600 dark:text-primary-400" />
                   <span className="text-primary-600 dark:text-primary-400">
@@ -239,10 +262,4 @@ export function Left() {
   );
 }
 
-ListItem.propTypes = {
-  isActive: PropTypes.bool,
-  label: PropTypes.string,
-  Icon: PropTypes.elementType,
-  link: PropTypes.string,
-};
 ```

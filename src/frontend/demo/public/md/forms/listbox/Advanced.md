@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { Fragment, useState } from "react";
 import {
@@ -14,28 +14,35 @@ import { ChevronDownIcon } from "@heroicons/react/20/solid";
 
 // ----------------------------------------------------------------------
 
-const charactersList = [
+type Character = {
+  id: string;
+  image: string;
+  label: string;
+  description: string;
+};
+
+const charactersList: Character[] = [
   {
-    id: 1,
+    id: "1",
     image: "https://img.icons8.com/clouds/256/000000/futurama-bender.png",
-    label: "Bender Bending Rodríguez",
+    label: "Bender Bending RodrÃ­guez",
     description: "Fascinated with cooking, though has no sense of taste",
   },
 
   {
-    id: 2,
+    id: "2",
     image: "https://img.icons8.com/clouds/256/000000/futurama-mom.png",
     label: "Carol Miller",
     description: "One of the richest people on Earth",
   },
   {
-    id: 3,
+    id: "3",
     image: "https://img.icons8.com/clouds/256/000000/homer-simpson.png",
     label: "Homer Simpson",
     description: "Overweight, lazy, and often ignorant",
   },
   {
-    id: 4,
+    id: "4",
     image: "https://img.icons8.com/clouds/256/000000/spongebob-squarepants.png",
     label: "Spongebob Squarepants",
     description: "Not just a sponge",
@@ -54,7 +61,7 @@ const Advanced = () => {
             <div className="relative mt-1.5">
               <ListboxButton
                 className={clsx(
-                  "relative w-full cursor-pointer rounded-lg border py-2 pl-3 pr-9 text-start outline-none transition-colors focus:outline-none focus-visible:border-primary-600  dark:focus-visible:border-primary-500 rtl:pl-9 rtl:pr-3",
+                  "outline-hidden focus:outline-hidden relative w-full cursor-pointer rounded-lg border py-2 pl-3 pr-9 text-start transition-colors focus-visible:border-primary-600 dark:focus-visible:border-primary-500 rtl:pl-9 rtl:pr-3",
                   open
                     ? "border-primary-600 dark:border-primary-500"
                     : "border-gray-300 hover:border-gray-400 dark:border-dark-450 dark:hover:border-dark-400",
@@ -83,14 +90,14 @@ const Advanced = () => {
               >
                 <ListboxOptions
                   anchor={{ to: "bottom end", gap: 8 }}
-                  className="absolute z-10 max-h-60 w-[--button-width] overflow-y-auto overflow-x-hidden rounded-lg border border-gray-300 bg-white py-1 shadow-lg shadow-gray-200/50 outline-none focus-visible:outline-none dark:border-dark-500 dark:bg-dark-750 dark:shadow-none"
+                  className="w-(--button-width) outline-hidden focus-visible:outline-hidden absolute z-10 max-h-60 overflow-y-auto overflow-x-hidden rounded-lg border border-gray-300 bg-white py-1 shadow-lg shadow-gray-200/50 dark:border-dark-500 dark:bg-dark-750 dark:shadow-none"
                 >
                   {charactersList.map((char) => (
                     <ListboxOption
                       key={char.id}
                       className={({ selected, focus }) =>
                         clsx(
-                          "relative cursor-pointer select-none px-4 py-2 outline-none",
+                          "outline-hidden relative cursor-pointer select-none px-4 py-2",
                           focus && !selected && "bg-gray-100 dark:bg-dark-600",
                           selected
                             ? "bg-primary-600 text-white dark:bg-primary-500"
@@ -100,14 +107,14 @@ const Advanced = () => {
                       value={char}
                     >
                       {({ selected }) => (
-                        <div className="flex items-center space-x-2 ">
+                        <div className="flex items-center space-x-2">
                           <img
                             className="size-10"
                             src={char.image}
                             alt={char.label}
                           />
                           <div className="overflow-hidden">
-                            <span className="block truncate text-xs-plus">
+                            <span className="text-xs-plus block truncate">
                               {char.label}
                             </span>
                             <span
@@ -136,4 +143,5 @@ const Advanced = () => {
 };
 
 export { Advanced };
+
 ```

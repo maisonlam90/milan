@@ -1,5 +1,5 @@
-```jsx
-import { Input, Spinner } from "components/ui";
+﻿```tsx
+import { Input, Spinner } from "@/components/ui";
 
 const Suffix = () => {
   return (
@@ -14,4 +14,5 @@ const Suffix = () => {
 };
 
 export { Suffix };
+
 ```

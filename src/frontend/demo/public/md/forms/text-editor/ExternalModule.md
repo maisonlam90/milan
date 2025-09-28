@@ -1,9 +1,9 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import MagicUrl from "quill-magic-url";
 
 // Local Imports
-import { TextEditor, Quill } from "components/shared/form/TextEditor";
+import { TextEditor, Quill } from "@/components/shared/form/TextEditor";
 
 // ----------------------------------------------------------------------
 
@@ -21,4 +21,5 @@ const ExternalModule = () => {
 };
 
 export { ExternalModule };
+
 ```

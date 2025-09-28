@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import {
   FaUserEdit,
@@ -11,7 +11,7 @@ import { DocumentArrowDownIcon } from "@heroicons/react/24/outline";
 import { ArrowUpRightIcon } from "@heroicons/react/20/solid";
 
 // Local Imports
-import { Avatar, Timeline, Tag, Button, TimelineItem } from "components/ui";
+import { Avatar, Timeline, Tag, Button, TimelineItem } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -35,7 +35,7 @@ export function Advanced() {
               root: "mt-2",
               display: "mask is-squircle rounded-none",
             }}
-            src="/images/200x200.png"
+            src="/images/avatar/avatar-19.jpg"
           />
         </TimelineItem>
         <TimelineItem
@@ -51,32 +51,32 @@ export function Advanced() {
           <div className="mt-4 grid grid-cols-3 gap-3">
             <img
               className="rounded-lg"
-              src="/images/800x600.png"
+              src="/images/objects/object-1.jpg"
               alt="gallery"
             />
             <img
               className="rounded-lg"
-              src="/images/800x600.png"
+              src="/images/objects/object-2.jpg"
               alt="gallery"
             />
             <img
               className="rounded-lg"
-              src="/images/800x600.png"
+              src="/images/objects/object-3.jpg"
               alt="gallery"
             />
             <img
               className="rounded-lg"
-              src="/images/800x600.png"
+              src="/images/objects/object-4.jpg"
               alt="gallery"
             />
             <img
               className="rounded-lg"
-              src="/images/800x600.png"
+              src="/images/objects/object-5.jpg"
               alt="gallery"
             />
             <img
               className="rounded-lg"
-              src="/images/800x600.png"
+              src="/images/objects/object-6.jpg"
               alt="gallery"
             />
           </div>
@@ -86,13 +86,13 @@ export function Advanced() {
             </span>{" "}
             <a
               href="##"
-              className="text-xs font-medium text-primary-600 outline-none transition-colors duration-300 hover:text-primary-600/70 focus:text-primary-600/70 dark:text-primary-400 dark:hover:text-primary-400/70 dark:focus:text-primary-400/70"
+              className="text-xs font-medium text-primary-600 outline-hidden transition-colors duration-300 hover:text-primary-600/70 focus:text-primary-600/70 dark:text-primary-400 dark:hover:text-primary-400/70 dark:focus:text-primary-400/70"
             >
               #Tag
             </a>{" "}
             <a
               href="##"
-              className="text-xs font-medium text-primary-600 outline-none transition-colors duration-300 hover:text-primary-600/70 focus:text-primary-600/70 dark:text-primary-400 dark:hover:text-primary-400/70 dark:focus:text-primary-400/70"
+              className="text-xs font-medium text-primary-600 outline-hidden transition-colors duration-300 hover:text-primary-600/70 focus:text-primary-600/70 dark:text-primary-400 dark:hover:text-primary-400/70 dark:focus:text-primary-400/70"
             >
               #Gallery
             </a>
@@ -110,7 +110,7 @@ export function Advanced() {
           <p>Robert Nolan completed the design of the CRM application</p>
           <a
             href="##"
-            className="mt-3 inline-flex space-x-1 font-medium text-primary-600 outline-none transition-colors duration-300 hover:text-primary-600/70 focus:text-primary-600/70 dark:text-primary-400 dark:hover:text-primary-400/70 dark:focus:text-primary-400/70 "
+            className="mt-3 inline-flex space-x-1 font-medium text-primary-600 outline-hidden transition-colors duration-300 hover:text-primary-600/70 focus:text-primary-600/70 dark:text-primary-400 dark:hover:text-primary-400/70 dark:focus:text-primary-400/70 rtl:space-x-reverse"
           >
             <DocumentArrowDownIcon className="size-5" />
             <span> Design-final.fig</span>
@@ -158,10 +158,10 @@ export function Advanced() {
               <div className="flex flex-wrap -space-x-2">
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-16.jpg"
                   classNames={{
                     root: "origin-bottom transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
                 <Avatar
@@ -170,31 +170,31 @@ export function Advanced() {
                   name="John Doe"
                   classNames={{
                     root: "origin-bottom text-xs transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-10.jpg"
                   classNames={{
                     root: "origin-bottom transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-8.jpg"
                   classNames={{
                     root: "origin-bottom transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
                 <Avatar
                   size={7}
-                  src="/images/200x200.png"
+                  src="/images/avatar/avatar-5.jpg"
                   classNames={{
                     root: "origin-bottom transition-transform hover:z-10 hover:scale-125",
-                    display: "ring ring-white dark:ring-dark-700",
+                    display: "ring-3 ring-white dark:ring-dark-700",
                   }}
                 />
               </div>

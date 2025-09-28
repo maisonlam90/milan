@@ -1,10 +1,10 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useState } from "react"; 
 
 // Local Imports
-import { Button } from "components/ui";
-import { useLockScrollbar } from "hooks";
+import { Button } from "@/components/ui";
+import { useLockScrollbar } from "@/hooks";
 
 // ----------------------------------------------------------------------
 
@@ -21,4 +21,6 @@ export function Basic() {
     </div>
   );
 }
+
+
 ```

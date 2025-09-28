@@ -1,5 +1,5 @@
-```jsx
-import { Button } from "components/ui";
+﻿```tsx
+import { Button } from "@/components/ui";
 
 const Delay = () => {
   return (
@@ -15,4 +15,5 @@ const Delay = () => {
 };
 
 export { Delay };
+
 ```

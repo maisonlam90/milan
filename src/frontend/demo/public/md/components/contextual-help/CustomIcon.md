@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import {
   ExclamationCircleIcon,
@@ -6,13 +6,13 @@ import {
 } from "@heroicons/react/24/outline";
 
 // Local Imports
-import { ContextualHelp } from "components/shared/ContextualHelp";
+import { ContextualHelp } from "@/components/shared/ContextualHelp";
 
 // ----------------------------------------------------------------------
 
 export function CustomIcon() {
   return (
-    <div className="flex space-x-2 ">
+    <div className="flex space-x-2 rtl:space-x-reverse">
       <ContextualHelp
         Icon={ExclamationCircleIcon}
         title="What is a Contextual help ?"
@@ -36,4 +36,5 @@ export function CustomIcon() {
     </div>
   );
 }
+
 ```

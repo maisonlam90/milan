@@ -1,11 +1,24 @@
-```jsx
+﻿```tsx
 // Local Imports
-import { Timeline, TimelineItem } from "components/ui";
-import { randomId } from "utils/randomId";
+import {
+  Timeline,
+  TimelineItem,
+  type TimelineItemProps,
+} from "@/components/ui";
+import { randomId } from "@/utils/randomId";
+import { ReactNode } from "react";
 
 // ----------------------------------------------------------------------
 
-const timeline = [
+type TimeLine = {
+  id: string;
+  content: ReactNode;
+  title: TimelineItemProps["title"];
+  time: TimelineItemProps["time"];
+  color: TimelineItemProps["color"];
+};
+
+const timeline: TimeLine[] = [
   {
     id: randomId(),
     title: "User Photo Changed",

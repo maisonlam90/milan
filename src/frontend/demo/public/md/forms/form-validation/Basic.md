@@ -1,20 +1,26 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useForm } from "react-hook-form";
 
 // Local Imports
-import { Input, Button } from "components/ui";
+import { Input, Button } from "@/components/ui";
 
 // ----------------------------------------------------------------------
+
+interface FormData {
+  name: string;
+  age: number;
+  password: string;
+}
 
 export function Basic() {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm<FormData>();
 
-  const onSubmit = (data) => console.log(data);
+  const onSubmit = (data: FormData) => console.log(data);
 
   const formOption = {
     name: { required: "Name is required" },
@@ -77,4 +83,5 @@ export function Basic() {
     </div>
   );
 }
+
 ```

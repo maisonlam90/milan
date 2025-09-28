@@ -1,5 +1,5 @@
-```jsx
-import { Select } from "components/ui";
+﻿```tsx
+import { Select } from "@/components/ui";
 
 const SelectSizes = () => {
   return (
@@ -26,4 +26,5 @@ const SelectSizes = () => {
 };
 
 export { SelectSizes };
+
 ```

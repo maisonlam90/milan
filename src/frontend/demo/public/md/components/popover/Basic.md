@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import {
   Popover,
@@ -9,7 +9,7 @@ import {
 import { Fragment } from "react";
 
 // Local Imports
-import { Button, Tag } from "components/ui";
+import { Button, Tag } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -29,7 +29,7 @@ export function Basic() {
         >
           <PopoverPanel
             anchor={{ to: "bottom start", gap: 8 }}
-            className="z-[100] w-80 rounded-md border border-gray-300 bg-white p-4 shadow-lg shadow-gray-200/50 outline-none ring-primary-500/50 focus-visible:outline-none focus-visible:ring dark:border-dark-500 dark:bg-dark-750 dark:shadow-none"
+            className="z-100 w-80 rounded-md border border-gray-300 bg-white p-4 shadow-lg shadow-gray-200/50 outline-hidden ring-primary-500/50 focus-visible:outline-hidden focus-visible:ring-3 dark:border-dark-500 dark:bg-dark-750 dark:shadow-none"
           >
             <h3 className="text-base font-medium tracking-wide text-gray-800 dark:text-dark-100">
               UI/UX Design

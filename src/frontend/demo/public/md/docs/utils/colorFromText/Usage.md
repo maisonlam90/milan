@@ -1,6 +1,6 @@
-```jsx
-import { Avatar } from "components/ui";
-import { colorFromText } from "utils/colorFromText";
+﻿```tsx
+import { Avatar } from "@/components/ui";
+import { colorFromText } from "@/utils/colorFromText";
 
 export function Usage() {
   const color = colorFromText("John Doe");
@@ -11,4 +11,5 @@ export function Usage() {
     </div>
   );
 }
+
 ```

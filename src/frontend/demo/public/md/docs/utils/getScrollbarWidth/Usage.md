@@ -1,13 +1,16 @@
-```jsx
-import { getScrollbarWidth } from "utils/dom/getScrollbarWidth";
+﻿```tsx
+import { SyntaxHighlighter } from "@/components/shared/SyntaxHighlighter";
 
 export function Usage() {
-  const scrollbarWidth = getScrollbarWidth();
-
   return (
     <div>
-      The scrollbar width: <span className="font-bold">{scrollbarWidth}px</span>
+      <SyntaxHighlighter language="jsx">{`import { getScrollbarWidth } from "@/utils/getScrollbarWidth";
+
+// Get scrollbar width
+const scrollbarWidth = getScrollbarWidth();
+console.log(scrollbarWidth); // e.g., 17 (pixels)`}</SyntaxHighlighter>
     </div>
   );
 }
+
 ```

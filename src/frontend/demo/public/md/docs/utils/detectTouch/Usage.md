@@ -1,5 +1,5 @@
-```jsx
-import { detectTouch } from "utils/dom/detectTouch";
+﻿```tsx
+import { detectTouch } from "@/utils/dom/detectTouch";
 
 const isTouchable = detectTouch();
 
@@ -13,4 +13,5 @@ export function Usage() {
     </div>
   );
 }
+
 ```

@@ -1,9 +1,9 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { HeartIcon } from "@heroicons/react/24/outline";
 
 // Local Imports
-import { Tag } from "components/ui";
+import { Tag } from "@/components/ui";
 
 const TagGroup = () => {
   return (
@@ -79,14 +79,14 @@ const TagGroup = () => {
       <Tag
         href="#"
         unstyled
-        className="rounded bg-gray-200 px-2 py-1.5 text-xs text-gray-900"
+        className="rounded-sm bg-gray-200 px-2 py-1.5 text-xs text-gray-900"
       >
         Light
       </Tag>
       <Tag
         href="#"
         unstyled
-        className="rounded bg-dark-800 px-2 py-1.5 text-xs text-white"
+        className="rounded-sm bg-dark-800 px-2 py-1.5 text-xs text-white"
       >
         Dark
       </Tag>
@@ -95,4 +95,5 @@ const TagGroup = () => {
 };
 
 export { TagGroup };
+
 ```

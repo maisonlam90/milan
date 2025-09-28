@@ -1,9 +1,9 @@
-```jsx
-import { Circlebar } from "components/ui";
+﻿```tsx
+import { Circlebar } from "@/components/ui";
 
 const Default = () => {
-  return <Circlebar value={33} />;
+  return <Circlebar value={70} />;
 };
 
-export { Default };
+export { Default }; 
 ```

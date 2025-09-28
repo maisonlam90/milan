@@ -1,5 +1,5 @@
-```jsx
-import { Input } from "components/ui";
+﻿```tsx
+import { Input } from "@/components/ui";
 
 const InputSizes = () => {
   return (
@@ -12,4 +12,5 @@ const InputSizes = () => {
 };
 
 export { InputSizes };
+
 ```

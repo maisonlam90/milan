@@ -1,13 +1,18 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useState } from "react";
 
 // Local Imports
-import { Listbox } from "components/shared/form/Listbox";
+import { Listbox } from "@/components/shared/form/StyledListbox";
 
 // ----------------------------------------------------------------------
 
-const people = [
+interface Person {
+  id: number;
+  name: string;
+}
+
+const people: Person[] = [
   { id: 1, name: "Durward Reynolds" },
   { id: 2, name: "Kenton Towne" },
   { id: 3, name: "Therese Wunsch" },
@@ -16,7 +21,7 @@ const people = [
 ];
 
 const Styled = () => {
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState<Person | null>(null);
 
   return (
     <div className="max-w-xl">
@@ -33,4 +38,5 @@ const Styled = () => {
 };
 
 export { Styled };
+
 ```

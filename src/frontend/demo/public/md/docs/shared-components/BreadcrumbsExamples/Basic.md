@@ -1,17 +1,19 @@
-```jsx
-import { Breadcrumbs } from "components/shared/Breadcrumbs";
+﻿```tsx
+// Local Imports
+import { BreadcrumbItem, Breadcrumbs } from "@/components/shared/Breadcrumbs";
 
-const breadcrumbs = [
+const breadcrumbs: BreadcrumbItem[] = [
   { title: "Docs", path: "/docs" },
   { title: "Shared Components", path: "/docs/shared-components" },
   { title: "Breadcrumbs" },
 ];
 
-export function Basic() {
+export const Basic = () => {
   return (
     <div>
       <Breadcrumbs items={breadcrumbs} />
     </div>
   );
-}
+};
+
 ```

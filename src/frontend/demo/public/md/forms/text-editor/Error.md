@@ -1,5 +1,5 @@
-```jsx
-import { TextEditor } from "components/shared/form/TextEditor";
+﻿```tsx
+import { TextEditor } from "@/components/shared/form/TextEditor";
 
 const Error = () => {
   return (
@@ -13,4 +13,5 @@ const Error = () => {
 };
 
 export { Error };
+
 ```

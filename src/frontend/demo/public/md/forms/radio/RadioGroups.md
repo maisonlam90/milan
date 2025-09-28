@@ -1,6 +1,6 @@
-```jsx
+﻿```tsx
 import { Label, Radio, RadioGroup } from "@headlessui/react";
-import { useState } from "react";
+import { useState, type SVGProps } from "react";
 
 const plans = [
   {
@@ -23,7 +23,7 @@ const plans = [
   },
 ];
 
-function CheckIcon(props) {
+function CheckIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" fill="none" {...props}>
       <circle cx={12} cy={12} r={12} fill="#fff" opacity="0.2" />
@@ -50,14 +50,12 @@ const RadioGroups = () => {
             <Radio
               key={plan.name}
               value={plan}
-              className={({ active, checked }) =>
-                `${active && "ring-2 ring-primary-500/50"}
-                  ${
-                    checked
-                      ? "bg-primary-500 text-white"
-                      : "bg-gray-100 dark:bg-dark-600"
-                  }
-                    relative flex cursor-pointer rounded-lg px-5 py-4 outline-none transition-colors`
+              className={({ checked, focus }) =>
+                `${focus && "ring-2 ring-primary-500/50"} ${
+                  checked
+                    ? "bg-primary-500 text-white"
+                    : "bg-gray-100 dark:bg-dark-600"
+                } relative flex cursor-pointer rounded-lg px-5 py-4 outline-hidden transition-colors`
               }
             >
               {({ checked }) => (
@@ -67,7 +65,7 @@ const RadioGroups = () => {
                       <div className="text-sm">
                         <Label
                           as="p"
-                          className={`font-medium  ${
+                          className={`font-medium ${
                             checked
                               ? "text-white"
                               : "text-gray-900 dark:text-dark-50"
@@ -107,4 +105,5 @@ const RadioGroups = () => {
 };
 
 export { RadioGroups };
+
 ```

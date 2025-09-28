@@ -1,5 +1,5 @@
-```jsx
-import { Select } from "components/ui";
+﻿```tsx
+import { Select } from "@/components/ui";
 
 const WithDescription = () => {
   return (
@@ -14,4 +14,5 @@ const WithDescription = () => {
 };
 
 export { WithDescription };
+
 ```

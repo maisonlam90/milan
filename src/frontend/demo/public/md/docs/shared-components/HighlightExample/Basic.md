@@ -1,10 +1,10 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useState } from "react";
 
 // Local Imports
-import { Highlight } from "components/shared/Highlight";
-import { Input } from "components/ui";
+import { Highlight } from "@/components/shared/Highlight";
+import { Input } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -23,4 +23,5 @@ export function Basic() {
     </div>
   );
 }
+
 ```

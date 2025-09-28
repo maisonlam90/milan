@@ -1,10 +1,10 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { MapPinIcon } from "@heroicons/react/24/outline";
 import { ChevronUpDownIcon } from "@heroicons/react/24/solid";
 
 // Local Imports
-import { Select } from "components/ui";
+import { Select } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -23,4 +23,5 @@ const SuffixPrefix = () => {
 };
 
 export { SuffixPrefix };
+
 ```

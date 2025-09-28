@@ -1,10 +1,10 @@
-```jsx
+﻿```tsx
 // Import Dependencies
-import { useStep } from "hooks";
 import clsx from "clsx";
 
 // Local Imports
-import { Button } from "components/ui";
+import { Button } from "@/components/ui";
+import { useStep } from "@/hooks";
 
 // ----------------------------------------------------------------------
 
@@ -61,7 +61,7 @@ export function Advanced() {
         <p className="text-lg">Current Step {currentStep}</p>
       </div>
 
-      <div className="mt-4 flex justify-center space-x-2 ">
+      <div className="mt-4 flex justify-center space-x-2 rtl:space-x-reverse">
         <Button onClick={goToPrevStep} disabled={!canGoToPrevStep}>
           Prev
         </Button>
@@ -72,4 +72,5 @@ export function Advanced() {
     </div>
   );
 }
+
 ```

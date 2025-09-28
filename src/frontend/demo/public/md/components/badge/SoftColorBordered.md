@@ -1,5 +1,5 @@
-```jsx
-import { Badge } from "components/ui";
+﻿```tsx
+import { Badge } from "@/components/ui";
 
 const SoftColorBordered = () => {
   return (
@@ -51,4 +51,5 @@ const SoftColorBordered = () => {
 };
 
 export { SoftColorBordered };
+
 ```

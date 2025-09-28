@@ -1,20 +1,19 @@
-```jsx
+﻿```tsx
 // Import Dependencies
-import PropTypes from "prop-types";
 import { toast } from "sonner";
 import Marquee from "react-fast-marquee";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { BellAlertIcon } from "@heroicons/react/24/solid";
 
 // Local Imports
-import { Button } from "components/ui";
+import { Button } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
-const CustomNotification = ({ index }) => (
+const CustomNotification = ({ index }: { index: number | string }) => (
   <div
     role="alert"
-    className="this:primary flex items-center space-x-2 rounded-lg bg-this px-4 py-4 text-white sm:px-5 "
+    className="this:primary flex items-center space-x-2 rounded-lg bg-this px-4 py-4 text-white sm:px-5 rtl:space-x-reverse"
   >
     <BellAlertIcon className="size-6" />
     <span className="flex-1">
@@ -54,7 +53,4 @@ export function Custom() {
   );
 }
 
-CustomNotification.propTypes = {
-  index: PropTypes.number,
-};
 ```

@@ -1,5 +1,5 @@
-```jsx
-import { TextEditor } from "components/shared/form/TextEditor";
+﻿```tsx
+import { TextEditor } from "@/components/shared/form/TextEditor";
 
 const MinMaxHeight = () => {
   return (
@@ -13,4 +13,5 @@ const MinMaxHeight = () => {
 };
 
 export { MinMaxHeight };
+
 ```

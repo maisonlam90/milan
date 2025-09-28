@@ -1,13 +1,14 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import Chart from "react-apexcharts";
 
 // Local Imports
-import { useThemeContext } from "app/contexts/theme/context";
+import { useThemeContext } from "@/app/contexts/theme/context";
+import { ApexOptions } from "apexcharts";
 
 // ----------------------------------------------------------------------
 
-const options = {
+const options: ApexOptions = {
   chart: {
     stacked: false,
     toolbar: {
@@ -77,4 +78,5 @@ export function Area2() {
     </div>
   );
 }
+
 ```

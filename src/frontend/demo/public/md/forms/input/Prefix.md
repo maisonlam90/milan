@@ -1,9 +1,9 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 // Local Imports
-import { Input } from "components/ui";
+import { Input } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -20,4 +20,5 @@ const Prefix = () => {
 };
 
 export { Prefix };
+
 ```

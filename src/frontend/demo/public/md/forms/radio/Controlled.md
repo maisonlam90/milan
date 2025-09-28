@@ -1,9 +1,9 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useState } from "react";
 
 // Local Imports
-import { Radio } from "components/ui";
+import { Radio } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -52,4 +52,5 @@ const Controlled = () => {
 };
 
 export { Controlled };
+
 ```

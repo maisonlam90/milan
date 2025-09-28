@@ -1,13 +1,18 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useState } from "react";
 
 // Local Imports
-import { Combobox } from "components/shared/form/Combobox";
+import { Combobox } from "@/components/shared/form/StyledCombobox";
 
 // ----------------------------------------------------------------------
 
-const people = [
+type Person = {
+  id: number;
+  name: string;
+};
+
+const people: Person[] = [
   { id: 1, name: "Wade Cooper" },
   { id: 2, name: "Arlene Mccoy" },
   { id: 3, name: "Devon Webb" },
@@ -17,7 +22,7 @@ const people = [
 ];
 
 export function StyledError() {
-  const [selected, setSelected] = useState([]);
+  const [selected, setSelected] = useState<Person[]>([]);
 
   return (
     <div className="max-w-xl">
@@ -34,4 +39,5 @@ export function StyledError() {
     </div>
   );
 }
+
 ```

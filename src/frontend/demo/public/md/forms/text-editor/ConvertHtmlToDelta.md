@@ -1,6 +1,6 @@
-```jsx
-import { TextEditor } from "components/shared/form/TextEditor";
-import { htmlToDelta } from "utils/quillUtils";
+﻿```tsx
+import { TextEditor } from "@/components/shared/form/TextEditor";
+import { htmlToDelta } from "@/utils/quillUtils";
 
 const html = `<p>Only <em>italic</em> is allowed. <strong>Bold</strong> is not.</p>`;
 
@@ -16,4 +16,5 @@ const ConvertHtmlToDelta = () => {
 };
 
 export { ConvertHtmlToDelta };
+
 ```

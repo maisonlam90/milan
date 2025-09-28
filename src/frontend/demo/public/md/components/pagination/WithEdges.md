@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Local Imports
 import {
   Pagination,
@@ -7,7 +7,7 @@ import {
   PaginationLast,
   PaginationNext,
   PaginationPrevious,
-} from "components/ui";
+} from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -24,4 +24,5 @@ export function WithEdges() {
     </div>
   );
 }
+
 ```

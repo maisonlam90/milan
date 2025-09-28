@@ -1,5 +1,5 @@
-```jsx
-import { Switch } from "components/ui";
+﻿```tsx
+import { Switch } from "@/components/ui";
 
 const Disabled = () => {
   return (
@@ -11,4 +11,5 @@ const Disabled = () => {
 };
 
 export { Disabled };
+
 ```

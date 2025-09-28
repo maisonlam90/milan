@@ -68,13 +68,7 @@ pub async fn list_contracts(
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 
-    // 👇 Load và gán giao dịch cho từng contract để tính toán lại current_principal
-    for c in &mut contracts {
-        let mut txs = query::get_transactions_by_contract(pool, auth.tenant_id, c.id)
-            .await
-            .unwrap_or_default();
-        calculator::calculate_interest_fields(c, &mut txs);
-    }
+
 
     let data: Vec<_> = contracts
         .into_iter()

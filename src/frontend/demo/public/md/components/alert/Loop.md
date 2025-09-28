@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { Transition } from "@headlessui/react";
 import { Fragment } from "react";
@@ -7,8 +7,8 @@ import { BellAlertIcon } from "@heroicons/react/24/solid";
 import Marquee from "react-fast-marquee";
 
 // Local Imports
-import { Button } from "components/ui";
-import { useDisclosure } from "hooks";
+import { Button } from "@/components/ui";
+import { useDisclosure } from "@/hooks";
 
 // ----------------------------------------------------------------------
 
@@ -26,7 +26,7 @@ const Loop = () => {
       >
         <div
           role="alert"
-          className="this:primary flex items-center space-x-2 rounded-lg bg-this px-4 py-4 text-white sm:px-5 "
+          className="this:primary flex items-center space-x-2 rounded-lg bg-this px-4 py-4 text-white sm:px-5 rtl:space-x-reverse"
         >
           <BellAlertIcon className="size-6" />
           <span className="flex-1">
@@ -54,4 +54,5 @@ const Loop = () => {
 };
 
 export { Loop };
+
 ```

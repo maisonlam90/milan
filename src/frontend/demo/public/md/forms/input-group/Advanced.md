@@ -1,9 +1,9 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { MapPinIcon } from "@heroicons/react/24/outline";
 
 // Local Imports
-import { Input, Button } from "components/ui";
+import { Input, Button } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -11,7 +11,7 @@ const Advanced = () => {
   return (
     <div className="max-w-xl space-y-4">
       <div>
-        <div className="mt-1.5 flex -space-x-px ">
+        <div className="mt-1.5 flex -space-x-px rtl:space-x-reverse">
           <Input
             placeholder="Username"
             classNames={{
@@ -34,7 +34,7 @@ const Advanced = () => {
         </div>
       </div>
       <div>
-        <div className="mt-1.5 flex -space-x-px ">
+        <div className="mt-1.5 flex -space-x-px rtl:space-x-reverse">
           <Input
             placeholder="Enter location"
             classNames={{
@@ -57,4 +57,5 @@ const Advanced = () => {
 };
 
 export { Advanced };
+
 ```

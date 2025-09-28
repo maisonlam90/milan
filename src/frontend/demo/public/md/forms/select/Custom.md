@@ -1,5 +1,5 @@
-```jsx
-import { Select } from "components/ui";
+﻿```tsx
+import { Select } from "@/components/ui";
 
 const Custom = () => {
   return (
@@ -13,7 +13,7 @@ const Custom = () => {
         classNames={{
           root: "mt-4",
           select:
-            "rounded-lg bg-gray-150 px-3 py-2 ring-primary-500/50 focus:ring dark:bg-dark-900",
+            "rounded-lg bg-gray-150 px-3 py-2 ring-primary-500/50 focus:ring-3 dark:bg-dark-900",
         }}
         label="Select Location"
         data={["Canada", "USA", "Germany", "Japan"]}
@@ -24,4 +24,5 @@ const Custom = () => {
 };
 
 export { Custom };
+
 ```

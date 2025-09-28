@@ -1,27 +1,33 @@
-```jsx
+﻿```tsx
 // Import Dependencies
-import PropTypes from "prop-types";
 import { toast } from "sonner";
 import { ChevronRightIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { useNavigate } from "react-router";
+import { To, useNavigate } from "react-router";
 
 // Local Imports
-import { Button } from "components/ui";
+import { Button } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
-const Notification = ({ index, to, ...rest }) => {
+const Notification = ({
+  index,
+  to,
+  ...rest
+}: {
+  index: number | string;
+  to: To;
+}) => {
   const navigate = useNavigate();
 
   return (
     <div
       onClick={() => navigate(to)}
       role="alert"
-      className="this:info group relative flex cursor-pointer items-center space-x-2 rounded-lg bg-this p-2 text-white "
+      className="this:info group relative flex cursor-pointer items-center space-x-2 rounded-lg bg-this p-2 text-white rtl:space-x-reverse"
       {...rest}
     >
       <img
-        src="/images/800x600.png"
+        src="/images/objects/object-19.jpg"
         className="size-10 rounded-lg object-cover object-center"
         alt="object"
       />
@@ -54,10 +60,15 @@ export function LinkNotification() {
     <div className="max-w-xl">
       <Button
         onClick={() =>
-          toast.custom((t) => <Notification index={t} to="/components/feedback/notification" />, {
-            duration: 2000,
-            className: "w-full",
-          })
+          toast.custom(
+            (t) => (
+              <Notification index={t} to="/components/feedback/notification" />
+            ),
+            {
+              duration: 2000,
+              className: "w-full",
+            },
+          )
         }
       >
         LinkNotification
@@ -66,8 +77,4 @@ export function LinkNotification() {
   );
 }
 
-Notification.propTypes = {
-  index: PropTypes.number,
-  to: PropTypes.string,
-};
 ```

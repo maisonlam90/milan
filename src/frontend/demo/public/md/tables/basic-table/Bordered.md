@@ -1,12 +1,19 @@
-```jsx
+﻿```tsx
 // Local Imports
-import { Table, THead, TBody, Th, Tr, Td } from "components/ui";
+import { Table, THead, TBody, Th, Tr, Td } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
 const cols = ["#", "Name", "Job", "FAVORITE COLOR"];
 
-const data = [
+interface Data {
+  uid: string;
+  name: string;
+  job: string;
+  favColor: string;
+}
+
+const data: Data[] = [
   {
     uid: "1",
     name: "Cy Ganderton",
@@ -35,14 +42,14 @@ const data = [
 
 export function Bordered() {
   return (
-    <div className="hide-scrollbar min-w-full overflow-x-auto rounded-lg border border-gray-200 dark:border-dark-500">
+    <div className="hide-scrollbar dark:border-dark-500 min-w-full overflow-x-auto rounded-lg border border-gray-200">
       <Table className="w-full text-left rtl:text-right">
         <THead>
-          <Tr className="border-y border-transparent border-b-gray-200 dark:border-b-dark-500">
+          <Tr className="dark:border-b-dark-500 border-y border-transparent border-b-gray-200">
             {cols.map((title, index) => (
               <Th
                 key={index}
-                className="font-semibold uppercase text-gray-800 dark:text-dark-100"
+                className="dark:text-dark-100 font-semibold text-gray-800 uppercase"
               >
                 {title}
               </Th>
@@ -53,7 +60,7 @@ export function Bordered() {
           {data.map((tr) => (
             <Tr
               key={tr.uid}
-              className="border-y border-transparent border-b-gray-200 dark:border-b-dark-500"
+              className="dark:border-b-dark-500 border-y border-transparent border-b-gray-200"
             >
               <Td>{tr.uid}</Td>
               <Td>{tr.name}</Td>
@@ -66,4 +73,5 @@ export function Bordered() {
     </div>
   );
 }
+
 ```

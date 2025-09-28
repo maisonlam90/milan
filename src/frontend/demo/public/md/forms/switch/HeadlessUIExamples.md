@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useState } from "react";
 import { Switch } from "@headlessui/react";
@@ -6,7 +6,7 @@ import clsx from "clsx";
 import { CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 // Local Imports
-import { Spinner } from "components/ui";
+import { Spinner } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -19,7 +19,7 @@ const HeadlessUIExamples = () => {
         checked={checked}
         onChange={setChecked}
         className={clsx(
-          "relative inline-flex h-6 w-12 shrink-0 cursor-pointer items-center rounded-full p-1 outline-none transition-colors duration-200 ease-in-out focus:outline-none",
+          "relative inline-flex h-6 w-12 shrink-0 cursor-pointer items-center rounded-full p-1 outline-hidden transition-colors duration-200 ease-in-out focus:outline-hidden",
           checked
             ? "this:primary bg-this dark:bg-this-light"
             : "bg-gray-300 dark:bg-surface-1",
@@ -36,7 +36,7 @@ const HeadlessUIExamples = () => {
         >
           <Spinner
             isElastic
-            color={clsx(checked ? "primary" : "neutral")}
+            color={checked ? "primary" : "neutral"}
             className="size-3 border-2"
           />
         </span>
@@ -46,7 +46,7 @@ const HeadlessUIExamples = () => {
         checked={checked}
         onChange={setChecked}
         className={clsx(
-          "relative inline-flex h-6 w-12 shrink-0 cursor-pointer items-center rounded-full p-1 outline-none transition-colors duration-200 ease-in-out focus:outline-none",
+          "relative inline-flex h-6 w-12 shrink-0 cursor-pointer items-center rounded-full p-1 outline-hidden transition-colors duration-200 ease-in-out focus:outline-hidden",
           checked
             ? "this:primary bg-this dark:bg-this-light"
             : "bg-gray-300 dark:bg-surface-1",
@@ -79,4 +79,5 @@ const HeadlessUIExamples = () => {
 };
 
 export { HeadlessUIExamples };
+
 ```

@@ -1,31 +1,25 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useState } from "react";
+import type { FilePondFile } from "filepond";
 
 // Local Imports
-import { FilePond } from "components/shared/form/Filepond";
+import { FilePond } from "@/components/shared/form/Filepond";
 
 // ----------------------------------------------------------------------
 
 const Basic = () => {
-  const [state, setState] = useState({
-    files: [],
-  });
+  const [state, setState] = useState<FilePondFile[]>([]);
 
-  console.log(state.files);
+  console.log(state);
 
   return (
     <div className="max-w-xl">
-      <FilePond
-        onupdatefiles={(fileItems) => {
-          setState({
-            files: fileItems.map((fileItem) => fileItem.file),
-          });
-        }}
-      />
+      <FilePond onupdatefiles={setState} />
     </div>
   );
 };
 
 export { Basic };
+
 ```

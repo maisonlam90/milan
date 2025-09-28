@@ -1,10 +1,11 @@
-```jsx
+﻿```tsx
 // Import Dependencies
+import { ApexOptions } from "apexcharts";
 import Chart from "react-apexcharts";
 
 // ----------------------------------------------------------------------
 
-const options = {
+const options: ApexOptions = {
   chart: {
     zoom: {
       enabled: true,
@@ -17,7 +18,7 @@ const options = {
   xaxis: {
     tickAmount: 10,
     labels: {
-      formatter: function (val) {
+      formatter: function (val: string) {
         return parseFloat(val).toFixed(1);
       },
     },
@@ -90,4 +91,5 @@ export function Bubble() {
     </div>
   );
 }
+
 ```

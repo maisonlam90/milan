@@ -1,5 +1,5 @@
-```jsx
-import { DatePicker } from "components/shared/form/Datepicker";
+﻿```tsx
+import { DatePicker } from "@/components/shared/form/Datepicker";
 
 const Timepicker = () => {
   return (
@@ -16,4 +16,5 @@ const Timepicker = () => {
 };
 
 export { Timepicker };
+
 ```

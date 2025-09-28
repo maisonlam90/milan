@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import {
   Dialog,
@@ -11,8 +11,8 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { Fragment, useRef } from "react";
 
 // Local Imports
-import { Textarea, Button, Input, Select, Switch } from "components/ui";
-import { useDisclosure } from "hooks";
+import { Textarea, Button, Input, Select, Switch } from "@/components/ui";
+import { useDisclosure } from "@/hooks";
 
 // ----------------------------------------------------------------------
 
@@ -28,7 +28,7 @@ export function ScaleUp() {
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog
           as="div"
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden px-4 py-6 sm:px-5"
+          className="fixed inset-0 z-100 flex flex-col items-center justify-center overflow-hidden px-4 py-6 sm:px-5"
           onClose={close}
           initialFocus={saveRef}
         >
@@ -41,7 +41,7 @@ export function ScaleUp() {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="absolute inset-0 bg-gray-900/50 backdrop-blur transition-opacity dark:bg-black/30" />
+            <div className="absolute inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity dark:bg-black/30" />
           </TransitionChild>
 
           <TransitionChild
@@ -53,11 +53,11 @@ export function ScaleUp() {
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <DialogPanel className="relative flex w-full max-w-lg origin-top flex-col overflow-hidden rounded-lg bg-white transition-all duration-300 dark:bg-dark-700">
-              <div className="flex items-center justify-between rounded-t-lg bg-gray-200 px-4 py-3 dark:bg-dark-800 sm:px-5">
+            <DialogPanel className="dark:bg-dark-700 relative flex w-full max-w-lg origin-top flex-col overflow-hidden rounded-lg bg-white transition-all duration-300">
+              <div className="dark:bg-dark-800 flex items-center justify-between rounded-t-lg bg-gray-200 px-4 py-3 sm:px-5">
                 <DialogTitle
                   as="h3"
-                  className="text-base font-medium text-gray-800 dark:text-dark-100"
+                  className="dark:text-dark-100 text-base font-medium text-gray-800"
                 >
                   Edit Pin
                 </DialogTitle>
@@ -86,7 +86,7 @@ export function ScaleUp() {
                   <Textarea
                     placeholder="Enter Description"
                     label="Description"
-                    rows="4"
+                    rows={4}
                   />
                   <Input
                     placeholder="Enter URL Address"
@@ -94,7 +94,7 @@ export function ScaleUp() {
                   />
                   <Switch label="Public pin" />
                 </div>
-                <div className="mt-4 space-x-3 text-end ">
+                <div className="mt-4 space-x-3 text-end rtl:space-x-reverse">
                   <Button
                     onClick={close}
                     variant="outlined"
@@ -119,4 +119,5 @@ export function ScaleUp() {
     </>
   );
 }
+
 ```

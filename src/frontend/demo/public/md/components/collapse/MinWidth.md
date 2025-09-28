@@ -1,11 +1,11 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import clsx from "clsx";
 import { useState } from "react";
 
 // Local Imports
-import { Collapse, Button } from "components/ui";
-import { useDisclosure } from "hooks";
+import { Collapse, Button } from "@/components/ui";
+import { useDisclosure } from "@/hooks";
 
 // ----------------------------------------------------------------------
 
