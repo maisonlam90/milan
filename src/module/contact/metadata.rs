@@ -31,7 +31,7 @@ pub fn contact_form_schema() -> serde_json::Value {
           { "name": "email", "label": "Email" },
           { "name": "phone", "label": "Điện thoại" },
           { "name": "is_company", "label": "Công ty" },
-          { "name": "tags", "label": "Nhãn" }
+          { "name": "state", "label": "Địa chỉ" },
         ],
         "search": { "placeholder": "Tìm theo tên/email/điện thoại" }
       }
