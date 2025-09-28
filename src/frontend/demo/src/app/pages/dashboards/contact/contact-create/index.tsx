@@ -395,7 +395,7 @@ const ContactCreatePage: React.FC = () => {
   const handleCancel = () => fetchContact();
 
   return (
-    <Page title={contactId ? "✏️ Chi tiết liên hệ" : "👤 Tạo liên hệ mới"}>
+    <Page title={contactId ? "✏️ Chi tiết liên hệ" : "Tạo liên hệ mới"}>
       <div className="transition-content px-(--margin-x) pb-6">
         <div className="flex flex-col items-center justify-between space-y-4 py-5 sm:flex-row sm:space-y-0 lg:py-6">
           <div className="flex items-center gap-2">
