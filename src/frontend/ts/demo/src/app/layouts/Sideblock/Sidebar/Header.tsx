@@ -16,7 +16,7 @@ export function Header() {
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
         <Link to="/">
           {/* Giữ tỉ lệ: cao 48px, rộng auto */}
-          <Logo className="h-12 w-auto text-primary-600 dark:text-primary-400" />
+          <Logo className="h-13 w-auto text-primary-600 dark:text-primary-400" />
         </Link>
       </div>
       <div className="pt-5 xl:hidden">
