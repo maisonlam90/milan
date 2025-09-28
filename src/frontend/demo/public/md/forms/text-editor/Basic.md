@@ -1,5 +1,5 @@
-```jsx
-import { TextEditor } from "components/shared/form/TextEditor";
+﻿```tsx
+import { TextEditor } from "@/components/shared/form/TextEditor";
 
 const Basic = () => {
   return (
@@ -10,4 +10,5 @@ const Basic = () => {
 };
 
 export { Basic };
+
 ```

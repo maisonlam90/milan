@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { Fragment, useRef, useState } from "react";
 import {
@@ -15,53 +15,60 @@ import clsx from "clsx";
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/20/solid";
 
 // Local Imports
-import { useFuse } from "hooks";
-import { Input, Avatar, Button } from "components/ui";
+import { useFuse } from "@/hooks";
+import { Input, Avatar, Button } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
-const people = [
+type Person = {
+  id: number;
+  name: string;
+  position: string;
+  image: string;
+};
+
+const people: Person[] = [
   {
     id: 1,
     name: "Wade Cooper",
     position: "Web Designer",
-    image: "/images/200x200.png",
+    image: "/images/avatar/avatar-18.jpg",
   },
   {
     id: 2,
     name: "Arlene Mccoy",
     position: "Web Developer",
-    image: "/images/200x200.png",
+    image: "/images/avatar/avatar-14.jpg",
   },
   {
     id: 3,
     name: "Devon Webb",
     position: "Android Developer",
-    image: "/images/200x200.png",
+    image: "/images/avatar/avatar-6.jpg",
   },
   {
     id: 4,
     name: "Tom Cook",
     position: "Software Engineer",
-    image: "/images/200x200.png",
+    image: "/images/avatar/avatar-5.jpg",
   },
   {
     id: 5,
     name: "Tanya Fox",
     position: "UI/UX Designer",
-    image: "/images/200x200.png",
+    image: "/images/avatar/avatar-19.jpg",
   },
   {
     id: 6,
     name: "Hellen Schmidt",
     position: "Web Developer",
-    image: "/images/200x200.png",
+    image: "/images/avatar/avatar-20.jpg",
   },
 ];
 
 export function Filter() {
-  const [selected, setSelected] = useState(people[1]);
-  const inputRef = useRef();
+  const [selected, setSelected] = useState<Person | null>(people[1]);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const {
     result: filteredPeople,
@@ -87,10 +94,10 @@ export function Filter() {
       >
         <PopoverPanel
           anchor={{ to: "bottom start", gap: 8 }}
-          className="z-[100] w-80 overflow-hidden rounded-md border border-gray-300 bg-white shadow-lg shadow-gray-200/50 outline-none ring-primary-500/50 focus-visible:outline-none focus-visible:ring dark:border-dark-500 dark:bg-dark-750 dark:shadow-none"
+          className="z-100 w-80 overflow-hidden rounded-md border border-gray-300 bg-white shadow-lg shadow-gray-200/50 outline-hidden ring-primary-500/50 focus-visible:outline-hidden focus-visible:ring-3 dark:border-dark-500 dark:bg-dark-750 dark:shadow-none"
         >
           {({ open, close }) => {
-            setTimeout(() => open && inputRef.current.focus());
+            setTimeout(() => open && inputRef?.current?.focus());
             return (
               <Combobox
                 value={selected}
@@ -101,13 +108,13 @@ export function Filter() {
               >
                 <div className="relative">
                   <div className="bg-gray-100 dark:bg-dark-900">
-                    <div className="flex items-center justify-between space-x-2 px-4 pb-1 pt-3 ">
+                    <div className="flex items-center justify-between space-x-2 px-4 pb-1 pt-3 rtl:space-x-reverse">
                       <h3 className="font-medium tracking-wide text-gray-800 dark:text-dark-100">
                         Select People
                       </h3>
                       <div className="contents">
                         <Button
-                          onClick={close}
+                          onClick={() => close()}
                           isIcon
                           variant="flat"
                           className="size-7 rounded-full ltr:-mr-2 rtl:-ml-2"
@@ -123,7 +130,7 @@ export function Filter() {
                         ref={inputRef}
                         autoComplete="off"
                         placeholder="Search Users"
-                        displayValue={(item) => item?.name}
+                        displayValue={(item) => (item as Person)?.name}
                         onChange={(event) => setQuery(event.target.value)}
                         prefix={<MagnifyingGlassIcon className="size-4" />}
                       />
@@ -132,7 +139,7 @@ export function Filter() {
 
                   <ComboboxOptions
                     static
-                    className="max-h-72 w-full overflow-y-auto overflow-x-hidden py-1 outline-none"
+                    className="max-h-72 w-full overflow-y-auto overflow-x-hidden py-1 outline-hidden"
                   >
                     {filteredPeople.length === 0 && query !== "" ? (
                       <div className="relative cursor-default select-none px-4 py-2 text-gray-800 dark:text-dark-100">
@@ -144,7 +151,7 @@ export function Filter() {
                           key={refIndex}
                           className={({ selected, active }) =>
                             clsx(
-                              "relative cursor-pointer select-none px-4 py-2 outline-none transition-colors",
+                              "relative cursor-pointer select-none px-4 py-2 outline-hidden transition-colors",
                               active &&
                                 !selected &&
                                 "bg-gray-100 dark:bg-dark-600",

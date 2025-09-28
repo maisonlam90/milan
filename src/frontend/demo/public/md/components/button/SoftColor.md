@@ -1,5 +1,5 @@
-```jsx
-import { Button } from "components/ui";
+﻿```tsx
+import { Button } from "@/components/ui";
 
 const SoftColor = () => {
   return (
@@ -27,4 +27,5 @@ const SoftColor = () => {
 };
 
 export { SoftColor };
+
 ```

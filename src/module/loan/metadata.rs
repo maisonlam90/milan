@@ -17,6 +17,7 @@ pub fn loan_form_schema() -> serde_json::Value {
         "list": {
             "columns": [
                 { "key": "contract_number", "label": "Số HĐ" },
+                { "key": "id", "label": "Id HĐ" },
                 { "key": "current_principal", "label": "Gốc (VNĐ)" },
                 { "key": "interest_rate", "label": "Lãi suất (%)" },
                 { "key": "term_months", "label": "Kỳ hạn (tháng)" },

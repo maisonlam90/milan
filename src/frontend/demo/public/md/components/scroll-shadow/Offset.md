@@ -1,5 +1,5 @@
-```jsx
-import { ScrollShadow } from "components/ui";
+﻿```tsx
+import { ScrollShadow } from "@/components/ui";
 
 const Offset = () => {
   return (
@@ -38,4 +38,5 @@ const Offset = () => {
 };
 
 export { Offset };
+
 ```

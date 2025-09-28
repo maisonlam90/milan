@@ -1,5 +1,5 @@
-```jsx
-import { Select } from "components/ui";
+﻿```tsx
+import { Select } from "@/components/ui";
 
 const Default = () => {
   return (
@@ -17,4 +17,5 @@ const Default = () => {
 };
 
 export { Default };
+
 ```

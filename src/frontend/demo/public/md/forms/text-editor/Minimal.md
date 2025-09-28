@@ -1,5 +1,5 @@
-```jsx
-import { TextEditor } from "components/shared/form/TextEditor";
+﻿```tsx
+import { TextEditor } from "@/components/shared/form/TextEditor";
 
 const modules = {
   toolbar: [
@@ -22,4 +22,5 @@ const Minimal = () => {
 };
 
 export { Minimal };
+
 ```

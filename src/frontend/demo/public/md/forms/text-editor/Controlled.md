@@ -1,9 +1,9 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useState } from "react";
 
 // Local Imports
-import { Delta, TextEditor } from "components/shared/form/TextEditor";
+import { Delta, TextEditor } from "@/components/shared/form/TextEditor";
 
 // ----------------------------------------------------------------------
 
@@ -24,4 +24,5 @@ const Controlled = () => {
 };
 
 export { Controlled };
+
 ```

@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { Switch } from "@headlessui/react";
 import {
@@ -13,12 +13,18 @@ import {
 import clsx from "clsx";
 
 // Local Imports
-import { useListState } from "hooks";
-import { randomId } from "utils/randomId";
+import { useListState } from "@/hooks";
+import { randomId } from "@/utils/randomId";
 
 // ----------------------------------------------------------------------
 
-const items = [
+type Item = {
+  key: string;
+  icon: { on: React.ElementType; off: React.ElementType };
+  checked: boolean;
+};
+
+const items: Item[] = [
   {
     key: randomId(),
     icon: { on: BellAlertIcon, off: BellSlashIcon },
@@ -66,4 +72,5 @@ const HeadlessUiCustom = () => {
 };
 
 export { HeadlessUiCustom };
+
 ```

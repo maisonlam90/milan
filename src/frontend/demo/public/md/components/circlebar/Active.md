@@ -1,13 +1,6 @@
-```jsx
-// Import Dependencies
-import {
-  CheckCircleIcon,
-  ExclamationCircleIcon,
-  XCircleIcon,
-} from "@heroicons/react/24/solid";
-
-// Local Imports
-import { Circlebar } from "components/ui";
+﻿```tsx
+import { Circlebar } from "@/components/ui";
+import { ExclamationCircleIcon } from "@heroicons/react/24/solid";
 
 // ----------------------------------------------------------------------
 
@@ -33,17 +26,18 @@ const Active = () => {
         <ExclamationCircleIcon className="size-9 text-info-light" />
       </Circlebar>
       <Circlebar color="success" value={66} isActive>
-        <CheckCircleIcon className="size-9 text-success-light" />
+        <ExclamationCircleIcon className="size-9 text-success-light" />
       </Circlebar>
       <Circlebar color="warning" value={75} isActive>
         <ExclamationCircleIcon className="size-9 text-warning-light" />
       </Circlebar>
       <Circlebar color="error" value={83} isActive>
-        <XCircleIcon className="size-9 text-error-light" />
+        <ExclamationCircleIcon className="size-9 text-error-light" />
       </Circlebar>
     </div>
   );
 };
 
 export { Active };
+
 ```

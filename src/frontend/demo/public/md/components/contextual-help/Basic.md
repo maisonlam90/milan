@@ -1,5 +1,5 @@
-```jsx
-import { ContextualHelp } from "components/shared/ContextualHelp";
+﻿```tsx
+import { ContextualHelp } from "@/components/shared/ContextualHelp";
 
 export function Basic() {
   return (
@@ -16,4 +16,5 @@ export function Basic() {
     </div>
   );
 }
+
 ```

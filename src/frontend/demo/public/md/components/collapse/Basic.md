@@ -1,7 +1,7 @@
-```jsx
+﻿```tsx
 // Local Imports
-import { Collapse, Button } from "components/ui";
-import { useDisclosure } from "hooks";
+import { Collapse, Button } from "@/components/ui";
+import { useDisclosure } from "@/hooks";
 
 // ----------------------------------------------------------------------
 
@@ -29,4 +29,5 @@ export function Basic() {
     </div>
   );
 }
+
 ```

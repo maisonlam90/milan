@@ -1,20 +1,21 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useState } from "react";
 
 // Local Imports
-import { Progress, Circlebar, Button } from "components/ui";
-import { useToggle, useStep } from "hooks";
+import { Progress, Circlebar, Button } from "@/components/ui";
+import { useToggle, useStep } from "@/hooks";
+import { ColorType } from "@/constants/app";
 
 // ----------------------------------------------------------------------
 
 const Customizer = () => {
-  const [isActive, setIsActive] = useState(false);
-  const [showRail, setShowRails] = useState(true);
+  const [isActive, setIsActive] = useState<boolean>(false);
+  const [showRail, setShowRails] = useState<boolean>(true);
 
   const [currentStep, helpers] = useStep(5);
 
-  const [color, toggleColor] = useToggle([
+  const [color, toggleColor] = useToggle<ColorType>([
     "success",
     "neutral",
     "primary",
@@ -36,7 +37,7 @@ const Customizer = () => {
           </span>
           <span> of 5 Task</span>
         </p>
-        <div className="flex space-x-2 ">
+        <div className="flex space-x-2 rtl:space-x-reverse">
           <Button
             onClick={goToPrevStep}
             className="size-7 rounded-full p-0"
@@ -53,7 +54,7 @@ const Customizer = () => {
           </Button>
         </div>
       </div>
-      <div className="mt-2 flex items-end space-x-4 ">
+      <div className="mt-2 flex items-end space-x-4 rtl:space-x-reverse">
         <Circlebar
           color={color}
           value={currentStep * 20}
@@ -83,12 +84,12 @@ const Customizer = () => {
         </div>
       </div>
       <div className="mt-3 flex justify-between">
-        <Button onClick={toggleColor}>Color</Button>
-        <div className="flex space-x-2 ">
+        <Button onClick={() => toggleColor()}>Color</Button>
+        <div className="flex space-x-2 rtl:space-x-reverse">
           <Button onClick={() => setShowRails(!showRail)}>Rail</Button>
 
           <Button
-            color={!isActive && "primary"}
+            color={!isActive ? "primary" : "neutral"}
             onClick={() => setIsActive(!isActive)}
           >
             {isActive ? "Unactive" : "Activate"}
@@ -100,4 +101,5 @@ const Customizer = () => {
 };
 
 export { Customizer };
+
 ```

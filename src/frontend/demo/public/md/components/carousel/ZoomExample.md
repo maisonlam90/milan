@@ -1,33 +1,33 @@
-```jsx
+﻿```tsx
 // Import Dependencies
-import { useRef } from "react";
+import { useRef, useLayoutEffect } from "react";
 import invariant from "tiny-invariant";
 import { register } from "swiper/element/bundle";
+import type { SwiperContainer } from "swiper/element";
 
 // Local Imports
-import { randomId } from "utils/randomId";
-import { useThemeContext } from "app/contexts/theme/context";
-import { useLocaleContext } from "app/contexts/locale/context";
-import { useIsomorphicEffect } from "hooks";
+import { randomId } from "@/utils/randomId";
+import { useThemeContext } from "@/app/contexts/theme/context";
+import { useLocaleContext } from "@/app/contexts/locale/context";
 
 // ----------------------------------------------------------------------
 
 register();
 
 const images = [
-  { id: randomId(), img: "/images/800x600.png" },
-  { id: randomId(), img: "/images/800x600.png" },
-  { id: randomId(), img: "/images/800x600.png" },
-  { id: randomId(), img: "/images/800x600.png" },
+  { id: randomId(), img: "/images/objects/object-15.jpg" },
+  { id: randomId(), img: "/images/objects/object-3.jpg" },
+  { id: randomId(), img: "/images/objects/object-2.jpg" },
+  { id: randomId(), img: "/images/objects/object-9.jpg" },
 ];
 
 export function ZoomExample() {
   const { primaryColorScheme: primary } = useThemeContext();
   const { direction } = useLocaleContext();
 
-  const carouselRef = useRef(null);
+  const carouselRef = useRef<SwiperContainer | null>(null);
 
-  useIsomorphicEffect(() => {
+  useLayoutEffect(() => {
     invariant(carouselRef.current, "carouselRef is null");
     const params = {
       pagination: {
@@ -41,26 +41,30 @@ export function ZoomExample() {
     Object.assign(carouselRef.current, params);
 
     setTimeout(() => {
-      carouselRef.current.initialize();
+      carouselRef.current?.initialize();
     });
   }, []);
 
   return (
     <div className="max-w-md">
+      {/* @ts-expect-error - Swiper web components */}
       <swiper-container
         ref={carouselRef}
         init="false"
         navigation="true"
-         dir={direction}
+        dir={direction}
         space-between="16"
         slides-per-view="1"
-        style={{
-          "--swiper-navigation-size": "32px",
-          "--swiper-theme-color": primary[400],
-          "--swiper-pagination-color": primary[600],
-        }}
+        style={
+          {
+            "--swiper-navigation-size": "32px",
+            "--swiper-theme-color": primary[400],
+            "--swiper-pagination-color": primary[600],
+          } as React.CSSProperties
+        }
       >
         {images.map(({ img, id }) => (
+          // @ts-expect-error - Swiper web components
           <swiper-slide key={id}>
             <div className="swiper-zoom-container">
               <img
@@ -70,10 +74,13 @@ export function ZoomExample() {
                 loading="lazy"
               />
             </div>
+            {/* @ts-expect-error - Swiper web components */}
           </swiper-slide>
         ))}
+        {/* @ts-expect-error - Swiper web components */}
       </swiper-container>
     </div>
   );
 }
+
 ```

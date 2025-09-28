@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import {
   HeartIcon,
@@ -15,7 +15,7 @@ import { FaPaperPlane } from "react-icons/fa";
 
 
 // Local Imports
-import { Button } from "components/ui";
+import { Button } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -79,4 +79,5 @@ const OnlyIcon = () => {
 };
 
 export { OnlyIcon };
+
 ```

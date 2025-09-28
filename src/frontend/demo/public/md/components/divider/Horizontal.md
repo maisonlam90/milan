@@ -1,5 +1,5 @@
-```jsx
-import { Box } from "components/ui";
+﻿```tsx
+import { Box } from "@/components/ui";
 
 const Horizontal = () => {
   return (

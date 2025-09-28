@@ -1,5 +1,5 @@
-```jsx
-import { Badge } from "components/ui";
+﻿```tsx
+import { Badge } from "@/components/ui";
 
 const Outlined = () => {
   return (
@@ -30,4 +30,5 @@ const Outlined = () => {
 };
 
 export { Outlined };
+
 ```

@@ -1,5 +1,5 @@
-```jsx
-import { Select } from "components/ui";
+﻿```tsx
+import { Select } from "@/components/ui";
 
 const WithLabel = () => {
   return (
@@ -14,4 +14,5 @@ const WithLabel = () => {
 };
 
 export { WithLabel };
+
 ```

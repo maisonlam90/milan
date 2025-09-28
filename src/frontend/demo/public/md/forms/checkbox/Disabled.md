@@ -1,5 +1,5 @@
-```jsx
-import { Checkbox } from "components/ui";
+﻿```tsx
+import { Checkbox } from "@/components/ui";
 
 const Disabled = () => {
   return (
@@ -12,4 +12,5 @@ const Disabled = () => {
 };
 
 export { Disabled };
+
 ```

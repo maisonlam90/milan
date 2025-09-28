@@ -1,18 +1,29 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import clsx from "clsx";
-import PropTypes from "prop-types";
-import { useState } from "react";
+import React, { useState } from "react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@heroicons/react/20/solid";
 
 // Local Imports
-import { randomId } from "utils/randomId";
-import { Collapse } from "components/ui";
-import { useLocaleContext } from "app/contexts/locale/context";
+import { randomId } from "@/utils/randomId";
+import { Collapse } from "@/components/ui";
+import { useLocaleContext } from "@/app/contexts/locale/context";
 
 // ----------------------------------------------------------------------
 
-const tree = [
+// TypeScript Interfaces
+interface TreeItem {
+  id: string;
+  isRoot?: boolean;
+  title: string;
+  children?: TreeItem[];
+}
+
+interface TreeShowState {
+  [key: string]: boolean;
+}
+
+const tree: TreeItem[] = [
   {
     id: randomId(),
     isRoot: true,
@@ -55,11 +66,11 @@ const tree = [
   },
 ];
 
-function Tree({ tree }) {
-  const [show, setshow] = useState({});
+function Tree({ tree }: { tree: TreeItem[] }): React.ReactElement {
+  const [show, setshow] = useState<TreeShowState>({});
   const { isRtl } = useLocaleContext();
 
-  const toggle = (name) => {
+  const toggle = (name: string): void => {
     setshow({ ...show, [name]: !show[name] });
   };
 
@@ -75,7 +86,7 @@ function Tree({ tree }) {
           <button
             onClick={() => toggle(parent.id)}
             className={clsx(
-              "flex w-full cursor-pointer items-center space-x-1.5 rounded px-2 py-1 tracking-wide outline-none transition-all hover:bg-gray-100 hover:text-gray-800 focus:bg-gray-100 focus:text-gray-800  dark:hover:bg-dark-600 dark:hover:text-dark-100 dark:focus:bg-dark-600 dark:focus:text-dark-100",
+              "flex w-full cursor-pointer items-center space-x-1.5 rounded-sm px-2 py-1 tracking-wide outline-hidden transition-all hover:bg-gray-100 hover:text-gray-800 focus:bg-gray-100 focus:text-gray-800 dark:hover:bg-dark-600 dark:hover:text-dark-100 dark:focus:bg-dark-600 dark:focus:text-dark-100 rtl:space-x-reverse",
               show[parent.id] && "text-gray-800 dark:text-dark-100",
             )}
           >
@@ -108,7 +119,4 @@ export function Basic() {
   );
 }
 
-Tree.propTypes = {
-  tree: PropTypes.array,
-};
 ```

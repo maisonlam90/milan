@@ -1,29 +1,29 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useState } from "react";
 import { ArrowUpTrayIcon } from "@heroicons/react/24/outline";
 
 // Local Imports
-import { Button, Upload } from "components/ui";
-import { PreviewImg } from "components/shared/PreviewImg";
+import { Button, Upload } from "@/components/ui";
+import { PreviewImg } from "@/components/shared/PreviewImg";
 
 // ----------------------------------------------------------------------
 
-export function Basic() {
-  const [file, setFile] = useState(null);
+export const Basic = () => {
+  const [file, setFile] = useState<File | null>(null);
 
   return (
     <div>
       <PreviewImg
         className="size-16 rounded-lg"
-        src="/images/200x200.png"
+        src="/images/avatar/avatar-20.jpg"
         file={file}
       />
 
       <div className="mt-4">
-        <Upload onChange={setFile} accept="image/*">
+        <Upload onChange={(file) => setFile(file[0])} accept="image/*">
           {({ ...props }) => (
-            <Button {...props} className="space-x-2 ">
+            <Button {...props} className="space-x-2">
               <ArrowUpTrayIcon className="size-5" />
               <span>Choose File</span>
             </Button>
@@ -32,5 +32,6 @@ export function Basic() {
       </div>
     </div>
   );
-}
+};
+
 ```

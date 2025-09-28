@@ -1,5 +1,5 @@
-```jsx
-import { CollapsibleSearch } from "components/shared/CollapsibleSearch";
+﻿```tsx
+import { CollapsibleSearch } from "@/components/shared/CollapsibleSearch";
 
 export function CustomButton() {
   return (
@@ -15,4 +15,5 @@ export function CustomButton() {
     </div>
   );
 }
+
 ```

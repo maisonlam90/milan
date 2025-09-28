@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import {
   MoonIcon,
@@ -8,13 +8,13 @@ import {
 } from "@heroicons/react/20/solid";
 
 // Local Imports
-import { Swap, SwapOff, SwapOn } from "components/ui";
+import { Swap, SwapOff, SwapOn } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
 const Flip = () => {
   return (
-    <div className="flex space-x-2 ">
+    <div className="flex space-x-2 rtl:space-x-reverse">
       <Swap defaultValue="on" effect="flip">
         <SwapOn>
           <PencilIcon className="inline size-6" />
@@ -32,12 +32,13 @@ const Flip = () => {
         </SwapOff>
       </Swap>
       <Swap defaultValue="on" effect="flip">
-        <SwapOn className="text-2xl">😇</SwapOn>
-        <SwapOff className="text-2xl">🥵</SwapOff>
+        <SwapOn className="text-2xl">ðŸ˜‡</SwapOn>
+        <SwapOff className="text-2xl">ðŸ¥µ</SwapOff>
       </Swap>
     </div>
   );
 };
 
 export { Flip };
+
 ```

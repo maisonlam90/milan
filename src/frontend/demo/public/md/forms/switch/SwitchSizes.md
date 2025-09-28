@@ -1,5 +1,5 @@
-```jsx
-import { Switch } from "components/ui";
+﻿```tsx
+import { Switch } from "@/components/ui";
 
 const SwitchSizes = () => {
   return (
@@ -12,4 +12,5 @@ const SwitchSizes = () => {
 };
 
 export { SwitchSizes };
+
 ```

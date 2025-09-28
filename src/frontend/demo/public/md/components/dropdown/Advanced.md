@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import {
   Menu,
@@ -22,7 +22,7 @@ import clsx from "clsx";
 import { Fragment } from "react";
 
 // Local Imports
-import { Avatar, Button } from "components/ui";
+import { Avatar, Button } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -33,10 +33,10 @@ export function Advanced() {
         <MenuButton
           as={Button}
           variant="flat"
-          className="w-64 justify-between space-x-2 p-4 "
+          className="w-64 justify-between space-x-2 p-4 rtl:space-x-reverse"
         >
-          <div className="flex min-w-0 space-x-3 ">
-            <Avatar size={10} src="/images/200x200.png" />
+          <div className="flex min-w-0 space-x-3 rtl:space-x-reverse">
+            <Avatar size={10} src="/images/avatar/avatar-5.jpg" />
 
             <div className="min-w-0 text-start">
               <span className="block truncate text-xs-plus">Wade Cooper</span>
@@ -59,13 +59,13 @@ export function Advanced() {
         >
           <MenuItems
             anchor={{ to: "bottom start", gap: 8 }}
-            className="z-[100] w-48 rounded-lg border border-gray-300 bg-white py-1 shadow-lg shadow-gray-200/50 outline-none focus-visible:outline-none dark:border-dark-500 dark:bg-dark-700 dark:shadow-none"
+            className="z-100 w-48 rounded-lg border border-gray-300 bg-white py-1 shadow-lg shadow-gray-200/50 outline-hidden focus-visible:outline-hidden dark:border-dark-500 dark:bg-dark-700 dark:shadow-none"
           >
             <MenuItem>
               {({ focus }) => (
                 <button
                   className={clsx(
-                    "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-none transition-colors ",
+                    "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors rtl:space-x-reverse",
                     focus &&
                       "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
                   )}
@@ -79,7 +79,7 @@ export function Advanced() {
               {({ focus }) => (
                 <button
                   className={clsx(
-                    "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-none transition-colors ",
+                    "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors rtl:space-x-reverse",
                     focus &&
                       "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
                   )}
@@ -93,7 +93,7 @@ export function Advanced() {
               {({ focus }) => (
                 <button
                   className={clsx(
-                    "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-none transition-colors ",
+                    "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors rtl:space-x-reverse",
                     focus &&
                       "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
                   )}
@@ -107,7 +107,7 @@ export function Advanced() {
               {({ focus }) => (
                 <button
                   className={clsx(
-                    "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-none transition-colors ",
+                    "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors rtl:space-x-reverse",
                     focus &&
                       "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
                   )}
@@ -121,7 +121,7 @@ export function Advanced() {
               {({ focus }) => (
                 <button
                   className={clsx(
-                    "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-none transition-colors ",
+                    "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors rtl:space-x-reverse",
                     focus &&
                       "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
                   )}
@@ -136,7 +136,7 @@ export function Advanced() {
               {({ focus }) => (
                 <button
                   className={clsx(
-                    "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-none transition-colors ",
+                    "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors rtl:space-x-reverse",
                     focus &&
                       "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
                   )}
@@ -150,7 +150,7 @@ export function Advanced() {
               {({ focus }) => (
                 <button
                   className={clsx(
-                    "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-none transition-colors ",
+                    "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors rtl:space-x-reverse",
                     focus &&
                       "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
                   )}
@@ -164,7 +164,7 @@ export function Advanced() {
               {({ focus }) => (
                 <button
                   className={clsx(
-                    "this:error flex h-9 w-full items-center space-x-3 px-3 tracking-wide text-this outline-none transition-colors dark:text-this-light ",
+                    "this:error flex h-9 w-full items-center space-x-3 px-3 tracking-wide text-this outline-hidden transition-colors dark:text-this-light rtl:space-x-reverse",
                     focus && "bg-this/10 dark:bg-this-light/10",
                   )}
                 >
@@ -190,4 +190,5 @@ export function Advanced() {
     </div>
   );
 }
+
 ```

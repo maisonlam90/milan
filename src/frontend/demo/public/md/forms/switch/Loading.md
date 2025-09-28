@@ -1,9 +1,9 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useState } from "react";
 
 // Local Imports
-import { StyledSwitch } from "components/shared/form/StyledSwitch";
+import { StyledSwitch } from "@/components/shared/form/StyledSwitch";
 
 // ----------------------------------------------------------------------
 
@@ -11,7 +11,7 @@ const Loading = () => {
   const [checked, setChecked] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const LoadingChange = (value) => {
+  const LoadingChange = (value: boolean) => {
     setLoading(true);
     setTimeout(() => {
       setChecked(value);
@@ -30,4 +30,5 @@ const Loading = () => {
 };
 
 export { Loading };
+
 ```

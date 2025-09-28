@@ -1,11 +1,12 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import Chart from "react-apexcharts";
 import dayjs from "dayjs";
+import { ApexOptions } from "apexcharts";
 
 // ----------------------------------------------------------------------
 
-const options = {
+const options: ApexOptions = {
   chart: {
     toolbar: {
       show: false,
@@ -165,4 +166,5 @@ export function Candlestick() {
     </div>
   );
 }
+
 ```

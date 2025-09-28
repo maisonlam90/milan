@@ -1,10 +1,11 @@
-```jsx
+﻿```tsx
 // Import Dependencies
+import { ApexOptions } from "apexcharts";
 import Chart from "react-apexcharts";
 
 // ----------------------------------------------------------------------
 
-const options = {
+const options: ApexOptions = {
   fill: {
     opacity: 1,
   },
@@ -58,4 +59,5 @@ export function PolarArea() {
     </div>
   );
 }
+
 ```

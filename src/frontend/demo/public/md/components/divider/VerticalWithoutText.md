@@ -1,5 +1,5 @@
-```jsx
-import { Box } from "components/ui";
+﻿```tsx
+import { Box } from "@/components/ui";
 
 const VerticalWithoutText = () => {
   return (
@@ -18,4 +18,5 @@ const VerticalWithoutText = () => {
 };
 
 export { VerticalWithoutText };
+
 ```

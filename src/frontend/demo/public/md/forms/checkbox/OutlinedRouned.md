@@ -1,5 +1,5 @@
-```jsx
-import { Checkbox } from "components/ui";
+﻿```tsx
+import { Checkbox } from "@/components/ui";
 
 const OutlinedRouned = () => {
   return (
@@ -52,4 +52,5 @@ const OutlinedRouned = () => {
 };
 
 export { OutlinedRouned };
+
 ```

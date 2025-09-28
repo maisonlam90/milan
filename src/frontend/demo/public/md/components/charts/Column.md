@@ -1,10 +1,11 @@
-```jsx
+﻿```tsx
 // Import Dependencies
+import { ApexOptions } from "apexcharts";
 import Chart from "react-apexcharts";
 
 // ----------------------------------------------------------------------
 
-const options = {
+const options: ApexOptions = {
   chart: {
     stacked: true,
     stackType: "100%",
@@ -36,9 +37,6 @@ const options = {
     position: "top",
     horizontalAlign: "left",
     fontSize: "14px",
-    markers: {
-      radius: 12,
-    },
   },
 };
 
@@ -64,4 +62,5 @@ export function Column() {
     </div>
   );
 }
+
 ```

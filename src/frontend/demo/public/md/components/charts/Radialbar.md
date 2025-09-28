@@ -1,10 +1,11 @@
-```jsx
+﻿```tsx
 // Import Dependencies
+import { ApexOptions } from "apexcharts";
 import Chart from "react-apexcharts";
 
 // ----------------------------------------------------------------------
 
-const options = {
+const options: ApexOptions = {
   colors: ["#4ade80", "#f43f5e", "#a855f7"],
   plotOptions: {
     radialBar: {
@@ -26,7 +27,7 @@ const options = {
           show: true,
           label: "Total",
           formatter: function (w) {
-            return w.config.series.reduce((s, v) => s + v);
+            return w.config.series.reduce((s: number, v: number) => s + v);
           },
         },
       },
@@ -58,4 +59,5 @@ export function Radialbar() {
     </div>
   );
 }
+
 ```

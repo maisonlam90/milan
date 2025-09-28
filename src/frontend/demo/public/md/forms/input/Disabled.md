@@ -1,5 +1,5 @@
-```jsx
-import { Input } from "components/ui";
+﻿```tsx
+import { Input } from "@/components/ui";
 
 const Disabled = () => {
   return (
@@ -10,4 +10,5 @@ const Disabled = () => {
 };
 
 export { Disabled };
+
 ```

@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import {
   ArrowUpTrayIcon,
@@ -7,7 +7,7 @@ import {
 import { CloudArrowUpIcon } from "@heroicons/react/24/solid";
 
 // Local Imports
-import { Upload, Button } from "components/ui";
+import { Upload, Button } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -17,7 +17,7 @@ const Basic = () => {
       <div className="inline-space flex flex-wrap">
         <Upload>
           {({ ...props }) => (
-            <Button {...props} className="space-x-2 ">
+            <Button {...props} className="gap-2">
               <ArrowUpTrayIcon className="size-5" />
               <span>Choose File</span>
             </Button>
@@ -25,11 +25,7 @@ const Basic = () => {
         </Upload>
         <Upload>
           {({ ...props }) => (
-            <Button
-              color="primary"
-              {...props}
-              className="space-x-2 "
-            >
+            <Button color="primary" {...props} className="gap-2">
               <CloudArrowUpIcon className="size-5" />
               <span>Choose File</span>
             </Button>
@@ -59,4 +55,5 @@ const Basic = () => {
 };
 
 export { Basic };
+
 ```

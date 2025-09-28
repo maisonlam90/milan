@@ -1,11 +1,11 @@
-```jsx
+﻿```tsx
 // Local Imports
 import {
   Pagination,
   PaginationItems,
   PaginationNext,
   PaginationPrevious,
-} from "components/ui";
+} from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -27,4 +27,5 @@ export function Rounded() {
     </div>
   );
 }
+
 ```

@@ -1,10 +1,10 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useState } from "react";
 
 // Local Imports
-import { Button } from "components/ui";
-import { Tooltip } from "components/shared/Tooltip";
+import { Button } from "@/components/ui";
+import { Tooltip } from "@/components/shared/Tooltip";
 
 // ----------------------------------------------------------------------
 
@@ -25,4 +25,5 @@ const Controlled = () => {
 };
 
 export { Controlled };
+
 ```

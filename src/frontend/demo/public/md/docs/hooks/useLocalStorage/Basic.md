@@ -1,6 +1,6 @@
-```jsx
-import { Button, Input } from "components/ui";
-import { useLocalStorage } from "hooks";
+﻿```tsx
+import { Button, Input } from "@/components/ui";
+import { useLocalStorage } from "@/hooks";
 
 export function Basic() {
   const [state, setState, removeState] = useLocalStorage(
@@ -29,4 +29,5 @@ export function Basic() {
     </div>
   );
 }
+
 ```

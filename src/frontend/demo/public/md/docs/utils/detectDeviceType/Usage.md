@@ -1,5 +1,5 @@
-```jsx
-import { detectDeviceType } from "utils/dom/detectDeviceType";
+﻿```tsx
+import { detectDeviceType } from "@/utils/dom/detectDeviceType";
 
 const device = detectDeviceType();
 
@@ -10,4 +10,5 @@ export function Usage() {
     </div>
   );
 }
+
 ```

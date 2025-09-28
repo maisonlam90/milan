@@ -1,10 +1,11 @@
-```jsx
+﻿```tsx
 // Import Dependencies
+import { ApexOptions } from "apexcharts";
 import Chart from "react-apexcharts";
 
 // ----------------------------------------------------------------------
 
-const options = {
+const options: ApexOptions = {
   chart: {
     dropShadow: {
       enabled: true,
@@ -65,4 +66,5 @@ export function Radar() {
     </div>
   );
 }
+
 ```

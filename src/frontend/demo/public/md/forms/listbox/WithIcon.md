@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import {
   Label,
@@ -14,29 +14,35 @@ import { Fragment } from "react";
 
 // ----------------------------------------------------------------------
 
-const languages = [
+type Language = {
+  id: string;
+  name: string;
+  flagUrl: string;
+};
+
+const languages: Language[] = [
   {
-    id: 1,
+    id: "1",
     name: "English",
     flagUrl: "/images/flags/svg/rounded/united-kingdom.svg",
   },
   {
-    id: 2,
+    id: "2",
     name: "Spanish",
     flagUrl: "/images/flags/svg/rounded/spain.svg",
   },
   {
-    id: 3,
+    id: "3",
     name: "Russian",
     flagUrl: "/images/flags/svg/rounded/russia.svg",
   },
   {
-    id: 4,
+    id: "4",
     name: "Japanese",
     flagUrl: "/images/flags/svg/rounded/japan.svg",
   },
   {
-    id: 5,
+    id: "5",
     name: "Chinese",
     flagUrl: "/images/flags/svg/rounded/china.svg",
   },
@@ -52,7 +58,7 @@ const WithIcon = () => {
             <div className="relative mt-1.5">
               <ListboxButton
                 className={clsx(
-                  "relative w-full cursor-pointer rounded-lg border py-2 pl-3 pr-9 text-start outline-none transition-colors focus:outline-none focus-visible:border-primary-600  dark:focus-visible:border-primary-500 rtl:pl-9 rtl:pr-3",
+                  "outline-hidden focus:outline-hidden relative w-full cursor-pointer rounded-lg border py-2 pl-3 pr-9 text-start transition-colors focus-visible:border-primary-600 dark:focus-visible:border-primary-500 rtl:pl-9 rtl:pr-3",
                   open
                     ? "border-primary-600 dark:border-primary-500"
                     : "border-gray-300 hover:border-gray-400 dark:border-dark-450 dark:hover:border-dark-400",
@@ -60,7 +66,7 @@ const WithIcon = () => {
               >
                 {({ value }) => (
                   <>
-                    <div className="flex items-center space-x-2 ">
+                    <div className="flex items-center space-x-2">
                       <img
                         className="size-5"
                         src={value.flagUrl}
@@ -89,14 +95,14 @@ const WithIcon = () => {
               >
                 <ListboxOptions
                   anchor={{ to: "bottom end", gap: 8 }}
-                  className="absolute z-10 w-[--button-width] max-h-60 overflow-auto rounded-lg border border-gray-300 bg-white py-1 shadow-lg shadow-gray-200/50 outline-none focus-visible:outline-none dark:border-dark-500 dark:bg-dark-750 dark:shadow-none"
+                  className="w-(--button-width) outline-hidden focus-visible:outline-hidden absolute z-10 max-h-60 overflow-auto rounded-lg border border-gray-300 bg-white py-1 shadow-lg shadow-gray-200/50 dark:border-dark-500 dark:bg-dark-750 dark:shadow-none"
                 >
                   {languages.map((language) => (
                     <ListboxOption
                       key={language.id}
                       className={({ selected, active }) =>
                         clsx(
-                          "relative cursor-pointer select-none px-4 py-2 outline-none transition-colors",
+                          "outline-hidden relative cursor-pointer select-none px-4 py-2 transition-colors",
                           active && !selected && "bg-gray-100 dark:bg-dark-600",
                           selected
                             ? "bg-primary-600 text-white dark:bg-primary-500"
@@ -105,7 +111,7 @@ const WithIcon = () => {
                       }
                       value={language}
                     >
-                      <div className="flex items-center space-x-2 ">
+                      <div className="flex items-center space-x-2">
                         <img
                           className="size-5"
                           src={language.flagUrl}
@@ -126,4 +132,5 @@ const WithIcon = () => {
 };
 
 export { WithIcon };
+
 ```

@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 const Extended = () => {
   return (
     <div className="max-w-2xl space-y-4">
@@ -47,4 +47,5 @@ const Extended = () => {
 };
 
 export { Extended };
+
 ```

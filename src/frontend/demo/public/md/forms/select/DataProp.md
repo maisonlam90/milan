@@ -1,8 +1,8 @@
-```jsx
-import { Select } from "components/ui";
-import { randomId } from "utils/randomId";
+﻿```tsx
+import { Select, SelectOption } from "@/components/ui";
+import { randomId } from "@/utils/randomId";
 
-const items = [
+const items: (SelectOption & { key: string })[] = [
   {
     key: randomId(),
     value: "1",
@@ -42,4 +42,5 @@ const DataProp = () => {
 };
 
 export { DataProp };
+
 ```

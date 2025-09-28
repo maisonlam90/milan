@@ -1,33 +1,32 @@
-```jsx
+﻿```tsx
 // Import Dependencies
+import { useRef, useLayoutEffect } from "react";
 import { register } from "swiper/element/bundle";
+import type { SwiperContainer } from "swiper/element";
 import invariant from "tiny-invariant";
-import { useRef } from "react";
 
 // Local Imports
-import { randomId } from "utils/randomId";
-import { useThemeContext } from "app/contexts/theme/context";
-import { useLocaleContext } from "app/contexts/locale/context";
-import { useIsomorphicEffect } from "hooks";
+import { randomId } from "@/utils/randomId";
+import { useThemeContext } from "@/app/contexts/theme/context";
+import { useLocaleContext } from "@/app/contexts/locale/context";
 
 // ----------------------------------------------------------------------
 
 register();
 
 const images = [
-  { id: randomId(), img: "/images/800x600.png" },
-  { id: randomId(), img: "/images/800x600.png" },
-  { id: randomId(), img: "/images/800x600.png" },
-  { id: randomId(), img: "/images/800x600.png" },
+  { id: randomId(), img: "/images/objects/object-10.jpg" },
+  { id: randomId(), img: "/images/objects/object-3.jpg" },
+  { id: randomId(), img: "/images/objects/object-2.jpg" },
+  { id: randomId(), img: "/images/objects/object-9.jpg" },
 ];
 
 export function Vertical() {
   const { primaryColorScheme: primary } = useThemeContext();
   const { direction } = useLocaleContext();
+  const carouselRef = useRef<SwiperContainer | null>(null);
 
-  const carouselRef = useRef(null);
-
-  useIsomorphicEffect(() => {
+  useLayoutEffect(() => {
     invariant(carouselRef.current, "carouselRef is null");
     const params = {
       pagination: {
@@ -38,26 +37,30 @@ export function Vertical() {
     Object.assign(carouselRef.current, params);
 
     setTimeout(() => {
-      carouselRef.current.initialize();
+      carouselRef.current?.initialize();
     });
   }, []);
 
   return (
     <div className="max-w-md">
+      {/* @ts-expect-error - Swiper web components */}
       <swiper-container
         ref={carouselRef}
-        init="false" 
+        init="false"
         direction="vertical"
         class="h-72"
         slides-per-view="1"
         dir={direction}
         space-between="16"
-        style={{
-          "--swiper-theme-color": primary[400],
-          "--swiper-pagination-color": primary[600],
-        }}
+        style={
+          {
+            "--swiper-theme-color": primary[400],
+            "--swiper-pagination-color": primary[600],
+          } as React.CSSProperties
+        }
       >
         {images.map(({ img, id }) => (
+          // @ts-expect-error - Swiper web components
           <swiper-slide key={id}>
             <img
               className="h-full w-full rounded-lg object-cover"
@@ -65,10 +68,13 @@ export function Vertical() {
               alt="object"
               loading="lazy"
             />
+            {/* @ts-expect-error - Swiper web components */}
           </swiper-slide>
         ))}
+        {/* @ts-expect-error - Swiper web components */}
       </swiper-container>
     </div>
   );
 }
+
 ```

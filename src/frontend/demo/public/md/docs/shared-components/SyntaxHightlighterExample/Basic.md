@@ -1,11 +1,12 @@
-```jsx
-import { SyntaxHighlighter } from "components/shared/SyntaxHighlighter";
+﻿```tsx
+// Local Imports
+import { SyntaxHighlighter } from "@/components/shared/SyntaxHighlighter";
 
-export function Basic() {
+export const Basic = () => {
   return (
     <div>
       <SyntaxHighlighter language="jsx">
-        {`import { Button } from "components/ui";
+        {`import { Button } from "@/components/ui";
 
 const Default = () => {
   return <Button>Default</Button>;
@@ -16,5 +17,6 @@ export { Default };
       </SyntaxHighlighter>
     </div>
   );
-}
+};
+
 ```

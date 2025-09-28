@@ -1,5 +1,5 @@
-```jsx
-import { Avatar } from "components/ui";
+﻿```tsx
+import { Avatar } from "@/components/ui";
 
 const InitialSoft = () => {
   return (
@@ -15,4 +15,5 @@ const InitialSoft = () => {
 };
 
 export { InitialSoft };
+
 ```

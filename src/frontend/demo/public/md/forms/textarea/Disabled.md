@@ -1,5 +1,5 @@
-```jsx
-import { Textarea } from "components/ui";
+﻿```tsx
+import { Textarea } from "@/components/ui";
 
 const Disabled = () => {
   return (
@@ -7,7 +7,7 @@ const Disabled = () => {
       <Textarea
         placeholder="Enter text"
         label="Disabled Textarea"
-        rows="5"
+        rows={5}
         disabled
       />
     </div>
@@ -15,4 +15,5 @@ const Disabled = () => {
 };
 
 export { Disabled };
+
 ```

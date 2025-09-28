@@ -1,14 +1,14 @@
-@layer base, vendor, components, utilities;
+@layer theme, base, vendor, components, utilities;
+
+@import "./colors.css" layer(base);
 
 @import "./variants.css" layer(base);
-@import "./base.css" layer(base);
 @import "./layouts.css" layer(base);
+@import "./base.css" layer(base);
 
 @import "./app/index.css" layer(components);
 
 @import "tailwindcss";
-
-@import "./colors.css" layer(theme);
 
 @custom-variant dark (&:is(.dark *));
 

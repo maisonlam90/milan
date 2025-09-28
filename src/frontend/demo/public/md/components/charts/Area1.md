@@ -1,10 +1,11 @@
-```jsx
+﻿```tsx
 // Import Dependencies
+import { ApexOptions } from "apexcharts";
 import Chart from "react-apexcharts";
 
 // ----------------------------------------------------------------------
 
-const options = {
+const options: ApexOptions = {
   chart: {
     toolbar: {
       show: false,
@@ -50,7 +51,7 @@ export function Area1() {
     "2018-09-19T06:30:00.000Z",
   ];
 
-  const chartOptions = {
+  const chartOptions: ApexOptions = {
     ...options,
     colors: ["#34d399", "#ffba1a"],
     xaxis: {
@@ -65,4 +66,5 @@ export function Area1() {
     </div>
   );
 }
+
 ```

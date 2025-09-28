@@ -1,5 +1,5 @@
-```jsx
-import { Select } from "components/ui";
+﻿```tsx
+import { Select } from "@/components/ui";
 
 const Multiple = () => {
   return (
@@ -15,4 +15,5 @@ const Multiple = () => {
 };
 
 export { Multiple };
+
 ```

@@ -1,10 +1,10 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { toast } from "sonner";
 
 // Local Imports
-import { Button } from "components/ui";
-import { useThemeContext } from "app/contexts/theme/context";
+import { Button } from "@/components/ui";
+import { useThemeContext } from "@/app/contexts/theme/context";
 
 // ----------------------------------------------------------------------
 
@@ -32,4 +32,5 @@ export function Expand() {
     </div>
   );
 }
+
 ```

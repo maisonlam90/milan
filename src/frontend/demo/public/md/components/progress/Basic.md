@@ -1,5 +1,5 @@
-```jsx
-import { Progress } from "components/ui";
+﻿```tsx
+import { Progress } from "@/components/ui";
 
 const Basic = () => {
   return (
@@ -16,4 +16,5 @@ const Basic = () => {
 };
 
 export { Basic };
+
 ```

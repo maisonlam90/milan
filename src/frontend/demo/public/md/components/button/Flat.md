@@ -1,5 +1,5 @@
-```jsx
-import { Button } from "components/ui";
+﻿```tsx
+import { Button } from "@/components/ui";
 
 const Flat = () => {
   return (
@@ -28,4 +28,5 @@ const Flat = () => {
 };
 
 export { Flat };
+
 ```

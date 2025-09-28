@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 import { ArrowRightIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
 
 // Local Imports
@@ -7,7 +7,7 @@ import {
   PaginationItems,
   PaginationNext,
   PaginationPrevious,
-} from "components/ui";
+} from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -45,4 +45,5 @@ export function Custom() {
     </div>
   );
 }
+
 ```

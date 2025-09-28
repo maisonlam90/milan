@@ -1,5 +1,5 @@
-```jsx
-import { Checkbox } from "components/ui";
+﻿```tsx
+import { Checkbox } from "@/components/ui";
 
 const CheckboxSizes = () => {
   return (
@@ -16,4 +16,5 @@ const CheckboxSizes = () => {
 };
 
 export { CheckboxSizes };
+
 ```

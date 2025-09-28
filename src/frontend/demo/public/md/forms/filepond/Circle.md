@@ -1,5 +1,5 @@
-```jsx
-import { FilePond } from "components/shared/form/Filepond";
+﻿```tsx
+import { FilePond } from "@/components/shared/form/Filepond";
 
 const Circle = () => {
   return (
@@ -35,4 +35,5 @@ const Circle = () => {
 };
 
 export { Circle };
+
 ```

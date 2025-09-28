@@ -1,5 +1,5 @@
-```jsx
-import { Progress } from "components/ui";
+﻿```tsx
+import { Progress } from "@/components/ui";
 
 const Custom = () => {
   return (
@@ -10,7 +10,7 @@ const Custom = () => {
         isActive
         classNames={{
           root: "h-4 bg-gray-150 dark:bg-dark-500",
-          bar: "bg-gradient-to-r from-secondary-light to-info",
+          bar: "bg-linear-to-r from-secondary-light to-info",
         }}
       >
         <span className="px-3 text-xs text-white">75%</span>
@@ -32,4 +32,5 @@ const Custom = () => {
 };
 
 export { Custom };
+
 ```

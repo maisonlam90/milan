@@ -1,9 +1,10 @@
-```jsx
-import { Avatar } from "components/ui";
+﻿```tsx
+import { Avatar } from "@/components/ui";
 
 const Default = () => {
-  return <Avatar src="/images/200x200.png" />;
+  return <Avatar src="/images/avatar/avatar-20.jpg" />;
 };
 
 export { Default };
+
 ```

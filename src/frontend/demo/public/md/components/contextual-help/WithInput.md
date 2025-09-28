@@ -1,6 +1,6 @@
-```jsx
-import { ContextualHelp } from "components/shared/ContextualHelp";
-import { Input } from "components/ui";
+﻿```tsx
+import { ContextualHelp } from "@/components/shared/ContextualHelp";
+import { Input } from "@/components/ui";
 
 export function WithInput() {
   return (
@@ -24,4 +24,5 @@ export function WithInput() {
     </div>
   );
 }
+
 ```

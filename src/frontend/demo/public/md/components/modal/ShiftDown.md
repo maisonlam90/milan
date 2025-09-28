@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import {
   Dialog,
@@ -11,8 +11,8 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { Fragment, useRef } from "react";
 
 // Local Imports
-import { useDisclosure } from "hooks";
-import { Switch, Button, Checkbox } from "components/ui";
+import { useDisclosure } from "@/hooks";
+import { Switch, Button, Checkbox } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -28,7 +28,7 @@ export function ShiftDown() {
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog
           as="div"
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden px-4 py-6 sm:px-5"
+          className="fixed inset-0 z-100 flex flex-col items-center justify-center overflow-hidden px-4 py-6 sm:px-5"
           onClose={close}
           initialFocus={saveRef}
         >
@@ -41,7 +41,7 @@ export function ShiftDown() {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="absolute inset-0 bg-gray-900/50 backdrop-blur transition-opacity dark:bg-black/30" />
+            <div className="absolute inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity dark:bg-black/30" />
           </TransitionChild>
 
           <TransitionChild
@@ -81,7 +81,7 @@ export function ShiftDown() {
                 <Checkbox label="Address" />
                 <Checkbox label="Created At" />
                 <Checkbox label="Updated At" defaultChecked />
-                <label className="col-span-2 inline-flex items-center space-x-2 ">
+                <label className="col-span-2 inline-flex items-center space-x-2 rtl:space-x-reverse">
                   <Switch variant="outlined" />
                   <span>Show Avatar</span>
                 </label>
@@ -110,4 +110,5 @@ export function ShiftDown() {
     </>
   );
 }
+
 ```

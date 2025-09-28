@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import clsx from "clsx";
 import { PlusIcon } from "@heroicons/react/20/solid";
@@ -10,7 +10,7 @@ import {
   AccordionItem,
   AccordionPanel,
   Tag,
-} from "components/ui";
+} from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -24,7 +24,7 @@ const Custom = () => {
             clsx(
               "rounded-lg transition-transform duration-300",
               open
-                ? "z-1 scale-[1.03] border bg-white shadow dark:border-dark-500 dark:bg-dark-700"
+                ? "z-1 scale-[1.03] border bg-white shadow-sm dark:border-dark-500 dark:bg-dark-700"
                 : "z-0",
             )
           }
@@ -33,7 +33,7 @@ const Custom = () => {
             <>
               <AccordionButton
                 className={clsx(
-                  "flex w-full cursor-pointer items-center justify-between rounded-t-lg p-4 text-base font-medium text-gray-700 outline-none ring-primary-500/50 transition-colors duration-300 focus-visible:ring dark:text-dark-100",
+                  "flex w-full cursor-pointer items-center justify-between rounded-t-lg p-4 text-base font-medium text-gray-700 outline-hidden ring-primary-500/50 transition-colors duration-300 focus-visible:ring-3 dark:text-dark-100",
                   !open && "bg-gray-150 dark:bg-dark-500",
                 )}
               >
@@ -53,7 +53,7 @@ const Custom = () => {
                   Commodi earum magni officiis possimus repellendus. Accusantium
                   adipisci aliquid praesentium quaerat voluptate.
                 </p>
-                <div className="mt-3 space-x-2 ">
+                <div className="mt-3 space-x-2 rtl:space-x-reverse">
                   <Tag href="#">Tag 1</Tag>
                   <Tag href="#">Tag 2</Tag>
                 </div>
@@ -67,7 +67,7 @@ const Custom = () => {
             clsx(
               "rounded-lg transition-transform duration-300",
               open
-                ? "z-1 scale-[1.03] border bg-white shadow dark:border-dark-500 dark:bg-dark-700"
+                ? "z-1 scale-[1.03] border bg-white shadow-sm dark:border-dark-500 dark:bg-dark-700"
                 : "z-0",
             )
           }
@@ -76,7 +76,7 @@ const Custom = () => {
             <>
               <AccordionButton
                 className={clsx(
-                  "flex w-full cursor-pointer items-center justify-between p-4 text-base font-medium text-gray-700 outline-none ring-primary-500/50 transition-colors duration-300 focus-visible:ring dark:text-dark-100",
+                  "flex w-full cursor-pointer items-center justify-between p-4 text-base font-medium text-gray-700 outline-hidden ring-primary-500/50 transition-colors duration-300 focus-visible:ring-3 dark:text-dark-100",
                   !open && "bg-gray-150 dark:bg-dark-500",
                 )}
               >
@@ -96,7 +96,7 @@ const Custom = () => {
                   Commodi earum magni officiis possimus repellendus. Accusantium
                   adipisci aliquid praesentium quaerat voluptate.
                 </p>
-                <div className="mt-3 space-x-2 ">
+                <div className="mt-3 space-x-2 rtl:space-x-reverse">
                   <Tag href="#">Tag 1</Tag>
                   <Tag href="#">Tag 2</Tag>
                 </div>
@@ -110,7 +110,7 @@ const Custom = () => {
             clsx(
               "rounded-lg transition-transform duration-300",
               open
-                ? "z-1 scale-[1.03] border bg-white shadow dark:border-dark-500 dark:bg-dark-700"
+                ? "z-1 scale-[1.03] border bg-white shadow-sm dark:border-dark-500 dark:bg-dark-700"
                 : "z-0",
             )
           }
@@ -119,7 +119,7 @@ const Custom = () => {
             <>
               <AccordionButton
                 className={clsx(
-                  "flex w-full cursor-pointer items-center justify-between rounded-b-lg p-4 text-base font-medium text-gray-700 outline-none ring-primary-500/50 transition-colors duration-300 focus-visible:ring dark:text-dark-100",
+                  "flex w-full cursor-pointer items-center justify-between rounded-b-lg p-4 text-base font-medium text-gray-700 outline-hidden ring-primary-500/50 transition-colors duration-300 focus-visible:ring-3 dark:text-dark-100",
                   !open && "bg-gray-150 dark:bg-dark-500",
                 )}
               >
@@ -139,7 +139,7 @@ const Custom = () => {
                   Commodi earum magni officiis possimus repellendus. Accusantium
                   adipisci aliquid praesentium quaerat voluptate.
                 </p>
-                <div className="mt-3 space-x-2 ">
+                <div className="mt-3 space-x-2 rtl:space-x-reverse">
                   <Tag href="#">Tag 1</Tag>
                   <Tag href="#">Tag 2</Tag>
                 </div>

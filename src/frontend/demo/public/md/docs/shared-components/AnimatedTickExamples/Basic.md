@@ -1,10 +1,10 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useState } from "react";
 
 // Local Imports
-import { AnimatedTick } from "components/shared/AnimatedTick";
-import { Button } from "components/ui";
+import { AnimatedTick } from "@/components/shared/AnimatedTick";
+import { Button } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -16,9 +16,10 @@ export function Basic() {
       <Button onClick={() => setState((val) => !val)}>Toggle Tick</Button>
 
       {state && (
-        <AnimatedTick className="size-9 text-primary-600 dark:text-primary-400" />
+        <AnimatedTick className="text-primary-600 dark:text-primary-400 size-9" />
       )}
     </div>
   );
 }
+
 ```

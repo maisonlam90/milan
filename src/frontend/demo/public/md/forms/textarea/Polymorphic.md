@@ -1,9 +1,9 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import TextareaAutosize from "react-textarea-autosize";
 
 // Local Imports
-import { Textarea } from "components/ui";
+import { Textarea } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -23,7 +23,7 @@ const Polymorphic = () => {
         placeholder="Enter text"
         label="Autosize textarea with max rows"
         unstyled
-        className="rounded-lg bg-gray-150 px-3 py-2 placeholder:font-light placeholder:text-gray-600 dark:placeholder:text-dark-200 focus:ring focus:ring-primary-500/50 dark:bg-dark-900"
+        className="rounded-lg bg-gray-150 px-3 py-2 placeholder:font-light placeholder:text-gray-600 dark:placeholder:text-dark-200 focus:ring-3 focus:ring-primary-500/50 dark:bg-dark-900"
         component={TextareaAutosize}
         minRows={4}
         maxRows={12}
@@ -33,4 +33,5 @@ const Polymorphic = () => {
 };
 
 export { Polymorphic };
+
 ```

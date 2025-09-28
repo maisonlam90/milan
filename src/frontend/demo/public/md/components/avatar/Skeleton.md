@@ -1,23 +1,23 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { FaUser } from "react-icons/fa";
 
 // Local Imports
-import { Avatar } from "components/ui";
+import { Avatar } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
 const Skeleton = () => {
   return (
     <div className="inline-space">
-      <div className="flex animate-pulse flex-wrap -space-x-2 ">
+      <div className="flex animate-pulse flex-wrap -space-x-2 rtl:space-x-reverse">
         {Array(6)
           .fill(null)
           .map((_, i) => (
             <Avatar
               key={i}
               size={8}
-              classNames={{ initial: "ring ring-white dark:ring-dark-700" }}
+              classNames={{ initial: "ring-3 ring-white dark:ring-dark-700" }}
             >
               <FaUser className="size-3" />
             </Avatar>

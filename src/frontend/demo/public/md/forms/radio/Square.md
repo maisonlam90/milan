@@ -1,5 +1,5 @@
-```jsx
-import { Radio } from "components/ui";
+﻿```tsx
+import { Radio } from "@/components/ui";
 
 const Square = () => {
   return (
@@ -47,4 +47,5 @@ const Square = () => {
 };
 
 export { Square };
+
 ```

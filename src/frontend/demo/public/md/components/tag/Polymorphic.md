@@ -1,5 +1,5 @@
-```jsx
-import { Tag } from "components/ui";
+﻿```tsx
+import { Tag } from "@/components/ui";
 
 const Polymorphic = () => {
   return (

@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useState } from "react";
 
@@ -9,7 +9,7 @@ import {
   PaginationPrevious,
   PaginationItems,
   PaginationNext,
-} from "components/ui";
+} from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -17,7 +17,7 @@ export function Controlled() {
   const [page, setPage] = useState(2);
   const total = 99;
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = +e.target.value;
     if (val <= total && val >= 0) {
       setPage(val);
@@ -42,4 +42,5 @@ export function Controlled() {
     </div>
   );
 }
+
 ```

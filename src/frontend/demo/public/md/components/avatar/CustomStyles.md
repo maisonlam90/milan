@@ -1,9 +1,9 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { FaEthereum, FaTwitter, FaUser } from "react-icons/fa";
 
 // Local Imports
-import { Avatar } from "components/ui";
+import { Avatar } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -12,7 +12,7 @@ const CustomStyles = () => {
     <div className="flex flex-wrap gap-3">
       {/* Custom Brand Color */}
       <Avatar
-        classNames={{ display: "!bg-[#1C96E8] text-white dark:text-white" }}
+        classNames={{ display: "bg-[#1C96E8]! text-white dark:text-white" }}
       >
         <FaTwitter className="size-5" />
       </Avatar>
@@ -30,7 +30,7 @@ const CustomStyles = () => {
       <Avatar
         classNames={{
           display:
-            "rounded-xl bg-gradient-to-br from-green-400 to-blue-600 text-white dark:text-white",
+            "rounded-xl bg-linear-to-br from-green-400 to-blue-600 text-white dark:text-white",
         }}
       >
         <FaUser />
@@ -40,7 +40,7 @@ const CustomStyles = () => {
       <Avatar
         classNames={{
           display:
-            "bg-gradient-to-br from-amber-400 to-orange-600 text-white dark:text-white",
+            "bg-linear-to-br from-amber-400 to-orange-600 text-white dark:text-white",
         }}
       >
         <FaUser />

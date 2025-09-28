@@ -1,5 +1,5 @@
-```jsx
-import { Badge } from "components/ui";
+﻿```tsx
+import { Badge } from "@/components/ui";
 
 const SoftColor = () => {
   return (
@@ -7,7 +7,7 @@ const SoftColor = () => {
       <Badge
         color="primary"
         variant="soft"
-        className="space-x-2 rounded-full "
+        className="space-x-2 rounded-full rtl:space-x-reverse"
       >
         <span className="size-2 rounded-full bg-current" />
         <span>Primary</span>
@@ -15,7 +15,7 @@ const SoftColor = () => {
       <Badge
         color="secondary"
         variant="soft"
-        className="space-x-2 rounded-full "
+        className="space-x-2 rounded-full rtl:space-x-reverse"
       >
         <span className="size-2 rounded-full bg-current" />
         <span>Secondary</span>
@@ -23,7 +23,7 @@ const SoftColor = () => {
       <Badge
         color="info"
         variant="soft"
-        className="space-x-2 rounded-full "
+        className="space-x-2 rounded-full rtl:space-x-reverse"
       >
         <span className="size-2 rounded-full bg-current" />
         <span>Info</span>
@@ -31,7 +31,7 @@ const SoftColor = () => {
       <Badge
         color="success"
         variant="soft"
-        className="space-x-2 rounded-full "
+        className="space-x-2 rounded-full rtl:space-x-reverse"
       >
         <span className="size-2 rounded-full bg-current" />
         <span>Success</span>
@@ -39,7 +39,7 @@ const SoftColor = () => {
       <Badge
         color="warning"
         variant="soft"
-        className="space-x-2 rounded-full "
+        className="space-x-2 rounded-full rtl:space-x-reverse"
       >
         <span className="size-2 rounded-full bg-current" />
         <span>Warning</span>
@@ -47,7 +47,7 @@ const SoftColor = () => {
       <Badge
         color="error"
         variant="soft"
-        className="space-x-2 rounded-full "
+        className="space-x-2 rounded-full rtl:space-x-reverse"
       >
         <span className="size-2 rounded-full bg-current" />
         <span>Error</span>

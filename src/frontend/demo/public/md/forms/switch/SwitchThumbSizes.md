@@ -1,5 +1,5 @@
-```jsx
-import { Switch } from "components/ui";
+﻿```tsx
+import { Switch } from "@/components/ui";
 
 const SwitchThumbSizes = () => {
   return (
@@ -7,22 +7,22 @@ const SwitchThumbSizes = () => {
       <Switch
         defaultChecked
         label="Default"
-        style={{ "--thumb-border": "6px" }}
+        style={{ "--thumb-border": "6px" } as React.CSSProperties}
       />
       <Switch
         defaultChecked
         label="Default"
-        style={{ "--thumb-border": "5px" }}
+        style={{ "--thumb-border": "5px" } as React.CSSProperties}
       />
       <Switch
         defaultChecked
         label="Default"
-        style={{ "--thumb-border": "4px" }}
+        style={{ "--thumb-border": "4px" } as React.CSSProperties}
       />
       <Switch
         defaultChecked
         label="Default"
-        style={{ "--thumb-border": "3px" }}
+        style={{ "--thumb-border": "3px" } as React.CSSProperties}
       />
       <Switch defaultChecked label="Default" />
     </div>
@@ -30,4 +30,5 @@ const SwitchThumbSizes = () => {
 };
 
 export { SwitchThumbSizes };
+
 ```

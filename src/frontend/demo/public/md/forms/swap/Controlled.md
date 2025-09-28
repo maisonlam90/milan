@@ -1,10 +1,10 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useState } from "react";
 import { CheckIcon } from "@heroicons/react/20/solid";
 
 // Local Imports
-import { Avatar, Checkbox, Swap, SwapOff, SwapOn } from "components/ui";
+import { Avatar, Checkbox, Swap, SwapOff, SwapOn } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -13,7 +13,7 @@ const Controlled = () => {
 
   return (
     <div className="flex flex-col items-start space-y-2">
-      <div className="flex space-x-3 ">
+      <div className="flex space-x-3 rtl:space-x-reverse">
         <Swap
           value={checked ? "on" : "off"}
           onChange={(val) => setChecked(val === "on")}
@@ -27,9 +27,9 @@ const Controlled = () => {
 
           <SwapOff>
             <Avatar
-              src="/images/200x200.png"
+              src="/images/avatar/avatar-5.jpg"
               size={10}
-              className="flex rounded-full ring-offset-2 ring-offset-white transition-colors hover:ring hover:ring-primary-500/50 dark:ring-offset-dark-700"
+              className="flex rounded-full ring-offset-2 ring-offset-white transition-colors hover:ring-3 hover:ring-primary-500/50 dark:ring-offset-dark-700"
             />
           </SwapOff>
         </Swap>
@@ -54,4 +54,5 @@ const Controlled = () => {
 };
 
 export { Controlled };
+
 ```

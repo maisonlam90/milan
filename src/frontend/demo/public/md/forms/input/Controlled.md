@@ -1,9 +1,9 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useState } from "react";
 
 // Local Imports
-import { Input } from "components/ui";
+import { Input } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -23,4 +23,5 @@ const Controlled = () => {
 };
 
 export { Controlled };
+
 ```

@@ -1,5 +1,5 @@
-```jsx
-import { Circlebar } from "components/ui";
+﻿```tsx
+import { Circlebar } from "@/components/ui";
 
 const StrokeSize = () => {
   return (
@@ -29,4 +29,5 @@ const StrokeSize = () => {
 };
 
 export { StrokeSize };
+
 ```

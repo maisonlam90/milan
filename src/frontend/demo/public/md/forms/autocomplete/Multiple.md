@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { Fragment, useState } from "react";
 import {
@@ -13,11 +13,16 @@ import clsx from "clsx";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 
 // Local Imports
-import { Input } from "components/ui";
+import { Input } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
-const people = [
+type Person = {
+  id: number;
+  name: string;
+};
+
+const people: Person[] = [
   { id: 1, name: "Wade Cooper" },
   { id: 2, name: "Arlene Mccoy" },
   { id: 3, name: "Devon Webb" },
@@ -27,7 +32,7 @@ const people = [
 ];
 
 export function Multiple() {
-  const [selected, setSelected] = useState([people[0], people[1]]);
+  const [selected, setSelected] = useState<Person[]>([people[0], people[1]]);
   const [query, setQuery] = useState("");
 
   const filteredPeople =
@@ -52,7 +57,7 @@ export function Multiple() {
       >
         {({ open }) => (
           <div className="relative mt-1">
-            <div className="relative w-full cursor-default overflow-hidden rounded-lg border border-gray-300 bg-white px-3 py-2 text-start outline-none transition-colors focus-within:!border-primary-600 hover:border-gray-400 focus:outline-none dark:border-dark-450 dark:bg-dark-700 dark:focus-within:!border-primary-500 dark:hover:border-dark-400 ltr:pr-9 rtl:pl-9">
+            <div className="relative w-full cursor-default overflow-hidden rounded-lg border border-gray-300 bg-white px-3 py-2 text-start outline-hidden transition-colors focus-within:border-primary-600! hover:border-gray-400 focus:outline-hidden dark:border-dark-450 dark:bg-dark-700 dark:focus-within:border-primary-500! dark:hover:border-dark-400 ltr:pr-9 rtl:pl-9">
               <div className="flex flex-wrap">
                 <div>
                   {selected.length > 0 &&
@@ -68,15 +73,18 @@ export function Multiple() {
                   as={Input}
                   unstyled
                   rootClass="flex-1"
-                  displayValue={(person) => person.name}
+                  displayValue={(person: Person) => person.name}
                   autoComplete="off"
-                  onKeyDown={(event) => {
-                    selected.length > 0 &&
-                      event.keyCode === 8 &&
-                      event.target.value === "" &&
+                  onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
+                    if (
+                      selected.length > 0 &&
+                      event.key === "Backspace" &&
+                      (event.target as HTMLInputElement).value === ""
+                    ) {
                       setSelected((current) => current.slice(0, -1));
+                    }
                   }}
-                  onChange={(event) => {
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                     setQuery(event.target.value);
                   }}
                   value={query}
@@ -102,7 +110,7 @@ export function Multiple() {
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-2"
             >
-              <ComboboxOptions className="absolute z-10 mt-1 max-h-60 w-full overflow-y-auto overflow-x-hidden rounded-lg border border-gray-300 bg-white py-1 shadow-lg shadow-gray-200/50 outline-none focus-visible:outline-none dark:border-dark-500 dark:bg-dark-700 dark:shadow-none">
+              <ComboboxOptions className="absolute z-10 mt-1 max-h-60 w-full overflow-y-auto overflow-x-hidden rounded-lg border border-gray-300 bg-white py-1 shadow-lg shadow-gray-200/50 outline-hidden focus-visible:outline-hidden dark:border-dark-500 dark:bg-dark-700 dark:shadow-none">
                 {filteredPeople.length === 0 && query !== "" ? (
                   <div className="relative cursor-default select-none px-4 py-2 text-gray-800 dark:text-dark-100">
                     Nothing found for {query}
@@ -113,7 +121,7 @@ export function Multiple() {
                       key={person.id}
                       className={({ selected, active }) =>
                         clsx(
-                          "relative cursor-pointer select-none px-4 py-2 outline-none transition-colors",
+                          "relative cursor-pointer select-none px-4 py-2 outline-hidden transition-colors",
                           active && !selected && "bg-gray-100 dark:bg-dark-600",
                           selected
                             ? "bg-primary-600 text-white dark:bg-primary-500"
@@ -144,4 +152,5 @@ export function Multiple() {
     </div>
   );
 }
+
 ```

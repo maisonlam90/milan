@@ -1,5 +1,5 @@
-```jsx
-import { useMediaQuery } from "hooks";
+﻿```tsx
+import { useMediaQuery } from "@/hooks";
 
 export function Basic() {
   const isMatch = useMediaQuery("(min-width: 768px)");
@@ -10,4 +10,6 @@ export function Basic() {
     </div>
   );
 }
+
+
 ```

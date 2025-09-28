@@ -1,7 +1,8 @@
-```jsx
-import { Button } from "components/ui";
+﻿```tsx
+import { PlacesType } from "react-tooltip";
+import { Button } from "@/components/ui";
 
-const places = [
+const places: PlacesType[] = [
   "top",
   "top-start",
   "top-end",
@@ -35,4 +36,5 @@ const Placement = () => {
 };
 
 export { Placement };
+
 ```

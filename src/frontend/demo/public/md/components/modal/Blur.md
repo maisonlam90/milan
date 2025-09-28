@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import {
   Dialog,
@@ -11,8 +11,8 @@ import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { Fragment } from "react";
 
 // Local Imports
-import { Button } from "components/ui";
-import { useDisclosure } from "hooks";
+import { Button } from "@/components/ui";
+import { useDisclosure } from "@/hooks";
 
 // ----------------------------------------------------------------------
 
@@ -26,7 +26,7 @@ export function Blur() {
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog
           as="div"
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden px-4 py-6 sm:px-5"
+          className="fixed inset-0 z-100 flex flex-col items-center justify-center overflow-hidden px-4 py-6 sm:px-5"
           onClose={close}
         >
           <TransitionChild
@@ -38,7 +38,7 @@ export function Blur() {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="absolute inset-0 bg-gray-900/50 backdrop-blur transition-opacity dark:bg-black/40" />
+            <div className="absolute inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity dark:bg-black/40" />
           </TransitionChild>
 
           <TransitionChild
@@ -76,4 +76,5 @@ export function Blur() {
     </>
   );
 }
+
 ```

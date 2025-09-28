@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import {
   Label,
@@ -14,12 +14,17 @@ import { Fragment, useState } from "react";
 
 // ----------------------------------------------------------------------
 
-const people = [
-  { id: 1, name: "Durward Reynolds" },
-  { id: 2, name: "Kenton Towne" },
-  { id: 3, name: "Therese Wunsch" },
-  { id: 4, name: "Benedict Kessler" },
-  { id: 5, name: "Katelyn Rohan" },
+type Person = {
+  id: string;
+  name: string;
+};
+
+const people: Person[] = [
+  { id: "1", name: "Durward Reynolds" },
+  { id: "2", name: "Kenton Towne" },
+  { id: "3", name: "Therese Wunsch" },
+  { id: "4", name: "Benedict Kessler" },
+  { id: "5", name: "Katelyn Rohan" },
 ];
 
 const Multiple = () => {
@@ -39,7 +44,7 @@ const Multiple = () => {
             <div className="relative mt-1.5">
               <ListboxButton
                 className={clsx(
-                  "relative w-full cursor-pointer rounded-lg border py-2 pl-3 pr-9 text-start outline-none transition-colors focus:outline-none focus-visible:border-primary-600 dark:focus-visible:border-primary-500 rtl:pl-9 rtl:pr-3",
+                  "outline-hidden focus:outline-hidden relative w-full cursor-pointer rounded-lg border py-2 pl-3 pr-9 text-start transition-colors focus-visible:border-primary-600 dark:focus-visible:border-primary-500 rtl:pl-9 rtl:pr-3",
                   open
                     ? "border-primary-600 dark:border-primary-500"
                     : "border-gray-300 hover:border-gray-400 dark:border-dark-450 dark:hover:border-dark-400",
@@ -69,13 +74,13 @@ const Multiple = () => {
                 leaveFrom="opacity-100 translate-y-0"
                 leaveTo="opacity-0 translate-y-2"
               >
-                <ListboxOptions className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-gray-300 bg-white py-1 shadow-lg shadow-gray-200/50 outline-none focus-visible:outline-none dark:border-dark-500 dark:bg-dark-750 dark:shadow-none">
+                <ListboxOptions className="outline-hidden focus-visible:outline-hidden absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-gray-300 bg-white py-1 shadow-lg shadow-gray-200/50 dark:border-dark-500 dark:bg-dark-750 dark:shadow-none">
                   {people.map((person, personIdx) => (
                     <ListboxOption
                       key={personIdx}
                       className={({ selected, active }) =>
                         clsx(
-                          "relative cursor-pointer select-none py-2 pl-10 pr-4 outline-none transition-colors rtl:pl-4 rtl:pr-10",
+                          "outline-hidden relative cursor-pointer select-none py-2 pl-10 pr-4 transition-colors rtl:pl-4 rtl:pr-10",
                           active && !selected && "bg-gray-100 dark:bg-dark-600",
                           selected
                             ? "bg-primary-600 text-white dark:bg-primary-500"
@@ -110,4 +115,5 @@ const Multiple = () => {
 };
 
 export { Multiple };
+
 ```

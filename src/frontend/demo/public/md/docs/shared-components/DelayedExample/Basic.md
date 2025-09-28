@@ -1,6 +1,6 @@
-```jsx
-import { Avatar } from "components/ui";
-import { Delayed } from "components/shared/Delayed";
+﻿```tsx
+import { Avatar } from "@/components/ui";
+import { Delayed } from "@/components/shared/Delayed";
 
 export function Basic() {
   return (
@@ -11,4 +11,5 @@ export function Basic() {
     </div>
   );
 }
+
 ```

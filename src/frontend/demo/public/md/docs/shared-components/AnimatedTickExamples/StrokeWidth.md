@@ -1,7 +1,8 @@
-```jsx
-import { AnimatedTick } from "components/shared/AnimatedTick";
+﻿```tsx
+// Local Imports
+import { AnimatedTick } from "@/components/shared/AnimatedTick";
 
-export function StrokeWidth() {
+export const StrokeWidth = () => {
   return (
     <div className="flex gap-4">
       <AnimatedTick strokeWidth={4} className="size-9" />
@@ -11,5 +12,6 @@ export function StrokeWidth() {
       <AnimatedTick strokeWidth={12} className="size-9" />
     </div>
   );
-}
+};
+
 ```

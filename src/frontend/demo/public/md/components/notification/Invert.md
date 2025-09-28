@@ -1,9 +1,9 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { toast } from "sonner";
 
 // Local Imports
-import { Button } from "components/ui";
+import { Button } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -22,4 +22,5 @@ export function Invert() {
     </div>
   );
 }
+
 ```

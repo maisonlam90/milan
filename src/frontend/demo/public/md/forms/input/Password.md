@@ -1,11 +1,11 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { LockClosedIcon } from "@heroicons/react/24/outline";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 
 // Local Imports
-import { Input, Button } from "components/ui";
-import { useDisclosure } from "hooks";
+import { Input, Button } from "@/components/ui";
+import { useDisclosure } from "@/hooks";
 
 // ----------------------------------------------------------------------
 
@@ -38,4 +38,5 @@ const Password = () => {
 };
 
 export { Password };
+
 ```

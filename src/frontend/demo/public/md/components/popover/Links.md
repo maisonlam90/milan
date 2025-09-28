@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { Fragment } from "react";
 import {
@@ -9,7 +9,7 @@ import {
 } from "@headlessui/react";
 
 // Local Imports
-import { Button } from "components/ui";
+import { Button } from "@/components/ui";
 
 function IconOne() {
   return (
@@ -87,7 +87,14 @@ function IconThree() {
   );
 }
 
-const solutions = [
+type Solution = {
+  name: string;
+  description: string;
+  href: string;
+  icon: React.ComponentType<{ "aria-hidden": string }>;
+};
+
+const solutions: Solution[] = [
   {
     name: "Insights",
     description: "Measure actions your users take",
@@ -125,14 +132,14 @@ export function Links() {
       >
         <PopoverPanel
           anchor={{ to: "bottom start", gap: 8 }}
-          className="z-[100] w-96 overflow-hidden rounded-md border border-gray-300 bg-white shadow-lg shadow-gray-200/50 outline-none ring-primary-500/50 focus-visible:outline-none focus-visible:ring dark:border-dark-500 dark:bg-dark-750 dark:shadow-none"
+          className="z-100 w-96 overflow-hidden rounded-md border border-gray-300 bg-white shadow-lg shadow-gray-200/50 outline-hidden ring-primary-500/50 focus-visible:outline-hidden focus-visible:ring-3 dark:border-dark-500 dark:bg-dark-750 dark:shadow-none"
         >
           <div className="relative grid gap-8 p-7">
             {solutions.map((item) => (
               <a
                 key={item.name}
                 href={item.href}
-                className="-m-3 flex items-center space-x-2 rounded-lg p-2 outline-none transition duration-150 ease-in-out hover:bg-gray-100 dark:hover:bg-dark-600 "
+                className="-m-3 flex items-center space-x-2 rounded-lg p-2 outline-hidden transition duration-150 ease-in-out hover:bg-gray-100 dark:hover:bg-dark-600 rtl:space-x-reverse"
               >
                 <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-primary-500 dark:bg-dark-600 dark:text-primary-400">
                   <item.icon aria-hidden="true" />

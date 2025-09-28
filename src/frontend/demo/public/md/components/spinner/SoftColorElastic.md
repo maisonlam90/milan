@@ -1,5 +1,5 @@
-```jsx
-import { Spinner } from "components/ui";
+﻿```tsx
+import { Spinner } from "@/components/ui";
 
 const SoftColorElastic = () => {
   return (
@@ -16,4 +16,5 @@ const SoftColorElastic = () => {
 };
 
 export { SoftColorElastic };
+
 ```

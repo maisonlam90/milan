@@ -1,10 +1,10 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { PencilIcon } from "@heroicons/react/20/solid";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
 // Local Imports
-import { Button, Swap, SwapOff, SwapOn } from "components/ui";
+import { Button, Swap, SwapOff, SwapOn } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -29,4 +29,5 @@ const Polymorphic = () => {
 };
 
 export { Polymorphic };
+
 ```

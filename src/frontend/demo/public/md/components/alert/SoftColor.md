@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 const SoftColor = () => {
   return (
     <div className="max-w-2xl space-y-4">
@@ -43,4 +43,5 @@ const SoftColor = () => {
 };
 
 export { SoftColor };
+
 ```

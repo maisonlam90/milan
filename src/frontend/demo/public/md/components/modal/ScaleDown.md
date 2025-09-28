@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import {
   Dialog,
@@ -9,7 +9,6 @@ import {
   Transition,
   TransitionChild,
 } from "@headlessui/react";
-import PropTypes from "prop-types";
 import { Fragment, useRef, useState } from "react";
 import {
   ChatBubbleLeftEllipsisIcon,
@@ -27,14 +26,33 @@ import {
 import clsx from "clsx";
 
 // Local Imports
-import { Button, Input, Avatar, Spinner } from "components/ui";
-import { useDisclosure, useDebounceValue } from "hooks";
-import { useThemeContext } from "app/contexts/theme/context";
-import { createScopedKeydownHandler } from "utils/dom/createScopedKeydownHandler";
+import { Button, Input, Avatar, Spinner } from "@/components/ui";
+import { useDisclosure, useDebounceValue } from "@/hooks";
+import { useThemeContext } from "@/app/contexts/theme/context";
+import { createScopedKeydownHandler } from "@/utils/dom/createScopedKeydownHandler";
+import { type ColorType } from "@/constants/app";
 
 // ----------------------------------------------------------------------
 
-const tabs = [
+interface Frequents {
+  key: string;
+  title: string;
+  Icon: React.ElementType;
+  color: ColorType;
+}
+
+interface Tab {
+  key: string;
+  title: string;
+}
+
+interface Suggestion {
+  key: string;
+  title: string;
+  Icon: React.ElementType;
+}
+
+const tabs: Tab[] = [
   {
     key: "all",
     title: "All",
@@ -57,7 +75,7 @@ const tabs = [
   },
 ];
 
-const frequents = [
+const frequents: Frequents[] = [
   { key: "kanban", title: "Kanban", color: "secondary", Icon: ViewColumnsIcon },
   {
     key: "chat",
@@ -76,7 +94,7 @@ const frequents = [
   { key: "sales", title: "Sales", color: "success", Icon: CurrencyDollarIcon },
 ];
 
-const suggestions = [
+const suggestions: Suggestion[] = [
   { key: "chat", title: "Chat App", Icon: ChatBubbleLeftEllipsisIcon },
   { key: "filemanager", title: "File Manager App", Icon: CloudIcon },
   { key: "email", title: "Email App", Icon: EnvelopeIcon },
@@ -86,7 +104,7 @@ const suggestions = [
   { key: "analytics", title: "Analytics Dashboard", Icon: ArrowTrendingUpIcon },
 ];
 
-const FrequentItem = ({ title, Icon, color }) => (
+const FrequentItem = ({ title, Icon, color }: Frequents) => (
   <a href="##" className="w-14 text-center">
     <Avatar
       size={12}
@@ -102,7 +120,7 @@ const FrequentItem = ({ title, Icon, color }) => (
   </a>
 );
 
-const SuggestionItem = ({ title, Icon }) => (
+const SuggestionItem = ({ title, Icon }: Suggestion) => (
   <a
     onKeyDown={createScopedKeydownHandler({
       siblingSelector: "[data-search-item]",
@@ -113,9 +131,9 @@ const SuggestionItem = ({ title, Icon }) => (
     })}
     data-search-item
     href="##"
-    className="group flex items-center justify-between space-x-2 rounded-lg bg-gray-100 px-2.5 py-2 tracking-wide text-gray-800 outline-none transition-all focus:ring focus:ring-primary-500/50 dark:bg-dark-600 dark:text-dark-100 "
+    className="group flex items-center justify-between space-x-2 rounded-lg bg-gray-100 px-2.5 py-2 tracking-wide text-gray-800 outline-hidden transition-all focus:ring-3 focus:ring-primary-500/50 dark:bg-dark-600 dark:text-dark-100 rtl:space-x-reverse"
   >
-    <div className="flex min-w-0 items-center space-x-2 ">
+    <div className="flex min-w-0 items-center space-x-2 rtl:space-x-reverse">
       <Icon className="size-4.5 shrink-0 text-gray-400 transition-colors group-hover:text-gray-500 group-focus:text-gray-500 dark:text-dark-300 dark:group-hover:text-dark-200 dark:group-focus:text-dark-200" />
       <span className="truncate">{title}</span>
     </div>
@@ -130,7 +148,7 @@ export function ScaleDown() {
   const [deferredSearch] = useDebounceValue(search, 500);
   const { isDark } = useThemeContext();
 
-  const searchRef = useRef(null);
+  const searchRef = useRef<HTMLInputElement>(null);
 
   return (
     <>
@@ -139,7 +157,7 @@ export function ScaleDown() {
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog
           as="div"
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden px-4 py-6 sm:px-5"
+          className="fixed inset-0 z-100 flex flex-col items-center justify-center overflow-hidden px-4 py-6 sm:px-5"
           onClose={close}
           initialFocus={searchRef}
         >
@@ -152,7 +170,7 @@ export function ScaleDown() {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="absolute inset-0 bg-gray-900/50 backdrop-blur transition-opacity dark:bg-black/30" />
+            <div className="absolute inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity dark:bg-black/30" />
           </TransitionChild>
 
           <TransitionChild
@@ -198,7 +216,7 @@ export function ScaleDown() {
                     {tabs.map((tab) => (
                       <Tab
                         key={tab.key}
-                        className={({ selected }) =>
+                        className={({ selected }: { selected: boolean }) =>
                           clsx(
                             "shrink-0 whitespace-nowrap border-b-2 px-5 py-2 font-medium",
                             selected
@@ -220,7 +238,7 @@ export function ScaleDown() {
                 <h3 className="px-4 text-gray-800 dark:text-dark-50 sm:px-5">
                   Frequent
                 </h3>
-                <div className="flex space-x-4 overflow-x-auto px-4 pt-4 sm:px-5 ">
+                <div className="flex space-x-4 overflow-x-auto px-4 pt-4 sm:px-5 rtl:space-x-reverse">
                   {frequents.map(({ key, Icon, title, color }) => (
                     <FrequentItem
                       key={key}
@@ -246,16 +264,5 @@ export function ScaleDown() {
     </>
   );
 }
-
-FrequentItem.propTypes = {
-  title: PropTypes.string,
-  Icon: PropTypes.elementType,
-  color: PropTypes.string,
-};
-
-SuggestionItem.propTypes = {
-  title: PropTypes.string,
-  Icon: PropTypes.elementType,
-};
 
 ```

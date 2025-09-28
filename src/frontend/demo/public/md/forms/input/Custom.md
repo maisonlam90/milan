@@ -1,5 +1,5 @@
-```jsx
-import { Input } from "components/ui";
+﻿```tsx
+import { Input } from "@/components/ui";
 
 const Custom = () => {
   return (
@@ -10,7 +10,7 @@ const Custom = () => {
         classNames={{
           root: "mt-4",
           input:
-            "rounded-lg bg-gray-150 px-3 py-2 placeholder:text-gray-400 focus:ring focus:ring-primary-500/50 dark:bg-dark-900 dark:placeholder:text-dark-200/70",
+            "bg-gray-150 focus:ring-primary-500/50 dark:bg-dark-900 dark:placeholder:text-dark-200/70 rounded-lg px-3 py-2 placeholder:text-gray-400 focus:ring-3",
         }}
         placeholder="Enter Username"
       />
@@ -19,4 +19,5 @@ const Custom = () => {
 };
 
 export { Custom };
+
 ```

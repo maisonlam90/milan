@@ -1,13 +1,20 @@
-```jsx
-import { DatePicker } from "components/shared/form/Datepicker";
+﻿```tsx
+import { DatePicker } from "@/components/shared/form/Datepicker";
+
+const now = new Date();
 
 const Basic = () => {
   return (
     <div className="max-w-xl">
-      <DatePicker placeholder="Choose date..." />
+      <DatePicker
+        label="Enter Date"
+        defaultValue={now}
+        placeholder="Choose date..."
+      />
     </div>
   );
 };
 
 export { Basic };
+
 ```

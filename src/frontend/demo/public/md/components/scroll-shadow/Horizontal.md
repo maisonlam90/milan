@@ -1,5 +1,5 @@
-```jsx
-import { ScrollShadow } from "components/ui";
+﻿```tsx
+import { ScrollShadow } from "@/components/ui";
 
 const Horizontal = () => {
   return (
@@ -41,4 +41,5 @@ const Horizontal = () => {
 };
 
 export { Horizontal };
+
 ```

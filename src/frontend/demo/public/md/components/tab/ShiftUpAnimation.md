@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import {
   HomeIcon,
@@ -17,8 +17,8 @@ import {
 } from "@headlessui/react";
 
 // Local Imports
-import { Button, Tag } from "components/ui";
-import { randomId } from "utils/randomId";
+import { Button, Tag } from "@/components/ui";
+import { randomId } from "@/utils/randomId";
 
 // ----------------------------------------------------------------------
 
@@ -36,7 +36,7 @@ const tabs = [
           lacinia urna tempor
         </p>
 
-        <div className="space-x-2 pt-3 ">
+        <div className="space-x-2 pt-3 rtl:space-x-reverse">
           <Tag href="#">Tag 1</Tag>
           <Tag href="#">Tag 2</Tag>
         </div>
@@ -58,7 +58,7 @@ const tabs = [
           viverra magna, id pulvinar odio metus non enim. Ut id augue interdum,
           ultrices felis eu, tincidunt libero.
         </p>
-        <div className="space-x-2 pt-3 ">
+        <div className="space-x-2 pt-3 rtl:space-x-reverse">
           <Tag href="#">Tag 1</Tag>
           <Tag href="#">Tag 2</Tag>
         </div>
@@ -82,7 +82,7 @@ const tabs = [
           leo.
         </p>
 
-        <div className="space-x-2 pt-3 ">
+        <div className="space-x-2 pt-3 rtl:space-x-reverse">
           <Tag href="#">Tag 1</Tag>
           <Tag href="#">Tag 2</Tag>
         </div>
@@ -105,7 +105,7 @@ const tabs = [
           dui vitae nibh lobortis condimentum. Duis vel risus est.
         </p>
 
-        <div className="space-x-2 pt-3 ">
+        <div className="space-x-2 pt-3 rtl:space-x-reverse">
           <Tag href="#">Tag 1</Tag>
           <Tag href="#">Tag 2</Tag>
         </div>
@@ -127,11 +127,11 @@ const ShiftUpAnimation = () => {
             {tabs.map((tab) => (
               <Tab
                 key={tab.id}
-                className={({ selected }) =>
+                className={({ selected }: { selected: boolean }) =>
                   clsx(
-                    "shrink-0 space-x-2 whitespace-nowrap rounded-lg px-3 py-1.5 font-medium ",
+                    "shrink-0 space-x-2 whitespace-nowrap rounded-lg px-3 py-1.5 font-medium rtl:space-x-reverse",
                     selected
-                      ? "bg-white shadow dark:bg-dark-500 dark:text-dark-100"
+                      ? "bg-white shadow-sm dark:bg-dark-500 dark:text-dark-100"
                       : "hover:text-gray-800 focus:text-gray-800 dark:hover:text-dark-100 dark:focus:text-dark-100",
                   )
                 }
@@ -167,4 +167,5 @@ const ShiftUpAnimation = () => {
 };
 
 export { ShiftUpAnimation };
+
 ```

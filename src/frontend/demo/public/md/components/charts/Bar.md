@@ -1,13 +1,14 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import Chart from "react-apexcharts";
 
 // Local Imports
-import { useThemeContext } from "app/contexts/theme/context";
+import { useThemeContext } from "@/app/contexts/theme/context";
+import { ApexOptions } from "apexcharts";
 
 // ----------------------------------------------------------------------
 
-const options = {
+const options: ApexOptions = {
   chart: {
     toolbar: {
       show: false,
@@ -43,9 +44,6 @@ const options = {
     position: "top",
     horizontalAlign: "right",
     fontSize: "14px",
-    markers: {
-      radius: 12,
-    },
   },
 };
 
@@ -79,4 +77,5 @@ export function Bar() {
     </div>
   );
 }
+
 ```

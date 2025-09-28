@@ -1,9 +1,9 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import Cleave from "cleave.js/react";
 
 // Local Imports
-import { Input } from "components/ui";
+import { Input } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -24,4 +24,5 @@ const Prefix = () => {
 };
 
 export { Prefix };
+
 ```

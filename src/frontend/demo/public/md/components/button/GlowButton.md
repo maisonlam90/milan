@@ -1,10 +1,10 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { Button as HeadlessButton } from "@headlessui/react";
 import { Fragment } from "react";
 
 // Local Imports
-import { Button } from "components/ui";
+import { Button } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -81,4 +81,5 @@ const GlowButton = () => {
 };
 
 export { GlowButton };
+
 ```

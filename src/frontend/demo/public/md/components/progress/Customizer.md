@@ -1,17 +1,17 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useState } from "react";
 
 // Local Imports
-import { Progress, Button } from "components/ui";
-import { useToggle, useStep } from "hooks";
-import { COLORS } from "constants/app.constant";
+import { Progress, Button } from "@/components/ui";
+import { useToggle, useStep } from "@/hooks";
+import { COLORS } from "@/constants/app";
 
 // ----------------------------------------------------------------------
 
 const Customizer = () => {
-  const [isActive, setIsActive] = useState(false);
-  const [showRail, setShowRails] = useState(true);
+  const [isActive, setIsActive] = useState<boolean>(false);
+  const [showRail, setShowRails] = useState<boolean>(true);
 
   const [currentStep, helpers] = useStep(5);
 
@@ -29,7 +29,7 @@ const Customizer = () => {
           </span>
           <span> of 5 Task</span>
         </p>
-        <div className="flex space-x-2 ">
+        <div className="flex space-x-2 rtl:space-x-reverse">
           <Button
             onClick={goToPrevStep}
             className="size-7 rounded-full p-0"
@@ -57,7 +57,7 @@ const Customizer = () => {
 
       <div className="mt-3 flex justify-between">
         <Button onClick={() => toggleColor()}>Color</Button>
-        <div className="flex space-x-2 ">
+        <div className="flex space-x-2 rtl:space-x-reverse">
           <Button onClick={() => setShowRails(!showRail)}>Rail</Button>
 
           <Button
@@ -73,4 +73,5 @@ const Customizer = () => {
 };
 
 export { Customizer };
+
 ```

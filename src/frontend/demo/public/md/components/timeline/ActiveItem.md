@@ -1,18 +1,32 @@
-```jsx
+﻿```tsx
 // Local Imports
-import { Timeline, TimelineItem } from "components/ui";
-import { randomId } from "utils/randomId";
+import {
+  Timeline,
+  TimelineItem,
+  type TimelineItemProps,
+} from "@/components/ui";
+import { randomId } from "@/utils/randomId";
+import { ReactNode } from "react";
 
 // ----------------------------------------------------------------------
 
-const timeline = [
+type TimeLine = {
+  id: string;
+  content: ReactNode;
+  title: TimelineItemProps["title"];
+  time: TimelineItemProps["time"];
+  color: TimelineItemProps["color"];
+  isActive: TimelineItemProps["isPing"];
+};
+
+const timeline: TimeLine[] = [
   {
     id: randomId(),
     title: "User Photo Changed",
     time: new Date().setMinutes(new Date().getMinutes() - 12),
     content: "John Doe changed his avatar photo",
     color: "neutral",
-    isActive: null,
+    isActive: undefined,
   },
   {
     id: randomId(),
@@ -36,7 +50,7 @@ const timeline = [
     time: new Date().setDate(new Date().getDate() - 1),
     content: "Team completed the ER diagram app",
     color: "warning",
-    isActive: null,
+    isActive: undefined,
   },
   {
     id: randomId(),

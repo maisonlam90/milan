@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import {
   Popover,
@@ -10,7 +10,7 @@ import { Fragment } from "react";
 import { ArrowUpIcon, CalendarIcon } from "@heroicons/react/24/outline";
 
 // Local Imports
-import { Button, Avatar } from "components/ui";
+import { Button, Avatar } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -30,7 +30,7 @@ export function Advanced() {
         >
           <PopoverPanel
             anchor={{ to: "bottom start", gap: 8 }}
-            className="z-[100] w-80 rounded-md border border-gray-300 bg-white px-4 py-3 shadow-lg shadow-gray-200/50 outline-none ring-primary-500/50 focus-visible:outline-none focus-visible:ring dark:border-dark-500 dark:bg-dark-750 dark:shadow-none"
+            className="z-100 w-80 rounded-md border border-gray-300 bg-white px-4 py-3 shadow-lg shadow-gray-200/50 outline-hidden ring-primary-500/50 focus-visible:outline-hidden focus-visible:ring-3 dark:border-dark-500 dark:bg-dark-750 dark:shadow-none"
           >
             <h3 className="text-base font-medium tracking-wide text-gray-800 dark:text-dark-100">
               Group Lesson
@@ -44,13 +44,13 @@ export function Advanced() {
               </p>
             </div>
 
-            <div className="mt-4 flex flex-wrap -space-x-1.5 ">
+            <div className="mt-4 flex flex-wrap -space-x-1.5 rtl:space-x-reverse">
               <Avatar
                 size={7}
-                src="/images/200x200.png"
+                src="/images/avatar/avatar-5.jpg"
                 classNames={{
                   root: "origin-bottom transition-transform hover:z-10 hover:scale-125",
-                  display: "ring ring-white dark:ring-dark-700",
+                  display: "ring-3 ring-white dark:ring-dark-700",
                 }}
               />
               <Avatar
@@ -59,23 +59,23 @@ export function Advanced() {
                 initialColor="info"
                 classNames={{
                   root: "origin-bottom transition-transform hover:z-10 hover:scale-125",
-                  display: "ring ring-white dark:ring-dark-700",
+                  display: "ring-3 ring-white dark:ring-dark-700",
                 }}
               />
               <Avatar
                 size={7}
-                src="/images/200x200.png"
+                src="/images/avatar/avatar-18.jpg"
                 classNames={{
                   root: "origin-bottom transition-transform hover:z-10 hover:scale-125",
-                  display: "ring ring-white dark:ring-dark-700",
+                  display: "ring-3 ring-white dark:ring-dark-700",
                 }}
               />
               <Avatar
                 size={7}
-                src="/images/200x200.png"
+                src="/images/avatar/avatar-19.jpg"
                 classNames={{
                   root: "origin-bottom transition-transform hover:z-10 hover:scale-125",
-                  display: "ring ring-white dark:ring-dark-700",
+                  display: "ring-3 ring-white dark:ring-dark-700",
                 }}
               />
             </div>
@@ -94,4 +94,5 @@ export function Advanced() {
     </div>
   );
 }
+
 ```

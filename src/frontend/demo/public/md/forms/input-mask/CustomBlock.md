@@ -1,40 +1,27 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import Cleave from "cleave.js/react";
 
 // Local Imports
-import { Input } from "components/ui";
-
+import { Input } from "@/components/ui";
 // ----------------------------------------------------------------------
 
-const DateTime = () => {
+const CustomBlock = () => {
   return (
     <div className="max-w-xl">
       <Input
-        placeholder="Enter Date"
+        placeholder="xxx.xx_xxx-xxx"
         component={Cleave}
         options={{
-          date: true,
-          delimiter: "-",
-          datePattern: ["m", "d", "Y"],
-        }}
-      />
-
-      {/* Time */}
-      <Input
-        classNames={{
-          root: "mt-4",
-        }}
-        placeholder="Enter Time"
-        component={Cleave}
-        options={{
-          time: true,
-          timePattern: ["h", "m", "s"],
+          delimiters: [".", "_", "-"],
+          blocks: [3, 2, 3, 3],
+          uppercase: true,
         }}
       />
     </div>
   );
 };
 
-export { DateTime };
+export { CustomBlock };
+
 ```

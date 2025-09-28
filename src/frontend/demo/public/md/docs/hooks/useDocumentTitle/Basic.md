@@ -1,11 +1,11 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useState } from "react";
 
 // Local Imports
-import { Button } from "components/ui";
-import { useDocumentTitle } from "hooks";
-import { randomId } from "utils/randomId";
+import { Button } from "@/components/ui";
+import { useDocumentTitle } from "@/hooks";
+import { randomId } from "@/utils/randomId";
 
 // ----------------------------------------------------------------------
 
@@ -19,4 +19,6 @@ export function Basic() {
     </div>
   );
 }
+
+
 ```

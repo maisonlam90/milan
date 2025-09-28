@@ -1,11 +1,11 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import clsx from "clsx";
 import { useState } from "react";
 
 // Local Imports
-import { Input } from "components/ui";
-import { useHighlight } from "hooks";
+import { Input } from "@/components/ui";
+import { useHighlight } from "@/hooks";
 
 // ----------------------------------------------------------------------
 
@@ -42,4 +42,5 @@ export function Basic() {
     </div>
   );
 }
+
 ```

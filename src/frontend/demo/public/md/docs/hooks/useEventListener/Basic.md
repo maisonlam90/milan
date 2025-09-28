@@ -1,16 +1,16 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useRef, useState } from "react";
 
 // Local Imports
-import { Button } from "components/ui";
-import { useEventListener } from "hooks";
+import { Button } from "@/components/ui";
+import { useEventListener } from "@/hooks";
 
 // ----------------------------------------------------------------------
 
 export function Basic() {
   const [value, setValue] = useState(1);
-  const ref = useRef();
+  const ref = useRef<HTMLButtonElement>(null);
 
   const increment = () => {
     setValue((prev) => prev + 1);
@@ -25,4 +25,5 @@ export function Basic() {
     </div>
   );
 }
+
 ```

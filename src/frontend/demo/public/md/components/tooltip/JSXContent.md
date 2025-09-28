@@ -1,6 +1,6 @@
-```jsx
-import { Tooltip } from "components/shared/Tooltip";
-import { Avatar, Button } from "components/ui";
+﻿```tsx
+import { Tooltip } from "@/components/shared/Tooltip";
+import { Avatar, Button } from "@/components/ui";
 
 const JSXContent = () => {
   return (
@@ -22,4 +22,5 @@ const JSXContent = () => {
 };
 
 export { JSXContent };
+
 ```

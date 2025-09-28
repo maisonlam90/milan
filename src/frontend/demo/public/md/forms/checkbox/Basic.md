@@ -1,5 +1,5 @@
-```jsx
-import { Checkbox } from "components/ui";
+﻿```tsx
+import { Checkbox } from "@/components/ui";
 
 const Basic = () => {
   return (
@@ -17,4 +17,5 @@ const Basic = () => {
 };
 
 export { Basic };
+
 ```

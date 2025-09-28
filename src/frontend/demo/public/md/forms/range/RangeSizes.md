@@ -1,5 +1,5 @@
-```jsx
-import { Range } from "components/ui";
+﻿```tsx
+import { Range } from "@/components/ui";
 
 const RangeSizes = () => {
   return (
@@ -12,4 +12,5 @@ const RangeSizes = () => {
 };
 
 export { RangeSizes };
+
 ```

@@ -1,12 +1,19 @@
-```jsx
+﻿```tsx
 // Local Imports
-import { Checkbox } from "components/ui";
-import { randomId } from "utils/randomId";
-import { useListState } from "hooks";
+import { Checkbox } from "@/components/ui";
+import { randomId } from "@/utils/randomId";
+import { useListState } from "@/hooks";
 
 // ----------------------------------------------------------------------
 
-const initialValues = [
+interface CheckboxOption {
+  value: string;
+  label: string;
+  checked: boolean;
+  key: string;
+}
+
+const initialValues: CheckboxOption[] = [
   { value: "svelte", label: "Svelte", checked: false, key: randomId() },
   { value: "react", label: "React", checked: true, key: randomId() },
   { value: "vue", label: "Vue", checked: false, key: randomId() },
@@ -38,7 +45,7 @@ const CheckboxGroup = () => {
         indeterminate={indeterminate}
         onChange={() =>
           handlers.setState((current) =>
-            current.map((value) => ({ ...value, checked: !allChecked }))
+            current.map((value) => ({ ...value, checked: !allChecked })),
           )
         }
         checked={allChecked}
@@ -50,4 +57,5 @@ const CheckboxGroup = () => {
 };
 
 export { CheckboxGroup };
+
 ```

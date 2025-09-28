@@ -1,5 +1,5 @@
-```jsx
-import { Box } from "components/ui";
+﻿```tsx
+import { Box } from "@/components/ui";
 
 const Vertical = () => {
   return (
@@ -8,7 +8,7 @@ const Vertical = () => {
         <p className="text-xl">Content</p>
       </Box>
       {/* START: Divider */}
-      <div className="my-4 flex items-center space-x-3 ">
+      <div className="my-4 flex items-center space-x-3 rtl:space-x-reverse">
         <div className="h-px flex-1 bg-gray-200 dark:bg-dark-500"></div>
         <p>OR</p>
         <div className="h-px flex-1 bg-gray-200 dark:bg-dark-500"></div>
@@ -22,4 +22,5 @@ const Vertical = () => {
 };
 
 export { Vertical };
+
 ```

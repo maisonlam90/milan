@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import {
   Combobox,
@@ -13,21 +13,26 @@ import clsx from "clsx";
 import { Fragment, useState } from "react";
 
 // Local Imports
-import { Input } from "components/ui";
+import { Input } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
-const people = [
-  { id: 1, name: "Wade Cooper" },
-  { id: 2, name: "Arlene Mccoy" },
-  { id: 3, name: "Devon Webb" },
-  { id: 4, name: "Tom Cook" },
-  { id: 5, name: "Tanya Fox" },
-  { id: 6, name: "Hellen Schmidt" },
+type Person = {
+  id: string;
+  name: string;
+};
+
+const people: Person[] = [
+  { id: "1", name: "Wade Cooper" },
+  { id: "2", name: "Arlene Mccoy" },
+  { id: "3", name: "Devon Webb" },
+  { id: "4", name: "Tom Cook" },
+  { id: "5", name: "Tanya Fox" },
+  { id: "6", name: "Hellen Schmidt" },
 ];
 
 export function Basic() {
-  const [selected, setSelected] = useState(people[0]);
+  const [selected, setSelected] = useState<Person | null>(people[0]);
   const [query, setQuery] = useState("");
 
   const filteredPeople =
@@ -42,14 +47,14 @@ export function Basic() {
 
   return (
     <div className="max-w-xl">
-      <Combobox value={selected} onChange={setSelected}>
+      <Combobox value={selected} onChange={(value) => setSelected(value)}>
         {({ open }) => (
           <div className="relative mt-1">
             <div className="relative w-full cursor-pointer overflow-hidden">
               <ComboboxInput
                 as={Input}
                 autoComplete="off"
-                displayValue={(person) => person.name}
+                displayValue={(person: Person) => person?.name}
                 onChange={(event) => setQuery(event.target.value)}
                 suffix={
                   <ComboboxButton>
@@ -74,7 +79,7 @@ export function Basic() {
               leaveTo="opacity-0 translate-y-2"
               afterLeave={() => setQuery("")}
             >
-              <ComboboxOptions className="absolute z-10 mt-1 max-h-60 w-full overflow-y-auto overflow-x-hidden rounded-lg border border-gray-300 bg-white py-1 shadow-lg shadow-gray-200/50 outline-none focus-visible:outline-none dark:border-dark-500 dark:bg-dark-750 dark:shadow-none">
+              <ComboboxOptions className="outline-hidden focus-visible:outline-hidden absolute z-10 mt-1 max-h-60 w-full overflow-y-auto overflow-x-hidden rounded-lg border border-gray-300 bg-white py-1 shadow-lg shadow-gray-200/50 dark:border-dark-500 dark:bg-dark-750 dark:shadow-none">
                 {filteredPeople.length === 0 && query !== "" ? (
                   <div className="relative cursor-default select-none px-4 py-2 text-gray-800 dark:text-dark-100">
                     Nothing found for {query}
@@ -85,7 +90,7 @@ export function Basic() {
                       key={person.id}
                       className={({ selected, focus }) =>
                         clsx(
-                          "relative cursor-pointer select-none px-4 py-2 outline-none transition-colors",
+                          "outline-hidden relative cursor-pointer select-none px-4 py-2 transition-colors",
                           focus && !selected && "bg-gray-100 dark:bg-dark-600",
                           selected
                             ? "bg-primary-600 text-white dark:bg-primary-500"
@@ -116,4 +121,5 @@ export function Basic() {
     </div>
   );
 }
+
 ```

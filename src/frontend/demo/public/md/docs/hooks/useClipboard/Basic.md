@@ -1,11 +1,11 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { useEffect } from "react";
 import { toast } from "sonner";
 
 // Local Imports
-import { Button } from "components/ui";
-import { useClipboard } from "hooks";
+import { Button } from "@/components/ui";
+import { useClipboard } from "@/hooks";
 
 // ----------------------------------------------------------------------
 
@@ -24,4 +24,5 @@ export function Basic() {
     </div>
   );
 }
+
 ```

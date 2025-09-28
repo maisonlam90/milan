@@ -1,5 +1,5 @@
-```jsx
-import { Radio } from "components/ui";
+﻿```tsx
+import { Radio } from "@/components/ui";
 
 const RadioSizes = () => {
   return (
@@ -21,4 +21,5 @@ const RadioSizes = () => {
 };
 
 export { RadioSizes };
+
 ```

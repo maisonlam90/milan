@@ -1,4 +1,4 @@
-```jsx
+﻿```tsx
 // Import Dependencies
 import { Fragment } from "react";
 import {
@@ -18,7 +18,7 @@ import {
 } from "@headlessui/react";
 
 // Local Imports
-import { Button } from "components/ui";
+import { Button } from "@/components/ui";
 
 // ----------------------------------------------------------------------
 
@@ -26,7 +26,7 @@ export function WithIcon() {
   return (
     <div className="max-w-xl">
       <Menu as="div" className="relative inline-block text-start">
-        <MenuButton as={Button} className="space-x-2 ">
+        <MenuButton as={Button} className="space-x-2 rtl:space-x-reverse">
           {({ open }) => (
             <>
               <span>Dropdown</span>
@@ -49,12 +49,12 @@ export function WithIcon() {
           leaveFrom="opacity-100 translate-y-0"
           leaveTo="opacity-0 translate-y-2"
         >
-          <MenuItems className="absolute z-[100] mt-1.5 min-w-[11rem] rounded-lg border border-gray-300 bg-white py-1 font-medium shadow-lg shadow-gray-200/50 outline-none focus-visible:outline-none dark:border-dark-500 dark:bg-dark-700 dark:shadow-none">
+          <MenuItems className="absolute z-100 mt-1.5 min-w-[11rem] rounded-lg border border-gray-300 bg-white py-1 font-medium shadow-lg shadow-gray-200/50 outline-hidden focus-visible:outline-hidden dark:border-dark-500 dark:bg-dark-700 dark:shadow-none">
             <MenuItem>
               {({ focus }) => (
                 <button
                   className={clsx(
-                    "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-none transition-colors ",
+                    "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors rtl:space-x-reverse",
                     focus &&
                       "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
                   )}
@@ -68,7 +68,7 @@ export function WithIcon() {
               {({ focus }) => (
                 <button
                   className={clsx(
-                    "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-none transition-colors ",
+                    "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors rtl:space-x-reverse",
                     focus &&
                       "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
                   )}
@@ -82,7 +82,7 @@ export function WithIcon() {
               {({ focus }) => (
                 <button
                   className={clsx(
-                    "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-none transition-colors ",
+                    "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors rtl:space-x-reverse",
                     focus &&
                       "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
                   )}
@@ -99,7 +99,7 @@ export function WithIcon() {
               {({ focus }) => (
                 <button
                   className={clsx(
-                    "this:error flex h-9 w-full items-center space-x-3 px-3 tracking-wide text-this outline-none transition-colors dark:text-this-light ",
+                    "this:error flex h-9 w-full items-center space-x-3 px-3 tracking-wide text-this outline-hidden transition-colors dark:text-this-light rtl:space-x-reverse",
                     focus && "bg-this/10 dark:bg-this-light/10",
                   )}
                 >
@@ -114,4 +114,5 @@ export function WithIcon() {
     </div>
   );
 }
+
 ```
