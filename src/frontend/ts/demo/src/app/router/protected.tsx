@@ -774,6 +774,41 @@ const protectedRoutes: RouteObject = {
               }),
             },
             {
+              path: "loan/loan-list",
+              lazy: async () => ({
+                Component: (await import("@/app/pages/dashboards/loan/loan-list"))
+                  .default,
+              }),
+            },
+            {
+              path: "loan/loan-create",
+              lazy: async () => ({
+                Component: (await import("@/app/pages/dashboards/loan/loan-create"))
+                  .default,
+              }),
+            },
+            {
+              path: "loan/loan-collateral",
+              lazy: async () => ({
+                Component: (await import("@/app/pages/dashboards/loan/loan-collateral"))
+                  .default,
+              }),
+            },
+            {
+              path: "loan/loan-report",
+              lazy: async () => ({
+                Component: (await import("@/app/pages/dashboards/loan/loan-report"))
+                  .default,
+              }),
+            },
+            {
+              path: "loan/loan-dashboard",
+              lazy: async () => ({
+                Component: (await import("@/app/pages/dashboards/loan/loan-dashboard"))
+                  .default,
+              }),
+            },
+            {
               path: "crm-analytics",
               lazy: async () => ({
                 Component: (

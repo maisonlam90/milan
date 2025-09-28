@@ -27,6 +27,9 @@ import {
   colorSchemeDarkWarm,
   colorSchemeDarkBlue,
   colorSchemeVariable,
+  // ✨ Event types
+  type RowClickedEvent,
+  type RowDoubleClickedEvent,
 } from "ag-grid-community";
 
 // ❗️ KHÔNG import CSS ở file này (Next không cho). CSS đã import trong app/layout.tsx.
@@ -83,12 +86,13 @@ const schemeMap: Record<SchemeId, any | null> = {
 };
 
 export type AgGridViewProps<T = any> = {
+  /** Tiêu đề (tuỳ chọn). Khi không có title/switchers, component sẽ KHÔNG thêm padding ngoài. */
   title?: string;
   height?: number;
 
-  theme?: ThemeId;            // theme mặc định
-  themeSwitcher?: boolean;    // bật dropdown Theme
-  schemeSwitcher?: boolean;   // bật dropdown Color scheme
+  theme?: ThemeId;             // theme mặc định
+  themeSwitcher?: boolean;     // bật dropdown Theme
+  schemeSwitcher?: boolean;    // bật dropdown Color scheme
   themeParams?: Record<string, any>; // optional withParams
 
   rowData?: T[];
@@ -103,7 +107,24 @@ export type AgGridViewProps<T = any> = {
   rowDragMultiRow?: boolean;
 
   loadingOverride?: boolean;
-  gridProps?: Omit<AgGridReactProps<T>, "rowData" | "columnDefs" | "defaultColDef">;
+
+  /** ✨ Thường cần pass trực tiếp */
+  onRowClicked?: (e: RowClickedEvent<T>) => void;
+  onRowDoubleClicked?: (e: RowDoubleClickedEvent<T>) => void;
+  className?: string;
+  domLayout?: AgGridReactProps<T>["domLayout"];
+
+  /** Vẫn có thể truyền thêm props của AgGridReact qua đây nếu cần */
+  gridProps?: Omit<
+    AgGridReactProps<T>,
+    | "rowData"
+    | "columnDefs"
+    | "defaultColDef"
+    | "rowSelection"
+    | "onRowClicked"
+    | "onRowDoubleClicked"
+    | "domLayout"
+  >;
 };
 
 export default function AgGridView<T = any>({
@@ -122,12 +143,16 @@ export default function AgGridView<T = any>({
   rowDragManaged = true,
   rowDragMultiRow = true,
   loadingOverride,
+  onRowClicked,
+  onRowDoubleClicked,
+  className,
+  domLayout,
   gridProps,
 }: AgGridViewProps<T>) {
   const [data, setData] = useState<T[]>(rowData ?? []);
   const [loading, setLoading] = useState<boolean>(!!fetchUrl);
   const [activeThemeId, setActiveThemeId] = useState<ThemeId>(theme);
-  const [activeSchemeId, setActiveSchemeId] = useState<SchemeId>("darkBlue"); // ✅ default Dark Blue
+  const [activeSchemeId, setActiveSchemeId] = useState<SchemeId>("darkBlue"); // default Dark Blue
 
   // Fetch nếu có fetchUrl
   useEffect(() => {
@@ -138,14 +163,18 @@ export default function AgGridView<T = any>({
         setLoading(true);
         const res = await fetch(fetchUrl, { headers: getHeaders ? getHeaders() : {} });
         const json = await res.json();
-        if (!cancelled) setData(Array.isArray(json) ? json : (json?.data ?? []));
+        // chấp nhận {items: []} hoặc array trực tiếp hoặc {data: []}
+        const items = Array.isArray(json) ? json : json?.items ?? json?.data ?? [];
+        if (!cancelled) setData(items as T[]);
       } catch {
         if (!cancelled) setData([]);
       } finally {
         if (!cancelled) setLoading(false);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [fetchUrl, getHeaders]);
 
   // Functional theme + withPart(color scheme) + withParams (nếu có)
@@ -177,8 +206,12 @@ export default function AgGridView<T = any>({
     [defaultColDef]
   );
 
+  // 👉 Không thêm padding nếu không hiển thị title/switchers để giao diện sát hơn
+  const outerPadding =
+    title || themeSwitcher || schemeSwitcher ? 20 : 0;
+
   return (
-    <div style={{ padding: 20 }}>
+    <div style={{ padding: outerPadding }}>
       {(title || themeSwitcher || schemeSwitcher) && (
         <div className="flex items-center gap-3 mb-3">
           {title ? <h2 className="text-xl font-semibold m-0">{title}</h2> : null}
@@ -223,21 +256,23 @@ export default function AgGridView<T = any>({
 
       <div style={containerStyle}>
         {/* ✅ Bọc className theme để đảm bảo có CSS */}
-        <div style={gridStyle} className={THEME_CLASS[activeThemeId]}>
+        <div style={gridStyle} className={`${THEME_CLASS[activeThemeId]} ${className ?? ""}`}>
           <AgGridReact<T>
-            theme={themed} // vẫn truyền functional theme để dùng Color scheme
+            theme={themed}                       // functional theme (để dùng Color scheme)
             rowData={rowData ?? data}
             loading={loadingOverride ?? (!!fetchUrl && loading)}
             columnDefs={columnDefs}
             defaultColDef={mergedDefault}
-            rowSelection={rowSelection}
+            rowSelection={rowSelection as any}
             rowDragManaged={rowDragManaged}
             rowDragMultiRow={rowDragMultiRow}
-
+            // ✨ Forward handler & props thường dùng
+            onRowClicked={onRowClicked}
+            onRowDoubleClicked={onRowDoubleClicked}
+            domLayout={domLayout}
             // ✅ Bật lại copy nội dung & DOM order ổn định
             enableCellTextSelection={true}
             ensureDomOrder={true}
-
             {...gridProps}
           />
         </div>
