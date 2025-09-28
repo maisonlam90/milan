@@ -284,7 +284,7 @@ export default function TenantPage() {
             <main className="min-h-100vh grid grid-cols-1 lg:grid-cols-2 gap-8 p-6">
               {/* ====== Create Enterprise ====== */}
               <Card className="rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">🏢 Tạo Enterprise</h3>
+                <h3 className="text-lg font-semibold mb-4">Tạo Enterprise</h3>
                 <form onSubmit={enterpriseForm.handleSubmit(onEnterpriseSubmit)} className="space-y-5">
                   <Input
                     label="Tên enterprise"
@@ -306,7 +306,7 @@ export default function TenantPage() {
       
               {/* ====== Enable Module for Enterprise ====== */}
               <Card className="rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">🧩 Bật module cho Enterprise</h3>
+                <h3 className="text-lg font-semibold mb-4">Bật module cho Enterprise</h3>
                 <form onSubmit={enableEntForm.handleSubmit(onEnableEntSubmit)} className="space-y-5">
                   <Input
                     label="Enterprise ID"
@@ -349,7 +349,7 @@ export default function TenantPage() {
       
               {/* ====== Create Company ====== */}
               <Card className="rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">🏭 Tạo Company</h3>
+                <h3 className="text-lg font-semibold mb-4">Tạo Company</h3>
                 <form onSubmit={companyForm.handleSubmit(onCompanySubmit)} className="space-y-5">
                   <Input
                     label="Enterprise ID"
@@ -383,7 +383,7 @@ export default function TenantPage() {
       
               {/* ====== Create Tenant ====== */}
               <Card className="rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">📝 Tạo tổ chức (Tenant)</h3>
+                <h3 className="text-lg font-semibold mb-4">Tạo tổ chức (Tenant)</h3>
                 <form onSubmit={createForm.handleSubmit(onCreateSubmit)} className="space-y-5">
                   <Input
                     label="Enterprise ID"
@@ -423,7 +423,7 @@ export default function TenantPage() {
       
               {/* ====== Assign / Remove Module & Create User ====== */}
               <Card className="rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">🧩 Gán module cho tổ chức</h3>
+                <h3 className="text-lg font-semibold mb-4">Gán module cho tổ chức</h3>
                 <form onSubmit={moduleForm.handleSubmit(onAssignSubmit)} className="space-y-5">
                   <Input
                     label="Tenant ID"
@@ -461,7 +461,7 @@ export default function TenantPage() {
               </Card>
       
               <Card className="rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">📤 Gỡ module khỏi tổ chức</h3>
+                <h3 className="text-lg font-semibold mb-4">Gỡ module khỏi tổ chức</h3>
                 <form onSubmit={removeForm.handleSubmit(onRemoveSubmit)} className="space-y-5">
                   <Input
                     label="Tenant ID"
@@ -482,7 +482,7 @@ export default function TenantPage() {
               </Card>
       
               <Card className="rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">👤 Tạo user cho tổ chức</h3>
+                <h3 className="text-lg font-semibold mb-4">Tạo user cho tổ chức</h3>
                 <form onSubmit={userForm.handleSubmit(onUserSubmit)} className="space-y-5">
                   <Input
                     label="Tenant ID"
@@ -516,7 +516,7 @@ export default function TenantPage() {
       
               {/* ====== List tenants ====== */}
               <Card className="col-span-2 p-6">
-                <h3 className="text-lg font-semibold mb-4">📊 Danh sách tất cả tổ chức và module</h3>
+                <h3 className="text-lg font-semibold mb-4">Danh sách tất cả tổ chức và module</h3>
                 <div className="mb-4">
                   <input
                     type="text"
