@@ -27,7 +27,7 @@ export default function UserGrid() {
   return (
     <AgGridView<User>
       title="Danh sách User"
-      height={500}
+      height={700}
       theme="quartz"
       themeSwitcher   // ✅ bật dropdown chọn theme
       fetchUrl="http://localhost:3000/user/users"

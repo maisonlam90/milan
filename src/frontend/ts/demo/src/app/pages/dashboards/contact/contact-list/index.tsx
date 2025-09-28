@@ -12,11 +12,12 @@ import type {
   ColDef,
   RowSelectionOptions,
   ICellRendererParams,
+  RowDoubleClickedEvent,
 } from "ag-grid-community";
 import { JWT_HOST_API } from "@/configs/auth";
 
 const breadcrumbs = [
-  { title: "Liên hệ", path: "/dashboards/contact/list" },
+  { title: "Liên hệ", path: "/dashboards/contact/contact-list" },
   { title: "Danh sách" },
 ];
 
@@ -37,11 +38,21 @@ export type ContactRow = {
 export default function ContactListPage() {
   const navigate = useNavigate();
 
+  // 👉 Chỉ chuyển trang khi DOUBLE-CLICK
+  const handleRowDoubleClick = useCallback(
+    (e: RowDoubleClickedEvent<ContactRow>) => {
+      const id = e.data?.id;
+      if (!id) return;
+      navigate(`/dashboards/contact/contact-create?id=${encodeURIComponent(id)}`);
+    },
+    [navigate]
+  );
+
   // Cột cho AgGrid
   const columns = useMemo<ColDef<ContactRow>[]>(() => {
     return [
       makeIndexCol(), // cột STT
-      { field: "display_name", headerName: "Tên hiển thị", flex: 1, minWidth: 180 },
+      { field: "display_name", headerName: "Tên hiển thị", flex: 1, minWidth: 180, rowDrag: true, },
       { field: "name", headerName: "Tên", flex: 1, minWidth: 160 },
       { field: "email", headerName: "Email", flex: 1, minWidth: 160 },
       { field: "phone", headerName: "SĐT", minWidth: 130 },
@@ -70,7 +81,7 @@ export default function ContactListPage() {
       makeTextDateCol<ContactRow>("updated_at", "Cập nhật"),
       { field: "id", headerName: "ID", minWidth: 120 },
 
-      // Cột "Mở" sinh link — không cần onRowClicked/onRowDoubleClicked
+      // (Tuỳ chọn) Vẫn giữ cột “Mở” nếu muốn có link rõ ràng
       {
         headerName: "Mở",
         width: 110,
@@ -122,6 +133,10 @@ export default function ContactListPage() {
           getHeaders={getHeaders}
           columnDefs={columns}
           rowSelection={rowSelection}
+          // ❌ Không gắn onRowClicked
+          // ✅ Chỉ gắn double click để điều hướng
+          onRowDoubleClicked={handleRowDoubleClick}
+          domLayout="normal"
         />
       </div>
     </Page>
