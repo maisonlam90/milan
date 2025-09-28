@@ -10,6 +10,14 @@ export const apps: NavigationTree = {
   type: "root",
   childs: [
     {
+      id: "apps.app",
+      path: path(ROOT_APPS, "/app"),
+      type: "item",
+      title: "App",
+      transKey: "nav.apps.app",
+      icon: "apps.nft-1",
+    },
+    {
       id: "apps.chat",
       path: path(ROOT_APPS, "/chat"),
       type: "item",
