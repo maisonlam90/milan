@@ -165,7 +165,7 @@ export default function IamManagementPage(): React.ReactElement {
       <main className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
         {/* 1) Tạo role & gán permission */}
         <Card className="p-6">
-          <h2 className="text-lg font-semibold mb-4">🆕 Tạo role mới</h2>
+          <h2 className="text-lg font-semibold mb-4">Tạo role mới</h2>
           <form onSubmit={roleForm.handleSubmit(onCreateRole)} className="space-y-4">
             <Input
               label="Tên role"
@@ -223,7 +223,7 @@ export default function IamManagementPage(): React.ReactElement {
 
         {/* 2) Danh sách role */}
         <Card className="p-6">
-          <h2 className="text-lg font-semibold mb-4">📋 Danh sách vai trò</h2>
+          <h2 className="text-lg font-semibold mb-4">Danh sách vai trò</h2>
           <table className="w-full text-sm border border-gray-300">
             <thead className="bg-gray-100">
               <tr>
@@ -246,7 +246,7 @@ export default function IamManagementPage(): React.ReactElement {
 
         {/* 3) Gán role cho user */}
         <Card className="p-6">
-          <h2 className="text-lg font-semibold mb-4">👤 Gán role cho User</h2>
+          <h2 className="text-lg font-semibold mb-4">Gán role cho User</h2>
           <form onSubmit={assignRoleToUser} className="space-y-4">
             <Input
               label="User ID (UUID)"
