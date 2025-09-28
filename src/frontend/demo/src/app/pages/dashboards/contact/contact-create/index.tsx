@@ -156,7 +156,7 @@ function isDynamicFieldConfig(x: any): x is DynamicFieldConfig {
     typeof x.name === "string" &&
     typeof x.label === "string" &&
     (x.type === undefined ||
-      ["text", "textarea", "select", "date", "number"].includes(x.type)) &&
+      ["text", "textarea", "select", "date", "number", "email", "checkbox"].includes(x.type)) &&
     (x.width === undefined || [3, 4, 6, 8, 12].includes(x.width))
   );
 }
