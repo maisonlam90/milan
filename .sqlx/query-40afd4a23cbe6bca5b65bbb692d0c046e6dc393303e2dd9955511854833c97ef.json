@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            SELECT\n                id,\n                COALESCE(NULLIF(name,''), display_name, email, phone, '(không tên)') AS \"name!: String\",\n                display_name,\n                email,\n                phone,\n                is_company,\n                NULLIF(tags_cached,'') AS \"tags?: String\",\n                state,                  -- 👈 THÊM\n                created_at,             -- 👈 THÊM\n                updated_at              -- 👈 THÊM (nếu cần)\n            FROM contact\n            WHERE tenant_id = $1\n              AND ($2::bool IS NULL OR is_company = $2)\n              AND (\n                    lower(coalesce(name, ''))         LIKE $3\n                 OR lower(coalesce(display_name, '')) LIKE $3\n                 OR lower(coalesce(email, ''))        LIKE $3\n                 OR lower(coalesce(phone, ''))        LIKE $3\n              )\n            ORDER BY created_at DESC\n            LIMIT $4 OFFSET $5\n            ",
+  "query": "\n            SELECT\n                id,\n                COALESCE(NULLIF(name,''), display_name, email, phone, '(không tên)') AS \"name!: String\",\n                display_name,\n                email,\n                phone,\n                is_company,\n                NULLIF(tags_cached,'') AS \"tags?: String\",\n                state,\n                created_at,\n                updated_at,\n                national_id AS \"national_id?: String\"     -- 👈 THÊM\n            FROM contact\n            WHERE tenant_id = $1\n              AND ($2::bool IS NULL OR is_company = $2)\n              AND (\n                    lower(coalesce(name, ''))         LIKE $3\n                 OR lower(coalesce(display_name, '')) LIKE $3\n                 OR lower(coalesce(email, ''))        LIKE $3\n                 OR lower(coalesce(phone, ''))        LIKE $3\n              )\n            ORDER BY created_at DESC\n            LIMIT $4 OFFSET $5\n            ",
   "describe": {
     "columns": [
       {
@@ -52,6 +52,11 @@
         "ordinal": 9,
         "name": "updated_at",
         "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "national_id?: String",
+        "type_info": "Text"
       }
     ],
     "parameters": {
@@ -73,8 +78,9 @@
       null,
       true,
       false,
-      false
+      false,
+      true
     ]
   },
-  "hash": "670fbec372a5944b440ac4da3e6fe1a3353320fe463468642555e3c272951b43"
+  "hash": "40afd4a23cbe6bca5b65bbb692d0c046e6dc393303e2dd9955511854833c97ef"
 }
