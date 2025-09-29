@@ -12,9 +12,10 @@ pub struct ContactListItem {
     pub phone: Option<String>,
     pub is_company: bool,
     pub tags: Option<String>,         // từ tags_cached
-    pub state: Option<String>,        // 👈 THÊM để khớp metadata "state"
-    pub created_at: Option<DateTime<Utc>>, // 👈 THÊM để hiển thị "Tạo lúc"
-    pub updated_at: Option<DateTime<Utc>>, // (tuỳ chọn) nếu muốn hiện "Cập nhật"
+    pub state: Option<String>,
+    pub created_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<DateTime<Utc>>,
+    pub national_id: Option<String>,  // 👈 THÊM
 }
 
 #[derive(Debug)]
@@ -49,9 +50,10 @@ pub async fn list_contacts(
                 phone,
                 is_company,
                 NULLIF(tags_cached,'') AS "tags?: String",
-                state,                  -- 👈 THÊM
-                created_at,             -- 👈 THÊM
-                updated_at              -- 👈 THÊM (nếu cần)
+                state,
+                created_at,
+                updated_at,
+                national_id AS "national_id?: String"     -- 👈 THÊM
             FROM contact
             WHERE tenant_id = $1
               AND ($2::bool IS NULL OR is_company = $2)
@@ -85,9 +87,10 @@ pub async fn list_contacts(
                 phone,
                 is_company,
                 NULLIF(tags_cached,'') AS "tags?: String",
-                state,                  -- 👈 THÊM
-                created_at,             -- 👈 THÊM
-                updated_at              -- 👈 THÊM (nếu cần)
+                state,
+                created_at,
+                updated_at,
+                national_id AS "national_id?: String"     -- 👈 THÊM
             FROM contact
             WHERE tenant_id = $1
               AND ($2::bool IS NULL OR is_company = $2)
@@ -122,6 +125,7 @@ pub struct ContactDetail {
     pub state: Option<String>,
     pub zip: Option<String>,
     pub country_code: Option<String>,
+    pub national_id: Option<String>,          // 👈 THÊM
     pub notes: Option<String>,
     pub tags_cached: Option<String>,
     pub created_at: Option<DateTime<Utc>>,
@@ -152,6 +156,7 @@ pub async fn get_contact_by_id(
             state,
             zip,
             country_code,
+            national_id AS "national_id?: String",  -- 👈 THÊM
             notes,
             NULLIF(tags_cached,'') AS "tags_cached?: String",
             created_at,

@@ -21,6 +21,7 @@ pub struct CreateContactInput {
     pub state: Option<String>,
     pub zip: Option<String>,
     pub country_code: Option<String>,
+    pub national_id: Option<String>,
 
     pub notes: Option<String>,
     pub tags: Option<Vec<String>>, // mảng nhãn
@@ -48,7 +49,7 @@ pub struct UpdateContactInput {
     pub state: Option<String>,
     pub zip: Option<String>,
     pub country_code: Option<String>,
-
+    pub national_id: Option<String>,
     pub notes: Option<String>,
     pub tags: Option<Vec<String>>,
 }

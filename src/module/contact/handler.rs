@@ -76,6 +76,7 @@ pub async fn create_contact(
         state:        norm_opt_trim(&input.state),
         zip:          norm_opt_trim(&input.zip),
         country_code: norm_opt_trim_upper2(&input.country_code),
+        national_id:  norm_opt_digits(&input.national_id), 
         notes:        norm_opt_trim(&input.notes),
         tags:         input.tags, // tuỳ phần BE xử lý, giữ nguyên
 
@@ -119,6 +120,7 @@ pub async fn update_contact(
         state:        norm_opt_trim(&input.state),
         zip:          norm_opt_trim(&input.zip),
         country_code: norm_opt_trim_upper2(&input.country_code),
+        national_id:  norm_opt_digits(&input.national_id), 
         notes:        norm_opt_trim(&input.notes),
         tags:         input.tags,
     };
