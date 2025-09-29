@@ -17,6 +17,7 @@ pub struct CreateContactDto {
     pub state: Option<String>,
     pub zip: Option<String>,
     pub country_code: Option<String>,
+    pub national_id: Option<String>, // 👈 THÊM
     pub notes: Option<String>,
     pub tags: Option<Vec<String>>,
     pub created_by: Uuid,
@@ -40,6 +41,7 @@ pub struct UpdateContactDto {
     pub state: Option<String>,
     pub zip: Option<String>,
     pub country_code: Option<String>,
+    pub national_id: Option<String>, // 👈 THÊM
     pub notes: Option<String>,
     pub tags: Option<Vec<String>>,
 }
@@ -100,32 +102,33 @@ pub async fn create_contact(
         INSERT INTO contact (
             tenant_id, id, is_company, parent_id,
             name, display_name, email, phone, mobile, website,
-            street, street2, city, state, zip, country_code, notes, tags_cached,
+            street, street2, city, state, zip, country_code, national_id, notes, tags_cached,
             created_by, assignee_id, shared_with
         ) VALUES (
             $1, $2, $3, $4,
             $5, $6, $7, $8, $9, $10,
-            $11, $12, $13, $14, $15, $16, $17, $18,
-            $19, $20, $21
+            $11, $12, $13, $14, $15, $16, $17, $18, $19,
+            $20, $21, $22
         )
         "#,
-        tenant_id, id, dto.is_company, dto.parent_id,
-        name, display_name,
-        norm_str(&dto.email),
-        norm_str(&dto.phone),
-        norm_str(&dto.mobile),
-        norm_str(&dto.website),
-        norm_str(&dto.street),
-        norm_str(&dto.street2),
-        norm_str(&dto.city),
-        norm_str(&dto.state),
-        norm_str(&dto.zip),
-        norm_str(&dto.country_code),
-        norm_str(&dto.notes),
-        tags_cached,
-        dto.created_by,
-        dto.assignee_id,
-        &dto.shared_with, // 👈 đúng kiểu Vec<Uuid>
+        tenant_id, id, dto.is_company, dto.parent_id,         // $1..$4
+        name, display_name,                                    // $5..$6
+        norm_str(&dto.email),                                  // $7
+        norm_str(&dto.phone),                                  // $8
+        norm_str(&dto.mobile),                                 // $9
+        norm_str(&dto.website),                                // $10
+        norm_str(&dto.street),                                 // $11
+        norm_str(&dto.street2),                                // $12
+        norm_str(&dto.city),                                   // $13
+        norm_str(&dto.state),                                  // $14
+        norm_str(&dto.zip),                                    // $15
+        norm_str(&dto.country_code),                           // $16
+        norm_str(&dto.national_id),                            // $17  👈 THÊM
+        norm_str(&dto.notes),                                  // $18
+        tags_cached,                                           // $19
+        dto.created_by,                                        // $20
+        dto.assignee_id,                                       // $21
+        &dto.shared_with,                                      // $22  (uuid[])
     )
     .execute(&mut *tx)
     .await?;
@@ -184,28 +187,30 @@ pub async fn update_contact(
             state        = COALESCE($14, state),
             zip          = COALESCE($15, zip),
             country_code = COALESCE($16, country_code),
-            notes        = COALESCE($17, notes),
-            tags_cached  = COALESCE($18, tags_cached),
+            national_id  = COALESCE($17, national_id),  -- 👈 THÊM
+            notes        = COALESCE($18, notes),
+            tags_cached  = COALESCE($19, tags_cached),
             updated_at   = NOW()
         WHERE tenant_id = $1 AND id = $2
         "#,
-        tenant_id, id,
-        dto.is_company,
-        dto.parent_id,
-        name,
-        display_name,
-        norm_str(&dto.email),
-        norm_str(&dto.phone),
-        norm_str(&dto.mobile),
-        norm_str(&dto.website),
-        norm_str(&dto.street),
-        norm_str(&dto.street2),
-        norm_str(&dto.city),
-        norm_str(&dto.state),
-        norm_str(&dto.zip),
-        norm_str(&dto.country_code),
-        norm_str(&dto.notes),
-        tags_cached
+        tenant_id, id,                         // $1..$2
+        dto.is_company,                        // $3
+        dto.parent_id,                         // $4
+        name,                                  // $5
+        display_name,                          // $6
+        norm_str(&dto.email),                  // $7
+        norm_str(&dto.phone),                  // $8
+        norm_str(&dto.mobile),                 // $9
+        norm_str(&dto.website),                // $10
+        norm_str(&dto.street),                 // $11
+        norm_str(&dto.street2),                // $12
+        norm_str(&dto.city),                   // $13
+        norm_str(&dto.state),                  // $14
+        norm_str(&dto.zip),                    // $15
+        norm_str(&dto.country_code),           // $16
+        norm_str(&dto.national_id),            // $17
+        norm_str(&dto.notes),                  // $18
+        tags_cached                            // $19
     )
     .execute(&mut *tx)
     .await?;

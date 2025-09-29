@@ -44,9 +44,10 @@ interface ContactDTO {
   state?: string | null;
   zip?: string | null;
   country_code?: string | null;
+  national_id?: string | null;     // 👈 THÊM
   notes?: string | null;
-  tags?: string[];             // có thể array
-  tags_cached?: string | null; // hoặc "a,b,c"
+  tags?: string[];                  // có thể array
+  tags_cached?: string | null;      // hoặc "a,b,c"
   idempotency_key?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
@@ -70,6 +71,7 @@ type ContactFormValues = Required<Pick<ContactDTO,
   | "notes"
   | "idempotency_key"
 >> & {
+  national_id?: string | null;      // 👈 THÊM
   tags?: string[];
   created_at?: string | null;
   updated_at?: string | null;
@@ -97,6 +99,9 @@ const constraintMap: Record<
   contact_web_format_check:    { field: "website",      message: "URL không hợp lệ (ví dụ: https://example.com)." },
   contact_country_code_check:  { field: "country_code", message: "Mã quốc gia phải là 2 chữ cái in hoa (VD: VN, US)." },
   contact_zip_check:           { field: "zip",          message: "Mã bưu chính không hợp lệ." },
+  // (tuỳ chọn) nếu bạn có CHECK/UNIQUE cho national_id, thêm mapping:
+  // contact_national_id_format:  { field: "national_id",  message: "National ID phải gồm 12 chữ số." },
+  // contact_national_id_unique:  { field: "national_id",  message: "National ID đã tồn tại." },
 };
 
 /* --- Helpers --- */
@@ -236,6 +241,7 @@ const ContactCreatePage: React.FC = () => {
           state: null,
           zip: null,
           country_code: null,
+          national_id: null,             // 👈 THÊM
           notes: null,
           idempotency_key: null,
           tags: [],
@@ -269,6 +275,7 @@ const ContactCreatePage: React.FC = () => {
           state: dto.state ?? null,
           zip: dto.zip ?? null,
           country_code: dto.country_code ?? null,
+          national_id: dto.national_id ?? null,   // 👈 THÊM
           notes: dto.notes ?? null,
           idempotency_key: dto.idempotency_key ?? null,
           tags: tagsArray,
@@ -308,6 +315,7 @@ const ContactCreatePage: React.FC = () => {
       state: normOrNull(data.state) ?? null,
       zip: normOrNull(data.zip) ?? null,
       country_code: normOrNull(data.country_code) ?? null,
+      national_id: (data.national_id ?? null),   // 👈 THÊM
       notes: normOrNull(data.notes) ?? null,
       tags: Array.isArray(data.tags) ? data.tags : undefined,
       idempotency_key: (normOrNull(data.idempotency_key) ?? undefined) as string | undefined,

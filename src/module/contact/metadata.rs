@@ -10,6 +10,7 @@ pub fn contact_form_schema() -> serde_json::Value {
           { "name": "parent_id", "label": "Thuộc công ty", "type": "select", "width": 8, "fetch": "/contact/list?is_company=true" },
           { "name": "name", "label": "Tên", "type": "text", "width": 8, "required": true },
           { "name": "display_name", "label": "Tên hiển thị", "type": "text", "width": 4 },
+          { "name": "national_id", "label": "Số CCCD", "type": "text", "width": 6 },
           { "name": "email", "label": "Email", "type": "email", "width": 6 },
           { "name": "phone", "label": "Điện thoại", "type": "text", "width": 6 },
           { "name": "mobile", "label": "Di động", "type": "text", "width": 6 },

@@ -24,13 +24,13 @@ CREATE TABLE IF NOT EXISTS contact (
   notes         TEXT,
   tags_cached   TEXT,
   idempotency_key TEXT,
-
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 
   created_by   UUID NOT NULL,    -- FK users cùng tenant
   assignee_id  UUID,
   shared_with  UUID[] DEFAULT '{}',
+  national_id text NULL,
 
   PRIMARY KEY (tenant_id, id),
 
