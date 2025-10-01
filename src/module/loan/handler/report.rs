@@ -1,8 +1,8 @@
 use axum::{
-    extract::{Path, State},
+    extract::{Path, State, Query},
     Extension, Json,
 };
-use chrono::Utc;
+use chrono::{NaiveDate, Utc};
 use futures::stream::{self, StreamExt};
 use serde_json::json;
 use sqlx::{Arguments, postgres::PgArguments};
@@ -13,7 +13,7 @@ use crate::module::loan::model::LoanTransactionRow;
 
 use crate::{
     core::{auth::AuthUser, error::AppError, state::AppState},
-    module::loan::{calculator, query, model::{LoanReport, LoanTransaction, LoanContract}},
+    module::loan::{calculator, query, model::{LoanReport, LoanReportView, LoanTransaction, LoanContract}},
 };
 
 /// ✅ Projection tức thời 1 hợp đồng (không ghi DB)
@@ -243,29 +243,40 @@ ON CONFLICT (tenant_id, contract_id, date) DO UPDATE SET
 pub async fn get_loan_report(
     State(state): State<Arc<AppState>>,
     Extension(auth): Extension<AuthUser>,
-) -> Result<Json<Vec<LoanReport>>, AppError> {
+) -> Result<Json<Vec<LoanReportView>>, AppError> {
     let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
 
+    // Mặc định: chỉ lấy ngày hôm nay. Có thể override qua query ?date=YYYY-MM-DD
+    let today = Utc::now().date_naive();
+    let date: NaiveDate = today;
+
     let rows = sqlx::query_as!(
-        LoanReport,
+        LoanReportView,
         r#"
         SELECT
-            tenant_id,
-            contract_id,
-            contact_id,
-            date,
-            current_principal,
-            current_interest,
-            accumulated_interest,
-            total_paid_interest,
-            total_paid_principal,
-            payoff_due,
-            state
-        FROM loan_report
-        WHERE tenant_id = $1
-        ORDER BY date DESC, contract_id
+            r.tenant_id,
+            r.contract_id,
+            r.contact_id,
+            r.date,
+            r.current_principal,
+            r.current_interest,
+            r.accumulated_interest,
+            r.total_paid_interest,
+            r.total_paid_principal,
+            r.payoff_due,
+            r.state,
+            c.contract_number,
+            co.name as contact_name
+        FROM loan_report r
+        JOIN loan_contract c
+          ON c.id = r.contract_id AND c.tenant_id = r.tenant_id
+        JOIN contact co
+          ON co.id = r.contact_id AND co.tenant_id = r.tenant_id
+        WHERE r.tenant_id = $1 AND r.date = $2
+        ORDER BY c.contract_number DESC
         "#,
         auth.tenant_id,
+        date,
     )
     .fetch_all(pool)
     .await

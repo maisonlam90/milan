@@ -13,6 +13,8 @@ type ID = string;
 
 export interface PivotRow {
   contract_id: ID;
+  contract_number?: string;
+  contact_name?: string;
   date: string; // ISO yyyy-mm-dd hoặc datetime
   current_principal?: number | null;
   current_interest?: number | null;
@@ -52,7 +54,29 @@ export default function LoanReportPage() {
       typeof p.value === "number" ? nf.format(p.value as number) : "-";
 
     return [
-      { field: "contract_id", headerName: "Contract ID", minWidth: 280, flex: 1 },
+      {
+        field: "contract_number",
+        headerName: "Số HĐ",
+        minWidth: 160,
+        sort: "desc",
+        cellRenderer: (p: any) => {
+          const id = p?.data?.contract_id as string | undefined;
+          const label = p?.value as string | undefined;
+          if (!id) return label ?? "-";
+          return (
+            <a
+              href={`/dashboards/loan/loan-create?id=${id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold"
+            >
+              {label ?? id}
+            </a>
+          );
+        },
+      },
+      { field: "contact_name", headerName: "Khách hàng", minWidth: 200, flex: 1 },
+      { field: "contract_id", headerName: "Contract ID", minWidth: 300 },
       {
         field: "date",
         headerName: "Date",
