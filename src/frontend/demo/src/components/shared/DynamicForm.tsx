@@ -2,8 +2,7 @@ import React, { useMemo } from "react";
 import clsx from "clsx";
 import { Controller, FieldValues, UseFormReturn } from "react-hook-form";
 
-// Giữ alias nếu bạn đã cấu hình; nếu chưa thì đổi về đường dẫn tương đối phù hợp dự án của bạn
-import { Input, Textarea } from "@/components/ui";
+import { Input, Textarea, Checkbox } from "@/components/ui";
 import { DatePicker } from "@/components/shared/form/Datepicker";
 
 /* ===================== Types ===================== */
@@ -16,16 +15,18 @@ export interface SelectOption {
   disabled?: boolean;
 }
 
-type FieldType = "text" | "textarea" | "select" | "date" | "number";
+// ✅ THÊM email và checkbox
+// ✅ Export FieldType để có thể dùng ở nơi khác nếu cần
+export type FieldType = "text" | "textarea" | "select" | "date" | "number" | "email" | "checkbox";
 
 export interface DynamicFieldConfig {
-  name: string;              // key trong form
-  label: string;             // nhãn hiển thị
-  type?: FieldType;          // mặc định "text"
-  width?: WidthSpan;         // 3/4/6/8/12
+  name: string;
+  label: string;
+  type?: FieldType;
+  width?: WidthSpan;
   required?: boolean;
   disabled?: boolean;
-  options?: SelectOption[];  // cho select (fallback nếu không có optionsMap)
+  options?: SelectOption[];
 }
 
 interface DynamicFormProps<TForm extends FieldValues = FieldValues> {
@@ -171,6 +172,68 @@ function renderField<TForm extends FieldValues>({
 }) {
   const rules = field.required ? { required: `${field.label} là bắt buộc` } : {};
 
+  /* -------- checkbox -------- */
+  if (field.type === "checkbox") {
+    if (disabled) {
+      const val = form.watch(field.name as any) as unknown;
+      return (
+        <div>
+          <FieldLabel label={field.label} />
+          <div className={roOneLine}>{val ? "Có" : "Không"}</div>
+          {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+        </div>
+      );
+    }
+
+    return (
+      <Controller
+        control={form.control}
+        name={field.name as any}
+        rules={rules}
+        render={({ field: { value, onChange, ...rest } }) => (
+          <div>
+            <Checkbox
+              checked={!!value}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.checked)}
+              label={field.label}
+              {...rest}
+            />
+            {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+          </div>
+        )}
+      />
+    );
+  }
+
+  /* -------- email -------- */
+  if (field.type === "email") {
+    if (disabled) {
+      const val = form.watch(field.name as any) as unknown;
+      return (
+        <div>
+          <FieldLabel label={field.label} />
+          <div className={roOneLine}>{(val as string) || ""}</div>
+          {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+        </div>
+      );
+    }
+
+    return (
+      <Input
+        type="email"
+        label={field.label}
+        error={error}
+        {...form.register(field.name as any, {
+          ...rules,
+          pattern: {
+            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+            message: "Email không hợp lệ"
+          }
+        })}
+      />
+    );
+  }
+
   /* -------- textarea -------- */
   if (field.type === "textarea") {
     if (disabled) {
@@ -251,9 +314,7 @@ function renderField<TForm extends FieldValues>({
           rules={rules}
           render={({ field: { value, onChange, ...rest } }) => (
             <DatePicker
-              // Nếu DatePicker hỗ trợ controlled value, bạn có thể truyền:
               value={value || ""}
-              // ✅ Đúng chữ ký Flatpickr: (selectedDates, dateStr, instance)
               onChange={(selectedDates: Date[]) => {
                 const first = selectedDates?.[0] ?? null;
                 if (!first) return onChange(null);
@@ -263,7 +324,7 @@ function renderField<TForm extends FieldValues>({
               }}
               placeholder="Chọn ngày..."
               className="w-full"
-              options={{ disableMobile: true, dateFormat: "d/m/Y" }} // dd/mm/yyyy
+              options={{ disableMobile: true, dateFormat: "d/m/Y" }}
               {...rest}
             />
           )}
