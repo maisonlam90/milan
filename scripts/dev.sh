@@ -1,6 +1,6 @@
 #Lenh thuong dung
 
-echo "🚀 Khởi động Axum..."
+echo "🚀 Khởi động Axum...."
 sudo fuser -k 3000/tcp
 cargo run
 RUST_LOG=debug cargo run
