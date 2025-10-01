@@ -136,7 +136,7 @@ const ContactCreatePage: React.FC = () => {
   // ✅ Tạo default values từ metadata fields
   const getDefaultValues = useCallback((fields: DynamicFieldConfig[]): ContactFormValues => {
     const defaults: ContactFormValues = {
-      is_company: false,
+      is_company: false, // Mặc định là Cá nhân
       parent_id: null,
       created_at: null,
       updated_at: null,
@@ -401,9 +401,105 @@ const ContactCreatePage: React.FC = () => {
                 </h3>
 
                 <div className="mt-5 space-y-5">
+                  {/* Custom Company Fields */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Phân loại */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-dark-100 mb-2">
+                        Phân loại
+                      </label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {/* Cá nhân */}
+                        <label
+                          className={`relative flex min-w-0 cursor-pointer items-center justify-between gap-2 rounded-lg border p-3 ${
+                            !form.watch("is_company")
+                              ? "border-primary-500 ring-1 ring-primary-500/30"
+                              : "border-gray-200 dark:border-dark-600"
+                          }`}
+                        >
+                          <div className="flex min-w-0 gap-2">
+                            <span className="text-sm">Cá nhân</span>
+                          </div>
+                          <input
+                            type="radio"
+                            name="contact_type"
+                            className="size-4"
+                            checked={!form.watch("is_company")}
+                            onChange={() => form.setValue("is_company", false)}
+                            disabled={!isEditing}
+                          />
+                        </label>
+
+                        {/* Công ty */}
+                        <label
+                          className={`relative flex min-w-0 cursor-pointer items-center justify-between gap-2 rounded-lg border p-3 ${
+                            form.watch("is_company")
+                              ? "border-primary-500 ring-1 ring-primary-500/30"
+                              : "border-gray-200 dark:border-dark-600"
+                          }`}
+                        >
+                          <div className="flex min-w-0 gap-2">
+                            <span className="text-sm">Công ty</span>
+                          </div>
+                          <input
+                            type="radio"
+                            name="contact_type"
+                            className="size-4"
+                            checked={form.watch("is_company")}
+                            onChange={() => form.setValue("is_company", true)}
+                            disabled={!isEditing}
+                          />
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Thuộc công ty */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-dark-100 mb-2">
+                        Thuộc công ty
+                      </label>
+                      <label
+                        className={`relative flex min-w-0 cursor-pointer items-center justify-between gap-2 rounded-lg border p-3 ${
+                          form.watch("parent_id")
+                            ? "border-primary-500 ring-1 ring-primary-500/30"
+                            : "border-gray-200 dark:border-dark-600"
+                        }`}
+                      >
+                        <div className="flex min-w-0 gap-2">
+                          <span className="text-sm">
+                            {(() => {
+                              const parentId = form.watch("parent_id");
+                              const company = companies.find(c => c.id === parentId);
+                              return company ? (company.display_name || company.name || company.email || company.phone || company.id) : "-- Chọn Thuộc công ty --";
+                            })()}
+                          </span>
+                        </div>
+                        <select
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          value={form.watch("parent_id") || ""}
+                          onChange={(e) => form.setValue("parent_id", e.target.value || null)}
+                          disabled={!isEditing}
+                        >
+                          <option value="">-- Chọn Thuộc công ty --</option>
+                          {companies.map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {c.display_name || c.name || c.email || c.phone || c.id}
+                            </option>
+                          ))}
+                        </select>
+                        <svg className="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Dynamic Form cho các field khác (loại bỏ is_company và parent_id) */}
                   <DynamicForm
                     form={form}
-                    fields={toDynamicFields(metadata?.form?.fields)}
+                    fields={toDynamicFields(metadata?.form?.fields).filter(field => 
+                      field.name !== 'is_company' && field.name !== 'parent_id'
+                    )}
                     disabled={!isEditing}
                     optionsMap={{
                       parent_id: (companies || []).map((c) => ({
