@@ -57,6 +57,8 @@ export default function LoanReportPage() {
         field: "date",
         headerName: "Date",
         minWidth: 130,
+        filter: "agTextColumnFilter", // Sử dụng text filter thay vì date filter
+        floatingFilter: true,
         // KHÔNG set filter để tránh cần DateFilterModule
         valueFormatter: (p) => {
           const v = p.value as string | null | undefined;
