@@ -5,6 +5,8 @@ import axios from "axios";
 import { JWT_HOST_API } from "@/configs/auth";
 import { Page } from "@/components/shared/Page";
 import { Card, Button, Input } from "@/components/ui";
+import AgGridView from "@/components/datagrid/AgGridView";
+import type { ColDef, ValueFormatterParams } from "ag-grid-community";
 import DynamicForm from "@/components/shared/DynamicForm";
 import type { DynamicFieldConfig } from "@/components/shared/DynamicForm";
 
@@ -21,7 +23,8 @@ export interface CollateralFormValues {
 
 interface CollateralItem {
   asset_id: ID;
-  contract_id?: ID;
+  contract_id?: ID | null;
+  contract_number?: string | null;
   asset_type: string;
   description?: string | null;
   value_estimate?: number | null;
@@ -82,6 +85,7 @@ export default function CollateralPanel({
   const [saving, setSaving] = useState(false);
   const [contractRef, setContractRef] = useState<string>(propContractId || "");
   const [loading, setLoading] = useState(false);
+  const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
 
   const form: UseFormReturn<CollateralFormValues> = useForm<CollateralFormValues>({
     defaultValues: {
@@ -133,10 +137,11 @@ export default function CollateralPanel({
     load();
   };
 
-  const handleCreate = async () => {
+  const handleSave = async () => {
+    const isUpdate = !!selectedAssetId;
     const cid = propContractId || (contractRef || "").trim();
-    if (!cid) {
-      alert("Vui lòng nhập số hợp đồng (Contract ID) trước khi thêm tài sản.");
+    if (!isUpdate && !cid) {
+      alert("Vui lòng nhập Contract ID khi tạo tài sản mới.");
       return;
     }
 
@@ -144,27 +149,38 @@ export default function CollateralPanel({
       setSaving(true);
       const data = form.getValues();
       const payload = {
-        ...data,
+        asset_type: data.asset_type,
+        description: data.description || undefined,
         value_estimate:
           data.value_estimate === "" || data.value_estimate == null
             ? undefined
             : Number(data.value_estimate),
-        contract_id: cid, // liên kết khi tạo
+        status: data.status,
       };
-      await api.post("/loan/collateral", payload, { headers: { ...authHeader } });
-      form.reset({
-        asset_type: "vehicle",
-        description: "",
-        value_estimate: "",
-        status: "available",
-      });
-      load();
+
+      if (selectedAssetId) {
+        // update
+        await api.post(`/loan/collateral/${selectedAssetId}`, payload, { headers: { ...authHeader } });
+      } else {
+        // create (kèm liên kết hợp đồng)
+        await api.post("/loan/collateral", { ...payload, contract_id: cid }, { headers: { ...authHeader } });
+      }
+
+      // reset UI và reload
+      setSelectedAssetId(null);
+      form.reset({ asset_type: "vehicle", description: "", value_estimate: "", status: "available" });
+      await load();
     } catch (e) {
-      alert("❌ Tạo tài sản thất bại");
+      alert("❌ Lưu tài sản thất bại");
       console.error(e);
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleCancelEdit = () => {
+    setSelectedAssetId(null);
+    form.reset({ asset_type: "vehicle", description: "", value_estimate: "", status: "available" });
   };
 
   const fmtNumber = (v: unknown): string => {
@@ -178,6 +194,49 @@ export default function CollateralPanel({
     const d = v instanceof Date ? v : new Date(v as any);
     return Number.isNaN(d.getTime()) ? "-" : d.toLocaleString();
     };
+
+  // Cấu hình cột Ag Grid (cho phép sửa trực tiếp)
+  const nf = useMemo(() => new Intl.NumberFormat("vi-VN"), []);
+  const columnDefs = useMemo<ColDef<CollateralItem>[]>(() => {
+    const moneyFmt = (p: ValueFormatterParams<CollateralItem, unknown>) =>
+      typeof p.value === "number" ? nf.format(p.value as number) : fmtNumber(p.value);
+
+    return [
+      { field: "contract_number", headerName: "Số HĐ", minWidth: 200 },
+      { field: "contract_id", headerName: "Contract ID", minWidth: 280 },
+      { field: "asset_id", headerName: "Asset ID", minWidth: 280 },
+      { field: "asset_type", headerName: "Loại", minWidth: 140 },
+      { field: "description", headerName: "Mô tả", minWidth: 240, flex: 1 },
+      {
+        field: "value_estimate",
+        headerName: "Giá trị (ước tính)",
+        minWidth: 160,
+        valueFormatter: moneyFmt,
+      },
+      { field: "status", headerName: "Trạng thái", minWidth: 140 },
+      {
+        field: "created_at",
+        headerName: "Tạo lúc",
+        minWidth: 180,
+        valueFormatter: (p) => fmtDateTime(p.value as any),
+      },
+    ];
+  }, [nf]);
+
+  const handleRowClick = useCallback(
+    (e: any) => {
+      const row = e.data as CollateralItem;
+      setSelectedAssetId(String(row.asset_id));
+      form.setValue("asset_type", (row.asset_type as any) || "vehicle");
+      form.setValue("description", (row.description as any) || "");
+      form.setValue(
+        "value_estimate",
+        row.value_estimate == null ? "" : Number(row.value_estimate as any)
+      );
+      form.setValue("status", ((row.status as any) || "available") as any);
+    },
+    [form]
+  );
 
   return (
     <Page title="Quản lý tài sản thế chấp">
@@ -225,9 +284,14 @@ export default function CollateralPanel({
                   disabled={!!readOnly}
                 />
                 {!readOnly && (
-                  <div className="flex justify-end">
-                    <Button onClick={handleCreate} disabled={saving}>
-                      {saving ? "Đang lưu..." : "Thêm tài sản"}
+                  <div className="flex items-center justify-end gap-3">
+                    {selectedAssetId && (
+                      <Button variant="flat" onClick={handleCancelEdit} disabled={saving}>
+                        Hủy
+                      </Button>
+                    )}
+                    <Button onClick={handleSave} disabled={saving}>
+                      {saving ? "Đang lưu..." : selectedAssetId ? "Lưu thay đổi" : "Thêm tài sản"}
                     </Button>
                   </div>
                 )}
@@ -237,44 +301,19 @@ export default function CollateralPanel({
           <div className="col-span-12 lg:col-span-4"></div>
         </div>
 
-        <div className="mt-6 overflow-x-auto">
-          <Card className="p-4 sm:px-5">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="text-left text-gray-500">
-                  <th className="py-2 pr-4">Loại</th>
-                  <th className="py-2 pr-4">Mô tả</th>
-                  <th className="py-2 pr-4">Giá trị (ước tính)</th>
-                  <th className="py-2 pr-4">Trạng thái</th>
-                  <th className="py-2">Tạo lúc</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((it) => (
-                  <tr key={String(it.asset_id)} className="border-t border-gray-100">
-                    <td className="py-2 pr-4">{it.asset_type}</td>
-                    <td className="py-2 pr-4">{it.description || "-"}</td>
-                    <td className="py-2 pr-4">{fmtNumber(it.value_estimate)}</td>
-                    <td className="py-2 pr-4">{it.status || "-"}</td>
-                    <td className="py-2">{fmtDateTime(it.created_at)}</td>
-                  </tr>
-                ))}
-                {!items.length && !loading && (
-                  <tr>
-                    <td className="py-3 text-gray-400" colSpan={5}>
-                      Chưa có tài sản.
-                    </td>
-                  </tr>
-                )}
-                {loading && (
-                  <tr>
-                    <td className="py-3 text-gray-500" colSpan={5}>
-                      Đang tải...
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+        <div className="mt-6">
+          <Card className="p-2">
+            <AgGridView<CollateralItem>
+              key={items.length + (loading ? 1 : 0)}
+              title="Danh sách tài sản thế chấp"
+              height={600}
+              theme="quartz"
+              themeSwitcher
+              // dùng data local đã load để giữ logic filter/sort local
+              rowData={items}
+              columnDefs={columnDefs}
+              onRowClicked={handleRowClick}
+            />
           </Card>
         </div>
       </div>

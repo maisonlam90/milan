@@ -32,6 +32,7 @@ pub fn routes() -> Router<Arc<AppState>> {
                 // ✅ Tạo/gộp trực tiếp tài sản
                 .route("/collateral", post(handler::create_collateral))
                 .route("/collateral", get(handler::list_collateral))
+                .route("/collateral/:asset_id", post(handler::update_collateral))
                 .layer(middleware::from_fn(jwt_auth)),           // Tất cả require JWT
         )
 }
