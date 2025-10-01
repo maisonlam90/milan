@@ -124,3 +124,20 @@ pub struct LoanTransactionRow {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
+
+#[derive(Debug, Clone, sqlx::FromRow, serde::Serialize)]
+pub struct LoanReportView {
+    pub tenant_id: Uuid,
+    pub contract_id: Uuid,
+    pub contact_id: Uuid,
+    pub date: NaiveDate,
+    pub current_principal: Option<i64>,
+    pub current_interest: Option<i64>,
+    pub accumulated_interest: Option<i64>,
+    pub total_paid_interest: Option<i64>,
+    pub total_paid_principal: Option<i64>,
+    pub payoff_due: Option<i64>,
+    pub state: String,
+    pub contract_number: String,
+    pub contact_name: String,
+}
