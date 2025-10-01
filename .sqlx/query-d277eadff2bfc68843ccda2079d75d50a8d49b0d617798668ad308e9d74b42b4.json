@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT\n            tenant_id,\n            contract_id,\n            contact_id,\n            date,\n            current_principal,\n            current_interest,\n            accumulated_interest,\n            total_paid_interest,\n            total_paid_principal,\n            payoff_due,\n            state\n        FROM loan_report\n        WHERE tenant_id = $1\n        ORDER BY date DESC, contract_id\n        ",
+  "query": "\n        SELECT\n            r.tenant_id,\n            r.contract_id,\n            r.contact_id,\n            r.date,\n            r.current_principal,\n            r.current_interest,\n            r.accumulated_interest,\n            r.total_paid_interest,\n            r.total_paid_principal,\n            r.payoff_due,\n            r.state,\n            c.contract_number,\n            co.name as contact_name\n        FROM loan_report r\n        JOIN loan_contract c\n          ON c.id = r.contract_id AND c.tenant_id = r.tenant_id\n        JOIN contact co\n          ON co.id = r.contact_id AND co.tenant_id = r.tenant_id\n        WHERE r.tenant_id = $1 AND r.date = $2\n        ORDER BY c.contract_number DESC\n        ",
   "describe": {
     "columns": [
       {
@@ -57,11 +57,22 @@
         "ordinal": 10,
         "name": "state",
         "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "contract_number",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "contact_name",
+        "type_info": "Text"
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Uuid",
+        "Date"
       ]
     },
     "nullable": [
@@ -75,8 +86,10 @@
       true,
       true,
       true,
+      false,
+      false,
       false
     ]
   },
-  "hash": "9937717b3ed6b82270b4a24a103573d6fd6be1c800ff79b0d9a19a619fca5fb9"
+  "hash": "d277eadff2bfc68843ccda2079d75d50a8d49b0d617798668ad308e9d74b42b4"
 }
