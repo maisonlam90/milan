@@ -16,20 +16,51 @@ use crate::module::loan::dto::{CreateCollateralDto,CollateralAsset};
 
 
 
+#[derive(Serialize, sqlx::FromRow)]
+pub struct CollateralAssetView {
+    pub tenant_id: Uuid,
+    pub asset_id: Uuid,
+    pub asset_type: String,
+    pub description: Option<String>,
+    pub value_estimate: Option<BigDecimal>,
+    pub owner_contact_id: Option<Uuid>,
+    pub status: String,
+    pub created_by: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub contract_id: Option<Uuid>,
+    pub contract_number: Option<String>,
+}
+
 pub async fn list_collateral(
     State(state): State<Arc<AppState>>,
     user: AuthUser,
-) -> Result<Json<Vec<CollateralAsset>>, AppError> {
+) -> Result<Json<Vec<CollateralAssetView>>, AppError> {
     let pool: &PgPool = state.shard.get_pool_for_tenant(&user.tenant_id);
 
     let items = sqlx::query_as!(
-        CollateralAsset,
+        CollateralAssetView,
         r#"
-        SELECT tenant_id, asset_id, asset_type, description,
-               value_estimate, owner_contact_id, status, created_by, created_at
-        FROM collateral_assets
-        WHERE tenant_id = $1
-        ORDER BY created_at DESC
+        SELECT a.tenant_id,
+               a.asset_id,
+               a.asset_type,
+               a.description,
+               a.value_estimate,
+               a.owner_contact_id,
+               a.status,
+               a.created_by,
+               a.created_at,
+               lc.contract_id,
+               c.contract_number
+        FROM collateral_assets a
+        LEFT JOIN loan_collateral lc
+          ON lc.tenant_id = a.tenant_id
+         AND lc.asset_id  = a.asset_id
+         AND lc.status    = 'active'
+        LEFT JOIN loan_contract c
+          ON c.tenant_id = lc.tenant_id
+         AND c.id        = lc.contract_id
+        WHERE a.tenant_id = $1
+        ORDER BY a.created_at DESC
         "#,
         user.tenant_id
     )
@@ -183,4 +214,71 @@ pub async fn release_collateral_from_contract(
     .await?;
 
     Ok(())
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UpdateCollateralDto {
+    pub asset_type: Option<String>,
+    pub description: Option<String>,
+    pub value_estimate: Option<BigDecimal>,
+    pub owner_contact_id: Option<Uuid>,
+    pub status: Option<String>,
+}
+
+/// Cập nhật tài sản thế chấp theo asset_id (thuộc tenant hiện tại)
+pub async fn update_collateral(
+    State(state): State<Arc<AppState>>,
+    user: AuthUser,
+    Path(asset_id): Path<Uuid>,
+    Json(payload): Json<UpdateCollateralDto>,
+) -> Result<Json<CollateralAsset>, AppError> {
+    let pool = state.shard.get_pool_for_tenant(&user.tenant_id);
+
+    // Lấy bản ghi hiện tại để merge giá trị Option
+    let existing = sqlx::query_as!(
+        CollateralAsset,
+        r#"
+        SELECT tenant_id, asset_id, asset_type, description,
+               value_estimate, owner_contact_id, status, created_by, created_at
+        FROM collateral_assets
+        WHERE tenant_id = $1 AND asset_id = $2
+        "#,
+        user.tenant_id,
+        asset_id
+    )
+    .fetch_one(pool)
+    .await
+    .map_err(|_| AppError::bad_request("asset not found"))?;
+
+    let new_asset_type = payload.asset_type.unwrap_or(existing.asset_type.clone());
+    let new_description = payload.description.or(existing.description.clone());
+    let new_value_estimate = payload.value_estimate.or(existing.value_estimate.clone());
+    let new_owner_contact_id = payload.owner_contact_id.or(existing.owner_contact_id);
+    let new_status = payload.status.unwrap_or(existing.status.clone());
+
+    let updated = sqlx::query_as!(
+        CollateralAsset,
+        r#"
+        UPDATE collateral_assets
+        SET asset_type = $3,
+            description = $4,
+            value_estimate = $5,
+            owner_contact_id = $6,
+            status = $7
+        WHERE tenant_id = $1 AND asset_id = $2
+        RETURNING tenant_id, asset_id, asset_type, description,
+                  value_estimate, owner_contact_id, status, created_by, created_at
+        "#,
+        user.tenant_id,
+        asset_id,
+        new_asset_type,
+        new_description,
+        new_value_estimate,
+        new_owner_contact_id,
+        new_status,
+    )
+    .fetch_one(pool)
+    .await?;
+
+    Ok(Json(updated))
 }
