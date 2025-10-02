@@ -52,10 +52,10 @@ export function ContractCard({
   clients,
   relations,
   awards,
-  contract_id,
-  daily_profit,
-  days_active,
-  created_at,
+  contract_id: _contract_id,
+  daily_profit: _daily_profit,
+  days_active: _days_active,
+  created_at: _created_at,
 }: Seller) {
   // Function để format số tiền ngắn gọn
   const formatCompactNumber = (num: number) => {
