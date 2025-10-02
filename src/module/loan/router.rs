@@ -4,7 +4,6 @@ use std::sync::Arc;
 use axum::routing::delete; // 👈 để dùng delete()
 use crate::core::{state::AppState, auth::jwt_auth};
 use crate::module::loan::handler;
-use crate::module::loan::handler::report::pivot_now_contract;
 
 pub fn routes() -> Router<Arc<AppState>> {
     Router::new()
@@ -19,7 +18,13 @@ pub fn routes() -> Router<Arc<AppState>> {
                 .route("/:id/update", post(handler::update_contract))  // cập nhật
                 .route("/:id", delete(handler::delete_contract))       // ✅ Xoá hợp đồng
                 .route("/stats", get(handler::get_loan_stats))         //bao cao
-                .route("/monthly-interest", get(handler::get_monthly_interest_income)) // lãi tháng
+                       .route("/monthly-interest", get(handler::get_monthly_interest_income)) // lãi tháng
+                       .route("/dashboard-stats", get(handler::get_dashboard_stats)) // 6 ô dashboard
+                       .route("/portfolio-quality", get(handler::get_loan_portfolio_quality)) // chất lượng danh mục
+                       .route("/contract-status", get(handler::get_contract_status)) // trạng thái hợp đồng
+                       .route("/top-contracts", get(handler::get_top_contracts)) // top hợp đồng có lợi nhuận cao nhất
+                       .route("/activity-report", get(handler::get_loan_activity_report)) // báo cáo hoạt động cho vay
+                       .route("/recent-activities", get(handler::get_recent_activities)) // hoạt động gần đây
                 .nest("/report", Router::new()
                     .route("/", get(handler::get_loan_report)) // ✅ API load báo cáo pivot
                     .route("/pivot-now", post(handler::pivot_now_all_contracts)) // ✅ Tính tất cả

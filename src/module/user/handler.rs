@@ -1,6 +1,5 @@
 use axum::{extract::{State, Extension}, Json};
 use axum::response::IntoResponse;
-use axum::http::StatusCode;
 use bcrypt::verify as bcrypt_verify;
 use chrono::DateTime;
 use jsonwebtoken::{encode, EncodingKey, Header};
