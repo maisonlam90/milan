@@ -912,35 +912,53 @@ pub async fn get_contract_status(
         {
             "id": 1,
             "name": "Hợp đồng đang hoạt động",
-            "description": format!("{} hợp đồng đang hoạt động", active_contracts),
+            "description": format!("Tỷ lệ trả nợ trung bình: {:.1}%", avg_progress),
             "color": "info",
             "category": "Hoạt động",
             "progress": avg_progress,
             "created_at": format!("Cập nhật: {}", today.format("%d/%m/%Y")),
             "count": active_contracts,
-            "teamMembers": []
+            "teamMembers": [
+                {
+                    "id": "1",
+                    "name": "Active",
+                    "avatar": ""
+                }
+            ]
         },
         {
             "id": 2,
             "name": "Hợp đồng quá hạn",
-            "description": format!("{} hợp đồng quá hạn", overdue_contracts),
+            "description": format!("Mức độ quá hạn trung bình: {:.1} ngày", avg_overdue_days),
             "color": "error",
             "category": "Quá hạn",
             "progress": avg_overdue_days.min(100.0), // Cap at 100% for display
-            "created_at": format!("TB: {:.1} ngày", avg_overdue_days),
+            "created_at": format!("Cập nhật: {}", today.format("%d/%m/%Y")),
             "count": overdue_contracts,
-            "teamMembers": []
+            "teamMembers": [
+                {
+                    "id": "2",
+                    "name": "Overdue",
+                    "avatar": ""
+                }
+            ]
         },
         {
             "id": 3,
             "name": "Hợp đồng tất toán",
-            "description": format!("{}/{} hợp đồng tháng này", settled_this_month, monthly_settlement_target),
+            "description": format!("Đạt {:.1}% mục tiêu tháng này", settlement_progress),
             "color": "success",
             "category": "Tất toán",
             "progress": settlement_progress.min(100.0), // Cap at 100%
             "created_at": format!("Mục tiêu: {} HĐ/tháng", monthly_settlement_target),
             "count": settled_this_month,
-            "teamMembers": []
+            "teamMembers": [
+                {
+                    "id": "3",
+                    "name": "Settled",
+                    "avatar": ""
+                }
+            ]
         }
     ]);
 
