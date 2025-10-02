@@ -19,6 +19,7 @@ pub fn routes() -> Router<Arc<AppState>> {
                 .route("/:id/update", post(handler::update_contract))  // cập nhật
                 .route("/:id", delete(handler::delete_contract))       // ✅ Xoá hợp đồng
                 .route("/stats", get(handler::get_loan_stats))         //bao cao
+                .route("/monthly-interest", get(handler::get_monthly_interest_income)) // lãi tháng
                 .nest("/report", Router::new()
                     .route("/", get(handler::get_loan_report)) // ✅ API load báo cáo pivot
                     .route("/pivot-now", post(handler::pivot_now_all_contracts)) // ✅ Tính tất cả
