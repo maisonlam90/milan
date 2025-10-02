@@ -7,9 +7,12 @@ import {
 } from "@heroicons/react/24/outline";
 import Chart, { Props } from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
+import { useEffect, useState, useMemo } from "react";
+import axios from "axios";
 
 // Local Imports
 import { Button } from "@/components/ui";
+import { JWT_HOST_API } from "@/configs/auth";
 
 // ----------------------------------------------------------------------
 
@@ -69,19 +72,60 @@ const chartConfig: ApexOptions = {
 };
 
 export function Info() {
+  const [monthlyInterest, setMonthlyInterest] = useState<number>(0);
+  const [loading, setLoading] = useState(false);
+
+  const token = useMemo(
+    () => (typeof window !== "undefined" ? localStorage.getItem("authToken") || "" : ""),
+    []
+  );
+
+  const fetchMonthlyInterest = async () => {
+    if (!token) return;
+    setLoading(true);
+    try {
+      const res = await axios.get(`${JWT_HOST_API}/loan/monthly-interest`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setMonthlyInterest(res.data?.monthly_interest_paid || 0);
+    } catch (error) {
+      console.error("Error fetching monthly interest:", error);
+      setMonthlyInterest(0);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMonthlyInterest();
+  }, [token]);
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(amount);
+  };
+
   return (
     <div className="mt-4 flex shrink-0 flex-col items-center sm:items-start">
       <ChartPieIcon className="this:info text-this dark:text-this-lighter size-8" />
       <div className="mt-4">
         <div className="flex items-center gap-1">
           <p className="dark:text-dark-100 text-2xl font-semibold text-gray-800">
-            $6,556.55
+            {loading ? "..." : formatCurrency(monthlyInterest)}
           </p>
-          <Button variant="flat" isIcon className="size-6 rounded-full">
+          <Button 
+            variant="flat" 
+            isIcon 
+            className="size-6 rounded-full"
+            onClick={fetchMonthlyInterest}
+            disabled={loading}
+          >
             <ArrowPathIcon className="size-4" />
           </Button>
         </div>
-        <p className="dark:text-dark-300 text-xs text-gray-400">this month</p>
+        <p className="dark:text-dark-300 text-xs text-gray-400">lãi thu tháng này</p>
       </div>
       <div className="mt-3 flex items-center gap-2">
         <div className="ax-transparent-gridline w-28">

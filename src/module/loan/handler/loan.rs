@@ -9,13 +9,26 @@ use std::sync::Arc;
 use serde_json::json;
 use uuid::Uuid;
 use tracing::error;
-use bigdecimal::ToPrimitive;
 use chrono::{Datelike, NaiveDate};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::time::{Duration, Instant};
+use tokio::sync::RwLock;
+use once_cell::sync::Lazy;
 
 use crate::core::auth::AuthUser;
 use crate::core::error::{AppError, ErrorResponse};
 use crate::core::state::AppState;
+
+// Cache global cho stats với TTL 5 phút
+static STATS_CACHE: Lazy<RwLock<HashMap<String, (StatsResponse, Instant)>>> = 
+    Lazy::new(|| RwLock::new(HashMap::new()));
+
+// Cache global cho monthly interest với TTL 5 phút
+static MONTHLY_INTEREST_CACHE: Lazy<RwLock<HashMap<String, (serde_json::Value, Instant)>>> = 
+    Lazy::new(|| RwLock::new(HashMap::new()));
+
+const CACHE_TTL: Duration = Duration::from_secs(300); // 5 phút
 use crate::module::loan::{
     calculator,
     command,
@@ -160,49 +173,88 @@ pub struct StatsParams {
     pub year: i32,
     pub month: Option<u32>,
     pub range: Option<String>,
+    pub use_report: Option<bool>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 pub struct Serie {
     pub contract_number: String,
     pub data: Vec<i64>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 pub struct StatsResponse {
     pub categories: Vec<String>,
     pub series: Vec<Serie>,
 }
 
-pub async fn get_loan_stats(
-    State(state): State<Arc<AppState>>,
-    Extension(auth): Extension<AuthUser>,
-    Query(params): Query<StatsParams>,
-) -> Json<StatsResponse> {
-    let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
-    let tenant_id: Uuid = auth.tenant_id;
+// Helper function để tính stats từ transactions (không cache)
+async fn calculate_stats_from_transactions(
+    pool: &sqlx::PgPool,
+    tenant_id: Uuid,
+    params: &StatsParams,
+) -> StatsResponse {
     let range = params.range.clone().unwrap_or_else(|| "monthly".to_string());
 
-    let rows = match range.as_str() {
-        "daily" => {
-            let month = params.month.unwrap_or(1);
-            query::aggregate_by_day(pool, tenant_id, params.year, month).await.unwrap_or_default()
-        }
-        "yearly" => {
-            query::aggregate_by_year(pool, tenant_id).await.unwrap_or_default()
-        }
-        _ => {
-            query::aggregate_by_month(pool, tenant_id, params.year).await.unwrap_or_default()
-        }
-    };
+    // Lấy tất cả hợp đồng và tính từ transactions với calculator
+    let contracts = query::list_contracts(pool, tenant_id).await.unwrap_or_default();
+    let mut monthly_stats: std::collections::BTreeMap<i32, (i64, i64)> = std::collections::BTreeMap::new();
 
-    use std::collections::BTreeMap;
-    let mut m: BTreeMap<i32, (i64, i64)> = BTreeMap::new();
-    for r in rows {
-        let k = r.group_key.unwrap_or(0.0).round() as i32;
-        let issued = r.total_issued.and_then(|v| v.to_i64()).unwrap_or(0);
-        let repaid = r.total_repaid.and_then(|v| v.to_i64()).unwrap_or(0);
-        m.insert(k, (issued, repaid));
+    for mut contract in contracts {
+        let mut transactions = query::get_transactions_by_contract(pool, tenant_id, contract.id)
+            .await
+            .unwrap_or_default();
+
+        if transactions.is_empty() {
+            continue;
+        }
+
+        // Tính toán interest_applied cho từng transaction
+        calculator::calculate_interest_fields(&mut contract, &mut transactions);
+
+        // Nhóm theo tháng/ngày/năm tùy theo range
+        for tx in &transactions {
+            let tx_date = tx.date.with_timezone(&chrono_tz::Asia::Bangkok).date_naive();
+            
+            let key = match range.as_str() {
+                "daily" => {
+                    // Chỉ lấy transactions trong tháng được chọn
+                    let month = params.month.unwrap_or(1);
+                    if tx_date.year() == params.year && tx_date.month() == month {
+                        tx_date.day() as i32
+                    } else {
+                        continue;
+                    }
+                }
+                "yearly" => tx_date.year(),
+                _ => tx_date.month() as i32, // monthly
+            };
+
+            // Chỉ lấy transactions trong năm được chọn (trừ daily đã filter ở trên)
+            if range != "daily" && tx_date.year() != params.year {
+                continue;
+            }
+
+            let entry = monthly_stats.entry(key).or_insert((0, 0));
+
+            // Loan Issued: disbursement + additional
+            if matches!(tx.transaction_type.as_str(), "disbursement" | "additional") {
+                entry.0 += tx.amount;
+            }
+
+            // Loan Repaid: principal + interest_applied (bao gồm cả lãi từ settlement/liquidation)
+            if matches!(tx.transaction_type.as_str(), "principal" | "interest" | "settlement" | "liquidation") {
+                if tx.transaction_type == "settlement" || tx.transaction_type == "liquidation" {
+                    // Với settlement/liquidation, lấy interest_applied (đã được calculator tách)
+                    entry.1 += tx.interest_applied;
+                    // Cộng thêm phần principal (amount - interest_applied)
+                    entry.1 += tx.amount - tx.interest_applied;
+                } else {
+                    // Với principal/interest thuần túy
+                    entry.1 += tx.amount;
+                }
+            }
+        }
     }
 
     let (categories, issued_vec, repaid_vec) = match range.as_str() {
@@ -214,18 +266,18 @@ pub async fn get_loan_stats(
             let mut rv = Vec::with_capacity(last_day as usize);
             for d in 1..=last_day {
                 cats.push(d.to_string());
-                let (i, r) = m.get(&(d as i32)).cloned().unwrap_or((0, 0));
+                let (i, r) = monthly_stats.get(&(d as i32)).cloned().unwrap_or((0, 0));
                 iv.push(i);
                 rv.push(r);
             }
             (cats, iv, rv)
         }
         "yearly" => {
-            let cats: Vec<String> = m.keys().map(|y| y.to_string()).collect();
+            let cats: Vec<String> = monthly_stats.keys().map(|y| y.to_string()).collect();
             let mut iv = Vec::with_capacity(cats.len());
             let mut rv = Vec::with_capacity(cats.len());
-            for k in m.keys() {
-                let (i, r) = m.get(k).cloned().unwrap_or((0, 0));
+            for k in monthly_stats.keys() {
+                let (i, r) = monthly_stats.get(k).cloned().unwrap_or((0, 0));
                 iv.push(i);
                 rv.push(r);
             }
@@ -237,7 +289,7 @@ pub async fn get_loan_stats(
             let mut rv = Vec::with_capacity(12);
             for mth in 1..=12u32 {
                 cats.push(short_month(mth).to_string());
-                let (i, r) = m.get(&(mth as i32)).cloned().unwrap_or((0, 0));
+                let (i, r) = monthly_stats.get(&(mth as i32)).cloned().unwrap_or((0, 0));
                 iv.push(i);
                 rv.push(r);
             }
@@ -245,13 +297,170 @@ pub async fn get_loan_stats(
         }
     };
 
-    Json(StatsResponse {
+    StatsResponse {
         categories,
         series: vec![
             Serie { contract_number: "Loan Issued".into(), data: issued_vec },
             Serie { contract_number: "Loan Repaid".into(), data: repaid_vec },
         ],
-    })
+    }
+}
+
+
+pub async fn get_loan_stats(
+    State(state): State<Arc<AppState>>,
+    Extension(auth): Extension<AuthUser>,
+    Query(params): Query<StatsParams>,
+) -> Json<StatsResponse> {
+    let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
+    
+    // Tạo cache key
+    let cache_key = format!("stats_{}_{}_{}_{}", 
+        auth.tenant_id, 
+        params.range.as_ref().unwrap_or(&"monthly".to_string()),
+        params.year,
+        params.month.unwrap_or(1)
+    );
+
+    // Check cache trước
+    {
+        let cache = STATS_CACHE.read().await;
+        if let Some((cached_response, cached_time)) = cache.get(&cache_key) {
+            if cached_time.elapsed() < CACHE_TTL {
+                return Json(cached_response.clone());
+            }
+        }
+    }
+
+    // Hybrid approach: tháng hiện tại từ transactions, tháng cũ từ pre-computed
+    let now = chrono::Utc::now();
+    let current_year = now.year();
+    let current_month = now.month();
+    
+    let result = if params.year == current_year && 
+                    (params.range.as_ref().unwrap_or(&"monthly".to_string()) == "monthly" ||
+                     (params.range.as_ref().unwrap_or(&"monthly".to_string()) == "daily" && 
+                      params.month.unwrap_or(1) == current_month)) {
+        // Tháng hiện tại: tính real-time từ transactions
+        calculate_stats_from_transactions(pool, auth.tenant_id, &params).await
+    } else {
+        // Tháng cũ: lấy từ pre-computed (fallback to transactions nếu không có)
+        calculate_stats_from_precomputed_or_fallback(pool, auth.tenant_id, &params).await
+    };
+
+    // Cache kết quả
+    {
+        let mut cache = STATS_CACHE.write().await;
+        cache.insert(cache_key, (result.clone(), Instant::now()));
+        
+        // Cleanup cache cũ (giữ tối đa 100 entries)
+        if cache.len() > 100 {
+            let cutoff = Instant::now() - CACHE_TTL;
+            cache.retain(|_, (_, time)| *time > cutoff);
+        }
+    }
+
+    Json(result)
+}
+
+// Lấy từ pre-computed hoặc fallback to transactions
+async fn calculate_stats_from_precomputed_or_fallback(
+    pool: &sqlx::PgPool,
+    tenant_id: Uuid,
+    params: &StatsParams,
+) -> StatsResponse {
+    // TODO: Implement pre-computed table logic
+    // Hiện tại fallback về transactions
+    calculate_stats_from_transactions(pool, tenant_id, params).await
+}
+
+/// API lấy tổng lãi đã trả trong tháng hiện tại từ transactions (với cache)
+pub async fn get_monthly_interest_income(
+    State(state): State<Arc<AppState>>,
+    Extension(auth): Extension<AuthUser>,
+) -> Json<serde_json::Value> {
+    let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
+    
+    // Tạo cache key
+    let now = chrono::Utc::now();
+    let cache_key = format!("monthly_interest_{}_{}_{}",
+        auth.tenant_id,
+        now.year(),
+        now.month()
+    );
+
+    // Check cache trước
+    {
+        let cache = MONTHLY_INTEREST_CACHE.read().await;
+        if let Some((cached_response, cached_time)) = cache.get(&cache_key) {
+            if cached_time.elapsed() < CACHE_TTL {
+                return Json(cached_response.clone());
+            }
+        }
+    }
+    
+    // Cache miss, tính lại
+    let year = now.year();
+    let month = now.month();
+
+    // Lấy tất cả giao dịch trong tháng hiện tại, tính tổng interest_applied từ calculator
+    let contracts = query::list_contracts(pool, auth.tenant_id).await.unwrap_or_default();
+    let total_contracts = contracts.len();
+    let mut total_monthly_interest = 0i64;
+    let mut processed_contracts = 0;
+
+    for mut contract in contracts {
+        // Lấy tất cả transactions của contract này
+        let mut transactions = query::get_transactions_by_contract(pool, auth.tenant_id, contract.id)
+            .await
+            .unwrap_or_default();
+
+        if transactions.is_empty() {
+            continue;
+        }
+
+        // Tính toán interest_applied cho từng transaction
+        calculator::calculate_interest_fields(&mut contract, &mut transactions);
+
+        // Tổng interest_applied từ các giao dịch trong tháng hiện tại
+        let monthly_interest: i64 = transactions
+            .iter()
+            .filter(|tx| {
+                let tx_date = tx.date.with_timezone(&chrono_tz::Asia::Bangkok).date_naive();
+                tx_date.year() == year && tx_date.month() == month
+            })
+            .map(|tx| tx.interest_applied)
+            .sum();
+
+        total_monthly_interest += monthly_interest;
+        if monthly_interest > 0 {
+            processed_contracts += 1;
+        }
+    }
+
+    let result = serde_json::json!({
+        "monthly_interest_paid": total_monthly_interest,
+        "processed_contracts": processed_contracts,
+        "total_contracts": total_contracts,
+        "month": month,
+        "year": year,
+        "debug_info": format!("Xử lý {}/{} hợp đồng, tổng lãi thu trong {}/{}: {}", 
+                             processed_contracts, total_contracts, month, year, total_monthly_interest)
+    });
+
+    // Cache kết quả
+    {
+        let mut cache = MONTHLY_INTEREST_CACHE.write().await;
+        cache.insert(cache_key, (result.clone(), Instant::now()));
+        
+        // Cleanup cache cũ (giữ tối đa 50 entries)
+        if cache.len() > 50 {
+            let cutoff = Instant::now() - CACHE_TTL;
+            cache.retain(|_, (_, time)| *time > cutoff);
+        }
+    }
+
+    Json(result)
 }
 
 fn last_day_of_month(year: i32, month: u32) -> u32 {

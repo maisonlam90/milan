@@ -139,7 +139,7 @@ pub async fn aggregate_by_month(
         SELECT
             EXTRACT(MONTH FROM lt.date) AS group_key,
             SUM(CASE WHEN lt.transaction_type IN ('disbursement','additional') THEN lt.amount ELSE 0 END)::numeric AS total_issued,
-            SUM(CASE WHEN lt.transaction_type IN ('principal','interest')     THEN lt.amount ELSE 0 END)::numeric   AS total_repaid
+            SUM(CASE WHEN lt.transaction_type IN ('principal','interest','settlement','liquidation') THEN lt.amount ELSE 0 END)::numeric   AS total_repaid
         FROM loan_transaction lt
         WHERE lt.tenant_id = $1
           AND EXTRACT(YEAR FROM lt.date) = $2
@@ -167,7 +167,7 @@ pub async fn aggregate_by_day(
         SELECT
             EXTRACT(DAY FROM lt.date) AS group_key,
             SUM(CASE WHEN lt.transaction_type IN ('disbursement','additional') THEN lt.amount ELSE 0 END)::numeric AS total_issued,
-            SUM(CASE WHEN lt.transaction_type IN ('principal','interest')     THEN lt.amount ELSE 0 END)::numeric   AS total_repaid
+            SUM(CASE WHEN lt.transaction_type IN ('principal','interest','settlement','liquidation') THEN lt.amount ELSE 0 END)::numeric   AS total_repaid
         FROM loan_transaction lt
         WHERE lt.tenant_id = $1
           AND EXTRACT(YEAR  FROM lt.date) = $2
@@ -195,7 +195,7 @@ pub async fn aggregate_by_year(
         SELECT
             EXTRACT(YEAR FROM lt.date) AS group_key,
             SUM(CASE WHEN lt.transaction_type IN ('disbursement','additional') THEN lt.amount ELSE 0 END)::numeric AS total_issued,
-            SUM(CASE WHEN lt.transaction_type IN ('principal','interest')     THEN lt.amount ELSE 0 END)::numeric   AS total_repaid
+            SUM(CASE WHEN lt.transaction_type IN ('principal','interest','settlement','liquidation') THEN lt.amount ELSE 0 END)::numeric   AS total_repaid
         FROM loan_transaction lt
         WHERE lt.tenant_id = $1
         GROUP BY group_key
