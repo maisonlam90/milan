@@ -64,12 +64,6 @@ export function DashboardStats() {
     fetchDashboardStats();
   }, [token]);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(amount);
-  };
 
   // Function để format số tiền ngắn gọn
   const formatCompactCurrency = (amount: number) => {

@@ -71,11 +71,13 @@ const chartConfig: ApexOptions = {
   },
   tooltip: {
     shared: true,
-    formatter: function(value: number) {
-      return new Intl.NumberFormat("vi-VN", {
+    custom: ({ series, seriesIndex, dataPointIndex }: any) => {
+      const value = series[seriesIndex][dataPointIndex];
+      const formatted = new Intl.NumberFormat("vi-VN", {
         style: "currency",
         currency: "VND",
       }).format(value);
+      return `<div class="px-2 py-1">${formatted}</div>`;
     },
   },
   legend: {
