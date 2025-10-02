@@ -3,7 +3,7 @@ import { Cog6ToothIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 
 // Local Imports
-import { Avatar, Badge, Box, Button } from "@/components/ui";
+import { Badge, Box, Button } from "@/components/ui";
 import { Project } from "./index";
 
 // ----------------------------------------------------------------------
@@ -14,7 +14,7 @@ export function ContractStatusCard({
   color,
   category,
   progress,
-  teamMembers,
+  teamMembers: _teamMembers,
   created_at,
   count,
 }: Project) {
