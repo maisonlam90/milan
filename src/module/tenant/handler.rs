@@ -8,7 +8,7 @@ use axum::{
 use std::sync::Arc;
 use uuid::Uuid;
 use chrono::Utc;
-use tracing::{debug, error};
+use tracing::debug;
 use serde_json::{json, Value};
 use std::collections::HashMap;
 

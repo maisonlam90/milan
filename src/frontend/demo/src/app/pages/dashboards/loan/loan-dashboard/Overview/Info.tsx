@@ -107,6 +107,18 @@ export function Info() {
     }).format(amount);
   };
 
+  // Function để format số tiền ngắn gọn
+  const formatCompactCurrency = (amount: number) => {
+    if (amount >= 1000000000) {
+      return `${(amount / 1000000000).toFixed(1)} tỷ`;
+    } else if (amount >= 1000000) {
+      return `${(amount / 1000000).toFixed(1)} tr`;
+    } else if (amount >= 1000) {
+      return `${(amount / 1000).toFixed(1)}k`;
+    }
+    return new Intl.NumberFormat("vi-VN").format(amount);
+  };
+
   return (
     <div className="mt-4 flex shrink-0 flex-col items-center sm:items-start">
       <ChartPieIcon className="this:info text-this dark:text-this-lighter size-8" />

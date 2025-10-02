@@ -1,5 +1,5 @@
 use axum::{
-    extract::{Path, State, Query},
+    extract::{Path, State},
     Extension, Json,
 };
 use chrono::{NaiveDate, Utc};
@@ -74,7 +74,7 @@ pub async fn pivot_now_all_contracts(
     }
 
     // --- A) Load all transactions in one query ---
-    let t_tx = std::time::Instant::now();
+    let _t_tx = std::time::Instant::now();
     let raw_txs: Vec<LoanTransactionRow> = sqlx::query_as!(
         LoanTransactionRow,
         r#"

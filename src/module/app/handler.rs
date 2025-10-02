@@ -101,7 +101,6 @@ pub struct ScannedModule {
 pub async fn scan_and_seed_modules(
     State(state): State<Arc<AppState>>,
 ) -> Result<Json<Vec<ScannedModule>>, AppError> {
-    use sqlx::Acquire;
 
     let module_root = FsPath::new("src/module");
     let mut result = Vec::new();

@@ -1,12 +1,12 @@
 // Local Imports
 import { Page } from "@/components/shared/Page";
 import { Overview } from "./Overview";
-import { Statistics } from "./Statistics";
-import { Projects } from "./Projects";
-import { CustomerSatisfaction } from "./CustomerSatisfaction";
-import { TopSellers } from "./TopSellers";
-import { UsersActivity } from "./UsersActivity";
-import { BandwidthReport } from "./BandwidthReport";
+import { DashboardStats } from "./DashboardStats";
+import { ContractStatus } from "./ContractStatus";
+import { LoanPortfolioQuality } from "./LoanPortfolioQuality";
+import { TopContracts } from "./TopContracts";
+import { RecentActivities } from "./RecentActivities";
+import { LoanActivityReport } from "./LoanActivityReport";
 
 // ----------------------------------------------------------------------
 
@@ -16,14 +16,14 @@ export default function CRMAnalytics() {
       <div className="overflow-hidden pb-8">
         <div className="transition-content mt-4 grid grid-cols-12 gap-4 px-(--margin-x) sm:mt-5 sm:gap-5 lg:mt-6 lg:gap-6">
           <Overview />
-          <Statistics />
-          <Projects />
-          <CustomerSatisfaction />
+          <DashboardStats />
+          <ContractStatus />
+          <LoanPortfolioQuality />
         </div>
-        <TopSellers />
+        <TopContracts />
         <div className="transition-content mt-4 grid grid-cols-1 gap-4 px-(--margin-x) sm:mt-5 sm:grid-cols-2 sm:gap-5 lg:mt-6 lg:gap-6">
-          <BandwidthReport />
-          <UsersActivity />
+          <LoanActivityReport />
+          <RecentActivities />
         </div>
       </div>
     </Page>

@@ -26,6 +26,7 @@ export interface Seller {
   uid: string;
   name: string;
   avatar?: string;
+  contact_name?: string;
   messages?: number | null;
   mails?: number | null;
   sells: number;
@@ -33,11 +34,17 @@ export interface Seller {
   clients: number;
   relations: Relations;
   awards: Award[];
+  // Thêm thông tin cho hợp đồng
+  contract_id?: string;
+  daily_profit?: number;
+  days_active?: number;
+  created_at?: string;
 }
 
-export function SellerCard({
+export function ContractCard({
   name,
   avatar,
+  contact_name,
   messages,
   mails,
   sells,
@@ -45,7 +52,23 @@ export function SellerCard({
   clients,
   relations,
   awards,
+  contract_id,
+  daily_profit,
+  days_active,
+  created_at,
 }: Seller) {
+  // Function để format số tiền ngắn gọn
+  const formatCompactNumber = (num: number) => {
+    if (num >= 1000000000) {
+      return `${(num / 1000000000).toFixed(1)} tỷ`;
+    } else if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(1)} tr`;
+    } else if (num >= 1000) {
+      return `${(num / 1000).toFixed(1)}k`;
+    }
+    return new Intl.NumberFormat("vi-VN").format(num);
+  };
+
   return (
     <Card skin="shadow" className="w-72 shrink-0 space-y-9 p-4 sm:p-5">
       <div className="flex justify-between gap-2">
@@ -62,7 +85,9 @@ export function SellerCard({
             <p className="dark:text-dark-100 font-medium text-gray-800">
               {name}
             </p>
-            <p className="dark:text-dark-300 text-xs text-gray-400">Employee</p>
+            <p className="dark:text-dark-300 text-xs text-gray-400">
+              {contact_name || "Hợp đồng"}
+            </p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -91,21 +116,21 @@ export function SellerCard({
 
       <div className="flex justify-between gap-2">
         <div>
-          <p className="text-xs-plus">Sells</p>
+          <p className="text-xs-plus">Lợi nhuận</p>
           <p className="dark:text-dark-100 text-xl font-semibold text-gray-800">
-            {sells}
+            {formatCompactNumber(sells)}
           </p>
         </div>
         <div>
-          <p className="text-xs-plus">Target</p>
+          <p className="text-xs-plus">Gốc</p>
           <p className="dark:text-dark-100 text-xl font-semibold text-gray-800">
-            {target}
+            {formatCompactNumber(target)}
           </p>
         </div>
         <div>
-          <p className="text-xs-plus">Clients</p>
+          <p className="text-xs-plus">Hoàn thành</p>
           <p className="dark:text-dark-100 text-xl font-semibold text-gray-800">
-            {clients}
+            {clients}%
           </p>
         </div>
       </div>
@@ -143,9 +168,9 @@ export function SellerCard({
               <div className="this:primary bg-this dark:bg-this-light size-2 rounded-full" />
               <div className="flex space-x-1 text-xs leading-none">
                 <span className="dark:text-dark-100 font-medium text-gray-800">
-                  Calls
+                  Tỷ lệ lãi
                 </span>
-                <span>{(relations.calls * 100).toFixed(0)}%</span>
+                <span>{(relations.calls * 100).toFixed(1)}%</span>
               </div>
             </div>
           )}
@@ -154,7 +179,7 @@ export function SellerCard({
               <div className="this:success bg-this dark:bg-this-light size-2 rounded-full" />
               <div className="flex space-x-1 text-xs leading-none">
                 <span className="dark:text-dark-100 font-medium text-gray-800">
-                  Chat Messages
+                  Tiến độ
                 </span>
                 <span>{(relations.chatMessages * 100).toFixed(0)}%</span>
               </div>
@@ -165,7 +190,7 @@ export function SellerCard({
               <div className="this:info bg-this dark:bg-this-light size-2 rounded-full" />
               <div className="flex space-x-1 text-xs leading-none">
                 <span className="dark:text-dark-100 font-medium text-gray-800">
-                  Emails
+                  Hiệu suất
                 </span>
                 <span>{(relations?.emails * 100).toFixed(0)}%</span>
               </div>

@@ -5,7 +5,6 @@ use crate::module::loan::dto::CreateContractInput;
 use crate::module::loan::model::LoanContract;
 use crate::module::loan::model::LoanTransaction;
 use crate::module::loan::calculator::settlement_quote_as_of;
-use crate::module::loan::calculator::calculate_interest_fields_as_of;
 use crate::core::error::{AppError, ErrorResponse};
 use crate::module::loan::dto::CreateCollateralDto;
 
@@ -18,7 +17,7 @@ fn epoch_to_utc(ts: i64) -> Result<DateTime<Utc>, sqlx::Error> {
 pub async fn create_contract(
     pool: &PgPool,
     tenant_id: Uuid,
-    mut input: CreateContractInput,
+    input: CreateContractInput,
 ) -> Result<LoanContract, AppError> {
     if input.transactions.is_empty() {
         return Err(AppError::Validation(ErrorResponse {
