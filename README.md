@@ -1,17 +1,36 @@
-# Milan ERP - System Documentation
+# Milan Finance - Core Financial Platform
 
 ## 📋 Tổng quan dự án
 
-**Milan ERP** là hệ thống quản lý doanh nghiệp (ERP) đa thuê bao (multi-tenant) được xây dựng trên kiến trúc sharding tuyến tính, tối ưu cho SaaS platform quy mô lớn.
+**Milan Finance** được thiết kế để trở thành **nền tảng lõi cho các hệ thống tài chính có hiệu năng cao**, có khả năng mở rộng tuyến tính theo chiều ngang. Đây là một hệ thống đa thuê bao (multi-tenant) **thế hệ mới**, được xây dựng trên nền tảng kiến trúc **sharding tuyến tính (linear sharding)** tiên tiến, tối ưu hóa cho các nền tảng SaaS quy mô lớn và yêu cầu hiệu suất cực đại.
 
-### Thông tin cơ bản
-- **Ngôn ngữ backend**: Rust
-- **Framework**: Axum
-- **Database**: YugabyteDB (PostgreSQL-compatible, distributed)
-- **Event Bus**: Kafka / NATS
-- **Pattern**: CQRS + Event-Driven Architecture
-- **Frontend**: React + Vite + Tailwind (Tailux theme)
-- **Deployment**: Kubernetes + GitHub Actions
+Với kiến trúc **CQRS (Command Query Responsibility Segregation) và Event-Driven** mạnh mẽ, Milan Finance đảm bảo khả năng mở rộng vượt trội, tính nhất quán dữ liệu và khả năng phục hồi cao. Backend được phát triển bằng **Rust**, mang lại hiệu suất cực đại, an toàn bộ nhớ và độ tin cậy tuyệt đối. Dữ liệu được quản lý bởi **YugabyteDB**, một cơ sở dữ liệu phân tán tương thích PostgreSQL, đảm bảo khả năng chịu lỗi và mở rộng ngang (horizontal scalability) không giới hạn.
+
+Frontend của Milan Finance sử dụng **React và Tailwind CSS**, cung cấp trải nghiệm người dùng hiện đại, linh hoạt và dễ tùy biến. Toàn bộ hệ thống được triển khai trên **Kubernetes** với các pattern enterprise-grade như **Service Mesh (Istio)**, **API Gateway (Kong)**, **Observability Stack (Prometheus, Grafana, Jaeger)** và **ELK Stack**, đảm bảo vận hành ổn định, an toàn và dễ dàng quản lý ở mọi quy mô.
+
+### 🎯 **Ứng dụng đa dạng**
+
+Milan Finance được thiết kế để xây dựng các hệ thống:
+
+- **🏢 ERP mạnh mẽ** - Hệ thống quản lý doanh nghiệp toàn diện
+- **💱 Sàn giao dịch** - Trading platforms với hiệu suất cao
+- **🏦 Core Banking** - Hệ thống ngân hàng lõi
+- **🌐 Server IoT** - Internet of Things infrastructure
+- **⛓️ Sàn Blockchain** - Blockchain trading platforms
+- **📱 Server ứng dụng di động** - Mobile app backends
+- **📊 Phần mềm quản lý** - Management software solutions
+
+**Milan Finance không chỉ là một nền tảng tài chính thông thường, mà còn là một giải pháp công nghệ đột phá, sẵn sàng đáp ứng mọi thách thức của hệ thống tài chính hiện đại.**
+
+### 🚀 Thông tin kỹ thuật
+- **Backend**: Rust + Axum (hiệu suất cực đại, an toàn bộ nhớ)
+- **Database**: YugabyteDB (distributed SQL, horizontal scaling)
+- **Event System**: Kafka / NATS (event-driven architecture)
+- **Architecture**: CQRS + Event Sourcing + Multi-tenant Sharding
+- **Frontend**: React + Vite + Tailwind CSS (modern UI/UX)
+- **Infrastructure**: Kubernetes + Istio + Kong + Observability Stack
+- **Deployment**: GitOps + CI/CD + Blue-Green Deployment
+- **Target Markets**: ERP, Trading, Banking, IoT, Blockchain, Mobile, Management
 
 ---
 
@@ -28,51 +47,87 @@
 ### Cấu trúc thư mục chuẩn
 
 ```
-src/
-├── main.rs                    # Entry point
-├── config.rs                  # Cấu hình (env, shard rules)
-├── app.rs                     # Axum app builder
-
-├── core/                      # Shared utilities
-│   ├── context.rs             # Request context (tenant_id, user_id)
-│   ├── error.rs               # Global error types
-│   ├── time.rs                # Time utilities
-│   └── types.rs               # Common types (TenantId, UserId, Money...)
-
-├── infra/                     # Infrastructure layer
-│   ├── db.rs                  # Connection pool, query helpers
-│   ├── sharding.rs            # Tenant → Shard mapping
-│   ├── event_bus.rs           # Event bus abstraction
-│   ├── redis.rs               # Redis client (optional)
-│   └── telemetry.rs           # Logging, metrics, tracing
-
-├── api/
-│   ├── mod.rs
-│   └── router.rs              # Main router aggregation
-
-├── tenant_router/             # Tenant resolution middleware
-│   ├── resolver.rs            # Extract tenant_id from token/header
-│   └── router.rs              # Inject tenant_id into state
-
-├── command_bus/               # CQRS Command dispatcher
-│   ├── mod.rs
-│   └── dispatcher.rs
-
-├── query_bus/                 # CQRS Query dispatcher
-│   ├── mod.rs
-│   └── dispatcher.rs
-
-├── event_handler/             # Event consumers
-│   ├── mod.rs
-│   └── user_handler.rs        # Example: handle UserCreated
-
-└── module/                    # Domain modules
-    ├── available.rs           # Module discovery & listing
-    ├── user/
-    ├── acl/
-    ├── loan/
-    ├── tenant/
-    └── payment/
+milan/
+├── README.md                  # Project documentation
+├── Cargo.toml                 # Rust dependencies
+├── Cargo.lock                 # Dependency lock file
+├── rust-toolchain.toml        # Rust toolchain configuration
+├── Dockerfile                 # Container configuration
+├── entrypoint.sh              # Application entry script
+├── nginx.conf                 # Web server configuration
+├── backend.log                # Application logs
+├── logs/                      # Log directory
+├── migrations/                # Database migrations
+├── scripts/                   # Development scripts
+│   ├── dev.sh                 # Development script
+│   └── huong dan git.sh       # Git workflow guide
+├── tools/                     # Development tools
+│   └── gen_module.rs          # Module generator
+├── target/                    # Build artifacts
+├── k8s/                       # Kubernetes manifests
+│   ├── deployment.yaml        # Application deployment
+│   ├── service.yaml          # Service definition
+│   ├── ingress.yaml          # Ingress configuration
+│   ├── hpa.yaml              # Horizontal Pod Autoscaler
+│   ├── vpa.yaml              # Vertical Pod Autoscaler
+│   ├── pdb.yaml              # Pod Disruption Budget
+│   ├── network-policy.yaml   # Network policies
+│   └── monitoring.yaml       # Monitoring configuration
+└── src/                       # Source code
+    ├── main.rs                # Application entry point
+    ├── config.rs              # Application configuration
+    ├── app.rs                 # Axum app builder
+    ├── core/                  # Core utilities & shared components
+    │   ├── auth.rs           # Authentication logic
+    │   ├── error.rs          # Global error types
+    │   ├── iam.rs            # Identity & Access Management
+    │   ├── json_with_log.rs  # JSON utilities with logging
+    │   ├── log.rs            # Logging utilities
+    │   ├── state.rs          # Application state management
+    │   ├── mod.rs            # Module exports
+    │   │
+    │   # TODO: Cần bổ sung cho Milan Finance
+    │   ├── types.rs          # Common types (TenantId, UserId, Money, Currency...)
+    │   ├── context.rs        # Request context (tenant_id, user_id, permissions)
+    │   ├── cache_types.rs    # Cache key types, TTL constants
+    │   ├── cache_serialization.rs # Cache serialization/deserialization
+    │   └── validation.rs     # Input validation utilities
+    │
+    ├── infra/                 # Infrastructure layer
+    │   ├── db.rs             # Database connection & queries
+    │   ├── event_bus.rs      # Event bus abstraction
+    │   ├── telemetry.rs      # Logging, metrics, tracing
+    │   ├── mod.rs            # Module exports
+    │   │
+    │   # TODO: Cần bổ sung cho Milan Finance
+    │   ├── sharding.rs       # Tenant → Shard mapping
+    │   ├── redis.rs          # Redis client & caching
+    │   ├── cache_manager.rs # Multi-layer cache management
+    │   ├── cache_strategy.rs # Cache invalidation strategy
+    │   ├── connection_pool.rs # Database connection pooling
+    │   └── health_check.rs   # Health check endpoints
+    │
+    ├── api/                   # API layer
+    │   ├── router.rs         # Main router aggregation
+    │   ├── mod.rs            # Module exports
+    │   │
+    │
+    ├── tenant_router/         # Multi-tenant routing
+    │   └── mod.rs            # Tenant resolution middleware
+    │
+    └── module/                # Domain modules
+        ├── available.rs      # Module discovery & listing
+        ├── app/              # Application management
+        ├── contact/          # Contact management
+        ├── iam/              # Identity & Access Management
+        ├── loan/             # Loan management
+        ├── tenant/           # Tenant management
+        ├── user/             # User management
+        │
+        # TODO: Cần bổ sung modules cho Milan Finance
+        ├── payment/          # Payment processing
+        ├── banking/          # Banking operations
+        └── analytics/        # Analytics & reporting
 ```
 
 ---
@@ -383,223 +438,80 @@ export const UserService = {
 
 ---
 
-## 🚀 Deployment
+## 🚀 Kubernetes Architecture (Enterprise-Grade)
 
-### GitHub Actions CI/CD
+### 🏗️ Kiến trúc K8s Monolithic Advanced
 
-```yaml
-# .github/workflows/ci.yml
-name: CI/CD
+Milan Finance sử dụng **Monolithic + Kubernetes** với các pattern enterprise-grade để đạt hiệu suất và độ tin cậy cao nhất.
 
-on:
-  push:
-    branches: [main, develop]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
-      - run: cargo build --release
-      - run: cargo test
-      
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - run: kubectl apply -f k8s/
+```
+┌─────────────────────────────────────────────────────────┐
+│                    K8s Cluster                        │
+├─────────────────────────────────────────────────────────┤
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐    │
+│  │   Istio     │  │    Kong     │  │  Prometheus │    │
+│  │  Service    │  │   API       │  │  + Grafana  │    │
+│  │   Mesh      │  │  Gateway    │  │  + Jaeger   │    │
+│  └─────────────┘  └─────────────┘  └─────────────┘    │
+├─────────────────────────────────────────────────────────┤
+│  ┌─────────────────────────────────────────────────────┐ │
+│  │            Milan Finance (Monolith)               │ │
+│  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐  │ │
+│  │  │  User   │ │  Loan   │ │ Contact │ │   IAM   │  │ │
+│  │  │ Module  │ │ Module  │ │ Module  │ │ Module  │  │ │
+│  │  └─────────┘ └─────────┘ └─────────┘ └─────────┘  │ │
+│  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐  │ │
+│  │  │Payment  │ │Banking  │ │Analytics│ │   App   │  │ │
+│  │  │ Module  │ │ Module  │ │ Module  │ │ Module  │  │ │
+│  │  └─────────┘ └─────────┘ └─────────┘ └─────────┘  │ │
+│  │  ┌─────────────────────────────────────────────────┐ │ │
+│  │  │              L1 Cache (Memory)                │ │ │
+│  │  │  Hot Data | Session Data | Frequently Used    │ │ │
+│  │  └─────────────────────────────────────────────────┘ │ │
+│  └─────────────────────────────────────────────────────┘ │
+├─────────────────────────────────────────────────────────┤
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐    │
+│  │   Redis     │  │   Kafka     │  │ YugabyteDB  │    │
+│  │  Cluster    │  │   Stream    │  │  Cluster    │    │
+│  │ (L2 Cache)  │  │ (Events)    │  │ (Database)  │    │
+│  │  Shared     │  │             │  │             │    │
+│  │  Persistent │  │             │  │             │    │
+│  └─────────────┘  └─────────────┘  └─────────────┘    │
+└─────────────────────────────────────────────────────────┘
 ```
 
-### Kubernetes Deployment
+### 🔄 Multi-Layer Cache Architecture
 
-```yaml
-# k8s/deployment.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: milan-erp
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: milan-erp
-  template:
-    spec:
-      containers:
-      - name: milan-erp
-        image: milan-erp:latest
-        env:
-        - name: DATABASE_URL
-          valueFrom:
-            secretKeyRef:
-              name: db-secret
-              key: url
+Milan Finance sử dụng **kiến trúc cache 2 tầng** để đạt hiệu năng cực đại:
+
+#### **L1 Cache (In-Memory)**
+- **Vị trí**: Trong BE container (Memory)
+- **Tốc độ**: Cực nhanh (RAM access)
+- **Dung lượng**: Giới hạn (vài GB)
+- **Scope**: Chỉ trong 1 pod
+- **Dữ liệu**: Hot data, session data, frequently used
+
+#### **L2 Cache (Redis External)**
+- **Vị trí**: Redis Cluster riêng biệt
+- **Tốc độ**: Nhanh (Network access)
+- **Dung lượng**: Lớn (hàng TB)
+- **Scope**: Tất cả pods
+- **Dữ liệu**: Shared data, persistent cache
+
+#### **Cache Flow**
+```
+Request → L1 Cache (Memory) → L2 Cache (Redis) → Database
+    ↓           ↓                    ↓              ↓
+   Fast      Faster              Fast           Slow
 ```
 
+#### **Cache Hit Strategy**
+1. **Check L1** (Memory) - Nếu có → Return ngay
+2. **Check L2** (Redis) - Nếu có → Store vào L1 + Return  
+3. **Check DB** - Nếu có → Store vào L2 + L1 + Return
+
+#### **Cache Invalidation**
+- **L1**: Automatic expiration, LRU eviction
+- **L2**: TTL-based, tenant-specific invalidation
+- **Cross-pod**: Redis pub/sub for cache invalidation
 ---
-
-## 📝 Quy tắc đặt tên & Code Convention
-
-### Rust Code Style
-
-```rust
-// ✅ Good
-pub struct UserCommand {
-    tenant_id: Uuid,
-    email: String,
-}
-
-impl UserCommand {
-    pub async fn execute(&self, db: &DbPool) -> Result<User> {
-        // Implementation
-    }
-}
-
-// ❌ Bad
-pub struct userCommand {  // PascalCase cho struct
-    TenantID: Uuid,      // snake_case cho field
-}
-```
-
-### SQL Naming
-
-```sql
--- ✅ Good
-CREATE TABLE user_profiles (
-    tenant_id UUID,
-    user_id UUID,
-    display_name VARCHAR(255)
-);
-
--- ❌ Bad
-CREATE TABLE UserProfiles (  -- lowercase với underscore
-    TenantID UUID,          -- lowercase
-    UserID UUID
-);
-```
-
-### API Endpoints
-
-```
-GET    /api/users              # List users
-POST   /api/users              # Create user
-GET    /api/users/:id          # Get user
-PUT    /api/users/:id          # Update user
-DELETE /api/users/:id          # Delete user
-```
-
----
-
-## 🧪 Testing
-
-### Unit Test
-
-```rust
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[tokio::test]
-    async fn test_create_user() {
-        let db = setup_test_db().await;
-        let tenant_id = Uuid::new_v4();
-        
-        let cmd = CreateUserCommand {
-            tenant_id,
-            email: "test@example.com".to_string(),
-        };
-        
-        let result = cmd.execute(&db).await;
-        assert!(result.is_ok());
-    }
-}
-```
-
-### Integration Test
-
-```rust
-#[tokio::test]
-async fn test_user_api_flow() {
-    let app = create_test_app().await;
-    
-    let response = app
-        .post("/api/users")
-        .json(&json!({
-            "email": "test@example.com"
-        }))
-        .header("X-Tenant-ID", tenant_id.to_string())
-        .send()
-        .await;
-    
-    assert_eq!(response.status(), 201);
-}
-```
-
----
-
-## 📚 Tài liệu tham khảo
-
-### Kiến thức cần thiết
-
-- [Axum Documentation](https://docs.rs/axum/)
-- [YugabyteDB Docs](https://docs.yugabyte.com/)
-- [CQRS Pattern](https://martinfowler.com/bliki/CQRS.html)
-- [Sharding Strategies](https://www.mongodb.com/features/database-sharding)
-
-### Best Practices
-
-1. **Luôn validate tenant_id**: Không tin tưởng client input
-2. **Cache permissions**: Không query IAM cho mỗi request
-3. **Async everywhere**: Tận dụng Tokio async runtime
-4. **Error handling**: Dùng Result<T, E> và propagate errors
-5. **Logging**: Log mọi operation quan trọng với tenant_id
-
----
-
-## 🆘 Troubleshooting
-
-### Lỗi thường gặp
-
-**1. Cross-tenant query detected**
-```
-Solution: Đảm bảo WHERE clause luôn có tenant_id
-```
-
-**2. Permission denied**
-```
-Solution: Kiểm tra user_roles và role_permissions
-```
-
-**3. Shard connection failed**
-```
-Solution: Verify shard_id mapping và connection string
-```
-
-### Debug Commands
-
-```bash
-# Check shard routing
-cargo run -- --debug-shard <tenant_id>
-
-# Verify permissions
-cargo run -- --check-permission <user_id> <resource> <action>
-
-# Test event publishing
-cargo run -- --publish-test-event
-```
-
----
-
-## 📞 Liên hệ & Support
-
-- **Team Lead**: [Tên người phụ trách]
-- **Slack Channel**: #milan-erp-dev
-- **Issue Tracker**: GitHub Issues
-- **Documentation**: Confluence/Notion
-
----
-
-**Version**: 1.0.0  
-**Last Updated**: 01/10/2025  
-**Maintained by**: Milan Development Team
