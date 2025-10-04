@@ -1,0 +1,976 @@
+openapi: 3.0.3
+info:
+  title: Milan Finance - Invoice Module API (Based on Odoo 19)
+  description: |
+    API cho module quản lý hóa đơn (Invoice) trong hệ thống Milan Finance.
+    Thiết kế dựa trên Odoo 19 account.move module.
+    
+    **Tính năng chính (giống Odoo):**
+    - Hóa đơn bán (Customer Invoice), hóa đơn mua (Vendor Bill)
+    - Credit Note / Debit Note (hoàn trả)
+    - Journal Entries (sổ nhật ký kế toán)
+    - Phân tích chi phí (Analytic Distribution)
+    - Điều khoản thanh toán (Payment Terms)
+    - Tình trạng thanh toán (Payment State tracking)
+    - Multi-currency support
+    - Multi-tenant với sharding
+    - RBAC permissions
+    
+    **Reference:**
+    - Odoo GitHub: https://github.com/odoo/odoo/tree/19.0/addons/account
+    - Model: account.move (invoice/bill)
+    - Model: account.move.line (invoice lines)
+    
+  version: 1.0.0
+  contact:
+    name: Milan Finance Team
+    email: dev@milan.finance
+
+servers:
+  - url: https://api.milan.finance/v1
+    description: Production server
+  - url: https://staging-api.milan.finance/v1
+    description: Staging server
+  - url: http://localhost:8080/v1
+    description: Development server
+
+tags:
+  - name: invoice
+    description: Quản lý hóa đơn (account.move)
+  - name: payment
+    description: Thanh toán hóa đơn
+  - name: statistics
+    description: Thống kê và báo cáo
+  - name: journal
+    description: Sổ nhật ký kế toán
+
+security:
+  - bearerAuth: []
+
+paths:
+  /invoice/metadata:
+    get:
+      tags:
+        - invoice
+      summary: Lấy metadata của form hóa đơn
+      description: Trả về schema cho form tạo/sửa hóa đơn (không cần auth)
+      security: []
+      responses:
+        '200':
+          description: Metadata thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fields:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FormField'
+
+  /invoice/create:
+    post:
+      tags:
+        - invoice
+      summary: Tạo hóa đơn mới
+      description: |
+        Tạo một hóa đơn mới (giống Odoo account.move).
+        Hỗ trợ nhiều loại:
+        - out_invoice: Hóa đơn bán hàng
+        - in_invoice: Hóa đơn mua hàng
+        - out_refund: Phiếu giảm giá bán
+        - in_refund: Phiếu giảm giá mua
+        - entry: Bút toán chung
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInvoiceRequest'
+      responses:
+        '201':
+          description: Tạo hóa đơn thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  name:
+                    type: string
+                    description: Số hóa đơn (invoice_number)
+                  message:
+                    type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /invoice/list:
+    get:
+      tags:
+        - invoice
+      summary: Danh sách hóa đơn
+      description: Lấy tất cả hóa đơn của tenant với filter
+      parameters:
+        - name: move_type
+          in: query
+          description: Lọc theo loại hóa đơn
+          schema:
+            type: string
+            enum: [entry, out_invoice, in_invoice, out_refund, in_refund]
+        - name: state
+          in: query
+          description: Lọc theo trạng thái
+          schema:
+            type: string
+            enum: [draft, posted, cancel]
+        - name: payment_state
+          in: query
+          description: Lọc theo tình trạng thanh toán
+          schema:
+            type: string
+            enum: [not_paid, in_payment, paid, partial, reversed]
+        - name: partner_id
+          in: query
+          description: Lọc theo khách hàng/nhà cung cấp
+          schema:
+            type: string
+            format: uuid
+        - name: from_date
+          in: query
+          description: Lọc từ ngày (ISO 8601)
+          schema:
+            type: string
+            format: date
+        - name: to_date
+          in: query
+          description: Lọc đến ngày (ISO 8601)
+          schema:
+            type: string
+            format: date
+        - name: limit
+          in: query
+          description: Số lượng bản ghi
+          schema:
+            type: integer
+            default: 80
+        - name: offset
+          in: query
+          description: Bỏ qua n bản ghi đầu
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Danh sách hóa đơn
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/InvoiceListItem'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /invoice/{id}:
+    get:
+      tags:
+        - invoice
+      summary: Chi tiết hóa đơn
+      description: Lấy thông tin chi tiết một hóa đơn với tất cả lines
+      parameters:
+        - $ref: '#/components/parameters/InvoiceId'
+      responses:
+        '200':
+          description: Chi tiết hóa đơn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    
+    delete:
+      tags:
+        - invoice
+      summary: Xóa hóa đơn
+      description: Xóa một hóa đơn (soft delete, chỉ xóa được draft)
+      parameters:
+        - $ref: '#/components/parameters/InvoiceId'
+      responses:
+        '200':
+          description: Xóa thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          description: Không thể xóa hóa đơn đã posted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /invoice/{id}/update:
+    put:
+      tags:
+        - invoice
+      summary: Cập nhật hóa đơn
+      description: Cập nhật thông tin hóa đơn (chỉ draft)
+      parameters:
+        - $ref: '#/components/parameters/InvoiceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateInvoiceRequest'
+      responses:
+        '200':
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /invoice/{id}/post:
+    post:
+      tags:
+        - invoice
+      summary: Xác nhận hóa đơn (post)
+      description: |
+        Chuyển hóa đơn từ draft → posted (giống Odoo action_post).
+        Sau khi post không thể sửa được nữa.
+      parameters:
+        - $ref: '#/components/parameters/InvoiceId'
+      responses:
+        '200':
+          description: Post thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: Hóa đơn đã posted hoặc không hợp lệ
+
+  /invoice/{id}/reset-to-draft:
+    post:
+      tags:
+        - invoice
+      summary: Chuyển về draft
+      description: Chuyển hóa đơn posted về draft (button_draft trong Odoo)
+      parameters:
+        - $ref: '#/components/parameters/InvoiceId'
+      responses:
+        '200':
+          description: Reset thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+  /invoice/{id}/cancel:
+    post:
+      tags:
+        - invoice
+      summary: Hủy hóa đơn
+      description: Hủy hóa đơn (button_cancel trong Odoo)
+      parameters:
+        - $ref: '#/components/parameters/InvoiceId'
+      responses:
+        '200':
+          description: Hủy thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+  /invoice/{id}/payment:
+    post:
+      tags:
+        - payment
+      summary: Thêm thanh toán
+      description: |
+        Ghi nhận một khoản thanh toán cho hóa đơn.
+        Tự động cập nhật payment_state.
+      parameters:
+        - $ref: '#/components/parameters/InvoiceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePaymentRequest'
+      responses:
+        '201':
+          description: Thêm thanh toán thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payment_id:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /invoice/{id}/payments:
+    get:
+      tags:
+        - payment
+      summary: Danh sách thanh toán
+      description: Lấy tất cả các khoản thanh toán của hóa đơn
+      parameters:
+        - $ref: '#/components/parameters/InvoiceId'
+      responses:
+        '200':
+          description: Danh sách thanh toán
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Payment'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /invoice/stats:
+    get:
+      tags:
+        - statistics
+      summary: Thống kê tổng quan
+      description: Lấy thống kê tổng quan về hóa đơn
+      parameters:
+        - name: from_date
+          in: query
+          description: Từ ngày
+          schema:
+            type: string
+            format: date
+        - name: to_date
+          in: query
+          description: Đến ngày
+          schema:
+            type: string
+            format: date
+        - name: move_type
+          in: query
+          description: Loại hóa đơn
+          schema:
+            type: string
+            enum: [out_invoice, in_invoice, out_refund, in_refund]
+      responses:
+        '200':
+          description: Thống kê hóa đơn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceStats'
+
+  /invoice/overdue:
+    get:
+      tags:
+        - invoice
+      summary: Hóa đơn quá hạn
+      description: Lấy danh sách hóa đơn quá hạn thanh toán
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        '200':
+          description: Danh sách hóa đơn quá hạn
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InvoiceListItem'
+
+  /invoice/upcoming:
+    get:
+      tags:
+        - invoice
+      summary: Hóa đơn sắp đến hạn
+      description: Lấy danh sách hóa đơn sắp đến hạn thanh toán (trong 7 ngày tới)
+      parameters:
+        - name: days
+          in: query
+          description: Số ngày sắp đến hạn
+          schema:
+            type: integer
+            default: 7
+      responses:
+        '200':
+          description: Danh sách hóa đơn sắp đến hạn
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InvoiceListItem'
+
+  /invoice/{id}/reverse:
+    post:
+      tags:
+        - invoice
+      summary: Tạo hóa đơn hoàn trả (Reverse/Credit Note)
+      description: |
+        Tạo Credit Note / Debit Note cho hóa đơn (giống Odoo _reverse_moves).
+        - out_invoice → out_refund
+        - in_invoice → in_refund
+      parameters:
+        - $ref: '#/components/parameters/InvoiceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  description: Lý do hoàn trả
+                date:
+                  type: string
+                  format: date
+                  description: Ngày hoàn trả
+      responses:
+        '201':
+          description: Tạo Credit Note thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  refund_id:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token với thông tin tenant_id và user_id
+
+  parameters:
+    InvoiceId:
+      name: id
+      in: path
+      required: true
+      description: ID của hóa đơn
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    CreateInvoiceRequest:
+      type: object
+      required:
+        - move_type
+        - partner_id
+        - invoice_date
+        - invoice_lines
+      properties:
+        move_type:
+          type: string
+          enum: [entry, out_invoice, in_invoice, out_refund, in_refund]
+          description: |
+            Loại hóa đơn:
+            - out_invoice: Hóa đơn bán hàng (Customer Invoice)
+            - in_invoice: Hóa đơn mua hàng (Vendor Bill)
+            - out_refund: Phiếu giảm giá bán (Credit Note)
+            - in_refund: Phiếu giảm giá mua (Debit Note)
+            - entry: Bút toán chung (Journal Entry)
+        partner_id:
+          type: string
+          format: uuid
+          description: ID khách hàng/nhà cung cấp (contact_id trong Milan)
+        invoice_date:
+          type: string
+          format: date
+          description: Ngày hóa đơn
+        invoice_date_due:
+          type: string
+          format: date
+          description: Ngày đến hạn thanh toán
+        ref:
+          type: string
+          description: Số tham chiếu (vendor reference)
+        payment_reference:
+          type: string
+          description: Mã thanh toán
+        currency_id:
+          type: string
+          description: Mã tiền tệ (VND, USD, EUR...)
+          default: VND
+        journal_id:
+          type: string
+          format: uuid
+          description: Sổ nhật ký kế toán
+        fiscal_position_id:
+          type: string
+          format: uuid
+          description: Vị thế thuế (tax mapping)
+        payment_term_id:
+          type: string
+          format: uuid
+          description: Điều khoản thanh toán
+        narration:
+          type: string
+          description: Ghi chú (notes)
+        invoice_lines:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/InvoiceLineInput'
+
+    InvoiceLineInput:
+      type: object
+      required:
+        - name
+        - quantity
+        - price_unit
+      properties:
+        name:
+          type: string
+          description: Mô tả sản phẩm/dịch vụ (description)
+        product_id:
+          type: string
+          format: uuid
+          description: ID sản phẩm (nếu có)
+        quantity:
+          type: number
+          format: double
+          minimum: 0
+          description: Số lượng
+        price_unit:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Đơn giá (VND)
+        tax_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Danh sách ID thuế áp dụng
+        discount:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 100
+          description: Giảm giá (%)
+        account_id:
+          type: string
+          format: uuid
+          description: Tài khoản kế toán
+        analytic_distribution:
+          type: object
+          description: |
+            Phân bổ chi phí phân tích (JSON).
+            Format: {"analytic_account_id": percentage}
+            Example: {"550e8400-e29b-41d4-a716-446655440000": 100}
+
+    UpdateInvoiceRequest:
+      type: object
+      properties:
+        partner_id:
+          type: string
+          format: uuid
+        invoice_date:
+          type: string
+          format: date
+        invoice_date_due:
+          type: string
+          format: date
+        ref:
+          type: string
+        payment_reference:
+          type: string
+        currency_id:
+          type: string
+        journal_id:
+          type: string
+          format: uuid
+        fiscal_position_id:
+          type: string
+          format: uuid
+        payment_term_id:
+          type: string
+          format: uuid
+        narration:
+          type: string
+        invoice_lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoiceLineInput'
+
+    CreatePaymentRequest:
+      type: object
+      required:
+        - amount
+        - payment_date
+        - payment_method_id
+      properties:
+        amount:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Số tiền thanh toán (VND)
+        payment_date:
+          type: string
+          format: date
+          description: Ngày thanh toán
+        payment_method_id:
+          type: string
+          format: uuid
+          description: Phương thức thanh toán
+        journal_id:
+          type: string
+          format: uuid
+          description: Sổ ngân hàng/tiền mặt
+        communication:
+          type: string
+          description: Thông tin thanh toán / memo
+        ref:
+          type: string
+          description: Mã tham chiếu
+
+    InvoiceListItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          description: Số hóa đơn
+        move_type:
+          type: string
+          enum: [entry, out_invoice, in_invoice, out_refund, in_refund]
+        partner_id:
+          type: string
+          format: uuid
+        partner_name:
+          type: string
+        state:
+          type: string
+          enum: [draft, posted, cancel]
+        payment_state:
+          type: string
+          enum: [not_paid, in_payment, paid, partial, reversed]
+        invoice_date:
+          type: string
+          format: date
+        invoice_date_due:
+          type: string
+          format: date
+        amount_untaxed:
+          type: integer
+          format: int64
+          description: Tổng tiền trước thuế (VND)
+        amount_tax:
+          type: integer
+          format: int64
+          description: Tiền thuế (VND)
+        amount_total:
+          type: integer
+          format: int64
+          description: Tổng tiền (VND)
+        amount_residual:
+          type: integer
+          format: int64
+          description: Còn nợ (VND)
+        currency_id:
+          type: string
+
+    InvoiceDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          description: Số hóa đơn
+        move_type:
+          type: string
+          enum: [entry, out_invoice, in_invoice, out_refund, in_refund]
+        partner_id:
+          type: string
+          format: uuid
+        partner_name:
+          type: string
+        state:
+          type: string
+          enum: [draft, posted, cancel]
+        payment_state:
+          type: string
+          enum: [not_paid, in_payment, paid, partial, reversed]
+        invoice_date:
+          type: string
+          format: date
+        invoice_date_due:
+          type: string
+          format: date
+        ref:
+          type: string
+        payment_reference:
+          type: string
+        currency_id:
+          type: string
+        journal_id:
+          type: string
+          format: uuid
+        fiscal_position_id:
+          type: string
+          format: uuid
+        payment_term_id:
+          type: string
+          format: uuid
+        amount_untaxed:
+          type: integer
+          format: int64
+        amount_tax:
+          type: integer
+          format: int64
+        amount_total:
+          type: integer
+          format: int64
+        amount_residual:
+          type: integer
+          format: int64
+        narration:
+          type: string
+        invoice_lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoiceLine'
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        created_by:
+          type: string
+          format: uuid
+
+    InvoiceLine:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          description: Mô tả
+        product_id:
+          type: string
+          format: uuid
+        quantity:
+          type: number
+          format: double
+        price_unit:
+          type: integer
+          format: int64
+        tax_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+        discount:
+          type: number
+          format: double
+        price_subtotal:
+          type: integer
+          format: int64
+          description: Tổng trước thuế
+        price_total:
+          type: integer
+          format: int64
+          description: Tổng sau thuế
+        account_id:
+          type: string
+          format: uuid
+        analytic_distribution:
+          type: object
+          description: Phân bổ chi phí phân tích
+
+    Payment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        amount:
+          type: integer
+          format: int64
+        payment_date:
+          type: string
+          format: date
+        payment_method_id:
+          type: string
+          format: uuid
+        journal_id:
+          type: string
+          format: uuid
+        communication:
+          type: string
+        ref:
+          type: string
+        state:
+          type: string
+          enum: [draft, posted, sent, reconciled, cancelled]
+        created_at:
+          type: string
+          format: date-time
+
+    InvoiceStats:
+      type: object
+      properties:
+        total_count:
+          type: integer
+          format: int64
+          description: Tổng số hóa đơn
+        draft_count:
+          type: integer
+          format: int64
+        posted_count:
+          type: integer
+          format: int64
+        cancel_count:
+          type: integer
+          format: int64
+        amount_untaxed_total:
+          type: integer
+          format: int64
+          description: Tổng tiền trước thuế (VND)
+        amount_tax_total:
+          type: integer
+          format: int64
+          description: Tổng thuế (VND)
+        amount_total:
+          type: integer
+          format: int64
+          description: Tổng giá trị (VND)
+        amount_paid:
+          type: integer
+          format: int64
+          description: Đã thanh toán (VND)
+        amount_residual:
+          type: integer
+          format: int64
+          description: Còn nợ (VND)
+        overdue_count:
+          type: integer
+          format: int64
+          description: Số lượng hóa đơn quá hạn
+        overdue_amount:
+          type: integer
+          format: int64
+          description: Giá trị quá hạn (VND)
+
+    FormField:
+      type: object
+      description: Metadata cho form field
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        label:
+          type: string
+        required:
+          type: boolean
+        options:
+          type: array
+          items:
+            type: object
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Request không hợp lệ
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    Unauthorized:
+      description: Chưa xác thực
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    Forbidden:
+      description: Không có quyền truy cập
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    NotFound:
+      description: Không tìm thấy
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
