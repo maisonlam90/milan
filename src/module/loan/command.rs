@@ -4,7 +4,8 @@ use chrono::{DateTime, Utc, Datelike};
 use crate::module::loan::dto::CreateContractInput;
 use crate::module::loan::model::LoanContract;
 use crate::module::loan::model::LoanTransaction;
-use crate::module::loan::calculator::settlement_quote_as_of;
+use crate::module::loan::calculator::{settlement_quote_as_of, calculate_interest_fields, calculate_interest_fields_as_of};
+use crate::module::loan::query;
 use crate::core::error::{AppError, ErrorResponse};
 use crate::module::loan::dto::CreateCollateralDto;
 
@@ -113,13 +114,49 @@ pub async fn create_contract(
     .fetch_one(tx.as_mut())
     .await?;
 
+    // ✅ Lấy transactions hiện tại để tính toán chính xác
+    let existing_txs = query::get_transactions_by_contract(pool, tenant_id, contract.id).await.unwrap_or_default();
+
+    // ✅ Tính toán current_interest CHƯA có transactions mới
+    let mut temp_contract = contract.clone();
+    let mut existing_txs_copy = existing_txs.clone();
+    
+    // Tính toán CHƯA có transactions mới để lấy current_interest
+    calculate_interest_fields(&mut temp_contract, &mut existing_txs_copy);
+
     // Lưu giao dịch
     let mut prefix: Vec<LoanTransaction> = Vec::new();
     for t in input.transactions.iter() {
         let date_parsed = epoch_to_utc(t.date)?;
+
+        // ✅ Tính snapshot tại thời điểm giao dịch dựa trên prefix (đã xử lý trước đó)
+        let mut snapshot_contract = temp_contract.clone();
+        let mut snapshot_prefix = prefix.clone();
+        calculate_interest_fields_as_of(&mut snapshot_contract, &mut snapshot_prefix, date_parsed);
+
         let computed_amount = if t.transaction_type == "settlement" {
             settlement_quote_as_of(&contract, &mut prefix, date_parsed)
         } else {
+            // ✅ Validation: Kiểm tra số tiền không vượt quá snapshot hiện tại
+            match t.transaction_type.as_str() {
+                "interest" => {
+                    if t.amount > snapshot_contract.current_interest {
+                        return Err(AppError::Validation(ErrorResponse {
+                            code: "interest_exceeded",
+                            message: format!("Số tiền thu lãi ({}) vượt quá tổng lãi đến hiện tại ({})", t.amount, snapshot_contract.accumulated_interest),
+                        }));
+                    }
+                }
+                "principal" => {
+                    if t.amount > snapshot_contract.current_principal {
+                        return Err(AppError::Validation(ErrorResponse {
+                            code: "principal_exceeded", 
+                            message: format!("Số tiền thu gốc ({}) vượt quá gốc hiện tại ({})", t.amount, snapshot_contract.current_principal),
+                        }));
+                    }
+                }
+                _ => {}
+            }
             t.amount
         };
 
@@ -246,6 +283,9 @@ pub async fn update_contract(
     .fetch_one(tx.as_mut())
     .await?;
 
+    // ✅ Lấy transactions hiện tại TRƯỚC KHI xóa để tính toán chính xác
+    let existing_txs = query::get_transactions_by_contract(pool, tenant_id, contract_id).await.unwrap_or_default();
+
     sqlx::query!(
         "DELETE FROM loan_transaction WHERE contract_id = $1 AND tenant_id = $2",
         contract_id,
@@ -253,13 +293,46 @@ pub async fn update_contract(
     )
     .execute(tx.as_mut())
     .await?;
+    
+    // ✅ Tính toán current_interest CHƯA có transactions mới
+    let mut temp_contract = updated.clone();
+    let mut existing_txs_copy = existing_txs.clone();
+    
+    // Tính toán CHƯA có transactions mới để lấy current_interest
+    calculate_interest_fields(&mut temp_contract, &mut existing_txs_copy);
 
     let mut prefix: Vec<LoanTransaction> = Vec::new();
     for t in input.transactions.iter() {
         let date_parsed = epoch_to_utc(t.date)?;
+
+        // ✅ Snapshot theo prefix đã xử lý trong lần cập nhật này
+        let mut snapshot_contract = updated.clone();
+        let mut snapshot_prefix = prefix.clone();
+        calculate_interest_fields_as_of(&mut snapshot_contract, &mut snapshot_prefix, date_parsed);
+
         let computed_amount = if t.transaction_type == "settlement" {
             settlement_quote_as_of(&updated, &mut prefix, date_parsed)
         } else {
+            // ✅ Validation dựa trên snapshot hiện tại (không dùng giao dịch cũ trong DB)
+            match t.transaction_type.as_str() {
+                "interest" => {
+                    if t.amount > snapshot_contract.current_interest {
+                        return Err(AppError::Validation(ErrorResponse {
+                            code: "interest_exceeded",
+                            message: format!("Số tiền thu lãi ({}) vượt quá tổng lãi đến hiện tại ({})", t.amount, snapshot_contract.accumulated_interest),
+                        }));
+                    }
+                }
+                "principal" => {
+                    if t.amount > snapshot_contract.current_principal {
+                        return Err(AppError::Validation(ErrorResponse {
+                            code: "principal_exceeded", 
+                            message: format!("Số tiền thu gốc ({}) vượt quá gốc hiện tại ({})", t.amount, snapshot_contract.current_principal),
+                        }));
+                    }
+                }
+                _ => {}
+            }
             t.amount
         };
 

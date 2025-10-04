@@ -84,14 +84,13 @@ milan/
     │   ├── json_with_log.rs  # JSON utilities with logging
     │   ├── log.rs            # Logging utilities
     │   ├── state.rs          # Application state management
-    │   ├── mod.rs            # Module exports
+    │   ├── cache.rs          # Multi-layer cache (L1 Memory + L2 Redis)
     │   │
     │   # TODO: Cần bổ sung cho Milan Finance
     │   ├── types.rs          # Common types (TenantId, UserId, Money, Currency...)
     │   ├── context.rs        # Request context (tenant_id, user_id, permissions)
-    │   ├── cache_types.rs    # Cache key types, TTL constants
-    │   ├── cache_serialization.rs # Cache serialization/deserialization
-    │   └── validation.rs     # Input validation utilities
+    │   ├── validation.rs     # Input validation utilities
+    │   └── mod.rs            # Module exports
     │
     ├── infra/                 # Infrastructure layer
     │   ├── db.rs             # Database connection & queries
@@ -101,11 +100,8 @@ milan/
     │   │
     │   # TODO: Cần bổ sung cho Milan Finance
     │   ├── sharding.rs       # Tenant → Shard mapping
-    │   ├── redis.rs          # Redis client & caching
-    │   ├── cache_manager.rs # Multi-layer cache management
-    │   ├── cache_strategy.rs # Cache invalidation strategy
-    │   ├── connection_pool.rs # Database connection pooling
-    │   └── health_check.rs   # Health check endpoints
+    │   ├── health_check.rs   # Health check endpoints
+    │   └── connection_pool.rs # Database connection pooling
     │
     ├── api/                   # API layer
     │   ├── router.rs         # Main router aggregation
@@ -514,4 +510,174 @@ Request → L1 Cache (Memory) → L2 Cache (Redis) → Database
 - **L1**: Automatic expiration, LRU eviction
 - **L2**: TTL-based, tenant-specific invalidation
 - **Cross-pod**: Redis pub/sub for cache invalidation
+
+#### **Implementation: `src/core/cache.rs`**
+
+```rust
+// Multi-layer cache service
+pub struct CacheService {
+    client: Client,                    // Redis client
+    l1_cache: Arc<RwLock<HashMap<String, (serde_json::Value, Instant)>>>,
+}
+
+impl CacheService {
+    // L1 + L2 cache strategy
+    pub async fn get<T>(&self, key: &str) -> RedisResult<Option<T>>
+    where T: for<'de> Deserialize<'de> + Serialize {
+        // 1. Check L1 Cache (Memory) - Nếu có → Return ngay
+        // 2. Check L2 Cache (Redis) - Nếu có → Store vào L1 + Return
+        // 3. Not found in both L1 and L2
+    }
+    
+    // Store in both L1 and L2
+    pub async fn set<T>(&self, key: &str, value: &T, ttl: Duration) -> RedisResult<()>
+    where T: Serialize {
+        // Store vào L2 (Redis)
+        // Store vào L1 (Memory)
+    }
+}
+```
+
+#### **Cache Usage trong Dashboard**
+```rust
+// src/module/loan/handler/dashboard.rs
+pub async fn get_dashboard_stats() -> Json<serde_json::Value> {
+    // Check Redis cache trước
+    if is_redis_available().await {
+        if let Some(redis_client) = get_redis_client().await {
+            if let Ok(Some(cached_data)) = redis_client.get_dashboard_stats(&tenant_id.to_string(), month, year).await {
+                return Json(cached_data);
+            }
+        }
+    }
+    
+    // Fallback to in-memory cache
+    // ... fetch from database if not cached
+}
+```
+
 ---
+
+## 📦 Dependencies
+
+### Core Dependencies
+```toml
+# Web Framework
+axum = "0.7"
+tokio = { version = "1.0", features = ["full"] }
+
+# Database
+sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "postgres", "chrono", "uuid", "bigdecimal"] }
+
+# Authentication & Security
+jsonwebtoken = "9.3"
+bcrypt = "0.15"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Utilities
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Redis Cache
+redis = { version = "0.24", features = ["tokio-comp", "connection-manager"] }
+
+# Logging & Monitoring
+tracing = "0.1"
+tracing-subscriber = "0.3"
+```
+
+### Redis Cache Features
+- **`tokio-comp`**: Async Redis client với Tokio runtime
+- **`connection-manager`**: Connection pooling cho Redis
+- **Multi-layer caching**: L1 (Memory) + L2 (Redis)
+- **Fallback strategy**: Redis → Memory → Database
+
+---
+
+## 🏗️ Core Components (Bắt buộc cho hệ thống lớn)
+
+### 📋 **`src/core/types.rs`** - Common Types
+```rust
+// ✅ Core types cho Milan Finance
+pub type TenantId = Uuid;
+pub type UserId = Uuid;
+pub type Money = struct { amount: i64, currency: Currency };
+
+// ✅ Cache key types
+pub enum CacheKey {
+    DashboardStats(TenantId, u32, i32),
+    LoanStats(TenantId, i32, Option<u32>, Option<String>),
+}
+
+// ✅ Cache TTLs
+pub const CACHE_TTL_SHORT: u64 = 60;      // 1 minute
+pub const CACHE_TTL_MEDIUM: u64 = 300;   // 5 minutes
+```
+
+### 🔐 **`src/core/context.rs`** - Request Context & Permissions
+```rust
+// ✅ User context cho request
+pub struct UserContext {
+    pub tenant_id: Uuid,
+    pub user_id: Uuid,
+    pub permissions: Vec<Permission>,
+    pub metadata: RequestMetadata,
+}
+
+// ✅ Permission system
+pub struct Permission {
+    pub resource: String,    // "loan", "user", "dashboard"
+    pub action: String,      // "read", "create", "update", "delete"
+    pub scope: Option<String>, // "created_by = $user_id"
+}
+```
+
+### ✅ **`src/core/validation.rs`** - Input Validation
+```rust
+// ✅ Validation utilities
+pub struct ValidationError {
+    pub field: String,
+    pub message: String,
+    pub code: String,
+}
+
+pub struct BusinessValidator;
+impl BusinessValidator {
+    pub fn validate_loan_amount(amount: i64, currency: &Currency) -> Result<(), ValidationError>;
+    pub fn validate_interest_rate(rate: f64) -> Result<(), ValidationError>;
+}
+```
+
+### 🗄️ **`src/infra/sharding.rs`** - Multi-Tenant Sharding
+```rust
+// ✅ Shard management
+pub struct ShardManager {
+    shards: Vec<ShardConfig>,
+    tenant_shard_map: RwLock<HashMap<TenantId, String>>,
+}
+
+impl ShardManager {
+    pub fn get_shard_for_tenant(&self, tenant_id: &TenantId) -> &ShardConfig;
+    pub fn select_shard_for_tenant(&self, tenant_id: &TenantId) -> String;
+}
+```
+
+### 🏥 **`src/infra/health_check.rs`** - Production Health Checks
+```rust
+// ✅ Health check endpoints
+pub fn health_routes() -> Router<Arc<AppState>> {
+    Router::new()
+        .route("/health", get(health_check))
+        .route("/ready", get(readiness_check))
+        .route("/live", get(liveness_check))
+}
+
+// ✅ Service health monitoring
+pub async fn check_database_health(pool: &PgPool) -> ServiceHealth;
+pub async fn check_redis_health() -> ServiceHealth;
+```
