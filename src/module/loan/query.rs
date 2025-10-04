@@ -21,7 +21,7 @@ pub async fn list_contracts(pool: &PgPool, tenant_id: Uuid) -> sqlx::Result<Vec<
             0::int8 AS "payoff_due!"
         FROM loan_contract
         WHERE tenant_id = $1
-        ORDER BY date_start DESC
+        ORDER BY contract_number DESC
         "#,
         tenant_id
     )
