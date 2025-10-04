@@ -111,6 +111,30 @@ export const dashboards: NavigationTree = {
       ],
     },
     {
+      id: "dashboards.invoice",
+      path: path(ROOT_DASHBOARDS, "/invoice"),
+      type: "collapse",
+      title: "Invoice",
+      transKey: "nav.dashboards.invoice",
+      icon: "dashboards.meetings",
+      childs: [
+        {
+          id: "dashboards.invoice-list",
+          type: "item",
+          path: path(ROOT_DASHBOARDS, "/invoice/invoice-list"),
+          title: "Invoice list",
+          transKey: "nav.dashboards.invoice-list",
+        },
+        {
+          id: "dashboards.invoice-create",
+          type: "item",
+          path: path(ROOT_DASHBOARDS, "/invoice/invoice-create"),
+          title: "Invoice create",
+          transKey: "nav.dashboards.invoice-create",
+        },
+      ],
+    },
+    {
       id: "dashboards.crm-analytics",
       path: path(ROOT_DASHBOARDS, "/crm-analytics"),
       type: "item",

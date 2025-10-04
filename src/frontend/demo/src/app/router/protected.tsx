@@ -808,6 +808,22 @@ const protectedRoutes: RouteObject = {
                   .default,
               }),
             },
+
+            // Invoice routes
+            {
+              path: "invoice/invoice-list",
+              lazy: async () => ({
+                Component: (await import("@/app/pages/dashboards/invoice/invoice-list/index"))
+                  .default,
+              }),
+            },
+            {
+              path: "invoice/invoice-create",
+              lazy: async () => ({
+                Component: (await import("@/app/pages/dashboards/invoice/invoice-create/index"))
+                  .default,
+              }),
+            },
             {
               path: "crm-analytics",
               lazy: async () => ({
