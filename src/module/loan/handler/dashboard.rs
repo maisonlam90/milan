@@ -448,7 +448,8 @@ pub async fn get_dashboard_stats(
 
         // Kiểm tra trạng thái contract
         let mut is_settled = false;
-        let mut current_principal = contract.current_principal;
+        // current_principal đã được tính đúng bởi calculator ở trên
+        let current_principal = contract.current_principal;
         
         for tx in &transactions {
             let tx_date = tx.date.with_timezone(&chrono_tz::Asia::Bangkok).date_naive();
@@ -458,30 +459,23 @@ pub async fn get_dashboard_stats(
                 monthly_interest += tx.interest_applied;
             }
 
-            // Cập nhật số dư
+            // Xác định trạng thái tất toán theo giao dịch
             match tx.transaction_type.as_str() {
-                "disbursement" | "additional" => {
-                    // Không làm gì, principal đã tính từ đầu
-                }
-                "principal" => {
-                    current_principal -= tx.amount;
-                }
                 "settlement" | "liquidation" => {
-                    current_principal -= tx.amount - tx.interest_applied;
-                    // Kiểm tra tất toán trong tháng này
                     if tx_date.year() == year && tx_date.month() == month {
                         settled_this_month += 1;
                     }
                     is_settled = true;
                 }
-                _ => {} // interest không ảnh hưởng principal
+                _ => {}
             }
         }
 
         // Đếm hợp đồng đang hoạt động và tổng dư nợ
-        if !is_settled && current_principal > 0 {
+        if !is_settled {
             active_contracts += 1;
-            total_outstanding += current_principal;
+            // Không để âm do rounding hoặc overpayment
+            total_outstanding += current_principal.max(0);
         }
     }
 
@@ -982,7 +976,7 @@ pub async fn get_top_contracts(
 
         // Tính tỷ lệ hoàn thành
         let completion_rate = if contract.current_principal > 0 {
-            (principal_collected as f64 / contract.current_principal as f64) * 100.0
+            ((principal_collected as f64 / contract.current_principal as f64) * 100.0).min(100.0)
         } else {
             100.0
         };
@@ -1116,7 +1110,7 @@ pub async fn get_loan_portfolio_quality(
         }
 
         // Chỉ tính hợp đồng đang hoạt động
-        if !is_settled && current_principal > 0 {
+        if !is_settled {
             total_active += 1;
 
             // Tìm giao dịch giải ngân cuối cùng để tính ngày đáo hạn
