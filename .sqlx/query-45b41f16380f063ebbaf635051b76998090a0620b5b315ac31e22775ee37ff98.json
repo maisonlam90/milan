@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT\n            id, tenant_id, contact_id, contract_number,\n            interest_rate, term_months,\n            date_start, date_end,\n            storage_fee_rate, storage_fee,\n            current_principal, current_interest,\n            accumulated_interest, total_paid_interest, total_settlement_amount,\n            state, created_at, updated_at,\n            created_by, assignee_id, shared_with,\n            0::int8 AS \"total_paid_principal!\",\n            0::int8 AS \"payoff_due!\"\n        FROM loan_contract\n        WHERE tenant_id = $1\n        ORDER BY date_start DESC\n        ",
+  "query": "\n        SELECT\n            id, tenant_id, contact_id, contract_number,\n            interest_rate, term_months,\n            date_start, date_end,\n            storage_fee_rate, storage_fee,\n            current_principal, current_interest,\n            accumulated_interest, total_paid_interest, total_settlement_amount,\n            state, created_at, updated_at,\n            created_by, assignee_id, shared_with,\n            0::int8 AS \"total_paid_principal!\",\n            0::int8 AS \"payoff_due!\"\n        FROM loan_contract\n        WHERE tenant_id = $1\n        ORDER BY contract_number DESC\n        ",
   "describe": {
     "columns": [
       {
@@ -150,5 +150,5 @@
       null
     ]
   },
-  "hash": "297286614b4b276d1f1e7fc047ba85e26f846ae95cfae3769d72a24e55dd5623"
+  "hash": "45b41f16380f063ebbaf635051b76998090a0620b5b315ac31e22775ee37ff98"
 }
