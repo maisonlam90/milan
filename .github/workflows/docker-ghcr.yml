@@ -32,10 +32,10 @@ jobs:
 
       - name: Build frontend (Tailux)
         run: |
-          cd src/frontend/demo
+          cd frontend/demo
           yarn install --frozen-lockfile
           yarn build
-          cd ../../..
+          cd ../..
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v2

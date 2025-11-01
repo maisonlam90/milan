@@ -21,7 +21,7 @@ jobs:
 
       - name: Build frontend (Tailux)
         run: |
-          cd src/frontend/demo
+          cd frontend/demo
           yarn install --frozen-lockfile
           yarn build
 
@@ -34,6 +34,7 @@ jobs:
 
       - name: Pin Rust version
         run: |
+          cd backend
           echo '[toolchain]' > rust-toolchain.toml
           echo 'channel = "1.82.0"' >> rust-toolchain.toml
           echo 'components = ["rustfmt", "clippy"]' >> rust-toolchain.toml
@@ -43,4 +44,6 @@ jobs:
           cargo install sqlx-cli --version 0.7.3 --no-default-features --features postgres --locked
 
       - name: Build project
-        run: cargo build --release
+        run: |
+          cd backend
+          cargo build --release
