@@ -1,5 +1,5 @@
 # ---------- Backend build layer ----------
-FROM rust:1.82 as backend-builder
+FROM rust:1.89 as backend-builder
 
 WORKDIR /app
 ARG SQLX_OFFLINE

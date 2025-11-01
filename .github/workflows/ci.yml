@@ -25,19 +25,10 @@ jobs:
           yarn install --frozen-lockfile
           yarn build
 
-      - name: Cài Rust stable
-        uses: actions-rs/toolchain@v1
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@1.89.0
         with:
-          toolchain: stable
-          profile: minimal
-          override: true
-
-      - name: Pin Rust version
-        run: |
-          cd backend
-          echo '[toolchain]' > rust-toolchain.toml
-          echo 'channel = "1.82.0"' >> rust-toolchain.toml
-          echo 'components = ["rustfmt", "clippy"]' >> rust-toolchain.toml
+          components: rustfmt, clippy
 
       - name: Cài sqlx-cli (bản cũ tránh edition2024)
         run: |
