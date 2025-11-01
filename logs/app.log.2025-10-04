@@ -1,6 +1,0 @@
-2025-10-04T11:35:58.148504Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(InvalidToken)
-2025-10-04T11:36:12.799946Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(InvalidToken)
-2025-10-04T11:36:23.800508Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(InvalidToken)
-2025-10-04T11:38:14.725059Z ERROR milan::core::auth: ❌ Không tìm thấy header Authorization (middleware)
-2025-10-04T11:38:19.877275Z ERROR milan::core::auth: ❌ Không tìm thấy header Authorization (middleware)
-2025-10-04T11:38:43.370761Z ERROR milan::core::auth: ❌ Không tìm thấy header Authorization (middleware)
