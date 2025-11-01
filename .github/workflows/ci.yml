@@ -35,6 +35,8 @@ jobs:
           cargo install sqlx-cli --version 0.7.3 --no-default-features --features postgres --locked
 
       - name: Build project
+        env:
+          SQLX_OFFLINE: true
         run: |
           cd backend
           cargo build --release
