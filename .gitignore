@@ -1,5 +1,7 @@
 # Rust build output
 /target/
+backend/target/
+target/
 Cargo.lock
 
 # Env config
