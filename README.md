@@ -49,21 +49,13 @@ Milan Finance được thiết kế để xây dựng các hệ thống:
 ```
 milan/
 ├── README.md                  # Project documentation
-├── Cargo.toml                 # Rust dependencies
-├── Cargo.lock                 # Dependency lock file
-├── rust-toolchain.toml        # Rust toolchain configuration
-├── Dockerfile                 # Container configuration
-├── entrypoint.sh              # Application entry script
+├── Dockerfile                 # Container configuration (builds both FE & BE)
 ├── nginx.conf                 # Web server configuration
 ├── backend.log                # Application logs
 ├── logs/                      # Log directory
-├── migrations/                # Database migrations
 ├── scripts/                   # Development scripts
 │   ├── dev.sh                 # Development script
 │   └── huong dan git.sh       # Git workflow guide
-├── tools/                     # Development tools
-│   └── gen_module.rs          # Module generator
-├── target/                    # Build artifacts
 ├── k8s/                       # Kubernetes manifests
 │   ├── deployment.yaml        # Application deployment
 │   ├── service.yaml          # Service definition
@@ -73,57 +65,64 @@ milan/
 │   ├── pdb.yaml              # Pod Disruption Budget
 │   ├── network-policy.yaml   # Network policies
 │   └── monitoring.yaml       # Monitoring configuration
-└── src/                       # Source code
-    ├── main.rs                # Application entry point
-    ├── config.rs              # Application configuration
-    ├── app.rs                 # Axum app builder
-    ├── core/                  # Core utilities & shared components
-    │   ├── auth.rs           # Authentication logic
-    │   ├── error.rs          # Global error types
-    │   ├── iam.rs            # Identity & Access Management
-    │   ├── json_with_log.rs  # JSON utilities with logging
-    │   ├── log.rs            # Logging utilities
-    │   ├── state.rs          # Application state management
-    │   ├── cache.rs          # Multi-layer cache (L1 Memory + L2 Redis)
-    │   │
-    │   # TODO: Cần bổ sung cho Milan Finance
-    │   ├── types.rs          # Common types (TenantId, UserId, Money, Currency...)
-    │   ├── context.rs        # Request context (tenant_id, user_id, permissions)
-    │   ├── validation.rs     # Input validation utilities
-    │   └── mod.rs            # Module exports
-    │
-    ├── infra/                 # Infrastructure layer
-    │   ├── db.rs             # Database connection & queries
-    │   ├── event_bus.rs      # Event bus abstraction
-    │   ├── telemetry.rs      # Logging, metrics, tracing
-    │   ├── mod.rs            # Module exports
-    │   │
-    │   # TODO: Cần bổ sung cho Milan Finance
-    │   ├── sharding.rs       # Tenant → Shard mapping
-    │   ├── health_check.rs   # Health check endpoints
-    │   └── connection_pool.rs # Database connection pooling
-    │
-    ├── api/                   # API layer
-    │   ├── router.rs         # Main router aggregation
-    │   ├── mod.rs            # Module exports
-    │   │
-    │
-    ├── tenant_router/         # Multi-tenant routing
-    │   └── mod.rs            # Tenant resolution middleware
-    │
-    └── module/                # Domain modules
-        ├── available.rs      # Module discovery & listing
-        ├── app/              # Application management
-        ├── contact/          # Contact management
-        ├── iam/              # Identity & Access Management
-        ├── loan/             # Loan management
-        ├── tenant/           # Tenant management
-        ├── user/             # User management
-        │
-        # TODO: Cần bổ sung modules cho Milan Finance
-        ├── payment/          # Payment processing
-        ├── banking/          # Banking operations
-        └── analytics/        # Analytics & reporting
+│
+├── backend/                   # Backend (Rust/Axum)
+│   ├── Cargo.toml             # Rust dependencies
+│   ├── Cargo.lock             # Dependency lock file
+│   ├── rust-toolchain.toml    # Rust toolchain configuration
+│   ├── entrypoint.sh          # Application entry script
+│   ├── migrations/            # Database migrations
+│   ├── tools/                 # Development tools
+│   │   └── gen_module.rs      # Module generator
+│   ├── target/                # Build artifacts
+│   └── src/                   # Backend source code
+│       ├── main.rs            # Application entry point
+│       ├── config.rs          # Application configuration
+│       ├── app.rs             # Axum app builder
+│       ├── core/              # Core utilities & shared components
+│       │   ├── auth.rs       # Authentication logic
+│       │   ├── error.rs      # Global error types
+│       │   ├── iam.rs        # Identity & Access Management
+│       │   ├── json_with_log.rs # JSON utilities with logging
+│       │   ├── log.rs        # Logging utilities
+│       │   ├── state.rs      # Application state management
+│       │   ├── cache.rs      # Multi-layer cache (L1 Memory + L2 Redis)
+│       │   ├── types.rs      # Common types (TenantId, UserId, Money...)
+│       │   ├── context.rs    # Request context (tenant_id, user_id...)
+│       │   ├── validation.rs # Input validation utilities
+│       │   └── mod.rs        # Module exports
+│       ├── infra/             # Infrastructure layer
+│       │   ├── db.rs         # Database connection & queries
+│       │   ├── event_bus.rs  # Event bus abstraction
+│       │   ├── telemetry.rs  # Logging, metrics, tracing
+│       │   └── mod.rs        # Module exports
+│       ├── api/               # API layer
+│       │   ├── router.rs     # Main router aggregation
+│       │   └── mod.rs        # Module exports
+│       ├── tenant_router/     # Multi-tenant routing
+│       │   └── mod.rs        # Tenant resolution middleware
+│       └── module/            # Domain modules
+│           ├── available.rs  # Module discovery & listing
+│           ├── app/          # Application management
+│           ├── contact/      # Contact management
+│           ├── iam/          # Identity & Access Management
+│           ├── loan/         # Loan management
+│           ├── tenant/       # Tenant management
+│           └── user/         # User management
+│
+└── frontend/                  # Frontend (React/Vite/Tailwind)
+    ├── demo/                  # Main frontend application
+    │   ├── src/
+    │   │   ├── components/   # Reusable components
+    │   │   ├── pages/       # Page components
+    │   │   ├── services/    # API calls
+    │   │   ├── stores/      # State management
+    │   │   └── utils/       # Utilities
+    │   ├── public/
+    │   └── package.json
+    ├── demo1/                 # Additional demo apps
+    ├── starter/               # Starter template
+    └── ts/                    # TypeScript variants
 ```
 
 ---
@@ -387,7 +386,7 @@ pub async fn handle_user_created(event: UserCreatedEvent) -> Result<()> {
 ### Cài đặt
 
 ```bash
-cd axum/src/frontend/demo
+cd frontend/demo
 yarn install
 yarn dev --host
 ```

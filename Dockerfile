@@ -5,7 +5,7 @@ WORKDIR /app
 ARG SQLX_OFFLINE
 ENV SQLX_OFFLINE=${SQLX_OFFLINE}
 
-COPY . .
+COPY backend/ .
 RUN cargo build --release
 
 
@@ -13,7 +13,7 @@ RUN cargo build --release
 FROM node:20-alpine as frontend-builder
 
 WORKDIR /frontend
-COPY ./src/frontend/demo ./
+COPY frontend/demo/ ./
 RUN yarn install
 RUN yarn build
 
@@ -36,10 +36,10 @@ COPY --from=frontend-builder /frontend/dist /app/frontend
 COPY --from=backend-builder /app/target/release/milan /usr/local/bin/milan
 
 # Copy cert nếu dùng
-COPY yugabyte.crt /app/yugabyte.crt
+COPY yugabyte.crt /app/yugabyte.crt 2>/dev/null || true
 
 # Entrypoint
-COPY entrypoint.sh /app/entrypoint.sh
+COPY backend/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /usr/local/bin/milan /app/entrypoint.sh
 
 EXPOSE 80 3000
