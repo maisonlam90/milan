@@ -3,7 +3,7 @@ use axum::{Router, routing::{get, post}, middleware};
 use axum::http::{Method, header};
 use tower_http::cors::{Any, CorsLayer};
 
-use crate::module::{user, tenant, iam}; // 👈 Import thêm module iam
+use crate::module::{user, tenant, iam};
 use crate::core::{auth::jwt_auth, state::AppState};
 
 /// Build tất cả router từ các module.
@@ -46,6 +46,9 @@ pub fn build_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 
         // 🛡️ Route module app
         .merge(crate::module::app::router::routes())
+
+        // 🎓 Routes động từ modules ngoài binary (load từ manifest.json)
+        .merge(crate::api::external_modules::routes(state.clone()))
 
         // 🌐 Gắn state + middleware CORS
         .with_state(state)

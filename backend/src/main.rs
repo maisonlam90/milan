@@ -3,9 +3,9 @@ use dotenvy::dotenv;
 use std::{env, net::SocketAddr, sync::Arc};
 use tower_http::cors::{CorsLayer, Any};
 
-use api::router::build_router; // 👈 Build router từ module api
+use api::router::build_router;
 use core::state::AppState;
-use infra::{db::ShardManager, telemetry::Telemetry, event_bus::EventPublisher};
+use infra::{db::ShardManager, telemetry::Telemetry, event_bus::EventPublisher, wasm_loader::ModuleRegistry};
 // log file
 use tracing_appender::rolling;
 use tracing_appender::non_blocking;
@@ -58,8 +58,31 @@ async fn main() {
     let telemetry = Telemetry::new();
     let event_publisher = Arc::new(DummyBus);
 
-    // 🧠 AppState — chỉ chứa ShardManager, không còn PgPool cục bộ
-    let app_state = AppState::new(shard.clone(), telemetry, event_publisher);
+    // 🎯 Module Registry - Load WASM modules ngoài binary
+    let mut module_registry = ModuleRegistry::new();
+    // Tìm thư mục modules/ - thử từ root project trước
+    let modules_dir = std::path::Path::new("modules");
+    // Nếu không tìm thấy (backend chạy từ thư mục backend/), thử từ parent
+    let modules_dir = if !modules_dir.exists() {
+        std::path::Path::new("../modules")
+    } else {
+        modules_dir
+    };
+    
+    if let Err(e) = module_registry.scan_modules(modules_dir) {
+        tracing::warn!("⚠️  Không thể scan modules tại {:?}: {}", modules_dir, e);
+    } else {
+        let count = module_registry.list_modules().len();
+        if count > 0 {
+            tracing::info!("✅ Loaded {} modules ngoài binary từ {:?}", count, modules_dir);
+        } else {
+            tracing::info!("✅ Scanned modules tại {:?} (0 modules found)", modules_dir);
+        }
+    }
+    let module_registry = Arc::new(module_registry);
+
+    // 🧠 AppState
+    let app_state = AppState::new(shard.clone(), telemetry, event_publisher, module_registry);
 
     // 🌐 CORS middleware để frontend gọi được
     let cors = CorsLayer::new()

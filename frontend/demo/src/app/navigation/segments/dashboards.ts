@@ -135,6 +135,30 @@ export const dashboards: NavigationTree = {
       ],
     },
     {
+      id: "dashboards.school",
+      path: path(ROOT_DASHBOARDS, "/school"),
+      type: "collapse",
+      title: "school",
+      transKey: "nav.dashboards.school",
+      icon: "dashboards.meetings",
+      childs: [
+        {
+          id: "dashboards.school-list",
+          type: "item",
+          path: path(ROOT_DASHBOARDS, "/school/school-list"),
+          title: "School list",
+          transKey: "nav.dashboards.school-list",
+        },
+        {
+          id: "dashboards.school-create",
+          type: "item",
+          path: path(ROOT_DASHBOARDS, "/school/school-create"),
+          title: "School create",
+          transKey: "nav.dashboards.school-create",
+        },
+      ],
+    },
+    {
       id: "dashboards.crm-analytics",
       path: path(ROOT_DASHBOARDS, "/crm-analytics"),
       type: "item",

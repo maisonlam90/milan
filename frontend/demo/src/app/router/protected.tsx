@@ -774,6 +774,20 @@ const protectedRoutes: RouteObject = {
               }),
             },
             {
+              path: "school/school-create",
+              lazy: async () => ({
+                Component: (await import("@/app/pages/dashboards/school/school-create"))
+                  .default,
+              }),
+            },
+            {
+              path: "school/school-list",
+              lazy: async () => ({
+                Component: (await import("@/app/pages/dashboards/school/school-list"))
+                  .default,
+              }),
+            },
+            {
               path: "loan/loan-list",
               lazy: async () => ({
                 Component: (await import("@/app/pages/dashboards/loan/loan-list"))

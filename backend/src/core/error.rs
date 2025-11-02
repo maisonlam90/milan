@@ -28,7 +28,8 @@ impl IntoResponse for ErrorResponse {
 pub enum AppError {
     Validation(ErrorResponse),
     Db(sqlx::Error),
-    InternalServerError(String), // ✅ Thêm variant mới
+    InternalServerError(String),
+    NotFound(String), // ✅ Thêm variant NotFound
 }
 
 impl From<sqlx::Error> for AppError {
@@ -64,6 +65,14 @@ impl IntoResponse for AppError {
                 };
                 (StatusCode::INTERNAL_SERVER_ERROR, Json(payload)).into_response()
             }
+
+            AppError::NotFound(msg) => {
+                let payload = ErrorResponse {
+                    code: "not_found",
+                    message: msg,
+                };
+                (StatusCode::NOT_FOUND, Json(payload)).into_response()
+            }
         }
     }
 }
@@ -78,5 +87,9 @@ impl AppError {
 
     pub fn internal(msg: impl Into<String>) -> Self {
         AppError::InternalServerError(msg.into())
+    }
+
+    pub fn not_found(msg: impl Into<String>) -> Self {
+        AppError::NotFound(msg.into())
     }
 }

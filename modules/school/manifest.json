@@ -1,0 +1,32 @@
+{
+  "name": "school",
+  "display_name": "Quản lý Trường Học",
+  "description": "Module quản lý thông tin trường học - Module ngoài binary",
+  "version": "0.1.0",
+  "metadata": {
+    "form": {
+      "fields": [
+        { "name": "name", "label": "Tên trường", "type": "text", "width": 8, "required": true },
+        { "name": "display_name", "label": "Tên hiển thị", "type": "text", "width": 4 },
+        { "name": "code", "label": "Mã trường", "type": "text", "width": 6 },
+        { "name": "principal_name", "label": "Hiệu trưởng", "type": "text", "width": 6 },
+        { "name": "address", "label": "Địa chỉ", "type": "text", "width": 12 },
+        { "name": "phone", "label": "Điện thoại", "type": "text", "width": 6 },
+        { "name": "email", "label": "Email", "type": "email", "width": 6 },
+        { "name": "website", "label": "Website", "type": "text", "width": 6 },
+        { "name": "description", "label": "Mô tả", "type": "textarea", "width": 12 }
+      ]
+    },
+    "list": {
+      "columns": [
+        { "name": "code", "label": "Mã trường" },
+        { "name": "name", "label": "Tên trường" },
+        { "name": "principal_name", "label": "Hiệu trưởng" },
+        { "name": "phone", "label": "Điện thoại" },
+        { "name": "address", "label": "Địa chỉ" }
+      ],
+      "search": { "placeholder": "Tìm theo tên/mã/địa chỉ" }
+    }
+  }
+}
+
