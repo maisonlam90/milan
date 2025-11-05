@@ -16,6 +16,7 @@
         { "name": "email", "label": "Email", "type": "email", "width": 6 },
         { "name": "website", "label": "Website", "type": "text", "width": 6 },
         { "name": "description", "label": "Mô tả", "type": "textarea", "width": 12 }
+
       ]
     },
     "list": {

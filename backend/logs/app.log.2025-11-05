@@ -6,3 +6,5 @@
 2025-11-05T14:18:00.188668Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: null value in column "name" violates not-null constraint
 2025-11-05T14:37:17.737397Z ERROR milan::core::auth: ❌ Không tìm thấy header Authorization (middleware)
 2025-11-05T14:42:40.035985Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(InvalidToken)
+2025-11-05T15:49:16.110119Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-05T15:50:31.198788Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: column "descriptiona" of relation "school_schools" does not exist
