@@ -35,9 +35,6 @@ COPY --from=frontend-builder /frontend/dist /app/frontend
 # Copy backend binary
 COPY --from=backend-builder /app/target/release/milan /usr/local/bin/milan
 
-# Copy cert nếu dùng
-COPY yugabyte.crt /app/yugabyte.crt 2>/dev/null || true
-
 # Entrypoint
 COPY backend/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /usr/local/bin/milan /app/entrypoint.sh
