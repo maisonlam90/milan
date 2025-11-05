@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 
 import { Page } from "@/components/shared/Page";
 import { Card, Button } from "@/components/ui";
@@ -99,11 +99,20 @@ export default function SchoolCreatePage() {
         <Card className="p-6">
           {fields.length > 0 ? (
             // 4️⃣ Render form động từ metadata (từ manifest.json)
-            <DynamicForm
-              form={form}
-              fields={fields}
-              onSubmit={onSubmit}
-            />
+            <div className="space-y-6">
+              <DynamicForm
+                form={form}
+                fields={fields}
+              />
+              <div className="flex items-center gap-3 justify-end pt-2">
+                <Button
+                  variant="filled"
+                  onClick={form.handleSubmit(onSubmit)}
+                >
+                  {schoolId ? "Lưu thay đổi" : "Lưu"}
+                </Button>
+              </div>
+            </div>
           ) : (
             <div className="text-center py-8">
               <p>Đang tải form...</p>

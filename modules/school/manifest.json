@@ -4,6 +4,7 @@
   "description": "Module quản lý thông tin trường học - Module ngoài binary",
   "version": "0.1.0",
   "metadata": {
+    "root_table": "school_schools",
     "form": {
       "fields": [
         { "name": "name", "label": "Tên trường", "type": "text", "width": 8, "required": true },

@@ -15,7 +15,7 @@ yarn dev --host
 # Lenh Database
 // lenh migrate cloud yugabyte sql
 export DATABASE_URL="postgres://admin:Maisonlan123@ap-southeast-1.e4c6174f-6538-4e47-93bf-0a2503819047.aws.yugabyte.cloud:5433/yugabyte?ssl=true&sslmode=require"
-cd backend && cargo sqlx migrate run
+cargo sqlx migrate run
 
 //xoa schema csdl
 psql "postgres://admin:Maisonlan123@ap-southeast-1.e4c6174f-6538-4e47-93bf-0a2503819047.aws.yugabyte.cloud:5433/yugabyte?ssl=true&sslmode=require" \
@@ -23,4 +23,9 @@ psql "postgres://admin:Maisonlan123@ap-southeast-1.e4c6174f-6538-4e47-93bf-0a250
 
 // cache lai sqlx
 export DATABASE_URL="postgres://admin:Maisonlan123@ap-southeast-1.e4c6174f-6538-4e47-93bf-0a2503819047.aws.yugabyte.cloud:5433/yugabyte?ssl=true&sslmode=require"
-cd backend && cargo sqlx prepare --workspace
+cargo sqlx prepare --workspace
+
+// backup database
+pg_dump "postgres://admin:Maisonlan123@ap-southeast-1.e4c6174f-6538-4e47-93bf-0a2503819047.aws.yugabyte.cloud:5433/yugabyte?ssl=true&sslmode=require" \
+  -F c \
+  -f yugabyte_backup_$(date +%F).dump

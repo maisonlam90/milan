@@ -8,6 +8,7 @@ use serde::Serialize;
 
 use crate::core::{auth::AuthUser, state::AppState, error::AppError};
 use crate::module::app::dto::ModuleStatusDto;
+use std::collections::HashSet;
 
 pub async fn get_modules_status(
     State(state): State<Arc<AppState>>,
@@ -41,9 +42,29 @@ pub async fn get_modules_status(
             enabled: r.enabled,
             can_enable: r.can_enable,
         })
-        .collect();
+        .collect::<Vec<_>>();
 
-    Ok(Json(result))
+    // 🔄 Merge thêm modules từ external registry (manifest.json trong modules/)
+    let mut merged = result;
+    let existing: HashSet<String> = merged.iter().map(|m| m.module_name.clone()).collect();
+    for info in state.module_registry.list_modules_owned() {
+        if !existing.contains(&info.name) {
+            merged.push(ModuleStatusDto {
+                module_name: info.name.clone(),
+                display_name: info.display_name.clone(),
+                description: Some(info
+                    .metadata
+                    .get("description")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("External module")
+                    .to_string()),
+                enabled: false,
+                can_enable: true,
+            });
+        }
+    }
+
+    Ok(Json(merged))
 }
 
 pub async fn install_module(
@@ -190,6 +211,34 @@ pub async fn scan_and_seed_modules(
                     description,
                 });
             }
+        }
+    }
+
+    // 🔄 Also rescan external modules/ manifest without restart
+    let mut external_dir = std::path::Path::new("modules");
+    if !external_dir.exists() {
+        external_dir = std::path::Path::new("../modules");
+    }
+    if let Err(e) = state.module_registry.scan_modules(external_dir) {
+        tracing::warn!("⚠️ Không thể scan external modules tại {:?}: {}", external_dir, e);
+    } else {
+        let count = state.module_registry.list_modules_owned().len();
+        tracing::info!("✅ Reloaded external modules: {}", count);
+    }
+
+    // Gộp thêm external modules vào kết quả trả về để FE có thể hiển thị ngay
+    for ext in state.module_registry.list_modules_owned() {
+        if !result.iter().any(|m| m.module_name == ext.name) {
+            result.push(ScannedModule {
+                module_name: ext.name.clone(),
+                display_name: ext.display_name.clone(),
+                description: ext
+                    .metadata
+                    .get("description")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("External module")
+                    .to_string(),
+            });
         }
     }
 

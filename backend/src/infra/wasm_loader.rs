@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use serde_json::Value;
 use anyhow::Result;
+use std::sync::RwLock;
 
 /// Module metadata từ manifest.json
 #[derive(Debug, Clone)]
@@ -18,22 +19,28 @@ pub struct ModuleInfo {
 /// Module Registry - Quản lý modules ngoài binary
 #[derive(Debug)]
 pub struct ModuleRegistry {
-    modules: HashMap<String, ModuleInfo>,
+    modules: RwLock<HashMap<String, ModuleInfo>>,
 }
 
 impl ModuleRegistry {
     pub fn new() -> Self {
         Self {
-            modules: HashMap::new(),
+            modules: RwLock::new(HashMap::new()),
         }
     }
 
     /// Scan thư mục `modules/` và load tất cả modules
-    pub fn scan_modules(&mut self, modules_dir: &Path) -> Result<()> {
+    pub fn scan_modules(&self, modules_dir: &Path) -> Result<()> {
         if !modules_dir.exists() {
             tracing::warn!("Modules directory không tồn tại: {:?}", modules_dir);
+            // Nếu không tồn tại, coi như không có module ngoài
+            let mut w = self.modules.write().unwrap();
+            w.clear();
             return Ok(());
         }
+
+        // Xây map mới từ đĩa rồi thay thế toàn bộ để phản ánh xóa/thêm
+        let mut new_map: HashMap<String, ModuleInfo> = HashMap::new();
 
         // Scan các thư mục trong modules/
         for entry in std::fs::read_dir(modules_dir)? {
@@ -66,27 +73,26 @@ impl ModuleRegistry {
                     metadata: manifest["metadata"].clone(),
                 };
 
-                self.modules.insert(module_name.clone(), info);
+                new_map.insert(module_name.clone(), info);
                 tracing::info!("✅ Loaded module: {}", module_name);
             }
         }
 
+        // Thay thế toàn bộ registry
+        let mut w = self.modules.write().unwrap();
+        *w = new_map;
+
         Ok(())
     }
 
-    /// Get module info by name
-    pub fn get_module(&self, name: &str) -> Option<&ModuleInfo> {
-        self.modules.get(name)
+    /// Get metadata copy by module name
+    pub fn get_metadata_owned(&self, name: &str) -> Option<Value> {
+        self.modules.read().unwrap().get(name).map(|m| m.metadata.clone())
     }
 
-    /// Get metadata từ module
-    pub fn get_metadata(&self, name: &str) -> Option<&Value> {
-        self.get_module(name).map(|m| &m.metadata)
-    }
-
-    /// List tất cả modules
-    pub fn list_modules(&self) -> Vec<&ModuleInfo> {
-        self.modules.values().collect()
+    /// List all modules (owned copies)
+    pub fn list_modules_owned(&self) -> Vec<ModuleInfo> {
+        self.modules.read().unwrap().values().cloned().collect()
     }
 }
 

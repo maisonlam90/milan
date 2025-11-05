@@ -59,7 +59,7 @@ async fn main() {
     let event_publisher = Arc::new(DummyBus);
 
     // 🎯 Module Registry - Load WASM modules ngoài binary
-    let mut module_registry = ModuleRegistry::new();
+    let module_registry = ModuleRegistry::new();
     // Tìm thư mục modules/ - thử từ root project trước
     let modules_dir = std::path::Path::new("modules");
     // Nếu không tìm thấy (backend chạy từ thư mục backend/), thử từ parent
@@ -72,7 +72,7 @@ async fn main() {
     if let Err(e) = module_registry.scan_modules(modules_dir) {
         tracing::warn!("⚠️  Không thể scan modules tại {:?}: {}", modules_dir, e);
     } else {
-        let count = module_registry.list_modules().len();
+        let count = module_registry.list_modules_owned().len();
         if count > 0 {
             tracing::info!("✅ Loaded {} modules ngoài binary từ {:?}", count, modules_dir);
         } else {
