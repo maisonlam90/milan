@@ -1,15 +1,19 @@
 use axum::{extract::{Path, Query, State}, Json, http::StatusCode};
 use uuid::Uuid;
 use std::sync::Arc;
+use tracing::error;
 
 use crate::core::state::AppState;
 use crate::core::auth::AuthUser;
+use crate::core::error::{AppError, ErrorResponse};
 use crate::module::invoice::{
     dto::{
         CreateInvoiceRequest, UpdateInvoiceRequest, PostInvoiceRequest,
         InvoiceResponse, InvoiceListQuery, PaginatedResponse
     },
-    model::AccountMove
+    model::AccountMove,
+    command,
+    query,
 };
 
 // ============================================================
@@ -48,75 +52,149 @@ pub async fn get_metadata() -> Result<Json<serde_json::Value>, StatusCode> {
 // ============================================================
 
 pub async fn create_invoice(
-    State(_state): State<Arc<AppState>>,
-    _auth: AuthUser,
-    Json(_payload): Json<CreateInvoiceRequest>,
-) -> Result<Json<InvoiceResponse>, StatusCode> {
-    // TODO: Implement create invoice logic
+    State(state): State<Arc<AppState>>,
+    auth: AuthUser,
+    Json(payload): Json<CreateInvoiceRequest>,
+) -> Result<Json<InvoiceResponse>, AppError> {
     // 1. Validate input
-    // 2. Create account_move record
-    // 3. Create account_move_line records
-    // 4. Calculate amounts
-    // 5. Return response
-    
-    Err(StatusCode::NOT_IMPLEMENTED)
+    if payload.lines.is_empty() {
+        return Err(AppError::Validation(ErrorResponse {
+            code: "lines_empty",
+            message: "Hóa đơn phải có ít nhất 1 dòng".into(),
+        }));
+    }
+
+    if payload.move_type.is_empty() {
+        return Err(AppError::Validation(ErrorResponse {
+            code: "move_type_invalid",
+            message: "Loại hóa đơn không hợp lệ".into(),
+        }));
+    }
+
+    let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
+    let created_by = auth.user_id;
+
+    // 2. Call command to create invoice
+    let invoice = command::create_invoice(
+        pool,
+        auth.tenant_id,
+        created_by,
+        payload,
+    )
+    .await?;
+
+    // 3. Return response
+    Ok(Json(invoice))
 }
 
 pub async fn list_invoices(
-    State(_state): State<Arc<AppState>>,
-    _auth: AuthUser,
-    Query(_params): Query<InvoiceListQuery>,
-) -> Result<Json<PaginatedResponse<InvoiceResponse>>, StatusCode> {
-    // TODO: Implement list invoices logic
-    // 1. Build query with filters
-    // 2. Apply pagination
-    // 3. Join with partner data
-    // 4. Return paginated response
-    
-    Err(StatusCode::NOT_IMPLEMENTED)
+    State(state): State<Arc<AppState>>,
+    auth: AuthUser,
+    Query(params): Query<InvoiceListQuery>,
+) -> Result<Json<PaginatedResponse<InvoiceResponse>>, AppError> {
+    let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
+
+    let page = params.page.unwrap_or(1).max(1);
+    let limit = params.limit.unwrap_or(10).min(100);
+    let offset = (page - 1) * limit;
+
+    // ✅ FIX: Clone params before using multiple times
+    let params_clone = params.clone();
+
+    let invoices = query::list_invoices(
+        pool,
+        auth.tenant_id,
+        offset,
+        limit,
+        params.move_type,
+        params.state,
+        params.payment_state,
+        params.partner_id,
+        params.date_from,
+        params.date_to,
+        params.search,
+    )
+    .await?;
+
+    let total = query::count_invoices(
+        pool,
+        auth.tenant_id,
+        params_clone.move_type,
+        params_clone.state,
+        params_clone.payment_state,
+        params_clone.partner_id,
+        params_clone.date_from,
+        params_clone.date_to,
+        params_clone.search,
+    )
+    .await?;
+
+    let total_pages = (total + limit as i64 - 1) / limit as i64;
+
+    Ok(Json(PaginatedResponse {
+        data: invoices,
+        total,
+        page,
+        limit,
+        total_pages: total_pages as i32,
+    }))
 }
 
 pub async fn get_invoice_by_id(
-    State(_state): State<Arc<AppState>>,
-    _auth: AuthUser,
-    Path(_id): Path<Uuid>,
-) -> Result<Json<InvoiceResponse>, StatusCode> {
-    // TODO: Implement get invoice by ID
-    // 1. Query invoice with lines
-    // 2. Join with partner data
-    // 3. Return full invoice details
-    
-    Err(StatusCode::NOT_IMPLEMENTED)
+    State(state): State<Arc<AppState>>,
+    auth: AuthUser,
+    Path(id): Path<Uuid>,
+) -> Result<Json<InvoiceResponse>, AppError> {
+    let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
+
+    let invoice = query::get_invoice_by_id(pool, auth.tenant_id, id)
+        .await?;
+
+    Ok(Json(invoice))
 }
 
 pub async fn update_invoice(
-    State(_state): State<Arc<AppState>>,
-    _auth: AuthUser,
-    Path(_id): Path<Uuid>,
-    Json(_payload): Json<UpdateInvoiceRequest>,
-) -> Result<Json<InvoiceResponse>, StatusCode> {
-    // TODO: Implement update invoice logic
-    // 1. Validate invoice can be updated (draft state)
-    // 2. Update invoice fields
-    // 3. Update/create/delete lines
-    // 4. Recalculate amounts
-    // 5. Return updated invoice
-    
-    Err(StatusCode::NOT_IMPLEMENTED)
+    State(state): State<Arc<AppState>>,
+    auth: AuthUser,
+    Path(id): Path<Uuid>,
+    Json(payload): Json<UpdateInvoiceRequest>,
+) -> Result<Json<InvoiceResponse>, AppError> {
+    let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
+
+    // ✅ Verify invoice exists and is in draft state
+    let invoice = query::get_invoice_by_id(pool, auth.tenant_id, id).await?;
+
+    if invoice.state != "draft" {
+        return Err(AppError::Validation(ErrorResponse {
+            code: "invoice_not_draft",
+            message: "Chỉ có thể chỉnh sửa hóa đơn ở trạng thái Nháp".into(),
+        }));
+    }
+
+    let updated = command::update_invoice(pool, auth.tenant_id, id, payload).await?;
+
+    Ok(Json(updated))
 }
 
 pub async fn delete_invoice(
-    State(_state): State<Arc<AppState>>,
-    _auth: AuthUser,
-    Path(_id): Path<Uuid>,
-) -> Result<StatusCode, StatusCode> {
-    // TODO: Implement delete invoice logic
-    // 1. Check if invoice can be deleted (draft state)
-    // 2. Delete invoice lines
-    // 3. Delete invoice
-    // 4. Return success
-    
-    Err(StatusCode::NOT_IMPLEMENTED)
+    State(state): State<Arc<AppState>>,
+    auth: AuthUser,
+    Path(id): Path<Uuid>,
+) -> Result<StatusCode, AppError> {
+    let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
+
+    let invoice = query::get_invoice_by_id(pool, auth.tenant_id, id).await?;
+
+    if invoice.state != "draft" {
+        return Err(AppError::Validation(ErrorResponse {
+            code: "invoice_not_draft",
+            message: "Chỉ có thể xóa hóa đơn ở trạng thái Nháp".into(),
+        }));
+    }
+
+    command::delete_invoice(pool, auth.tenant_id, id).await?;
+
+    Ok(StatusCode::NO_CONTENT)
 }
 
 // ============================================================
@@ -124,59 +202,86 @@ pub async fn delete_invoice(
 // ============================================================
 
 pub async fn post_invoice(
-    State(_state): State<Arc<AppState>>,
-    _auth: AuthUser,
-    Path(_id): Path<Uuid>,
-    Json(_payload): Json<PostInvoiceRequest>,
-) -> Result<Json<InvoiceResponse>, StatusCode> {
-    // TODO: Implement post invoice logic
-    // 1. Validate invoice can be posted
-    // 2. Update state to 'posted'
-    // 3. Generate invoice number
-    // 4. Create accounting entries
-    // 5. Return updated invoice
-    
-    Err(StatusCode::NOT_IMPLEMENTED)
+    State(state): State<Arc<AppState>>,
+    auth: AuthUser,
+    Path(id): Path<Uuid>,
+    Json(payload): Json<PostInvoiceRequest>,
+) -> Result<Json<InvoiceResponse>, AppError> {
+    let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
+
+    let invoice = query::get_invoice_by_id(pool, auth.tenant_id, id).await?;
+
+    if invoice.state != "draft" {
+        return Err(AppError::Validation(ErrorResponse {
+            code: "invoice_not_draft",
+            message: "Chỉ có thể đăng hóa đơn ở trạng thái Nháp".into(),
+        }));
+    }
+
+    let updated = command::post_invoice(pool, auth.tenant_id, id, payload).await?;
+
+    Ok(Json(updated))
 }
 
 pub async fn reset_to_draft(
-    State(_state): State<Arc<AppState>>,
-    _auth: AuthUser,
-    Path(_id): Path<Uuid>,
-) -> Result<Json<InvoiceResponse>, StatusCode> {
-    // TODO: Implement reset to draft logic
-    // 1. Validate invoice can be reset
-    // 2. Update state to 'draft'
-    // 3. Reverse accounting entries
-    // 4. Return updated invoice
-    
-    Err(StatusCode::NOT_IMPLEMENTED)
+    State(state): State<Arc<AppState>>,
+    auth: AuthUser,
+    Path(id): Path<Uuid>,
+) -> Result<Json<InvoiceResponse>, AppError> {
+    let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
+
+    let invoice = query::get_invoice_by_id(pool, auth.tenant_id, id).await?;
+
+    if invoice.state == "draft" {
+        return Err(AppError::Validation(ErrorResponse {
+            code: "already_draft",
+            message: "Hóa đơn đã ở trạng thái Nháp".into(),
+        }));
+    }
+
+    let updated = command::reset_to_draft(pool, auth.tenant_id, id).await?;
+
+    Ok(Json(updated))
 }
 
 pub async fn cancel_invoice(
-    State(_state): State<Arc<AppState>>,
-    _auth: AuthUser,
-    Path(_id): Path<Uuid>,
-) -> Result<Json<InvoiceResponse>, StatusCode> {
-    // TODO: Implement cancel invoice logic
-    // 1. Validate invoice can be cancelled
-    // 2. Update state to 'cancel'
-    // 3. Reverse accounting entries
-    // 4. Return updated invoice
-    
-    Err(StatusCode::NOT_IMPLEMENTED)
+    State(state): State<Arc<AppState>>,
+    auth: AuthUser,
+    Path(id): Path<Uuid>,
+) -> Result<Json<InvoiceResponse>, AppError> {
+    let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
+
+    let invoice = query::get_invoice_by_id(pool, auth.tenant_id, id).await?;
+
+    if invoice.state == "cancel" {
+        return Err(AppError::Validation(ErrorResponse {
+            code: "already_cancelled",
+            message: "Hóa đơn đã bị hủy".into(),
+        }));
+    }
+
+    let updated = command::cancel_invoice(pool, auth.tenant_id, id).await?;
+
+    Ok(Json(updated))
 }
 
 pub async fn reverse_invoice(
-    State(_state): State<Arc<AppState>>,
-    _auth: AuthUser,
-    Path(_id): Path<Uuid>,
-) -> Result<Json<InvoiceResponse>, StatusCode> {
-    // TODO: Implement reverse invoice logic
-    // 1. Validate invoice can be reversed
-    // 2. Create reversal invoice
-    // 3. Link to original invoice
-    // 4. Return reversal invoice
-    
-    Err(StatusCode::NOT_IMPLEMENTED)
+    State(state): State<Arc<AppState>>,
+    auth: AuthUser,
+    Path(id): Path<Uuid>,
+) -> Result<Json<InvoiceResponse>, AppError> {
+    let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
+
+    let invoice = query::get_invoice_by_id(pool, auth.tenant_id, id).await?;
+
+    if invoice.state != "posted" {
+        return Err(AppError::Validation(ErrorResponse {
+            code: "invoice_not_posted",
+            message: "Chỉ có thể đảo ngược hóa đơn ở trạng thái Đã đăng".into(),
+        }));
+    }
+
+    let reversed = command::reverse_invoice(pool, auth.tenant_id, id).await?;
+
+    Ok(Json(reversed))
 }

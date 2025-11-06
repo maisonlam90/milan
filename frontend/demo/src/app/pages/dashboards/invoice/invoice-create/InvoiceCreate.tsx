@@ -15,6 +15,7 @@ import { JWT_HOST_API } from "@/configs/auth";
 interface InvoiceLine {
   id: string;
   name: string;
+  product_id?: string;
   account_id: string;
   quantity: number;
   price_unit: number;
@@ -22,10 +23,14 @@ interface InvoiceLine {
   tax_ids: string[];
 }
 
+// ✅ Updated interface to match API response
 interface Partner {
   id: string;
   name: string;
-  email: string;
+  display_name?: string | null;
+  email?: string;
+  phone?: string;
+  is_company?: boolean;
 }
 
 interface Journal {
@@ -33,6 +38,9 @@ interface Journal {
   name: string;
   code: string;
 }
+
+// ✅ Create axios instance với baseURL (giống loan-create)
+const api = axios.create({ baseURL: JWT_HOST_API });
 
 export function InvoiceCreate() {
   const navigate = useNavigate();
@@ -57,6 +65,7 @@ export function InvoiceCreate() {
     {
       id: "1",
       name: "",
+      product_id: undefined,
       account_id: "",
       quantity: 1,
       price_unit: 0,
@@ -68,34 +77,71 @@ export function InvoiceCreate() {
   const token =
     typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
 
+  const authHeader = token ? { Authorization: `Bearer ${token}` } : undefined;
+
   useEffect(() => {
+    console.log("🎯 Component mounted, calling fetchMetadata...");
     fetchMetadata();
   }, []);
 
   const fetchMetadata = async () => {
     try {
-      const [partnersRes, journalsRes, accountsRes, taxesRes] = await Promise.all([
-        axios.get(`${JWT_HOST_API}/contact/list`, {
-          headers: { Authorization: `Bearer ${token}` },
-          params: { limit: 100, is_company: true },
-        }),
-        axios.get(`${JWT_HOST_API}/invoice/metadata`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        axios.get(`${JWT_HOST_API}/account/list`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        axios.get(`${JWT_HOST_API}/tax/list`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
+      console.log("=".repeat(60));
+      console.log("📡 Starting fetchMetadata...");
+      console.log("🔐 Token from storage:", token ? `${token.substring(0, 20)}...` : "❌ NO TOKEN");
+      console.log("🔐 AuthHeader:", authHeader ? "✅ SET" : "❌ NOT SET");
+      console.log("API baseURL:", JWT_HOST_API);
+
+      // ✅ Dùng api instance
+      console.log("📤 Calling GET /contact/list...");
+      const partnersRes = await api.get<Partner[]>("/contact/list", {
+        headers: authHeader,
+        params: { limit: 100, is_company: true },
+      });
+
+      console.log("✅ API call succeeded!");
+      console.log("📊 Response status:", partnersRes.status);
+      console.log("📊 Response data type:", typeof partnersRes.data);
+      console.log("📊 Response data:", partnersRes.data);
+      console.log("📊 Is array?", Array.isArray(partnersRes.data));
+      console.log("📊 Length:", partnersRes.data?.length);
+
+      const partnersData = Array.isArray(partnersRes.data) ? partnersRes.data : [];
+      console.log("📦 Partners data to set:", partnersData);
+      console.log("📦 Calling setPartners() with", partnersData.length, "items...");
+      
+      setPartners(partnersData);
+      
+      console.log("✅ setPartners() called! State should update soon...");
+
+      // Fetch journals, accounts, taxes
+      console.log("📤 Calling parallel APIs...");
+      const [journalsRes, accountsRes, taxesRes] = await Promise.all([
+        api.get("/invoice/metadata", { headers: authHeader }),
+        api.get("/account/list", { headers: authHeader }),
+        api.get("/tax/list", { headers: authHeader }),
       ]);
 
-      setPartners(partnersRes.data.data || []);
+      console.log("✅ All parallel APIs called successfully");
+      console.log("✅ Journals:", journalsRes.data);
+      console.log("✅ Accounts:", accountsRes.data);
+
       setJournals(journalsRes.data.journals || []);
       setAccounts(accountsRes.data.data || []);
       setTaxes(taxesRes.data.data || []);
-    } catch (error) {
-      console.error("Error fetching metadata:", error);
+
+      console.log("✅ All state updated!");
+      console.log("=".repeat(60));
+    } catch (error: any) {
+      console.error("=".repeat(60));
+      console.error("❌ ERROR in fetchMetadata!");
+      console.error("❌ Error message:", error.message);
+      console.error("❌ Error response data:", error.response?.data);
+      console.error("❌ Error response status:", error.response?.status);
+      console.error("❌ Error config URL:", error.config?.url);
+      console.error("❌ Error config baseURL:", error.config?.baseURL);
+      console.error("❌ Full error:", error);
+      console.error("=".repeat(60));
     }
   };
 
@@ -103,6 +149,7 @@ export function InvoiceCreate() {
     const newLine: InvoiceLine = {
       id: Date.now().toString(),
       name: "",
+      product_id: undefined,
       account_id: "",
       quantity: 1,
       price_unit: 0,
@@ -138,36 +185,86 @@ export function InvoiceCreate() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    console.log("📝 Form submitted");
+    console.log("📝 Current partners state:", partners);
+    console.log("📝 Selected partner_id:", formData.partner_id);
+
+    // ✅ VALIDATE REQUIRED FIELDS
+    if (!formData.partner_id) {
+      alert("❌ Vui lòng chọn Partner");
+      return;
+    }
+
+    if (!formData.journal_id) {
+      alert("❌ Vui lòng chọn Journal");
+      return;
+    }
+
+    if (!formData.invoice_date) {
+      alert("❌ Vui lòng chọn Invoice Date");
+      return;
+    }
+
+    // ✅ Check có dòng nào không?
+    if (lines.length === 0) {
+      alert("❌ Hóa đơn phải có ít nhất 1 dòng");
+      return;
+    }
+
+    // ✅ Check tất cả dòng có account_id không?
+    if (lines.some((line) => !line.account_id)) {
+      alert("❌ Vui lòng chọn Account cho tất cả dòng");
+      return;
+    }
+
+    // ✅ Check tất cả dòng có description không?
+    if (lines.some((line) => !line.name)) {
+      alert("❌ Vui lòng nhập Description cho tất cả dòng");
+      return;
+    }
+
     setLoading(true);
 
     try {
       const payload = {
         ...formData,
+        partner_id: formData.partner_id ? formData.partner_id : null,
         lines: lines.map((line) => ({
           name: line.name,
+          product_id: line.product_id || null,
           account_id: line.account_id,
-          quantity: line.quantity,
-          price_unit: line.price_unit,
-          discount: line.discount,
-          tax_ids: line.tax_ids,
+          quantity: line.quantity || 1,
+          price_unit: line.price_unit || 0,
+          discount: line.discount || 0,
+          tax_ids: line.tax_ids || [],
         })),
       };
 
-      await axios.post(`${JWT_HOST_API}/invoice/create`, payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+      console.log("📤 Sending payload:", JSON.stringify(payload, null, 2));
+
+      // ✅ Dùng api instance
+      const response = await api.post("/invoice/create", payload, {
+        headers: authHeader,
       });
 
+      console.log("✅ Success! Response:", response.data);
+      alert("✅ Hóa đơn đã được tạo thành công!");
       navigate("/dashboards/invoice/invoice-list");
-    } catch (error) {
-      console.error("Error creating invoice:", error);
-      alert("Error creating invoice. Please try again.");
+    } catch (error: any) {
+      console.error("❌ Error creating invoice:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Unknown error";
+      alert(`❌ Lỗi: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
   };
+
+  console.log("🔄 Component rendering, partners state:", partners);
 
   return (
     <Page title="Create Invoice">
@@ -237,27 +334,35 @@ export function InvoiceCreate() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
-                      Partner
+                      Partner <span className="text-red-500">*</span>
                     </label>
                     <select
                       value={formData.partner_id}
-                      onChange={(e) =>
-                        setFormData({ ...formData, partner_id: e.target.value })
-                      }
+                      onChange={(e) => {
+                        console.log("📝 Partner selected:", e.target.value);
+                        setFormData({ ...formData, partner_id: e.target.value });
+                      }}
                       className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     >
-                      <option value="">Select Partner</option>
-                      {partners.map((partner) => (
-                        <option key={partner.id} value={partner.id}>
-                          {partner.name}
-                        </option>
-                      ))}
+                      <option value="">
+                        {partners.length === 0
+                          ? "-- No partners available --"
+                          : "-- Select Partner --"}
+                      </option>
+                      {partners.map((partner) => {
+                        console.log("🔄 Rendering partner option:", partner.name);
+                        return (
+                          <option key={partner.id} value={partner.id}>
+                            {partner.name}
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
-                      Invoice Date
+                      Invoice Date <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="date"
@@ -300,7 +405,7 @@ export function InvoiceCreate() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
-                      Journal
+                      Journal <span className="text-red-500">*</span>
                     </label>
                     <select
                       value={formData.journal_id}
@@ -309,7 +414,11 @@ export function InvoiceCreate() {
                       }
                       className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     >
-                      <option value="">Select Journal</option>
+                      <option value="">
+                        {journals.length === 0
+                          ? "-- No journals available --"
+                          : "-- Select Journal --"}
+                      </option>
                       {journals.map((journal) => (
                         <option key={journal.id} value={journal.id}>
                           {journal.name} ({journal.code})
@@ -339,7 +448,7 @@ export function InvoiceCreate() {
               <Box className="p-6 mt-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-gray-900">
-                    Invoice Lines
+                    Invoice Lines <span className="text-red-500">*</span>
                   </h3>
                   <button
                     type="button"
@@ -359,7 +468,7 @@ export function InvoiceCreate() {
                     >
                       <div className="sm:col-span-2">
                         <label className="block text-sm font-medium text-gray-700">
-                          Description
+                          Description <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="text"
@@ -374,7 +483,7 @@ export function InvoiceCreate() {
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700">
-                          Account
+                          Account <span className="text-red-500">*</span>
                         </label>
                         <select
                           value={line.account_id}
@@ -383,7 +492,11 @@ export function InvoiceCreate() {
                           }
                           className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                         >
-                          <option value="">Select Account</option>
+                          <option value="">
+                            {accounts.length === 0
+                              ? "-- No accounts --"
+                              : "-- Select --"}
+                          </option>
                           {accounts.map((account) => (
                             <option key={account.id} value={account.id}>
                               {account.name}

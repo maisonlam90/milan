@@ -7,7 +7,7 @@ use sqlx::types::BigDecimal;
 // REQUEST DTOs
 // ============================================================
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CreateInvoiceRequest {
     pub move_type: String,
     pub partner_id: Option<Uuid>,
@@ -21,7 +21,7 @@ pub struct CreateInvoiceRequest {
     pub lines: Vec<CreateInvoiceLineRequest>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CreateInvoiceLineRequest {
     pub name: String,
     pub product_id: Option<Uuid>,
@@ -76,7 +76,7 @@ pub struct CreatePaymentRequest {
     pub move_ids: Vec<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct InvoiceListQuery {
     pub page: Option<i32>,
     pub limit: Option<i32>,

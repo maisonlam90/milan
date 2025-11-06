@@ -17,9 +17,9 @@ CREATE TABLE account_move (
     id        UUID NOT NULL DEFAULT gen_random_uuid(),         -- 🔑 id hóa đơn
     
     -- Thông tin cơ bản
-    name                VARCHAR(255),                           -- Số hóa đơn (INV/001, BILL/001, etc.)
+    name                VARCHAR(255) NOT NULL,                         -- Số hóa đơn (INV/001, BILL/001, etc.)
     move_type           VARCHAR(50) NOT NULL,                   -- out_invoice, in_invoice, out_refund, in_refund, entry
-    partner_id          UUID NOT NULL,                          -- Khách hàng/Nhà cung cấp (contact_id)
+    partner_id          UUID,                         -- Khách hàng/Nhà cung cấp (contact_id)
     
     -- Trạng thái
     state               VARCHAR(50) NOT NULL DEFAULT 'draft',   -- draft, posted, cancel
