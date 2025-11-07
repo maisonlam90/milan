@@ -59,6 +59,27 @@ BEGIN
     WHERE tenant_id = v_tenant_id AND email = 'sales@milan.finance' 
     LIMIT 1;
 
+    -- Fallback handling: ensure created_by / assignee never NULL
+    IF v_admin_id IS NULL THEN
+        SELECT user_id INTO v_admin_id
+        FROM users
+        WHERE tenant_id = v_tenant_id
+        ORDER BY created_at
+        LIMIT 1;
+    END IF;
+
+    IF v_admin_id IS NULL THEN
+        RAISE EXCEPTION '❌ Cannot seed loan demo data: no user found for tenant %', v_tenant_id;
+    END IF;
+
+    IF v_manager_id IS NULL THEN
+        v_manager_id := v_admin_id;
+    END IF;
+
+    IF v_sales_id IS NULL THEN
+        v_sales_id := v_admin_id;
+    END IF;
+
     RAISE NOTICE '🚀 Creating loan demo data...';
     RAISE NOTICE '📌 Tenant: %', v_tenant_id;
 
