@@ -137,17 +137,17 @@ pub async fn aggregate_by_month(
         LoanStats,
         r#"
         SELECT
-            EXTRACT(MONTH FROM lt.date) AS group_key,
+            EXTRACT(MONTH FROM lt.date)::double precision AS "group_key?",
             SUM(CASE WHEN lt.transaction_type IN ('disbursement','additional') THEN lt.amount ELSE 0 END)::numeric AS total_issued,
             SUM(CASE WHEN lt.transaction_type IN ('principal','interest','settlement','liquidation') THEN lt.amount ELSE 0 END)::numeric   AS total_repaid
         FROM loan_transaction lt
         WHERE lt.tenant_id = $1
-          AND EXTRACT(YEAR FROM lt.date) = $2
-        GROUP BY group_key
-        ORDER BY group_key
+          AND EXTRACT(YEAR FROM lt.date)::int = $2
+        GROUP BY EXTRACT(MONTH FROM lt.date)
+        ORDER BY EXTRACT(MONTH FROM lt.date)
         "#,
         tenant_id,
-        year as f64
+        year
     )
     .fetch_all(pool)
     .await?;
@@ -165,19 +165,19 @@ pub async fn aggregate_by_day(
         LoanStats,
         r#"
         SELECT
-            EXTRACT(DAY FROM lt.date) AS group_key,
+            EXTRACT(DAY FROM lt.date)::double precision AS "group_key?",
             SUM(CASE WHEN lt.transaction_type IN ('disbursement','additional') THEN lt.amount ELSE 0 END)::numeric AS total_issued,
             SUM(CASE WHEN lt.transaction_type IN ('principal','interest','settlement','liquidation') THEN lt.amount ELSE 0 END)::numeric   AS total_repaid
         FROM loan_transaction lt
         WHERE lt.tenant_id = $1
-          AND EXTRACT(YEAR  FROM lt.date) = $2
-          AND EXTRACT(MONTH FROM lt.date) = $3
-        GROUP BY group_key
-        ORDER BY group_key
+          AND EXTRACT(YEAR  FROM lt.date)::int = $2
+          AND EXTRACT(MONTH FROM lt.date)::int = $3
+        GROUP BY EXTRACT(DAY FROM lt.date)
+        ORDER BY EXTRACT(DAY FROM lt.date)
         "#,
         tenant_id,
-        year as f64,
-        month as f64
+        year,
+        month as i32
     )
     .fetch_all(pool)
     .await?;
@@ -193,13 +193,13 @@ pub async fn aggregate_by_year(
         LoanStats,
         r#"
         SELECT
-            EXTRACT(YEAR FROM lt.date) AS group_key,
+            EXTRACT(YEAR FROM lt.date)::double precision AS "group_key?",
             SUM(CASE WHEN lt.transaction_type IN ('disbursement','additional') THEN lt.amount ELSE 0 END)::numeric AS total_issued,
             SUM(CASE WHEN lt.transaction_type IN ('principal','interest','settlement','liquidation') THEN lt.amount ELSE 0 END)::numeric   AS total_repaid
         FROM loan_transaction lt
         WHERE lt.tenant_id = $1
-        GROUP BY group_key
-        ORDER BY group_key
+        GROUP BY EXTRACT(YEAR FROM lt.date)
+        ORDER BY EXTRACT(YEAR FROM lt.date)
         "#,
         tenant_id
     )

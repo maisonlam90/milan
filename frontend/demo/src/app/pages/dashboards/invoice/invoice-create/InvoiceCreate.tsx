@@ -1,591 +1,452 @@
-// /home/milan/milan/src/frontend/demo/src/app/pages/dashboards/invoice/invoice-create/InvoiceCreate.tsx
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
 import {
-  PlusIcon,
-  TrashIcon,
-  DocumentArrowDownIcon,
-} from "@heroicons/react/24/outline";
-
-import { Box } from "@/components/ui";
-import { Page } from "@/components/shared/Page";
-import { JWT_HOST_API } from "@/configs/auth";
+  Form,
+  Input,
+  Button,
+  Table,
+  InputNumber,
+  Select,
+  DatePicker,
+  message,
+  Space,
+  Divider,
+  Card,
+  Row,
+  Col,
+  Tabs,
+} from 'antd';
+import { PlusOutlined, DeleteOutlined, SaveOutlined } from '@ant-design/icons';
+import dayjs from 'dayjs';
+import api from '../../../../service/api';
 
 interface InvoiceLine {
-  id: string;
-  name: string;
   product_id?: string;
-  account_id: string;
-  quantity: number;
-  price_unit: number;
-  discount: number;
-  tax_ids: string[];
+  name?: string;
+  quantity?: number;
+  price_unit?: number;
+  discount?: number;
+  account_id?: string;
 }
 
-// ✅ Updated interface to match API response
-interface Partner {
-  id: string;
+interface CreateInvoicePayload {
   name: string;
-  display_name?: string | null;
-  email?: string;
-  phone?: string;
-  is_company?: boolean;
+  ref?: string;
+  date: string;
+  journal_id: string;
+  currency_id?: string;
+  move_type: string;
+  partner_id?: string;
+  commercial_partner_id?: string;
+  invoice_date?: string;
+  invoice_date_due?: string;
+  invoice_origin?: string;
+  payment_term_id?: string;
+  invoice_user_id?: string;
+  fiscal_position_id?: string;
+  narration?: string;
+  lines: InvoiceLine[];
 }
 
-interface Journal {
-  id: string;
-  name: string;
-  code: string;
-}
-
-// ✅ Create axios instance với baseURL (giống loan-create)
-const api = axios.create({ baseURL: JWT_HOST_API });
-
-export function InvoiceCreate() {
-  const navigate = useNavigate();
+const InvoiceCreate: React.FC = () => {
+  const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [partners, setPartners] = useState<Partner[]>([]);
-  const [journals, setJournals] = useState<Journal[]>([]);
-  const [accounts, setAccounts] = useState<any[]>([]);
-  const [, setTaxes] = useState<any[]>([]);
-
-  const [formData, setFormData] = useState({
-    move_type: "out_invoice",
-    partner_id: "",
-    invoice_date: new Date().toISOString().split("T")[0],
-    invoice_date_due: "",
-    ref: "",
-    narration: "",
-    journal_id: "",
-    payment_term_id: "",
-  });
-
   const [lines, setLines] = useState<InvoiceLine[]>([
-    {
-      id: "1",
-      name: "",
-      product_id: undefined,
-      account_id: "",
-      quantity: 1,
-      price_unit: 0,
-      discount: 0,
-      tax_ids: [],
-    },
+    { product_id: '', name: '', quantity: 1, price_unit: 0, discount: 0 },
   ]);
-
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
-
-  const authHeader = token ? { Authorization: `Bearer ${token}` } : undefined;
+  const [contacts, setContacts] = useState<any[]>([]);
+  const [journals, setJournals] = useState<any[]>([]);
+  const [currencies, setCurrencies] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
 
   useEffect(() => {
-    console.log("🎯 Component mounted, calling fetchMetadata...");
-    fetchMetadata();
+    fetchData();
   }, []);
 
-  const fetchMetadata = async () => {
+  const fetchData = async () => {
     try {
-      console.log("=".repeat(60));
-      console.log("📡 Starting fetchMetadata...");
-      console.log("🔐 Token from storage:", token ? `${token.substring(0, 20)}...` : "❌ NO TOKEN");
-      console.log("🔐 AuthHeader:", authHeader ? "✅ SET" : "❌ NOT SET");
-      console.log("API baseURL:", JWT_HOST_API);
+      // Fetch contacts
+      const contactsRes = await api.get('/contact/list?limit=100');
+      setContacts(contactsRes.data?.data || []);
 
-      // ✅ Dùng api instance
-      console.log("📤 Calling GET /contact/list...");
-      const partnersRes = await api.get<Partner[]>("/contact/list", {
-        headers: authHeader,
-        params: { limit: 100, is_company: true },
-      });
+      // Fetch journals
+      const journalsRes = await api.get('/journal/list?limit=100');
+      setJournals(journalsRes.data?.data || []);
 
-      console.log("✅ API call succeeded!");
-      console.log("📊 Response status:", partnersRes.status);
-      console.log("📊 Response data type:", typeof partnersRes.data);
-      console.log("📊 Response data:", partnersRes.data);
-      console.log("📊 Is array?", Array.isArray(partnersRes.data));
-      console.log("📊 Length:", partnersRes.data?.length);
+      // Fetch currencies (if available)
+      try {
+        const currenciesRes = await api.get('/currency/list?limit=100');
+        setCurrencies(currenciesRes.data?.data || []);
+      } catch {
+        // Currency endpoint may not exist
+      }
 
-      const partnersData = Array.isArray(partnersRes.data) ? partnersRes.data : [];
-      console.log("📦 Partners data to set:", partnersData);
-      console.log("📦 Calling setPartners() with", partnersData.length, "items...");
-      
-      setPartners(partnersData);
-      
-      console.log("✅ setPartners() called! State should update soon...");
-
-      // Fetch journals, accounts, taxes
-      console.log("📤 Calling parallel APIs...");
-      const [journalsRes, accountsRes, taxesRes] = await Promise.all([
-        api.get("/invoice/metadata", { headers: authHeader }),
-        api.get("/account/list", { headers: authHeader }),
-        api.get("/tax/list", { headers: authHeader }),
-      ]);
-
-      console.log("✅ All parallel APIs called successfully");
-      console.log("✅ Journals:", journalsRes.data);
-      console.log("✅ Accounts:", accountsRes.data);
-
-      setJournals(journalsRes.data.journals || []);
-      setAccounts(accountsRes.data.data || []);
-      setTaxes(taxesRes.data.data || []);
-
-      console.log("✅ All state updated!");
-      console.log("=".repeat(60));
+      // Fetch products (if available)
+      try {
+        const productsRes = await api.get('/product/list?limit=100');
+        setProducts(productsRes.data?.data || []);
+      } catch {
+        // Product endpoint may not exist
+      }
     } catch (error: any) {
-      console.error("=".repeat(60));
-      console.error("❌ ERROR in fetchMetadata!");
-      console.error("❌ Error message:", error.message);
-      console.error("❌ Error response data:", error.response?.data);
-      console.error("❌ Error response status:", error.response?.status);
-      console.error("❌ Error config URL:", error.config?.url);
-      console.error("❌ Error config baseURL:", error.config?.baseURL);
-      console.error("❌ Full error:", error);
-      console.error("=".repeat(60));
+      message.error('Failed to load data');
     }
   };
 
-  const addLine = () => {
-    const newLine: InvoiceLine = {
-      id: Date.now().toString(),
-      name: "",
-      product_id: undefined,
-      account_id: "",
-      quantity: 1,
-      price_unit: 0,
-      discount: 0,
-      tax_ids: [],
-    };
-    setLines([...lines, newLine]);
+  const handleAddLine = () => {
+    setLines([...lines, { product_id: '', name: '', quantity: 1, price_unit: 0, discount: 0 }]);
   };
 
-  const removeLine = (id: string) => {
+  const handleRemoveLine = (index: number) => {
     if (lines.length > 1) {
-      setLines(lines.filter((line) => line.id !== id));
+      setLines(lines.filter((_, i) => i !== index));
+    } else {
+      message.warning('Must have at least one line');
     }
   };
 
-  const updateLine = (id: string, field: keyof InvoiceLine, value: any) => {
-    setLines(
-      lines.map((line) =>
-        line.id === id ? { ...line, [field]: value } : line
-      )
-    );
+  const handleLineChange = (index: number, field: string, value: any) => {
+    const newLines = [...lines];
+    newLines[index] = { ...newLines[index], [field]: value };
+    setLines(newLines);
   };
 
   const calculateLineTotal = (line: InvoiceLine) => {
-    const subtotal = line.quantity * line.price_unit;
-    const discountAmount = (subtotal * line.discount) / 100;
-    return subtotal - discountAmount;
+    const qty = line.quantity || 0;
+    const price = line.price_unit || 0;
+    const discount = line.discount || 0;
+    return qty * price * (1 - discount / 100);
   };
 
-  const calculateTotal = () => {
-    return lines.reduce((total, line) => total + calculateLineTotal(line), 0);
+  const calculateTotals = () => {
+    let subtotal = 0;
+    lines.forEach((line) => {
+      subtotal += calculateLineTotal(line);
+    });
+    const tax = subtotal * 0.1; // Assume 10% tax
+    return {
+      subtotal,
+      tax,
+      total: subtotal + tax,
+    };
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const totals = calculateTotals();
 
-    console.log("📝 Form submitted");
-    console.log("📝 Current partners state:", partners);
-    console.log("📝 Selected partner_id:", formData.partner_id);
-
-    // ✅ VALIDATE REQUIRED FIELDS
-    if (!formData.partner_id) {
-      alert("❌ Vui lòng chọn Partner");
+  const handleSubmit = async (values: any) => {
+    // Validate lines
+    const validLines = lines.filter((l) => l.name || l.product_id);
+    if (validLines.length === 0) {
+      message.error('Please add at least one invoice line');
       return;
     }
-
-    if (!formData.journal_id) {
-      alert("❌ Vui lòng chọn Journal");
-      return;
-    }
-
-    if (!formData.invoice_date) {
-      alert("❌ Vui lòng chọn Invoice Date");
-      return;
-    }
-
-    // ✅ Check có dòng nào không?
-    if (lines.length === 0) {
-      alert("❌ Hóa đơn phải có ít nhất 1 dòng");
-      return;
-    }
-
-    // ✅ Check tất cả dòng có account_id không?
-    if (lines.some((line) => !line.account_id)) {
-      alert("❌ Vui lòng chọn Account cho tất cả dòng");
-      return;
-    }
-
-    // ✅ Check tất cả dòng có description không?
-    if (lines.some((line) => !line.name)) {
-      alert("❌ Vui lòng nhập Description cho tất cả dòng");
-      return;
-    }
-
-    setLoading(true);
 
     try {
-      const payload = {
-        ...formData,
-        partner_id: formData.partner_id ? formData.partner_id : null,
-        lines: lines.map((line) => ({
-          name: line.name,
-          product_id: line.product_id || null,
-          account_id: line.account_id,
-          quantity: line.quantity || 1,
-          price_unit: line.price_unit || 0,
-          discount: line.discount || 0,
-          tax_ids: line.tax_ids || [],
-        })),
+      setLoading(true);
+      const payload: CreateInvoicePayload = {
+        name: values.name,
+        ref: values.ref,
+        date: values.date.format('YYYY-MM-DD'),
+        journal_id: values.journal_id,
+        currency_id: values.currency_id,
+        move_type: values.move_type,
+        partner_id: values.partner_id,
+        invoice_date: values.invoice_date?.format('YYYY-MM-DD'),
+        invoice_date_due: values.invoice_date_due?.format('YYYY-MM-DD'),
+        invoice_origin: values.invoice_origin,
+        narration: values.narration,
+        lines: validLines,
       };
 
-      console.log("📤 Sending payload:", JSON.stringify(payload, null, 2));
-
-      // ✅ Dùng api instance
-      const response = await api.post("/invoice/create", payload, {
-        headers: authHeader,
-      });
-
-      console.log("✅ Success! Response:", response.data);
-      alert("✅ Hóa đơn đã được tạo thành công!");
-      navigate("/dashboards/invoice/invoice-list");
+      const response = await api.post('/invoice/create', payload);
+      message.success('Invoice created successfully');
+      
+      // Navigate to invoice detail
+      if (response.data?.data?.id) {
+        window.location.href = `/invoice/${response.data.data.id}`;
+      } else {
+        form.resetFields();
+        setLines([{ product_id: '', name: '', quantity: 1, price_unit: 0, discount: 0 }]);
+      }
     } catch (error: any) {
-      console.error("❌ Error creating invoice:", error);
-      const errorMessage =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        error.message ||
-        "Unknown error";
-      alert(`❌ Lỗi: ${errorMessage}`);
+      message.error(error.response?.data?.message || 'Failed to create invoice');
     } finally {
       setLoading(false);
     }
   };
 
-  console.log("🔄 Component rendering, partners state:", partners);
+  const lineColumns = [
+    {
+      title: 'Product',
+      dataIndex: 'product_id',
+      key: 'product_id',
+      width: '15%',
+      render: (value: any, _: any, index: number) => (
+        <Select
+          placeholder="Select product"
+          value={value}
+          allowClear
+          showSearch
+          onChange={(v) => handleLineChange(index, 'product_id', v)}
+        >
+          {products.map((p: any) => (
+            <Select.Option key={p.id} value={p.id}>
+              {p.name}
+            </Select.Option>
+          ))}
+        </Select>
+      ),
+    },
+    {
+      title: 'Description',
+      dataIndex: 'name',
+      key: 'name',
+      render: (value: any, _: any, index: number) => (
+        <Input
+          placeholder="Description"
+          value={value}
+          onChange={(e) => handleLineChange(index, 'name', e.target.value)}
+        />
+      ),
+    },
+    {
+      title: 'Qty',
+      dataIndex: 'quantity',
+      key: 'quantity',
+      width: 80,
+      render: (value: any, _: any, index: number) => (
+        <InputNumber
+          value={value}
+          min={0}
+          precision={2}
+          onChange={(v) => handleLineChange(index, 'quantity', v)}
+        />
+      ),
+    },
+    {
+      title: 'Unit Price',
+      dataIndex: 'price_unit',
+      key: 'price_unit',
+      width: 100,
+      render: (value: any, _: any, index: number) => (
+        <InputNumber
+          value={value}
+          min={0}
+          precision={2}
+          onChange={(v) => handleLineChange(index, 'price_unit', v)}
+        />
+      ),
+    },
+    {
+      title: 'Discount %',
+      dataIndex: 'discount',
+      key: 'discount',
+      width: 80,
+      render: (value: any, _: any, index: number) => (
+        <InputNumber
+          value={value}
+          min={0}
+          max={100}
+          precision={2}
+          onChange={(v) => handleLineChange(index, 'discount', v)}
+        />
+      ),
+    },
+    {
+      title: 'Subtotal',
+      key: 'subtotal',
+      width: 120,
+      render: (_: any, record: InvoiceLine) => {
+        const total = calculateLineTotal(record);
+        return <span>₫{total.toLocaleString('vi-VN')}</span>;
+      },
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      width: 60,
+      render: (_: any, _record: InvoiceLine, index: number) => (
+        <Button
+          danger
+          size="small"
+          icon={<DeleteOutlined />}
+          onClick={() => handleRemoveLine(index)}
+        />
+      ),
+    },
+  ];
 
   return (
-    <Page title="Create Invoice">
-      <div className="transition-content px-(--margin-x) pb-6">
-        <div className="flex flex-col items-center justify-between space-y-4 py-5 sm:flex-row sm:space-y-0 lg:py-6">
-          <div className="flex items-center gap-1">
-            <h2 className="line-clamp-1 text-xl font-medium text-gray-700 dark:text-dark-50">
-              Create Invoice
-            </h2>
-            {loading && (
-              <span className="ml-3 text-xs text-gray-400">Đang tải dữ liệu…</span>
-            )}
-          </div>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => navigate("/dashboards/invoice/invoice-list")}
-              className="min-w-[7rem] rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              form="invoice-form"
-              disabled={loading}
-              className="min-w-[7rem] inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-            >
-              {loading ? (
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-              ) : (
-                <>
-                  <DocumentArrowDownIcon className="mr-2 h-4 w-4" />
-                  Save Invoice
-                </>
-              )}
-            </button>
-          </div>
-        </div>
+    <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
+      <h1>Create Invoice</h1>
 
-        <form id="invoice-form" onSubmit={handleSubmit}>
-          <div className="grid grid-cols-12 place-content-start gap-4 sm:gap-5 lg:gap-6">
-            <div className="col-span-12 lg:col-span-8">
-              {/* Basic Information */}
-              <Box className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Basic Information
-                </h3>
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Invoice Type
-                    </label>
-                    <select
-                      value={formData.move_type}
-                      onChange={(e) =>
-                        setFormData({ ...formData, move_type: e.target.value })
-                      }
-                      className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    >
-                      <option value="out_invoice">Customer Invoice</option>
-                      <option value="in_invoice">Vendor Bill</option>
-                      <option value="out_refund">Customer Credit Note</option>
-                      <option value="in_refund">Vendor Credit Note</option>
-                      <option value="entry">Journal Entry</option>
-                    </select>
-                  </div>
+      <Form form={form} layout="vertical" onFinish={handleSubmit}>
+        <Card style={{ marginBottom: '24px' }}>
+          <Row gutter={16}>
+            <Col xs={24} md={12}>
+              <Form.Item
+                label="Invoice Number"
+                name="name"
+                rules={[{ required: true, message: 'Invoice number is required' }]}
+              >
+                <Input placeholder="INV-001" />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item label="Reference" name="ref">
+                <Input placeholder="Reference" />
+              </Form.Item>
+            </Col>
+          </Row>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Partner <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      value={formData.partner_id}
-                      onChange={(e) => {
-                        console.log("📝 Partner selected:", e.target.value);
-                        setFormData({ ...formData, partner_id: e.target.value });
-                      }}
-                      className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    >
-                      <option value="">
-                        {partners.length === 0
-                          ? "-- No partners available --"
-                          : "-- Select Partner --"}
-                      </option>
-                      {partners.map((partner) => {
-                        console.log("🔄 Rendering partner option:", partner.name);
-                        return (
-                          <option key={partner.id} value={partner.id}>
-                            {partner.name}
-                          </option>
-                        );
-                      })}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Invoice Date <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="date"
-                      value={formData.invoice_date}
-                      onChange={(e) =>
-                        setFormData({ ...formData, invoice_date: e.target.value })
-                      }
-                      className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Due Date
-                    </label>
-                    <input
-                      type="date"
-                      value={formData.invoice_date_due}
-                      onChange={(e) =>
-                        setFormData({ ...formData, invoice_date_due: e.target.value })
-                      }
-                      className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Reference
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.ref}
-                      onChange={(e) =>
-                        setFormData({ ...formData, ref: e.target.value })
-                      }
-                      placeholder="Invoice reference number"
-                      className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Journal <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      value={formData.journal_id}
-                      onChange={(e) =>
-                        setFormData({ ...formData, journal_id: e.target.value })
-                      }
-                      className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    >
-                      <option value="">
-                        {journals.length === 0
-                          ? "-- No journals available --"
-                          : "-- Select Journal --"}
-                      </option>
-                      {journals.map((journal) => (
-                        <option key={journal.id} value={journal.id}>
-                          {journal.name} ({journal.code})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="mt-4">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Notes
-                  </label>
-                  <textarea
-                    value={formData.narration}
-                    onChange={(e) =>
-                      setFormData({ ...formData, narration: e.target.value })
-                    }
-                    rows={3}
-                    placeholder="Additional notes or terms"
-                    className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
-                </div>
-              </Box>
-
-              {/* Invoice Lines */}
-              <Box className="p-6 mt-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Invoice Lines <span className="text-red-500">*</span>
-                  </h3>
-                  <button
-                    type="button"
-                    onClick={addLine}
-                    className="inline-flex items-center rounded-lg bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700"
-                  >
-                    <PlusIcon className="mr-2 h-4 w-4" />
-                    Add Line
-                  </button>
-                </div>
-
-                <div className="space-y-4">
-                  {lines.map((line) => (
-                    <div
-                      key={line.id}
-                      className="grid grid-cols-1 gap-4 rounded-lg border border-gray-200 p-4 sm:grid-cols-6"
-                    >
-                      <div className="sm:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700">
-                          Description <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          value={line.name}
-                          onChange={(e) =>
-                            updateLine(line.id, "name", e.target.value)
-                          }
-                          placeholder="Product or service description"
-                          className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Account <span className="text-red-500">*</span>
-                        </label>
-                        <select
-                          value={line.account_id}
-                          onChange={(e) =>
-                            updateLine(line.id, "account_id", e.target.value)
-                          }
-                          className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        >
-                          <option value="">
-                            {accounts.length === 0
-                              ? "-- No accounts --"
-                              : "-- Select --"}
-                          </option>
-                          {accounts.map((account) => (
-                            <option key={account.id} value={account.id}>
-                              {account.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Qty
-                        </label>
-                        <input
-                          type="number"
-                          value={line.quantity}
-                          onChange={(e) =>
-                            updateLine(line.id, "quantity", parseFloat(e.target.value) || 0)
-                          }
-                          min="0"
-                          step="0.01"
-                          className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Unit Price
-                        </label>
-                        <input
-                          type="number"
-                          value={line.price_unit}
-                          onChange={(e) =>
-                            updateLine(line.id, "price_unit", parseFloat(e.target.value) || 0)
-                          }
-                          min="0"
-                          step="0.01"
-                          className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        />
-                      </div>
-
-                      <div className="flex items-end gap-2">
-                        <div className="flex-1">
-                          <label className="block text-sm font-medium text-gray-700">
-                            Discount %
-                          </label>
-                          <input
-                            type="number"
-                            value={line.discount}
-                            onChange={(e) =>
-                              updateLine(line.id, "discount", parseFloat(e.target.value) || 0)
-                            }
-                            min="0"
-                            max="100"
-                            step="0.01"
-                            className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                          />
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => removeLine(line.id)}
-                          disabled={lines.length === 1}
-                          className="rounded-lg border border-red-300 p-2 text-red-600 hover:bg-red-50 disabled:opacity-50"
-                        >
-                          <TrashIcon className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
+          <Row gutter={16}>
+            <Col xs={24} md={6}>
+              <Form.Item
+                label="Date"
+                name="date"
+                rules={[{ required: true, message: 'Date is required' }]}
+                initialValue={dayjs()}
+              >
+                <DatePicker style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={6}>
+              <Form.Item
+                label="Journal"
+                name="journal_id"
+                rules={[{ required: true, message: 'Journal is required' }]}
+              >
+                <Select placeholder="Select journal" showSearch>
+                  {journals.map((j: any) => (
+                    <Select.Option key={j.id} value={j.id}>
+                      {j.name}
+                    </Select.Option>
                   ))}
-                </div>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={6}>
+              <Form.Item
+                label="Type"
+                name="move_type"
+                rules={[{ required: true, message: 'Type is required' }]}
+                initialValue="out_invoice"
+              >
+                <Select placeholder="Select type">
+                  <Select.Option value="out_invoice">Customer Invoice</Select.Option>
+                  <Select.Option value="in_invoice">Vendor Bill</Select.Option>
+                  <Select.Option value="out_refund">Credit Note</Select.Option>
+                  <Select.Option value="in_refund">Vendor Credit</Select.Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={6}>
+              <Form.Item label="Currency" name="currency_id">
+                <Select placeholder="Select currency" allowClear showSearch>
+                  {currencies.map((c: any) => (
+                    <Select.Option key={c.id} value={c.id}>
+                      {c.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
 
-                {/* Total */}
-                <div className="mt-6 flex justify-end">
-                  <div className="w-64">
-                    <div className="flex justify-between text-lg font-semibold">
-                      <span>Total:</span>
-                      <span>
-                        {new Intl.NumberFormat("vi-VN", {
-                          style: "currency",
-                          currency: "VND",
-                        }).format(calculateTotal())}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Box>
-            </div>
+          <Row gutter={16}>
+            <Col xs={24} md={12}>
+              <Form.Item label="Partner" name="partner_id">
+                <Select placeholder="Select partner" allowClear showSearch>
+                  {contacts.map((c: any) => (
+                    <Select.Option key={c.id} value={c.id}>
+                      {c.name || c.display_name || '(No name)'}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item label="Invoice Origin" name="invoice_origin">
+                <Input placeholder="Origin (e.g., Sales Order)" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col xs={24} md={12}>
+              <Form.Item label="Invoice Date" name="invoice_date">
+                <DatePicker style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item label="Due Date" name="invoice_date_due">
+                <DatePicker style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Form.Item label="Narration / Notes" name="narration">
+            <Input.TextArea placeholder="Additional notes" rows={2} />
+          </Form.Item>
+        </Card>
+
+        <Card style={{ marginBottom: '24px' }}>
+          <div style={{ marginBottom: '16px' }}>
+            <h3>Invoice Lines</h3>
           </div>
-        </form>
-      </div>
-    </Page>
+          <Table
+            columns={lineColumns}
+            dataSource={lines}
+            pagination={false}
+            rowKey={(_, index) => index}
+            size="small"
+            scroll={{ x: 800 }}
+          />
+          <Button
+            type="dashed"
+            icon={<PlusOutlined />}
+            onClick={handleAddLine}
+            style={{ marginTop: '12px' }}
+            block
+          >
+            Add Invoice Line
+          </Button>
+        </Card>
+
+        <Card style={{ marginBottom: '24px', backgroundColor: '#fafafa' }}>
+          <Row justify="end" gutter={16}>
+            <Col xs={24} md={8}>
+              <Row justify="space-between" style={{ marginBottom: '12px' }}>
+                <span>Subtotal:</span>
+                <strong>₫{totals.subtotal.toLocaleString('vi-VN')}</strong>
+              </Row>
+              <Row justify="space-between" style={{ marginBottom: '12px' }}>
+                <span>Tax (10%):</span>
+                <strong>₫{totals.tax.toLocaleString('vi-VN')}</strong>
+              </Row>
+              <Divider style={{ margin: '12px 0' }} />
+              <Row justify="space-between" style={{ fontSize: '18px' }}>
+                <span>
+                  <strong>Total:</strong>
+                </span>
+                <strong style={{ color: '#1890ff' }}>₫{totals.total.toLocaleString('vi-VN')}</strong>
+              </Row>
+            </Col>
+          </Row>
+        </Card>
+
+        <Form.Item>
+          <Space size="large">
+            <Button type="primary" htmlType="submit" loading={loading} icon={<SaveOutlined />} size="large">
+              Create Invoice
+            </Button>
+            <Button size="large" onClick={() => window.history.back()}>
+              Cancel
+            </Button>
+          </Space>
+        </Form.Item>
+      </Form>
+    </div>
   );
-}
+};
+
+export default InvoiceCreate;

@@ -41,6 +41,9 @@ pub fn build_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
         // 🛡️ Route module contact
         .merge(crate::module::contact::router::routes())
 
+        // 🛡️ Route module invoice
+        .merge(crate::module::invoice::router::routes())
+
         // 🛡️ Route module app
         .merge(crate::module::app::router::routes())
 
