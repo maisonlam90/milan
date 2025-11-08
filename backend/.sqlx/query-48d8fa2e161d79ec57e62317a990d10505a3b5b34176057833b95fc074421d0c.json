@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE account_move\n        SET \n            amount_untaxed = $1,\n            amount_tax = $2,\n            amount_total = $3,\n            amount_residual = $3,\n            amount_untaxed_signed = $1,\n            amount_tax_signed = $2,\n            amount_total_signed = $3,\n            amount_residual_signed = $3,\n            updated_at = now()\n        WHERE tenant_id = $4 AND id = $5\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Numeric",
+        "Numeric",
+        "Numeric",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "48d8fa2e161d79ec57e62317a990d10505a3b5b34176057833b95fc074421d0c"
+}

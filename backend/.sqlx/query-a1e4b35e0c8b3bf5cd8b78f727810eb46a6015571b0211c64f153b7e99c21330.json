@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE account_move_line SET price_unit = $1 WHERE tenant_id = $2 AND id = $3 AND move_id = $4",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Numeric",
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a1e4b35e0c8b3bf5cd8b78f727810eb46a6015571b0211c64f153b7e99c21330"
+}

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        INSERT INTO enterprise (enterprise_id, name, slug)\n        VALUES (gen_random_uuid(), $1, $2)\n        RETURNING enterprise_id, name, slug\n        ",
+  "query": "\n        INSERT INTO tenant_enterprise (enterprise_id, name, slug)\n        VALUES (gen_random_uuid(), $1, $2)\n        RETURNING enterprise_id, name, slug\n        ",
   "describe": {
     "columns": [
       {
@@ -31,5 +31,5 @@
       false
     ]
   },
-  "hash": "3cd694eb9585ebf4a5f13bac2ff918f3fc6e6a0210962f80ec0c18518e9976e9"
+  "hash": "c95ce358c680a9c819f15f1607b9bde6b8a1c0b926c387661d0bd1d87d62b1ea"
 }

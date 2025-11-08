@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        DELETE FROM account_move_line\n        WHERE tenant_id = $1 AND id = $2 AND move_id = $3\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "ebb04c431aef66cbd2b9afa1620cf35333ccca8094e41ff8cf9ae527ac5679bf"
+}

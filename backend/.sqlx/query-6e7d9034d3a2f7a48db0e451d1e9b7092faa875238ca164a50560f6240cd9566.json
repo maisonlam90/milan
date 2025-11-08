@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT am.module_name, am.display_name, am.description,\n               (tm.module_name IS NOT NULL) AS \"enabled!\",\n               (em.module_name IS NOT NULL) AS \"can_enable!\"\n        FROM available_module am\n        LEFT JOIN tenant t ON t.tenant_id = $1\n        LEFT JOIN enterprise_module em\n          ON am.module_name = em.module_name AND em.enterprise_id = t.enterprise_id\n        LEFT JOIN tenant_module tm\n          ON am.module_name = tm.module_name AND tm.tenant_id = $1\n        ",
+  "query": "\n        SELECT am.module_name, am.display_name, am.description,\n               (tm.module_name IS NOT NULL) AS \"enabled!\",\n               (em.module_name IS NOT NULL) AS \"can_enable!\"\n        FROM available_module am\n        LEFT JOIN tenant t ON t.tenant_id = $1\n        LEFT JOIN tenant_enterprise_module em\n          ON am.module_name = em.module_name AND em.enterprise_id = t.enterprise_id\n        LEFT JOIN tenant_module tm\n          ON am.module_name = tm.module_name AND tm.tenant_id = $1\n        ",
   "describe": {
     "columns": [
       {
@@ -42,5 +42,5 @@
       null
     ]
   },
-  "hash": "fbc93567aa89a083dec8c2eca0aec8ace4921022bcbaf5dd3b05e8fc3526d4a2"
+  "hash": "6e7d9034d3a2f7a48db0e451d1e9b7092faa875238ca164a50560f6240cd9566"
 }
