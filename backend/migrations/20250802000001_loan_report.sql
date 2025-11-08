@@ -14,7 +14,7 @@ CREATE TABLE loan_report (
     state TEXT NOT NULL,
 
     PRIMARY KEY (tenant_id, contract_id, date)
-) SPLIT INTO 10 TABLETS;
+) SPLIT INTO 1 TABLETS;
 
 CREATE INDEX idx_loan_report_tenant_date
 ON loan_report (tenant_id, date);

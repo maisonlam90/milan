@@ -23,7 +23,7 @@ pub async fn get_modules_status(
                (em.module_name IS NOT NULL) AS "can_enable!"
         FROM available_module am
         LEFT JOIN tenant t ON t.tenant_id = $1
-        LEFT JOIN enterprise_module em
+        LEFT JOIN tenant_enterprise_module em
           ON am.module_name = em.module_name AND em.enterprise_id = t.enterprise_id
         LEFT JOIN tenant_module tm
           ON am.module_name = tm.module_name AND tm.tenant_id = $1

@@ -11,15 +11,15 @@ CREATE TABLE IF NOT EXISTS available_module (
   metadata     JSONB DEFAULT '{}'                -- Metadata mở rộng (schema, options…)
 );
 
-CREATE TABLE IF NOT EXISTS enterprise_module (
-  enterprise_id UUID NOT NULL REFERENCES enterprise(enterprise_id) ON DELETE CASCADE,
+CREATE TABLE IF NOT EXISTS tenant_enterprise_module (
+  enterprise_id UUID NOT NULL REFERENCES tenant_enterprise(enterprise_id) ON DELETE CASCADE,
   module_name   TEXT NOT NULL REFERENCES available_module(module_name),
   config_json   JSONB DEFAULT '{}',
   enabled_at    TIMESTAMPTZ DEFAULT now(),
   PRIMARY KEY (enterprise_id, module_name)
 );
 
--- ⭐ Thêm enterprise_id vào tenant_module để tạo FK tới enterprise_module
+-- ⭐ Thêm enterprise_id vào tenant_module để tạo FK tới tenant_enterprise_module
 CREATE TABLE IF NOT EXISTS tenant_module (
   tenant_id     UUID NOT NULL REFERENCES tenant(tenant_id) ON DELETE CASCADE,
   enterprise_id UUID NOT NULL,                              -- denormalize, auto-fill từ tenant
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS tenant_module (
 
   -- Chặn bật module ở tenant nếu enterprise chưa bật
   FOREIGN KEY (enterprise_id, module_name)
-    REFERENCES enterprise_module (enterprise_id, module_name)
+    REFERENCES tenant_enterprise_module (enterprise_id, module_name)
     ON UPDATE CASCADE
     ON DELETE RESTRICT
 );
@@ -72,7 +72,7 @@ INSERT INTO available_module (module_name, display_name, description) VALUES
 ON CONFLICT DO NOTHING;
 
 -- Bật module 'user' ở enterprise system (để tenant system có thể bật)
-INSERT INTO enterprise_module (enterprise_id, module_name)
+INSERT INTO tenant_enterprise_module (enterprise_id, module_name)
 VALUES ('00000000-0000-0000-0000-000000000001', 'user')
 ON CONFLICT DO NOTHING;
 

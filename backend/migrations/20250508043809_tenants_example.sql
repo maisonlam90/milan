@@ -4,20 +4,20 @@
 -- ============================================================
 
 -- Company cấp 1
-INSERT INTO company (company_id, enterprise_id, name, slug)
+INSERT INTO tenant_company (company_id, enterprise_id, name, slug)
 VALUES
  ('11111111-1111-1111-1111-111111111111','00000000-0000-0000-0000-000000000001','Công ty Cấp 1 - A','c1-a')
 ON CONFLICT DO NOTHING;
 
 -- Company cấp 2
-INSERT INTO company (company_id, enterprise_id, name, slug)
+INSERT INTO tenant_company (company_id, enterprise_id, name, slug)
 VALUES
  ('22222222-2222-2222-2222-222222222222','00000000-0000-0000-0000-000000000001','Công ty Cấp 2 - A1','c2-a1'),
  ('33333333-3333-3333-3333-333333333333','00000000-0000-0000-0000-000000000001','Công ty Cấp 2 - A2','c2-a2')
 ON CONFLICT DO NOTHING;
 
 -- Closure edges: tự thân (depth=0) + cha-con (depth=1)
-INSERT INTO company_edge (enterprise_id, ancestor_id, descendant_id, depth) VALUES
+INSERT INTO tenant_company_edge (enterprise_id, ancestor_id, descendant_id, depth) VALUES
  ('00000000-0000-0000-0000-000000000001','11111111-1111-1111-1111-111111111111','11111111-1111-1111-1111-111111111111',0), -- A->A
  ('00000000-0000-0000-0000-000000000001','22222222-2222-2222-2222-222222222222','22222222-2222-2222-2222-222222222222',0), -- A1->A1
  ('00000000-0000-0000-0000-000000000001','33333333-3333-3333-3333-333333333333','33333333-3333-3333-3333-333333333333',0), -- A2->A2

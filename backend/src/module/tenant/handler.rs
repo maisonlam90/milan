@@ -67,7 +67,7 @@ pub async fn create_enterprise(
 
     let res = sqlx::query!(
         r#"
-        INSERT INTO enterprise (enterprise_id, name, slug)
+        INSERT INTO tenant_enterprise (enterprise_id, name, slug)
         VALUES (gen_random_uuid(), $1, $2)
         RETURNING enterprise_id, name, slug
         "#,
@@ -101,7 +101,7 @@ pub async fn create_company(
 
     if let Some(parent_id) = parent {
         let row = sqlx::query!(
-            r#"SELECT enterprise_id FROM company WHERE company_id = $1"#,
+            r#"SELECT enterprise_id FROM tenant_company WHERE company_id = $1"#,
             parent_id
         )
         .fetch_optional(&mut *tx)
@@ -121,7 +121,7 @@ pub async fn create_company(
     }
 
     sqlx::query(
-        r#"INSERT INTO company (company_id, enterprise_id, name, slug)
+        r#"INSERT INTO tenant_company (company_id, enterprise_id, name, slug)
            VALUES ($1, $2, $3, $4)"#,
     )
     .bind(company_id)
@@ -132,7 +132,7 @@ pub async fn create_company(
     .await?;
 
     if let Some(parent_id) = parent {
-        sqlx::query("SELECT add_company_edge($1, $2, $3)")
+        sqlx::query("SELECT add_tenant_company_edge($1, $2, $3)")
             .bind(enterprise_id)
             .bind(parent_id)
             .bind(company_id)
@@ -140,7 +140,7 @@ pub async fn create_company(
             .await?;
     } else {
         sqlx::query(
-            r#"INSERT INTO company_edge (enterprise_id, ancestor_id, descendant_id, depth)
+            r#"INSERT INTO tenant_company_edge (enterprise_id, ancestor_id, descendant_id, depth)
                VALUES ($1, $2, $2, 0)
                ON CONFLICT DO NOTHING"#,
         )
@@ -413,7 +413,7 @@ pub async fn enable_enterprise_module(
     let cfg = payload.config_json.unwrap_or_else(|| json!({}));
     let res = sqlx::query!(
         r#"
-        INSERT INTO enterprise_module (enterprise_id, module_name, config_json)
+        INSERT INTO tenant_enterprise_module (enterprise_id, module_name, config_json)
         VALUES ($1, $2, $3)
         RETURNING enterprise_id, module_name, enabled_at
         "#,

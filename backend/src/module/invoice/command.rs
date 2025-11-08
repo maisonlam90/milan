@@ -78,6 +78,122 @@ pub struct UpdateInvoiceLineDto {
     pub analytic_distribution: Option<Value>,
 }
 
+/// Get or create default journal for tenant
+async fn get_or_create_default_journal(
+    pool: &Pool<Postgres>,
+    tenant_id: Uuid,
+    user_id: Uuid,
+) -> Result<Uuid, sqlx::Error> {
+    // Try to get existing sale journal
+    let journal = sqlx::query!(
+        r#"
+        SELECT id FROM account_journal
+        WHERE tenant_id = $1 AND type = 'sale' AND active = TRUE
+        ORDER BY sequence, created_at
+        LIMIT 1
+        "#,
+        tenant_id
+    )
+    .fetch_optional(pool)
+    .await?;
+
+    if let Some(j) = journal {
+        return Ok(j.id);
+    }
+
+    // Create default sale journal if not exists
+    // Try to insert, if conflict (code already exists), get the existing one
+    let journal_id = Uuid::new_v4();
+    let _ = sqlx::query!(
+        r#"
+        INSERT INTO account_journal (
+            tenant_id, id, name, code, type, active, created_by
+        ) VALUES (
+            $1, $2, 'Sales', 'SALE', 'sale', TRUE, $3
+        )
+        ON CONFLICT (tenant_id, code) DO NOTHING
+        "#,
+        tenant_id, journal_id, user_id
+    )
+    .execute(pool)
+    .await;
+
+    // Get the journal (either newly created or existing)
+    let existing = sqlx::query!(
+        r#"
+        SELECT id FROM account_journal
+        WHERE tenant_id = $1 AND code = 'SALE'
+        LIMIT 1
+        "#,
+        tenant_id
+    )
+    .fetch_one(pool)
+    .await?;
+    
+    Ok(existing.id)
+}
+
+/// Get default currency ID (for now, use a fixed UUID - can be improved later)
+fn get_default_currency_id() -> Uuid {
+    // TODO: Get from tenant settings or currency table
+    // For now, use a fixed UUID that represents USD
+    Uuid::parse_str("00000000-0000-0000-0000-000000000001").unwrap()
+}
+
+/// Get or create default account for revenue (for invoice lines)
+async fn get_or_create_default_revenue_account(
+    pool: &Pool<Postgres>,
+    tenant_id: Uuid,
+    user_id: Uuid,
+) -> Result<Uuid, sqlx::Error> {
+    // Try to get existing revenue account
+    let account = sqlx::query!(
+        r#"
+        SELECT id FROM account_account
+        WHERE tenant_id = $1 AND account_type = 'income' AND deprecated = FALSE
+        ORDER BY code, created_at
+        LIMIT 1
+        "#,
+        tenant_id
+    )
+    .fetch_optional(pool)
+    .await?;
+
+    if let Some(acc) = account {
+        return Ok(acc.id);
+    }
+
+    // Create default revenue account if not exists
+    let account_id = Uuid::new_v4();
+    let _ = sqlx::query!(
+        r#"
+        INSERT INTO account_account (
+            tenant_id, id, code, name, account_type, internal_group, created_by
+        ) VALUES (
+            $1, $2, '400000', 'Product Sales', 'income', 'income', $3
+        )
+        ON CONFLICT (tenant_id, code) DO NOTHING
+        "#,
+        tenant_id, account_id, user_id
+    )
+    .execute(pool)
+    .await;
+
+    // Get the account (either newly created or existing)
+    let existing = sqlx::query!(
+        r#"
+        SELECT id FROM account_account
+        WHERE tenant_id = $1 AND code = '400000'
+        LIMIT 1
+        "#,
+        tenant_id
+    )
+    .fetch_one(pool)
+    .await?;
+    
+    Ok(existing.id)
+}
+
 /// Create a new invoice
 pub async fn create_invoice(
     pool: &Pool<Postgres>,
@@ -85,6 +201,20 @@ pub async fn create_invoice(
     dto: CreateInvoiceDto,
 ) -> Result<Uuid, sqlx::Error> {
     let invoice_id = Uuid::new_v4();
+    
+    // Get or create default journal (use from DTO if provided, otherwise get/create default)
+    let journal_id = if dto.journal_id != Uuid::nil() {
+        dto.journal_id
+    } else {
+        get_or_create_default_journal(pool, tenant_id, dto.created_by).await?
+    };
+    
+    // Get currency (use from DTO if provided, otherwise use default)
+    let currency_id = if dto.currency_id != Uuid::nil() {
+        dto.currency_id
+    } else {
+        get_default_currency_id()
+    };
     
     // Generate invoice name/sequence (simplified - should use proper sequence)
     let invoice_name = format!("INV/{}", chrono::Utc::now().format("%Y/%m/%d"));
@@ -113,7 +243,7 @@ pub async fn create_invoice(
             $19, $20, $21
         )
         "#,
-        tenant_id, invoice_id, invoice_name, dto.date, dto.journal_id, dto.currency_id,
+        tenant_id, invoice_id, invoice_name, dto.date, journal_id, currency_id,
         dto.partner_id, dto.commercial_partner_id, dto.partner_shipping_id, dto.partner_bank_id,
         dto.invoice_date, dto.invoice_date_due, dto.invoice_origin,
         dto.invoice_payment_term_id, dto.invoice_user_id, dto.invoice_incoterm_id, dto.fiscal_position_id,
@@ -123,10 +253,20 @@ pub async fn create_invoice(
     .execute(pool)
     .await?;
 
+    // Get default account for invoice lines (if needed)
+    let default_account_id = get_or_create_default_revenue_account(pool, tenant_id, dto.created_by).await?;
+
     // Create invoice lines
     for (idx, line) in dto.invoice_lines.iter().enumerate() {
         let line_id = Uuid::new_v4();
         let sequence = line.sequence.unwrap_or((idx * 10) as i32);
+        
+        // Use account_id from line, or default account if not provided (and not a section/note)
+        let account_id = if line.display_type.is_some() {
+            None // Section/note lines don't need account
+        } else {
+            Some(line.account_id.unwrap_or(default_account_id))
+        };
         
         // Calculate amounts (simplified)
         let quantity = line.quantity.as_ref().map(|q| q.clone()).unwrap_or_else(|| BigDecimal::from(1));
@@ -156,10 +296,10 @@ pub async fn create_invoice(
                 false
             )
             "#,
-            tenant_id, line_id, invoice_id, dto.currency_id,
+            tenant_id, line_id, invoice_id, currency_id,
             line.product_id, line.product_uom_id, line.quantity, line.price_unit, line.discount,
             line.name.as_deref(), sequence, line.display_type.as_deref(),
-            line.account_id,
+            account_id,
             price_subtotal, price_total
         )
         .execute(pool)

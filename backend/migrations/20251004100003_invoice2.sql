@@ -3,52 +3,6 @@
 -- Supplement to invoice.sql containing missing tables from Odoo 17
 -- ============================================================
 
--- ============================================================
--- SECTION 0: COMPANY TENANT (Company at tenant level)
--- ============================================================
-
--- Company Tenant (Company thuộc tenant, khác với company ở cấp enterprise)
-CREATE TABLE IF NOT EXISTS company_tenant (
-  tenant_id UUID NOT NULL,
-  id UUID NOT NULL,
-  name TEXT NOT NULL,
-  code VARCHAR(50),
-  currency_id UUID,
-  parent_id UUID,
-  active BOOLEAN DEFAULT TRUE,
-  street TEXT,
-  street2 TEXT,
-  city TEXT,
-  state TEXT,
-  zip TEXT,
-  country_code CHAR(2),
-  phone TEXT,
-  email TEXT,
-  website TEXT,
-  vat VARCHAR(50),
-  company_registry VARCHAR(50),
-  logo_url TEXT,
-  
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  created_by UUID NOT NULL,
-  
-  PRIMARY KEY (tenant_id, id),
-  UNIQUE (tenant_id, code),
-  
-  CONSTRAINT fk_company_tenant_parent
-    FOREIGN KEY (tenant_id, parent_id)
-    REFERENCES company_tenant(tenant_id, id)
-    ON DELETE SET NULL,
-  CONSTRAINT fk_company_tenant_created_by
-    FOREIGN KEY (tenant_id, created_by)
-    REFERENCES users(tenant_id, user_id)
-    ON DELETE RESTRICT
-);
-
-CREATE INDEX IF NOT EXISTS idx_company_tenant_parent ON company_tenant(tenant_id, parent_id);
-CREATE INDEX IF NOT EXISTS idx_company_tenant_code ON company_tenant(tenant_id, code);
-CREATE INDEX IF NOT EXISTS idx_company_tenant_active ON company_tenant(tenant_id, active) WHERE active = TRUE;
 
 -- ============================================================
 -- SECTION 1: ACCOUNT MERGE & WIZARD TABLES
@@ -70,7 +24,7 @@ CREATE TABLE IF NOT EXISTS account_merge_wizard (
   
   CONSTRAINT fk_merge_wizard_company
     FOREIGN KEY (tenant_id, company_id)
-    REFERENCES company_tenant(tenant_id, id)
+    REFERENCES contact(tenant_id, id)
     ON DELETE RESTRICT
 );
 
@@ -165,7 +119,7 @@ CREATE TABLE IF NOT EXISTS account_account_res_company_rel (
     ON DELETE CASCADE,
   CONSTRAINT fk_account_company_company
     FOREIGN KEY (tenant_id, res_company_id)
-    REFERENCES company_tenant(tenant_id, id)
+    REFERENCES contact(tenant_id, id)
     ON DELETE CASCADE
 );
 

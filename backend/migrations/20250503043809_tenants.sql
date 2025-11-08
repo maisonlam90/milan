@@ -8,7 +8,7 @@
 -- (Nếu reset DB từ đầu, tạo bảng trực tiếp như sau)
 CREATE TABLE IF NOT EXISTS tenant (
   tenant_id     UUID PRIMARY KEY,                                     -- 🔑 SHARD KEY
-  enterprise_id UUID NOT NULL REFERENCES enterprise(enterprise_id),   -- Thuộc enterprise nào
+  enterprise_id UUID NOT NULL REFERENCES tenant_enterprise(enterprise_id),     -- Thuộc enterprise nào
   company_id    UUID,                                                 -- Gắn vào company (có thể NULL khi seed)
   name          TEXT NOT NULL,                                        -- Tên tenant
   slug          TEXT NOT NULL CHECK (slug = lower(slug)),                                        -- Định danh ngắn, unique trong enterprise
@@ -24,7 +24,7 @@ ALTER TABLE tenant
 ALTER TABLE tenant
   ADD CONSTRAINT fk_tenant_company_same_enterprise
   FOREIGN KEY (enterprise_id, company_id)
-  REFERENCES company (enterprise_id, company_id)
+  REFERENCES tenant_company (enterprise_id, company_id)
   ON UPDATE CASCADE
   ON DELETE RESTRICT;
 
