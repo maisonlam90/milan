@@ -686,3 +686,450 @@
 2025-11-09T16:27:59.084301Z  INFO milan::core::i18n: ✅ Using language from header: en
 2025-11-09T16:27:59.084360Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /report
 2025-11-09T16:27:59.148756Z DEBUG sqlx::query: summary="SELECT r.tenant_id, r.contract_id, r.contact_id, …" db.statement="\n\nSELECT\n  r.tenant_id,\n  r.contract_id,\n  r.contact_id,\n  r.date,\n  r.current_principal,\n  r.current_interest,\n  r.accumulated_interest,\n  r.total_paid_interest,\n  r.total_paid_principal,\n  r.payoff_due,\n  r.state,\n  c.contract_number,\n  co.name as contact_name\nFROM\n  loan_report r\n  JOIN loan_contract c ON c.id = r.contract_id\n  AND c.tenant_id = r.tenant_id\n  JOIN contact co ON co.id = r.contact_id\n  AND co.tenant_id = r.tenant_id\nWHERE\n  r.tenant_id = $1\n  AND r.date = $2\nORDER BY\n  c.contract_number DESC\n" rows_affected=8 rows_returned=8 elapsed=59.725717ms elapsed_secs=0.059725717
+2025-11-09T16:29:29.490187Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-09T16:29:29.490399Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-09T16:29:29.490447Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-09T16:29:29.490541Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /profile
+2025-11-09T16:29:29.493144Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-09T16:29:29.493343Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-09T16:29:29.493382Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-09T16:29:29.493457Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /profile
+2025-11-09T16:29:29.863856Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:29:29.863986Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:29:29.864022Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:29:29.864083Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /report
+2025-11-09T16:29:30.101199Z DEBUG sqlx::query: summary="SELECT r.tenant_id, r.contract_id, r.contact_id, …" db.statement="\n\nSELECT\n  r.tenant_id,\n  r.contract_id,\n  r.contact_id,\n  r.date,\n  r.current_principal,\n  r.current_interest,\n  r.accumulated_interest,\n  r.total_paid_interest,\n  r.total_paid_principal,\n  r.payoff_due,\n  r.state,\n  c.contract_number,\n  co.name as contact_name\nFROM\n  loan_report r\n  JOIN loan_contract c ON c.id = r.contract_id\n  AND c.tenant_id = r.tenant_id\n  JOIN contact co ON co.id = r.contact_id\n  AND co.tenant_id = r.tenant_id\nWHERE\n  r.tenant_id = $1\n  AND r.date = $2\nORDER BY\n  c.contract_number DESC\n" rows_affected=8 rows_returned=8 elapsed=231.452348ms elapsed_secs=0.231452348
+2025-11-09T16:29:30.102881Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:29:30.102977Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:29:30.103008Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:29:30.103059Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /report
+2025-11-09T16:29:30.117911Z DEBUG sqlx::query: summary="SELECT r.tenant_id, r.contract_id, r.contact_id, …" db.statement="\n\nSELECT\n  r.tenant_id,\n  r.contract_id,\n  r.contact_id,\n  r.date,\n  r.current_principal,\n  r.current_interest,\n  r.accumulated_interest,\n  r.total_paid_interest,\n  r.total_paid_principal,\n  r.payoff_due,\n  r.state,\n  c.contract_number,\n  co.name as contact_name\nFROM\n  loan_report r\n  JOIN loan_contract c ON c.id = r.contract_id\n  AND c.tenant_id = r.tenant_id\n  JOIN contact co ON co.id = r.contact_id\n  AND co.tenant_id = r.tenant_id\nWHERE\n  r.tenant_id = $1\n  AND r.date = $2\nORDER BY\n  c.contract_number DESC\n" rows_affected=8 rows_returned=8 elapsed=10.447972ms elapsed_secs=0.010447972
+2025-11-09T16:29:35.472222Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:29:35.472333Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:29:35.472355Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:29:35.472397Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /collateral
+2025-11-09T16:29:35.631052Z DEBUG sqlx::query: summary="SELECT a.tenant_id, a.asset_id, a.asset_type, …" db.statement="\n\nSELECT\n  a.tenant_id,\n  a.asset_id,\n  a.asset_type,\n  a.description,\n  a.value_estimate,\n  a.owner_contact_id,\n  a.status,\n  a.created_by,\n  a.created_at,\n  lc.contract_id,\n  c.contract_number\nFROM\n  collateral_assets a\n  LEFT JOIN loan_collateral lc ON lc.tenant_id = a.tenant_id\n  AND lc.asset_id = a.asset_id\n  AND lc.status = 'active'\n  LEFT JOIN loan_contract c ON c.tenant_id = lc.tenant_id\n  AND c.id = lc.contract_id\nWHERE\n  a.tenant_id = $1\nORDER BY\n  a.created_at DESC\n" rows_affected=24 rows_returned=24 elapsed=151.949684ms elapsed_secs=0.151949684
+2025-11-09T16:29:35.633643Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:29:35.633761Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:29:35.633793Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:29:35.633858Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /collateral
+2025-11-09T16:29:35.771043Z DEBUG sqlx::query: summary="SELECT a.tenant_id, a.asset_id, a.asset_type, …" db.statement="\n\nSELECT\n  a.tenant_id,\n  a.asset_id,\n  a.asset_type,\n  a.description,\n  a.value_estimate,\n  a.owner_contact_id,\n  a.status,\n  a.created_by,\n  a.created_at,\n  lc.contract_id,\n  c.contract_number\nFROM\n  collateral_assets a\n  LEFT JOIN loan_collateral lc ON lc.tenant_id = a.tenant_id\n  AND lc.asset_id = a.asset_id\n  AND lc.status = 'active'\n  LEFT JOIN loan_contract c ON c.tenant_id = lc.tenant_id\n  AND c.id = lc.contract_id\nWHERE\n  a.tenant_id = $1\nORDER BY\n  a.created_at DESC\n" rows_affected=24 rows_returned=24 elapsed=127.181288ms elapsed_secs=0.127181288
+2025-11-09T16:29:36.787938Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:29:36.788062Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:29:36.788091Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:29:36.789051Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:29:36.789173Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:29:36.789205Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:29:36.789259Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-09T16:29:36.811291Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:29:36.811405Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:29:36.811436Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:29:36.943299Z DEBUG sqlx::query: summary="SELECT id, tenant_id, contact_id, …" db.statement="\n\nSELECT\n  id,\n  tenant_id,\n  contact_id,\n  contract_number,\n  interest_rate,\n  term_months,\n  date_start,\n  date_end,\n  storage_fee_rate,\n  storage_fee,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_settlement_amount,\n  state,\n  created_at,\n  updated_at,\n  created_by,\n  assignee_id,\n  shared_with,\n  0 :: int8 AS \"total_paid_principal!\",\n  0 :: int8 AS \"payoff_due!\"\nFROM\n  loan_contract\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_number DESC\n" rows_affected=11 rows_returned=11 elapsed=146.950374ms elapsed_secs=0.146950374
+2025-11-09T16:29:36.945248Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:29:36.945345Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:29:36.945373Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:29:36.945429Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-09T16:29:37.065388Z DEBUG sqlx::query: summary="SELECT id, tenant_id, contact_id, …" db.statement="\n\nSELECT\n  id,\n  tenant_id,\n  contact_id,\n  contract_number,\n  interest_rate,\n  term_months,\n  date_start,\n  date_end,\n  storage_fee_rate,\n  storage_fee,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_settlement_amount,\n  state,\n  created_at,\n  updated_at,\n  created_by,\n  assignee_id,\n  shared_with,\n  0 :: int8 AS \"total_paid_principal!\",\n  0 :: int8 AS \"payoff_due!\"\nFROM\n  loan_contract\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_number DESC\n" rows_affected=11 rows_returned=11 elapsed=116.449272ms elapsed_secs=0.116449272
+2025-11-09T16:29:38.455892Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:29:38.456045Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:29:38.456086Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:29:38.458156Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:29:38.458269Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:29:38.458296Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:29:38.458932Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:29:38.459010Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:29:38.459038Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:29:38.459083Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-09T16:29:38.489322Z DEBUG sqlx::query: summary="SELECT id, COALESCE(NULLIF(name,''), display_name, …" db.statement="\n\nSELECT\n  id,\n  COALESCE(\n    NULLIF(name, ''),\n    display_name,\n    email,\n    phone,\n    '(không tên)'\n  ) AS \"name!: String\",\n  display_name,\n  email,\n  phone,\n  is_company,\n  NULLIF(tags_cached, '') AS \"tags?: String\",\n  state,\n  created_at,\n  updated_at,\n  national_id AS \"national_id?: String\" -- 👈 THÊM\nFROM\n  contact\nWHERE\n  tenant_id = $1\n  AND (\n    $2 :: bool IS NULL\n    OR is_company = $2\n  )\nORDER BY\n  created_at DESC\nLIMIT\n  $3 OFFSET $4\n" rows_affected=8 rows_returned=8 elapsed=26.69253ms elapsed_secs=0.02669253
+2025-11-09T16:29:38.491405Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:29:38.491557Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:29:38.491589Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:29:38.491659Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-09T16:29:38.501635Z DEBUG sqlx::query: summary="SELECT id, COALESCE(NULLIF(name,''), display_name, …" db.statement="\n\nSELECT\n  id,\n  COALESCE(\n    NULLIF(name, ''),\n    display_name,\n    email,\n    phone,\n    '(không tên)'\n  ) AS \"name!: String\",\n  display_name,\n  email,\n  phone,\n  is_company,\n  NULLIF(tags_cached, '') AS \"tags?: String\",\n  state,\n  created_at,\n  updated_at,\n  national_id AS \"national_id?: String\" -- 👈 THÊM\nFROM\n  contact\nWHERE\n  tenant_id = $1\n  AND (\n    $2 :: bool IS NULL\n    OR is_company = $2\n  )\nORDER BY\n  created_at DESC\nLIMIT\n  $3 OFFSET $4\n" rows_affected=8 rows_returned=8 elapsed=5.787693ms elapsed_secs=0.005787693
+2025-11-09T16:29:59.188550Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:29:59.188752Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:29:59.188810Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:29:59.189931Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:29:59.190044Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:29:59.190076Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:29:59.190149Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-09T16:29:59.214784Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:29:59.214879Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:29:59.214905Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:29:59.226451Z DEBUG sqlx::query: summary="SELECT id, tenant_id, contact_id, …" db.statement="\n\nSELECT\n  id,\n  tenant_id,\n  contact_id,\n  contract_number,\n  interest_rate,\n  term_months,\n  date_start,\n  date_end,\n  storage_fee_rate,\n  storage_fee,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_settlement_amount,\n  state,\n  created_at,\n  updated_at,\n  created_by,\n  assignee_id,\n  shared_with,\n  0 :: int8 AS \"total_paid_principal!\",\n  0 :: int8 AS \"payoff_due!\"\nFROM\n  loan_contract\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_number DESC\n" rows_affected=11 rows_returned=11 elapsed=31.67926ms elapsed_secs=0.03167926
+2025-11-09T16:29:59.227921Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:29:59.228004Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:29:59.228022Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:29:59.228065Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-09T16:29:59.238219Z DEBUG sqlx::query: summary="SELECT id, tenant_id, contact_id, …" db.statement="\n\nSELECT\n  id,\n  tenant_id,\n  contact_id,\n  contract_number,\n  interest_rate,\n  term_months,\n  date_start,\n  date_end,\n  storage_fee_rate,\n  storage_fee,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_settlement_amount,\n  state,\n  created_at,\n  updated_at,\n  created_by,\n  assignee_id,\n  shared_with,\n  0 :: int8 AS \"total_paid_principal!\",\n  0 :: int8 AS \"payoff_due!\"\nFROM\n  loan_contract\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_number DESC\n" rows_affected=11 rows_returned=11 elapsed=6.847279ms elapsed_secs=0.006847279
+2025-11-09T16:30:00.250959Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:30:00.251085Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:30:00.251121Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:30:00.251178Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /collateral
+2025-11-09T16:30:00.284196Z DEBUG sqlx::query: summary="SELECT a.tenant_id, a.asset_id, a.asset_type, …" db.statement="\n\nSELECT\n  a.tenant_id,\n  a.asset_id,\n  a.asset_type,\n  a.description,\n  a.value_estimate,\n  a.owner_contact_id,\n  a.status,\n  a.created_by,\n  a.created_at,\n  lc.contract_id,\n  c.contract_number\nFROM\n  collateral_assets a\n  LEFT JOIN loan_collateral lc ON lc.tenant_id = a.tenant_id\n  AND lc.asset_id = a.asset_id\n  AND lc.status = 'active'\n  LEFT JOIN loan_contract c ON c.tenant_id = lc.tenant_id\n  AND c.id = lc.contract_id\nWHERE\n  a.tenant_id = $1\nORDER BY\n  a.created_at DESC\n" rows_affected=24 rows_returned=24 elapsed=26.982545ms elapsed_secs=0.026982545
+2025-11-09T16:30:00.285932Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:30:00.286024Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:30:00.286043Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:30:00.286082Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /collateral
+2025-11-09T16:30:00.300492Z DEBUG sqlx::query: summary="SELECT a.tenant_id, a.asset_id, a.asset_type, …" db.statement="\n\nSELECT\n  a.tenant_id,\n  a.asset_id,\n  a.asset_type,\n  a.description,\n  a.value_estimate,\n  a.owner_contact_id,\n  a.status,\n  a.created_by,\n  a.created_at,\n  lc.contract_id,\n  c.contract_number\nFROM\n  collateral_assets a\n  LEFT JOIN loan_collateral lc ON lc.tenant_id = a.tenant_id\n  AND lc.asset_id = a.asset_id\n  AND lc.status = 'active'\n  LEFT JOIN loan_contract c ON c.tenant_id = lc.tenant_id\n  AND c.id = lc.contract_id\nWHERE\n  a.tenant_id = $1\nORDER BY\n  a.created_at DESC\n" rows_affected=24 rows_returned=24 elapsed=10.279852ms elapsed_secs=0.010279852
+2025-11-09T16:30:03.653258Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:30:03.653404Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:30:03.653437Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:30:03.653495Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-09T16:30:03.654311Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:30:03.654413Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:30:03.654443Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:30:03.677612Z DEBUG sqlx::query: summary="SELECT id, tenant_id, contact_id, …" db.statement="\n\nSELECT\n  id,\n  tenant_id,\n  contact_id,\n  contract_number,\n  interest_rate,\n  term_months,\n  date_start,\n  date_end,\n  storage_fee_rate,\n  storage_fee,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_settlement_amount,\n  state,\n  created_at,\n  updated_at,\n  created_by,\n  assignee_id,\n  shared_with,\n  0 :: int8 AS \"total_paid_principal!\",\n  0 :: int8 AS \"payoff_due!\"\nFROM\n  loan_contract\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_number DESC\n" rows_affected=11 rows_returned=11 elapsed=18.254648ms elapsed_secs=0.018254648
+2025-11-09T16:30:03.678546Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:30:03.678635Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:30:03.678666Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:30:03.679431Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:30:03.679536Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:30:03.679552Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:30:03.679594Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-09T16:30:03.691290Z DEBUG sqlx::query: summary="SELECT id, tenant_id, contact_id, …" db.statement="\n\nSELECT\n  id,\n  tenant_id,\n  contact_id,\n  contract_number,\n  interest_rate,\n  term_months,\n  date_start,\n  date_end,\n  storage_fee_rate,\n  storage_fee,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_settlement_amount,\n  state,\n  created_at,\n  updated_at,\n  created_by,\n  assignee_id,\n  shared_with,\n  0 :: int8 AS \"total_paid_principal!\",\n  0 :: int8 AS \"payoff_due!\"\nFROM\n  loan_contract\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_number DESC\n" rows_affected=11 rows_returned=11 elapsed=7.684845ms elapsed_secs=0.007684845
+2025-11-09T16:30:10.358247Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:30:10.358373Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:30:10.358405Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:30:10.359211Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:30:10.359297Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:30:10.359329Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:30:10.359401Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-09T16:30:10.360324Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:30:10.360427Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:30:10.360456Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:30:10.372635Z DEBUG sqlx::query: summary="SELECT id, COALESCE(NULLIF(name,''), display_name, …" db.statement="\n\nSELECT\n  id,\n  COALESCE(\n    NULLIF(name, ''),\n    display_name,\n    email,\n    phone,\n    '(không tên)'\n  ) AS \"name!: String\",\n  display_name,\n  email,\n  phone,\n  is_company,\n  NULLIF(tags_cached, '') AS \"tags?: String\",\n  state,\n  created_at,\n  updated_at,\n  national_id AS \"national_id?: String\" -- 👈 THÊM\nFROM\n  contact\nWHERE\n  tenant_id = $1\n  AND (\n    $2 :: bool IS NULL\n    OR is_company = $2\n  )\nORDER BY\n  created_at DESC\nLIMIT\n  $3 OFFSET $4\n" rows_affected=8 rows_returned=8 elapsed=9.393419ms elapsed_secs=0.009393419
+2025-11-09T16:30:10.374019Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:30:10.374100Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:30:10.374118Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:30:10.374149Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-09T16:30:10.383421Z DEBUG sqlx::query: summary="SELECT id, COALESCE(NULLIF(name,''), display_name, …" db.statement="\n\nSELECT\n  id,\n  COALESCE(\n    NULLIF(name, ''),\n    display_name,\n    email,\n    phone,\n    '(không tên)'\n  ) AS \"name!: String\",\n  display_name,\n  email,\n  phone,\n  is_company,\n  NULLIF(tags_cached, '') AS \"tags?: String\",\n  state,\n  created_at,\n  updated_at,\n  national_id AS \"national_id?: String\" -- 👈 THÊM\nFROM\n  contact\nWHERE\n  tenant_id = $1\n  AND (\n    $2 :: bool IS NULL\n    OR is_company = $2\n  )\nORDER BY\n  created_at DESC\nLIMIT\n  $3 OFFSET $4\n" rows_affected=8 rows_returned=8 elapsed=5.036694ms elapsed_secs=0.005036694
+2025-11-09T16:30:12.430444Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:30:12.430547Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:30:12.430570Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:30:12.430620Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /create
+2025-11-09T16:30:25.274258Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:30:25.274258Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:30:25.274344Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:30:25.274366Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:30:25.274377Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:30:25.274409Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:30:25.274418Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-09T16:30:25.295380Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:30:25.295509Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:30:25.295538Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:30:25.307274Z DEBUG sqlx::query: summary="SELECT id, COALESCE(NULLIF(name,''), display_name, …" db.statement="\n\nSELECT\n  id,\n  COALESCE(\n    NULLIF(name, ''),\n    display_name,\n    email,\n    phone,\n    '(không tên)'\n  ) AS \"name!: String\",\n  display_name,\n  email,\n  phone,\n  is_company,\n  NULLIF(tags_cached, '') AS \"tags?: String\",\n  state,\n  created_at,\n  updated_at,\n  national_id AS \"national_id?: String\" -- 👈 THÊM\nFROM\n  contact\nWHERE\n  tenant_id = $1\n  AND (\n    $2 :: bool IS NULL\n    OR is_company = $2\n  )\nORDER BY\n  created_at DESC\nLIMIT\n  $3 OFFSET $4\n" rows_affected=8 rows_returned=8 elapsed=29.215493ms elapsed_secs=0.029215493
+2025-11-09T16:30:25.309094Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:30:25.309187Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:30:25.309204Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:30:25.309244Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-09T16:30:25.318436Z DEBUG sqlx::query: summary="SELECT id, COALESCE(NULLIF(name,''), display_name, …" db.statement="\n\nSELECT\n  id,\n  COALESCE(\n    NULLIF(name, ''),\n    display_name,\n    email,\n    phone,\n    '(không tên)'\n  ) AS \"name!: String\",\n  display_name,\n  email,\n  phone,\n  is_company,\n  NULLIF(tags_cached, '') AS \"tags?: String\",\n  state,\n  created_at,\n  updated_at,\n  national_id AS \"national_id?: String\" -- 👈 THÊM\nFROM\n  contact\nWHERE\n  tenant_id = $1\n  AND (\n    $2 :: bool IS NULL\n    OR is_company = $2\n  )\nORDER BY\n  created_at DESC\nLIMIT\n  $3 OFFSET $4\n" rows_affected=8 rows_returned=8 elapsed=6.00086ms elapsed_secs=0.00600086
+2025-11-09T16:30:27.745512Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:30:27.745668Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:30:27.745703Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:30:27.748261Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:30:27.748378Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:30:27.748416Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:30:27.749115Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:30:27.749244Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:30:27.749281Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:30:27.749362Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list?is_company=true&limit=200
+2025-11-09T16:30:27.776452Z DEBUG sqlx::query: summary="SELECT id, COALESCE(NULLIF(name,''), display_name, …" db.statement="\n\nSELECT\n  id,\n  COALESCE(\n    NULLIF(name, ''),\n    display_name,\n    email,\n    phone,\n    '(không tên)'\n  ) AS \"name!: String\",\n  display_name,\n  email,\n  phone,\n  is_company,\n  NULLIF(tags_cached, '') AS \"tags?: String\",\n  state,\n  created_at,\n  updated_at,\n  national_id AS \"national_id?: String\" -- 👈 THÊM\nFROM\n  contact\nWHERE\n  tenant_id = $1\n  AND (\n    $2 :: bool IS NULL\n    OR is_company = $2\n  )\nORDER BY\n  created_at DESC\nLIMIT\n  $3 OFFSET $4\n" rows_affected=3 rows_returned=3 elapsed=21.925485ms elapsed_secs=0.021925485
+2025-11-09T16:30:27.778435Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:30:27.778555Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:30:27.778576Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:30:27.778614Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list?is_company=true&limit=200
+2025-11-09T16:30:27.788155Z DEBUG sqlx::query: summary="SELECT id, COALESCE(NULLIF(name,''), display_name, …" db.statement="\n\nSELECT\n  id,\n  COALESCE(\n    NULLIF(name, ''),\n    display_name,\n    email,\n    phone,\n    '(không tên)'\n  ) AS \"name!: String\",\n  display_name,\n  email,\n  phone,\n  is_company,\n  NULLIF(tags_cached, '') AS \"tags?: String\",\n  state,\n  created_at,\n  updated_at,\n  national_id AS \"national_id?: String\" -- 👈 THÊM\nFROM\n  contact\nWHERE\n  tenant_id = $1\n  AND (\n    $2 :: bool IS NULL\n    OR is_company = $2\n  )\nORDER BY\n  created_at DESC\nLIMIT\n  $3 OFFSET $4\n" rows_affected=3 rows_returned=3 elapsed=6.141614ms elapsed_secs=0.006141614
+2025-11-09T16:32:05.077396Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:32:05.077505Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:32:05.077533Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:32:05.077584Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /report
+2025-11-09T16:32:05.220777Z DEBUG sqlx::query: summary="SELECT r.tenant_id, r.contract_id, r.contact_id, …" db.statement="\n\nSELECT\n  r.tenant_id,\n  r.contract_id,\n  r.contact_id,\n  r.date,\n  r.current_principal,\n  r.current_interest,\n  r.accumulated_interest,\n  r.total_paid_interest,\n  r.total_paid_principal,\n  r.payoff_due,\n  r.state,\n  c.contract_number,\n  co.name as contact_name\nFROM\n  loan_report r\n  JOIN loan_contract c ON c.id = r.contract_id\n  AND c.tenant_id = r.tenant_id\n  JOIN contact co ON co.id = r.contact_id\n  AND co.tenant_id = r.tenant_id\nWHERE\n  r.tenant_id = $1\n  AND r.date = $2\nORDER BY\n  c.contract_number DESC\n" rows_affected=8 rows_returned=8 elapsed=137.840995ms elapsed_secs=0.137840995
+2025-11-09T16:32:05.222207Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:32:05.222316Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:32:05.222337Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:32:05.222385Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /report
+2025-11-09T16:32:05.259020Z DEBUG sqlx::query: summary="SELECT r.tenant_id, r.contract_id, r.contact_id, …" db.statement="\n\nSELECT\n  r.tenant_id,\n  r.contract_id,\n  r.contact_id,\n  r.date,\n  r.current_principal,\n  r.current_interest,\n  r.accumulated_interest,\n  r.total_paid_interest,\n  r.total_paid_principal,\n  r.payoff_due,\n  r.state,\n  c.contract_number,\n  co.name as contact_name\nFROM\n  loan_report r\n  JOIN loan_contract c ON c.id = r.contract_id\n  AND c.tenant_id = r.tenant_id\n  JOIN contact co ON co.id = r.contact_id\n  AND co.tenant_id = r.tenant_id\nWHERE\n  r.tenant_id = $1\n  AND r.date = $2\nORDER BY\n  c.contract_number DESC\n" rows_affected=8 rows_returned=8 elapsed=32.215285ms elapsed_secs=0.032215285
+2025-11-09T16:32:06.162364Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:32:06.162481Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:32:06.162517Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:32:06.162565Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /report/pivot-now
+2025-11-09T16:32:06.188640Z DEBUG sqlx::query: summary="SELECT id, tenant_id, contact_id, …" db.statement="\n\nSELECT\n  id,\n  tenant_id,\n  contact_id,\n  contract_number,\n  interest_rate,\n  term_months,\n  date_start,\n  date_end,\n  storage_fee_rate,\n  storage_fee,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_settlement_amount,\n  state,\n  created_at,\n  updated_at,\n  created_by,\n  assignee_id,\n  shared_with,\n  0 :: int8 AS \"total_paid_principal!\",\n  0 :: int8 AS \"payoff_due!\"\nFROM\n  loan_contract\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_number DESC\n" rows_affected=11 rows_returned=11 elapsed=21.556324ms elapsed_secs=0.021556324
+2025-11-09T16:32:06.188882Z DEBUG milan::module::loan::handler::report: ⏱ list_contracts: 26.083132ms
+2025-11-09T16:32:06.205344Z DEBUG sqlx::query: summary="SELECT id, contract_id, tenant_id, …" db.statement="\n\nSELECT\n  id,\n  contract_id,\n  tenant_id,\n  contact_id,\n  transaction_type,\n  amount,\n  date,\n  note,\n  days_from_prev,\n  interest_for_period,\n  accumulated_interest,\n  principal_balance,\n  created_at,\n  updated_at\nFROM\n  loan_transaction\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_id,\n  date,\n  id\n" rows_affected=39 rows_returned=39 elapsed=12.760053ms elapsed_secs=0.012760053
+2025-11-09T16:32:06.205754Z DEBUG milan::module::loan::handler::report: ⏱ contract faaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa: calc=14.595µs
+2025-11-09T16:32:06.205824Z DEBUG milan::module::loan::handler::report: ⏱ contract f9999999-9999-9999-9999-999999999999: calc=3.545µs
+2025-11-09T16:32:06.205855Z DEBUG milan::module::loan::handler::report: ⏱ contract f8888888-8888-8888-8888-888888888888: calc=3.613µs
+2025-11-09T16:32:06.205870Z DEBUG milan::module::loan::handler::report: ⏱ contract f7777777-7777-7777-7777-777777777777: calc=2.092µs
+2025-11-09T16:32:06.205886Z DEBUG milan::module::loan::handler::report: ⏱ contract f6666666-6666-6666-6666-666666666666: calc=2.244µs
+2025-11-09T16:32:06.205898Z DEBUG milan::module::loan::handler::report: ⏱ contract f5555555-5555-5555-5555-555555555555: calc=2.311µs
+2025-11-09T16:32:06.205909Z DEBUG milan::module::loan::handler::report: ⏱ contract f4444444-4444-4444-4444-444444444444: calc=2.336µs
+2025-11-09T16:32:06.205921Z DEBUG milan::module::loan::handler::report: ⏱ contract f3333333-3333-3333-3333-333333333333: calc=1.421µs
+2025-11-09T16:32:06.205931Z DEBUG milan::module::loan::handler::report: ⏱ contract f2222222-2222-2222-2222-222222222222: calc=2.182µs
+2025-11-09T16:32:06.205939Z DEBUG milan::module::loan::handler::report: ⏱ contract f1111111-1111-1111-1111-111111111111: calc=1.924µs
+2025-11-09T16:32:06.205947Z DEBUG milan::module::loan::handler::report: ⏱ contract 84235ee4-e802-435c-9511-239972917d16: calc=1.108µs
+2025-11-09T16:32:06.205964Z DEBUG milan::module::loan::handler::report: ⏱ total calc: 320.124µs
+2025-11-09T16:32:06.275638Z DEBUG sqlx::query: summary="WITH v(tenant_id, contract_id, contact_id, …" db.statement="\n\nWITH v(\n  tenant_id,\n  contract_id,\n  contact_id,\n  date,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_paid_principal,\n  payoff_due,\n  state\n) AS (\n  VALUES\n    ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11),\n    (\n      $12,\n      $13,\n      $14,\n      $15,\n      $16,\n      $17,\n      $18,\n      $19,\n      $20,\n      $21,\n      $22\n    ),\n    (\n      $23,\n      $24,\n      $25,\n      $26,\n      $27,\n      $28,\n      $29,\n      $30,\n      $31,\n      $32,\n      $33\n    ),\n    (\n      $34,\n      $35,\n      $36,\n      $37,\n      $38,\n      $39,\n      $40,\n      $41,\n      $42,\n      $43,\n      $44\n    ),\n    (\n      $45,\n      $46,\n      $47,\n      $48,\n      $49,\n      $50,\n      $51,\n      $52,\n      $53,\n      $54,\n      $55\n    ),\n    (\n      $56,\n      $57,\n      $58,\n      $59,\n      $60,\n      $61,\n      $62,\n      $63,\n      $64,\n      $65,\n      $66\n    ),\n    (\n      $67,\n      $68,\n      $69,\n      $70,\n      $71,\n      $72,\n      $73,\n      $74,\n      $75,\n      $76,\n      $77\n    ),\n    (\n      $78,\n      $79,\n      $80,\n      $81,\n      $82,\n      $83,\n      $84,\n      $85,\n      $86,\n      $87,\n      $88\n    ),\n    (\n      $89,\n      $90,\n      $91,\n      $92,\n      $93,\n      $94,\n      $95,\n      $96,\n      $97,\n      $98,\n      $99\n    ),\n    (\n      $100,\n      $101,\n      $102,\n      $103,\n      $104,\n      $105,\n      $106,\n      $107,\n      $108,\n      $109,\n      $110\n    ),\n    (\n      $111,\n      $112,\n      $113,\n      $114,\n      $115,\n      $116,\n      $117,\n      $118,\n      $119,\n      $120,\n      $121\n    )\n)\nINSERT INTO\n  loan_report (\n    tenant_id,\n    contract_id,\n    contact_id,\n    date,\n    current_principal,\n    current_interest,\n    accumulated_interest,\n    total_paid_interest,\n    total_paid_principal,\n    payoff_due,\n    state\n  )\nSELECT\n  tenant_id,\n  contract_id,\n  contact_id,\n  date,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_paid_principal,\n  payoff_due,\n  state\nFROM\n  v ON CONFLICT (tenant_id, contract_id, date) DO\nUPDATE\nSET\n  current_principal = EXCLUDED.current_principal,\n  current_interest = EXCLUDED.current_interest,\n  accumulated_interest = EXCLUDED.accumulated_interest,\n  total_paid_interest = EXCLUDED.total_paid_interest,\n  total_paid_principal = EXCLUDED.total_paid_principal,\n  payoff_due = EXCLUDED.payoff_due,\n  state = EXCLUDED.state\n" rows_affected=11 rows_returned=0 elapsed=53.682815ms elapsed_secs=0.053682815
+2025-11-09T16:32:06.275849Z DEBUG milan::module::loan::handler::report: ⏱ write_report (UPSERT): 69.85713ms
+2025-11-09T16:32:06.300609Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:32:06.300756Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:32:06.300788Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:32:06.300851Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /report
+2025-11-09T16:32:06.329474Z DEBUG sqlx::query: summary="SELECT r.tenant_id, r.contract_id, r.contact_id, …" db.statement="\n\nSELECT\n  r.tenant_id,\n  r.contract_id,\n  r.contact_id,\n  r.date,\n  r.current_principal,\n  r.current_interest,\n  r.accumulated_interest,\n  r.total_paid_interest,\n  r.total_paid_principal,\n  r.payoff_due,\n  r.state,\n  c.contract_number,\n  co.name as contact_name\nFROM\n  loan_report r\n  JOIN loan_contract c ON c.id = r.contract_id\n  AND c.tenant_id = r.tenant_id\n  JOIN contact co ON co.id = r.contact_id\n  AND co.tenant_id = r.tenant_id\nWHERE\n  r.tenant_id = $1\n  AND r.date = $2\nORDER BY\n  c.contract_number DESC\n" rows_affected=8 rows_returned=8 elapsed=22.039639ms elapsed_secs=0.022039639
+2025-11-09T16:32:06.331720Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:32:06.331866Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:32:06.331896Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:32:06.331958Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /report
+2025-11-09T16:32:06.359835Z DEBUG sqlx::query: summary="SELECT r.tenant_id, r.contract_id, r.contact_id, …" db.statement="\n\nSELECT\n  r.tenant_id,\n  r.contract_id,\n  r.contact_id,\n  r.date,\n  r.current_principal,\n  r.current_interest,\n  r.accumulated_interest,\n  r.total_paid_interest,\n  r.total_paid_principal,\n  r.payoff_due,\n  r.state,\n  c.contract_number,\n  co.name as contact_name\nFROM\n  loan_report r\n  JOIN loan_contract c ON c.id = r.contract_id\n  AND c.tenant_id = r.tenant_id\n  JOIN contact co ON co.id = r.contact_id\n  AND co.tenant_id = r.tenant_id\nWHERE\n  r.tenant_id = $1\n  AND r.date = $2\nORDER BY\n  c.contract_number DESC\n" rows_affected=8 rows_returned=8 elapsed=21.409016ms elapsed_secs=0.021409016
+2025-11-09T16:32:07.105546Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:32:07.105670Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:32:07.105708Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:32:07.105775Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /report/pivot-now
+2025-11-09T16:32:07.130225Z DEBUG sqlx::query: summary="SELECT id, tenant_id, contact_id, …" db.statement="\n\nSELECT\n  id,\n  tenant_id,\n  contact_id,\n  contract_number,\n  interest_rate,\n  term_months,\n  date_start,\n  date_end,\n  storage_fee_rate,\n  storage_fee,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_settlement_amount,\n  state,\n  created_at,\n  updated_at,\n  created_by,\n  assignee_id,\n  shared_with,\n  0 :: int8 AS \"total_paid_principal!\",\n  0 :: int8 AS \"payoff_due!\"\nFROM\n  loan_contract\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_number DESC\n" rows_affected=11 rows_returned=11 elapsed=19.150058ms elapsed_secs=0.019150058
+2025-11-09T16:32:07.130436Z DEBUG milan::module::loan::handler::report: ⏱ list_contracts: 24.419743ms
+2025-11-09T16:32:07.145672Z DEBUG sqlx::query: summary="SELECT id, contract_id, tenant_id, …" db.statement="\n\nSELECT\n  id,\n  contract_id,\n  tenant_id,\n  contact_id,\n  transaction_type,\n  amount,\n  date,\n  note,\n  days_from_prev,\n  interest_for_period,\n  accumulated_interest,\n  principal_balance,\n  created_at,\n  updated_at\nFROM\n  loan_transaction\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_id,\n  date,\n  id\n" rows_affected=39 rows_returned=39 elapsed=12.022655ms elapsed_secs=0.012022655
+2025-11-09T16:32:07.145947Z DEBUG milan::module::loan::handler::report: ⏱ contract faaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa: calc=11.538µs
+2025-11-09T16:32:07.146026Z DEBUG milan::module::loan::handler::report: ⏱ contract f9999999-9999-9999-9999-999999999999: calc=4.326µs
+2025-11-09T16:32:07.146065Z DEBUG milan::module::loan::handler::report: ⏱ contract f8888888-8888-8888-8888-888888888888: calc=3.579µs
+2025-11-09T16:32:07.146101Z DEBUG milan::module::loan::handler::report: ⏱ contract f7777777-7777-7777-7777-777777777777: calc=3.56µs
+2025-11-09T16:32:07.146133Z DEBUG milan::module::loan::handler::report: ⏱ contract f6666666-6666-6666-6666-666666666666: calc=3.054µs
+2025-11-09T16:32:07.146151Z DEBUG milan::module::loan::handler::report: ⏱ contract f5555555-5555-5555-5555-555555555555: calc=1.9µs
+2025-11-09T16:32:07.146161Z DEBUG milan::module::loan::handler::report: ⏱ contract f4444444-4444-4444-4444-444444444444: calc=1.556µs
+2025-11-09T16:32:07.146167Z DEBUG milan::module::loan::handler::report: ⏱ contract f3333333-3333-3333-3333-333333333333: calc=439ns
+2025-11-09T16:32:07.146172Z DEBUG milan::module::loan::handler::report: ⏱ contract f2222222-2222-2222-2222-222222222222: calc=1.384µs
+2025-11-09T16:32:07.146179Z DEBUG milan::module::loan::handler::report: ⏱ contract f1111111-1111-1111-1111-111111111111: calc=1.198µs
+2025-11-09T16:32:07.146185Z DEBUG milan::module::loan::handler::report: ⏱ contract 84235ee4-e802-435c-9511-239972917d16: calc=783ns
+2025-11-09T16:32:07.146196Z DEBUG milan::module::loan::handler::report: ⏱ total calc: 289.741µs
+2025-11-09T16:32:07.184800Z DEBUG sqlx::query: summary="WITH v(tenant_id, contract_id, contact_id, …" db.statement="\n\nWITH v(\n  tenant_id,\n  contract_id,\n  contact_id,\n  date,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_paid_principal,\n  payoff_due,\n  state\n) AS (\n  VALUES\n    ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11),\n    (\n      $12,\n      $13,\n      $14,\n      $15,\n      $16,\n      $17,\n      $18,\n      $19,\n      $20,\n      $21,\n      $22\n    ),\n    (\n      $23,\n      $24,\n      $25,\n      $26,\n      $27,\n      $28,\n      $29,\n      $30,\n      $31,\n      $32,\n      $33\n    ),\n    (\n      $34,\n      $35,\n      $36,\n      $37,\n      $38,\n      $39,\n      $40,\n      $41,\n      $42,\n      $43,\n      $44\n    ),\n    (\n      $45,\n      $46,\n      $47,\n      $48,\n      $49,\n      $50,\n      $51,\n      $52,\n      $53,\n      $54,\n      $55\n    ),\n    (\n      $56,\n      $57,\n      $58,\n      $59,\n      $60,\n      $61,\n      $62,\n      $63,\n      $64,\n      $65,\n      $66\n    ),\n    (\n      $67,\n      $68,\n      $69,\n      $70,\n      $71,\n      $72,\n      $73,\n      $74,\n      $75,\n      $76,\n      $77\n    ),\n    (\n      $78,\n      $79,\n      $80,\n      $81,\n      $82,\n      $83,\n      $84,\n      $85,\n      $86,\n      $87,\n      $88\n    ),\n    (\n      $89,\n      $90,\n      $91,\n      $92,\n      $93,\n      $94,\n      $95,\n      $96,\n      $97,\n      $98,\n      $99\n    ),\n    (\n      $100,\n      $101,\n      $102,\n      $103,\n      $104,\n      $105,\n      $106,\n      $107,\n      $108,\n      $109,\n      $110\n    ),\n    (\n      $111,\n      $112,\n      $113,\n      $114,\n      $115,\n      $116,\n      $117,\n      $118,\n      $119,\n      $120,\n      $121\n    )\n)\nINSERT INTO\n  loan_report (\n    tenant_id,\n    contract_id,\n    contact_id,\n    date,\n    current_principal,\n    current_interest,\n    accumulated_interest,\n    total_paid_interest,\n    total_paid_principal,\n    payoff_due,\n    state\n  )\nSELECT\n  tenant_id,\n  contract_id,\n  contact_id,\n  date,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_paid_principal,\n  payoff_due,\n  state\nFROM\n  v ON CONFLICT (tenant_id, contract_id, date) DO\nUPDATE\nSET\n  current_principal = EXCLUDED.current_principal,\n  current_interest = EXCLUDED.current_interest,\n  accumulated_interest = EXCLUDED.accumulated_interest,\n  total_paid_interest = EXCLUDED.total_paid_interest,\n  total_paid_principal = EXCLUDED.total_paid_principal,\n  payoff_due = EXCLUDED.payoff_due,\n  state = EXCLUDED.state\n" rows_affected=11 rows_returned=0 elapsed=24.183918ms elapsed_secs=0.024183918
+2025-11-09T16:32:07.184932Z DEBUG milan::module::loan::handler::report: ⏱ write_report (UPSERT): 38.715955ms
+2025-11-09T16:32:07.207409Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:32:07.207500Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:32:07.207519Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:32:07.207562Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /report
+2025-11-09T16:32:07.224381Z DEBUG sqlx::query: summary="SELECT r.tenant_id, r.contract_id, r.contact_id, …" db.statement="\n\nSELECT\n  r.tenant_id,\n  r.contract_id,\n  r.contact_id,\n  r.date,\n  r.current_principal,\n  r.current_interest,\n  r.accumulated_interest,\n  r.total_paid_interest,\n  r.total_paid_principal,\n  r.payoff_due,\n  r.state,\n  c.contract_number,\n  co.name as contact_name\nFROM\n  loan_report r\n  JOIN loan_contract c ON c.id = r.contract_id\n  AND c.tenant_id = r.tenant_id\n  JOIN contact co ON co.id = r.contact_id\n  AND co.tenant_id = r.tenant_id\nWHERE\n  r.tenant_id = $1\n  AND r.date = $2\nORDER BY\n  c.contract_number DESC\n" rows_affected=8 rows_returned=8 elapsed=11.422752ms elapsed_secs=0.011422752
+2025-11-09T16:32:07.227309Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:32:07.227395Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:32:07.227413Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:32:07.227444Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /report
+2025-11-09T16:32:07.244639Z DEBUG sqlx::query: summary="SELECT r.tenant_id, r.contract_id, r.contact_id, …" db.statement="\n\nSELECT\n  r.tenant_id,\n  r.contract_id,\n  r.contact_id,\n  r.date,\n  r.current_principal,\n  r.current_interest,\n  r.accumulated_interest,\n  r.total_paid_interest,\n  r.total_paid_principal,\n  r.payoff_due,\n  r.state,\n  c.contract_number,\n  co.name as contact_name\nFROM\n  loan_report r\n  JOIN loan_contract c ON c.id = r.contract_id\n  AND c.tenant_id = r.tenant_id\n  JOIN contact co ON co.id = r.contact_id\n  AND co.tenant_id = r.tenant_id\nWHERE\n  r.tenant_id = $1\n  AND r.date = $2\nORDER BY\n  c.contract_number DESC\n" rows_affected=8 rows_returned=8 elapsed=12.137279ms elapsed_secs=0.012137279
+2025-11-09T16:32:08.762716Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:32:08.762858Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:32:08.762898Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:32:08.762970Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /report/pivot-now
+2025-11-09T16:32:08.790415Z DEBUG sqlx::query: summary="SELECT id, tenant_id, contact_id, …" db.statement="\n\nSELECT\n  id,\n  tenant_id,\n  contact_id,\n  contract_number,\n  interest_rate,\n  term_months,\n  date_start,\n  date_end,\n  storage_fee_rate,\n  storage_fee,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_settlement_amount,\n  state,\n  created_at,\n  updated_at,\n  created_by,\n  assignee_id,\n  shared_with,\n  0 :: int8 AS \"total_paid_principal!\",\n  0 :: int8 AS \"payoff_due!\"\nFROM\n  loan_contract\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_number DESC\n" rows_affected=11 rows_returned=11 elapsed=22.426402ms elapsed_secs=0.022426402
+2025-11-09T16:32:08.790607Z DEBUG milan::module::loan::handler::report: ⏱ list_contracts: 27.40628ms
+2025-11-09T16:32:08.814153Z DEBUG sqlx::query: summary="SELECT id, contract_id, tenant_id, …" db.statement="\n\nSELECT\n  id,\n  contract_id,\n  tenant_id,\n  contact_id,\n  transaction_type,\n  amount,\n  date,\n  note,\n  days_from_prev,\n  interest_for_period,\n  accumulated_interest,\n  principal_balance,\n  created_at,\n  updated_at\nFROM\n  loan_transaction\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_id,\n  date,\n  id\n" rows_affected=39 rows_returned=39 elapsed=19.895015ms elapsed_secs=0.019895015
+2025-11-09T16:32:08.814323Z DEBUG milan::module::loan::handler::report: ⏱ contract faaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa: calc=9.698µs
+2025-11-09T16:32:08.814350Z DEBUG milan::module::loan::handler::report: ⏱ contract f9999999-9999-9999-9999-999999999999: calc=1.589µs
+2025-11-09T16:32:08.814358Z DEBUG milan::module::loan::handler::report: ⏱ contract f8888888-8888-8888-8888-888888888888: calc=1.342µs
+2025-11-09T16:32:08.814365Z DEBUG milan::module::loan::handler::report: ⏱ contract f7777777-7777-7777-7777-777777777777: calc=1.231µs
+2025-11-09T16:32:08.814371Z DEBUG milan::module::loan::handler::report: ⏱ contract f6666666-6666-6666-6666-666666666666: calc=1.318µs
+2025-11-09T16:32:08.814378Z DEBUG milan::module::loan::handler::report: ⏱ contract f5555555-5555-5555-5555-555555555555: calc=1.15µs
+2025-11-09T16:32:08.814384Z DEBUG milan::module::loan::handler::report: ⏱ contract f4444444-4444-4444-4444-444444444444: calc=1.479µs
+2025-11-09T16:32:08.814389Z DEBUG milan::module::loan::handler::report: ⏱ contract f3333333-3333-3333-3333-333333333333: calc=492ns
+2025-11-09T16:32:08.814394Z DEBUG milan::module::loan::handler::report: ⏱ contract f2222222-2222-2222-2222-222222222222: calc=1.186µs
+2025-11-09T16:32:08.814401Z DEBUG milan::module::loan::handler::report: ⏱ contract f1111111-1111-1111-1111-111111111111: calc=1.073µs
+2025-11-09T16:32:08.814405Z DEBUG milan::module::loan::handler::report: ⏱ contract 84235ee4-e802-435c-9511-239972917d16: calc=706ns
+2025-11-09T16:32:08.814415Z DEBUG milan::module::loan::handler::report: ⏱ total calc: 123.799µs
+2025-11-09T16:32:08.880268Z DEBUG sqlx::query: summary="WITH v(tenant_id, contract_id, contact_id, …" db.statement="\n\nWITH v(\n  tenant_id,\n  contract_id,\n  contact_id,\n  date,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_paid_principal,\n  payoff_due,\n  state\n) AS (\n  VALUES\n    ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11),\n    (\n      $12,\n      $13,\n      $14,\n      $15,\n      $16,\n      $17,\n      $18,\n      $19,\n      $20,\n      $21,\n      $22\n    ),\n    (\n      $23,\n      $24,\n      $25,\n      $26,\n      $27,\n      $28,\n      $29,\n      $30,\n      $31,\n      $32,\n      $33\n    ),\n    (\n      $34,\n      $35,\n      $36,\n      $37,\n      $38,\n      $39,\n      $40,\n      $41,\n      $42,\n      $43,\n      $44\n    ),\n    (\n      $45,\n      $46,\n      $47,\n      $48,\n      $49,\n      $50,\n      $51,\n      $52,\n      $53,\n      $54,\n      $55\n    ),\n    (\n      $56,\n      $57,\n      $58,\n      $59,\n      $60,\n      $61,\n      $62,\n      $63,\n      $64,\n      $65,\n      $66\n    ),\n    (\n      $67,\n      $68,\n      $69,\n      $70,\n      $71,\n      $72,\n      $73,\n      $74,\n      $75,\n      $76,\n      $77\n    ),\n    (\n      $78,\n      $79,\n      $80,\n      $81,\n      $82,\n      $83,\n      $84,\n      $85,\n      $86,\n      $87,\n      $88\n    ),\n    (\n      $89,\n      $90,\n      $91,\n      $92,\n      $93,\n      $94,\n      $95,\n      $96,\n      $97,\n      $98,\n      $99\n    ),\n    (\n      $100,\n      $101,\n      $102,\n      $103,\n      $104,\n      $105,\n      $106,\n      $107,\n      $108,\n      $109,\n      $110\n    ),\n    (\n      $111,\n      $112,\n      $113,\n      $114,\n      $115,\n      $116,\n      $117,\n      $118,\n      $119,\n      $120,\n      $121\n    )\n)\nINSERT INTO\n  loan_report (\n    tenant_id,\n    contract_id,\n    contact_id,\n    date,\n    current_principal,\n    current_interest,\n    accumulated_interest,\n    total_paid_interest,\n    total_paid_principal,\n    payoff_due,\n    state\n  )\nSELECT\n  tenant_id,\n  contract_id,\n  contact_id,\n  date,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_paid_principal,\n  payoff_due,\n  state\nFROM\n  v ON CONFLICT (tenant_id, contract_id, date) DO\nUPDATE\nSET\n  current_principal = EXCLUDED.current_principal,\n  current_interest = EXCLUDED.current_interest,\n  accumulated_interest = EXCLUDED.accumulated_interest,\n  total_paid_interest = EXCLUDED.total_paid_interest,\n  total_paid_principal = EXCLUDED.total_paid_principal,\n  payoff_due = EXCLUDED.payoff_due,\n  state = EXCLUDED.state\n" rows_affected=11 rows_returned=0 elapsed=49.677346ms elapsed_secs=0.049677346
+2025-11-09T16:32:08.880401Z DEBUG milan::module::loan::handler::report: ⏱ write_report (UPSERT): 65.959198ms
+2025-11-09T16:32:08.903953Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:32:08.904043Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:32:08.904061Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:32:08.904107Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /report
+2025-11-09T16:32:08.987731Z DEBUG sqlx::query: summary="SELECT r.tenant_id, r.contract_id, r.contact_id, …" db.statement="\n\nSELECT\n  r.tenant_id,\n  r.contract_id,\n  r.contact_id,\n  r.date,\n  r.current_principal,\n  r.current_interest,\n  r.accumulated_interest,\n  r.total_paid_interest,\n  r.total_paid_principal,\n  r.payoff_due,\n  r.state,\n  c.contract_number,\n  co.name as contact_name\nFROM\n  loan_report r\n  JOIN loan_contract c ON c.id = r.contract_id\n  AND c.tenant_id = r.tenant_id\n  JOIN contact co ON co.id = r.contact_id\n  AND co.tenant_id = r.tenant_id\nWHERE\n  r.tenant_id = $1\n  AND r.date = $2\nORDER BY\n  c.contract_number DESC\n" rows_affected=8 rows_returned=8 elapsed=78.698159ms elapsed_secs=0.078698159
+2025-11-09T16:32:08.989211Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:32:08.989350Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:32:08.989382Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:32:08.989443Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /report
+2025-11-09T16:32:09.002545Z DEBUG sqlx::query: summary="SELECT r.tenant_id, r.contract_id, r.contact_id, …" db.statement="\n\nSELECT\n  r.tenant_id,\n  r.contract_id,\n  r.contact_id,\n  r.date,\n  r.current_principal,\n  r.current_interest,\n  r.accumulated_interest,\n  r.total_paid_interest,\n  r.total_paid_principal,\n  r.payoff_due,\n  r.state,\n  c.contract_number,\n  co.name as contact_name\nFROM\n  loan_report r\n  JOIN loan_contract c ON c.id = r.contract_id\n  AND c.tenant_id = r.tenant_id\n  JOIN contact co ON co.id = r.contact_id\n  AND co.tenant_id = r.tenant_id\nWHERE\n  r.tenant_id = $1\n  AND r.date = $2\nORDER BY\n  c.contract_number DESC\n" rows_affected=8 rows_returned=8 elapsed=8.234535ms elapsed_secs=0.008234535
+2025-11-09T16:32:10.121420Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:32:10.121519Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:32:10.121547Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:32:10.121598Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /report/pivot-now
+2025-11-09T16:32:10.141697Z DEBUG sqlx::query: summary="SELECT id, tenant_id, contact_id, …" db.statement="\n\nSELECT\n  id,\n  tenant_id,\n  contact_id,\n  contract_number,\n  interest_rate,\n  term_months,\n  date_start,\n  date_end,\n  storage_fee_rate,\n  storage_fee,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_settlement_amount,\n  state,\n  created_at,\n  updated_at,\n  created_by,\n  assignee_id,\n  shared_with,\n  0 :: int8 AS \"total_paid_principal!\",\n  0 :: int8 AS \"payoff_due!\"\nFROM\n  loan_contract\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_number DESC\n" rows_affected=11 rows_returned=11 elapsed=15.342903ms elapsed_secs=0.015342903
+2025-11-09T16:32:10.141986Z DEBUG milan::module::loan::handler::report: ⏱ list_contracts: 20.14409ms
+2025-11-09T16:32:10.158628Z DEBUG sqlx::query: summary="SELECT id, contract_id, tenant_id, …" db.statement="\n\nSELECT\n  id,\n  contract_id,\n  tenant_id,\n  contact_id,\n  transaction_type,\n  amount,\n  date,\n  note,\n  days_from_prev,\n  interest_for_period,\n  accumulated_interest,\n  principal_balance,\n  created_at,\n  updated_at\nFROM\n  loan_transaction\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_id,\n  date,\n  id\n" rows_affected=39 rows_returned=39 elapsed=12.835393ms elapsed_secs=0.012835393
+2025-11-09T16:32:10.158918Z DEBUG milan::module::loan::handler::report: ⏱ contract faaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa: calc=10.705µs
+2025-11-09T16:32:10.158994Z DEBUG milan::module::loan::handler::report: ⏱ contract f9999999-9999-9999-9999-999999999999: calc=3.113µs
+2025-11-09T16:32:10.159014Z DEBUG milan::module::loan::handler::report: ⏱ contract f8888888-8888-8888-8888-888888888888: calc=2.498µs
+2025-11-09T16:32:10.159043Z DEBUG milan::module::loan::handler::report: ⏱ contract f7777777-7777-7777-7777-777777777777: calc=2.966µs
+2025-11-09T16:32:10.159072Z DEBUG milan::module::loan::handler::report: ⏱ contract f6666666-6666-6666-6666-666666666666: calc=3.433µs
+2025-11-09T16:32:10.159086Z DEBUG milan::module::loan::handler::report: ⏱ contract f5555555-5555-5555-5555-555555555555: calc=2.01µs
+2025-11-09T16:32:10.159104Z DEBUG milan::module::loan::handler::report: ⏱ contract f4444444-4444-4444-4444-444444444444: calc=2.928µs
+2025-11-09T16:32:10.159129Z DEBUG milan::module::loan::handler::report: ⏱ contract f3333333-3333-3333-3333-333333333333: calc=1.207µs
+2025-11-09T16:32:10.159165Z DEBUG milan::module::loan::handler::report: ⏱ contract f2222222-2222-2222-2222-222222222222: calc=3.625µs
+2025-11-09T16:32:10.159180Z DEBUG milan::module::loan::handler::report: ⏱ contract f1111111-1111-1111-1111-111111111111: calc=1.708µs
+2025-11-09T16:32:10.159194Z DEBUG milan::module::loan::handler::report: ⏱ contract 84235ee4-e802-435c-9511-239972917d16: calc=1.602µs
+2025-11-09T16:32:10.159237Z DEBUG milan::module::loan::handler::report: ⏱ total calc: 356.806µs
+2025-11-09T16:32:10.225686Z DEBUG sqlx::query: summary="WITH v(tenant_id, contract_id, contact_id, …" db.statement="\n\nWITH v(\n  tenant_id,\n  contract_id,\n  contact_id,\n  date,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_paid_principal,\n  payoff_due,\n  state\n) AS (\n  VALUES\n    ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11),\n    (\n      $12,\n      $13,\n      $14,\n      $15,\n      $16,\n      $17,\n      $18,\n      $19,\n      $20,\n      $21,\n      $22\n    ),\n    (\n      $23,\n      $24,\n      $25,\n      $26,\n      $27,\n      $28,\n      $29,\n      $30,\n      $31,\n      $32,\n      $33\n    ),\n    (\n      $34,\n      $35,\n      $36,\n      $37,\n      $38,\n      $39,\n      $40,\n      $41,\n      $42,\n      $43,\n      $44\n    ),\n    (\n      $45,\n      $46,\n      $47,\n      $48,\n      $49,\n      $50,\n      $51,\n      $52,\n      $53,\n      $54,\n      $55\n    ),\n    (\n      $56,\n      $57,\n      $58,\n      $59,\n      $60,\n      $61,\n      $62,\n      $63,\n      $64,\n      $65,\n      $66\n    ),\n    (\n      $67,\n      $68,\n      $69,\n      $70,\n      $71,\n      $72,\n      $73,\n      $74,\n      $75,\n      $76,\n      $77\n    ),\n    (\n      $78,\n      $79,\n      $80,\n      $81,\n      $82,\n      $83,\n      $84,\n      $85,\n      $86,\n      $87,\n      $88\n    ),\n    (\n      $89,\n      $90,\n      $91,\n      $92,\n      $93,\n      $94,\n      $95,\n      $96,\n      $97,\n      $98,\n      $99\n    ),\n    (\n      $100,\n      $101,\n      $102,\n      $103,\n      $104,\n      $105,\n      $106,\n      $107,\n      $108,\n      $109,\n      $110\n    ),\n    (\n      $111,\n      $112,\n      $113,\n      $114,\n      $115,\n      $116,\n      $117,\n      $118,\n      $119,\n      $120,\n      $121\n    )\n)\nINSERT INTO\n  loan_report (\n    tenant_id,\n    contract_id,\n    contact_id,\n    date,\n    current_principal,\n    current_interest,\n    accumulated_interest,\n    total_paid_interest,\n    total_paid_principal,\n    payoff_due,\n    state\n  )\nSELECT\n  tenant_id,\n  contract_id,\n  contact_id,\n  date,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_paid_principal,\n  payoff_due,\n  state\nFROM\n  v ON CONFLICT (tenant_id, contract_id, date) DO\nUPDATE\nSET\n  current_principal = EXCLUDED.current_principal,\n  current_interest = EXCLUDED.current_interest,\n  accumulated_interest = EXCLUDED.accumulated_interest,\n  total_paid_interest = EXCLUDED.total_paid_interest,\n  total_paid_principal = EXCLUDED.total_paid_principal,\n  payoff_due = EXCLUDED.payoff_due,\n  state = EXCLUDED.state\n" rows_affected=11 rows_returned=0 elapsed=51.90415ms elapsed_secs=0.05190415
+2025-11-09T16:32:10.225845Z DEBUG milan::module::loan::handler::report: ⏱ write_report (UPSERT): 66.565303ms
+2025-11-09T16:32:10.251151Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:32:10.251249Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:32:10.251273Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:32:10.251323Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /report
+2025-11-09T16:32:10.270908Z DEBUG sqlx::query: summary="SELECT r.tenant_id, r.contract_id, r.contact_id, …" db.statement="\n\nSELECT\n  r.tenant_id,\n  r.contract_id,\n  r.contact_id,\n  r.date,\n  r.current_principal,\n  r.current_interest,\n  r.accumulated_interest,\n  r.total_paid_interest,\n  r.total_paid_principal,\n  r.payoff_due,\n  r.state,\n  c.contract_number,\n  co.name as contact_name\nFROM\n  loan_report r\n  JOIN loan_contract c ON c.id = r.contract_id\n  AND c.tenant_id = r.tenant_id\n  JOIN contact co ON co.id = r.contact_id\n  AND co.tenant_id = r.tenant_id\nWHERE\n  r.tenant_id = $1\n  AND r.date = $2\nORDER BY\n  c.contract_number DESC\n" rows_affected=8 rows_returned=8 elapsed=14.842792ms elapsed_secs=0.014842792
+2025-11-09T16:32:10.272744Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:32:10.272839Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:32:10.272861Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:32:10.272900Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /report
+2025-11-09T16:32:10.287814Z DEBUG sqlx::query: summary="SELECT r.tenant_id, r.contract_id, r.contact_id, …" db.statement="\n\nSELECT\n  r.tenant_id,\n  r.contract_id,\n  r.contact_id,\n  r.date,\n  r.current_principal,\n  r.current_interest,\n  r.accumulated_interest,\n  r.total_paid_interest,\n  r.total_paid_principal,\n  r.payoff_due,\n  r.state,\n  c.contract_number,\n  co.name as contact_name\nFROM\n  loan_report r\n  JOIN loan_contract c ON c.id = r.contract_id\n  AND c.tenant_id = r.tenant_id\n  JOIN contact co ON co.id = r.contact_id\n  AND co.tenant_id = r.tenant_id\nWHERE\n  r.tenant_id = $1\n  AND r.date = $2\nORDER BY\n  c.contract_number DESC\n" rows_affected=8 rows_returned=8 elapsed=9.091782ms elapsed_secs=0.009091782
+2025-11-09T16:32:46.361879Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:32:46.362029Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:32:46.362060Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:32:46.362119Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /users
+2025-11-09T16:32:46.535325Z DEBUG sqlx::query: summary="SELECT u.tenant_id, t.name AS …" db.statement="\n\nSELECT\n  u.tenant_id,\n  t.name AS tenant_name,\n  u.user_id,\n  u.email,\n  u.name,\n  u.created_at\nFROM\n  users u\n  JOIN tenant t ON u.tenant_id = t.tenant_id\nORDER BY\n  u.created_at DESC\n" rows_affected=1 rows_returned=1 elapsed=168.606778ms elapsed_secs=0.168606778
+2025-11-09T16:32:46.537109Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:32:46.537273Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:32:46.537339Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:32:46.537405Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /users
+2025-11-09T16:32:46.616721Z DEBUG sqlx::query: summary="SELECT u.tenant_id, t.name AS …" db.statement="\n\nSELECT\n  u.tenant_id,\n  t.name AS tenant_name,\n  u.user_id,\n  u.email,\n  u.name,\n  u.created_at\nFROM\n  users u\n  JOIN tenant t ON u.tenant_id = t.tenant_id\nORDER BY\n  u.created_at DESC\n" rows_affected=1 rows_returned=1 elapsed=76.676679ms elapsed_secs=0.076676679
+2025-11-09T16:33:11.211381Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:33:11.211522Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:33:11.211560Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:33:11.213501Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:33:11.213668Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:33:11.213704Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:33:11.214469Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:33:11.214573Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:33:11.214603Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:33:11.214656Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-09T16:33:11.255824Z DEBUG sqlx::query: summary="SELECT id, COALESCE(NULLIF(name,''), display_name, …" db.statement="\n\nSELECT\n  id,\n  COALESCE(\n    NULLIF(name, ''),\n    display_name,\n    email,\n    phone,\n    '(không tên)'\n  ) AS \"name!: String\",\n  display_name,\n  email,\n  phone,\n  is_company,\n  NULLIF(tags_cached, '') AS \"tags?: String\",\n  state,\n  created_at,\n  updated_at,\n  national_id AS \"national_id?: String\" -- 👈 THÊM\nFROM\n  contact\nWHERE\n  tenant_id = $1\n  AND (\n    $2 :: bool IS NULL\n    OR is_company = $2\n  )\nORDER BY\n  created_at DESC\nLIMIT\n  $3 OFFSET $4\n" rows_affected=8 rows_returned=8 elapsed=35.823574ms elapsed_secs=0.035823574
+2025-11-09T16:33:11.258011Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:33:11.258119Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:33:11.258146Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:33:11.258211Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-09T16:33:11.290971Z DEBUG sqlx::query: summary="SELECT id, COALESCE(NULLIF(name,''), display_name, …" db.statement="\n\nSELECT\n  id,\n  COALESCE(\n    NULLIF(name, ''),\n    display_name,\n    email,\n    phone,\n    '(không tên)'\n  ) AS \"name!: String\",\n  display_name,\n  email,\n  phone,\n  is_company,\n  NULLIF(tags_cached, '') AS \"tags?: String\",\n  state,\n  created_at,\n  updated_at,\n  national_id AS \"national_id?: String\" -- 👈 THÊM\nFROM\n  contact\nWHERE\n  tenant_id = $1\n  AND (\n    $2 :: bool IS NULL\n    OR is_company = $2\n  )\nORDER BY\n  created_at DESC\nLIMIT\n  $3 OFFSET $4\n" rows_affected=8 rows_returned=8 elapsed=28.231334ms elapsed_secs=0.028231334
+2025-11-09T16:33:30.001685Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:33:30.001790Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:33:30.001813Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:33:30.001863Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /create
+2025-11-09T16:33:30.002121Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:33:30.002182Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:33:30.002203Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:33:30.002242Z  INFO milan::module::loan::handler::loan: 🌐 Handler language: en, message: aaaAt least 1 transaction is required
+2025-11-09T16:33:35.854148Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:33:35.854285Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:33:35.854324Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:33:35.854390Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /create
+2025-11-09T16:33:35.854743Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:33:35.854830Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:33:35.854861Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:33:35.854905Z  INFO milan::module::loan::handler::loan: 🌐 Handler language: en, message: aaaAt least 1 transaction is required
+2025-11-09T16:33:39.352564Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:33:39.352691Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:33:39.352717Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:33:39.352773Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /create
+2025-11-09T16:33:39.353043Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:33:39.353095Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:33:39.353121Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:33:39.353153Z  INFO milan::module::loan::handler::loan: 🌐 Handler language: en, message: aaaAt least 1 transaction is required
+2025-11-09T16:37:49.491848Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-09T16:37:49.491948Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-09T16:37:49.491972Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-09T16:37:49.597826Z DEBUG sqlx::query: summary="SELECT tenant_id, shard_id FROM …" db.statement="\n\nSELECT\n  tenant_id,\n  shard_id\nFROM\n  tenant\nWHERE\n  slug = $1\n" rows_affected=0 rows_returned=1 elapsed=103.6075ms elapsed_secs=0.1036075
+2025-11-09T16:37:49.639196Z DEBUG sqlx::query: summary="SELECT tenant_id, user_id, email, …" db.statement="\n\nSELECT\n  tenant_id,\n  user_id,\n  email,\n  name,\n  password_hash\nFROM\n  users\nWHERE\n  tenant_id = $1\n  AND email = $2\n" rows_affected=0 rows_returned=1 elapsed=39.060936ms elapsed_secs=0.039060936
+2025-11-09T16:37:50.446188Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9
+2025-11-09T16:37:50.446278Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:37:50.446296Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:37:50.447790Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9
+2025-11-09T16:37:50.447860Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:37:50.447878Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:37:50.447917Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-09T16:37:50.453460Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9
+2025-11-09T16:37:50.453603Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:37:50.453636Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:37:50.471147Z DEBUG sqlx::query: summary="SELECT id, COALESCE(NULLIF(name,''), display_name, …" db.statement="\n\nSELECT\n  id,\n  COALESCE(\n    NULLIF(name, ''),\n    display_name,\n    email,\n    phone,\n    '(không tên)'\n  ) AS \"name!: String\",\n  display_name,\n  email,\n  phone,\n  is_company,\n  NULLIF(tags_cached, '') AS \"tags?: String\",\n  state,\n  created_at,\n  updated_at,\n  national_id AS \"national_id?: String\" -- 👈 THÊM\nFROM\n  contact\nWHERE\n  tenant_id = $1\n  AND (\n    $2 :: bool IS NULL\n    OR is_company = $2\n  )\nORDER BY\n  created_at DESC\nLIMIT\n  $3 OFFSET $4\n" rows_affected=8 rows_returned=8 elapsed=18.803811ms elapsed_secs=0.018803811
+2025-11-09T16:37:50.473780Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9
+2025-11-09T16:37:50.473956Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:37:50.473986Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:37:50.474043Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-09T16:37:50.487282Z DEBUG sqlx::query: summary="SELECT id, COALESCE(NULLIF(name,''), display_name, …" db.statement="\n\nSELECT\n  id,\n  COALESCE(\n    NULLIF(name, ''),\n    display_name,\n    email,\n    phone,\n    '(không tên)'\n  ) AS \"name!: String\",\n  display_name,\n  email,\n  phone,\n  is_company,\n  NULLIF(tags_cached, '') AS \"tags?: String\",\n  state,\n  created_at,\n  updated_at,\n  national_id AS \"national_id?: String\" -- 👈 THÊM\nFROM\n  contact\nWHERE\n  tenant_id = $1\n  AND (\n    $2 :: bool IS NULL\n    OR is_company = $2\n  )\nORDER BY\n  created_at DESC\nLIMIT\n  $3 OFFSET $4\n" rows_affected=8 rows_returned=8 elapsed=9.404157ms elapsed_secs=0.009404157
+2025-11-09T16:37:59.195254Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9
+2025-11-09T16:37:59.195373Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:37:59.195413Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:37:59.196074Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9
+2025-11-09T16:37:59.196153Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:37:59.196188Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:37:59.196239Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-09T16:37:59.219885Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9
+2025-11-09T16:37:59.220124Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:37:59.220169Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:37:59.234301Z DEBUG sqlx::query: summary="SELECT id, tenant_id, contact_id, …" db.statement="\n\nSELECT\n  id,\n  tenant_id,\n  contact_id,\n  contract_number,\n  interest_rate,\n  term_months,\n  date_start,\n  date_end,\n  storage_fee_rate,\n  storage_fee,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_settlement_amount,\n  state,\n  created_at,\n  updated_at,\n  created_by,\n  assignee_id,\n  shared_with,\n  0 :: int8 AS \"total_paid_principal!\",\n  0 :: int8 AS \"payoff_due!\"\nFROM\n  loan_contract\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_number DESC\n" rows_affected=11 rows_returned=11 elapsed=32.819185ms elapsed_secs=0.032819185
+2025-11-09T16:37:59.236459Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9
+2025-11-09T16:37:59.236558Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:37:59.236576Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:37:59.236619Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-09T16:37:59.246122Z DEBUG sqlx::query: summary="SELECT id, tenant_id, contact_id, …" db.statement="\n\nSELECT\n  id,\n  tenant_id,\n  contact_id,\n  contract_number,\n  interest_rate,\n  term_months,\n  date_start,\n  date_end,\n  storage_fee_rate,\n  storage_fee,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_settlement_amount,\n  state,\n  created_at,\n  updated_at,\n  created_by,\n  assignee_id,\n  shared_with,\n  0 :: int8 AS \"total_paid_principal!\",\n  0 :: int8 AS \"payoff_due!\"\nFROM\n  loan_contract\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_number DESC\n" rows_affected=11 rows_returned=11 elapsed=5.719725ms elapsed_secs=0.005719725
+2025-11-09T16:38:00.342079Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9
+2025-11-09T16:38:00.342168Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:38:00.342192Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:38:00.342246Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /collateral
+2025-11-09T16:38:00.487259Z DEBUG sqlx::query: summary="SELECT a.tenant_id, a.asset_id, a.asset_type, …" db.statement="\n\nSELECT\n  a.tenant_id,\n  a.asset_id,\n  a.asset_type,\n  a.description,\n  a.value_estimate,\n  a.owner_contact_id,\n  a.status,\n  a.created_by,\n  a.created_at,\n  lc.contract_id,\n  c.contract_number\nFROM\n  collateral_assets a\n  LEFT JOIN loan_collateral lc ON lc.tenant_id = a.tenant_id\n  AND lc.asset_id = a.asset_id\n  AND lc.status = 'active'\n  LEFT JOIN loan_contract c ON c.tenant_id = lc.tenant_id\n  AND c.id = lc.contract_id\nWHERE\n  a.tenant_id = $1\nORDER BY\n  a.created_at DESC\n" rows_affected=24 rows_returned=24 elapsed=140.589106ms elapsed_secs=0.140589106
+2025-11-09T16:38:00.488721Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9
+2025-11-09T16:38:00.488817Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:38:00.488837Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:38:00.488880Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /collateral
+2025-11-09T16:38:00.612555Z DEBUG sqlx::query: summary="SELECT a.tenant_id, a.asset_id, a.asset_type, …" db.statement="\n\nSELECT\n  a.tenant_id,\n  a.asset_id,\n  a.asset_type,\n  a.description,\n  a.value_estimate,\n  a.owner_contact_id,\n  a.status,\n  a.created_by,\n  a.created_at,\n  lc.contract_id,\n  c.contract_number\nFROM\n  collateral_assets a\n  LEFT JOIN loan_collateral lc ON lc.tenant_id = a.tenant_id\n  AND lc.asset_id = a.asset_id\n  AND lc.status = 'active'\n  LEFT JOIN loan_contract c ON c.tenant_id = lc.tenant_id\n  AND c.id = lc.contract_id\nWHERE\n  a.tenant_id = $1\nORDER BY\n  a.created_at DESC\n" rows_affected=24 rows_returned=24 elapsed=118.041296ms elapsed_secs=0.118041296
+2025-11-09T16:38:01.630246Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9
+2025-11-09T16:38:01.630333Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:38:01.630343Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:38:01.632182Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9
+2025-11-09T16:38:01.632260Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:38:01.632278Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:38:01.632660Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9
+2025-11-09T16:38:01.632706Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:38:01.632726Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:38:01.632766Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-09T16:38:01.643330Z DEBUG sqlx::query: summary="SELECT id, COALESCE(NULLIF(name,''), display_name, …" db.statement="\n\nSELECT\n  id,\n  COALESCE(\n    NULLIF(name, ''),\n    display_name,\n    email,\n    phone,\n    '(không tên)'\n  ) AS \"name!: String\",\n  display_name,\n  email,\n  phone,\n  is_company,\n  NULLIF(tags_cached, '') AS \"tags?: String\",\n  state,\n  created_at,\n  updated_at,\n  national_id AS \"national_id?: String\" -- 👈 THÊM\nFROM\n  contact\nWHERE\n  tenant_id = $1\n  AND (\n    $2 :: bool IS NULL\n    OR is_company = $2\n  )\nORDER BY\n  created_at DESC\nLIMIT\n  $3 OFFSET $4\n" rows_affected=8 rows_returned=8 elapsed=6.669118ms elapsed_secs=0.006669118
+2025-11-09T16:38:01.645242Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9
+2025-11-09T16:38:01.645362Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:38:01.645380Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:38:01.645431Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-09T16:38:01.655754Z DEBUG sqlx::query: summary="SELECT id, COALESCE(NULLIF(name,''), display_name, …" db.statement="\n\nSELECT\n  id,\n  COALESCE(\n    NULLIF(name, ''),\n    display_name,\n    email,\n    phone,\n    '(không tên)'\n  ) AS \"name!: String\",\n  display_name,\n  email,\n  phone,\n  is_company,\n  NULLIF(tags_cached, '') AS \"tags?: String\",\n  state,\n  created_at,\n  updated_at,\n  national_id AS \"national_id?: String\" -- 👈 THÊM\nFROM\n  contact\nWHERE\n  tenant_id = $1\n  AND (\n    $2 :: bool IS NULL\n    OR is_company = $2\n  )\nORDER BY\n  created_at DESC\nLIMIT\n  $3 OFFSET $4\n" rows_affected=8 rows_returned=8 elapsed=6.052056ms elapsed_secs=0.006052056
+2025-11-09T16:38:13.641988Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9
+2025-11-09T16:38:13.642139Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:38:13.642168Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:38:13.642232Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /create
+2025-11-09T16:38:13.642631Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9
+2025-11-09T16:38:13.642697Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:38:13.642711Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:38:13.642743Z  INFO milan::module::loan::handler::loan: 🌐 Handler language: en, message: aaaAt least 1 transaction is required
+2025-11-09T16:39:16.373619Z  INFO milan::infra::wasm_loader: ✅ Loaded module: school
+2025-11-09T16:39:16.373734Z  INFO milan: ✅ Loaded 1 modules ngoài binary từ "../modules"
+2025-11-09T16:39:16.374719Z  INFO milan::api::external_modules: ✅ Registered routes cho module: school
+2025-11-09T16:39:21.621191Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-09T16:39:21.621359Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-09T16:39:21.621420Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-09T16:39:21.621492Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /profile
+2025-11-09T16:39:21.627643Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-09T16:39:21.628088Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-09T16:39:21.628293Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-09T16:39:21.628380Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /profile
+2025-11-09T16:39:21.925486Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:39:21.925582Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:39:21.925608Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:39:21.926500Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:39:21.926625Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:39:21.926657Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:39:21.926717Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-09T16:39:21.947551Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:39:21.947660Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:39:21.947682Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:39:22.258911Z DEBUG sqlx::query: summary="SELECT id, COALESCE(NULLIF(name,''), display_name, …" db.statement="\n\nSELECT\n  id,\n  COALESCE(\n    NULLIF(name, ''),\n    display_name,\n    email,\n    phone,\n    '(không tên)'\n  ) AS \"name!: String\",\n  display_name,\n  email,\n  phone,\n  is_company,\n  NULLIF(tags_cached, '') AS \"tags?: String\",\n  state,\n  created_at,\n  updated_at,\n  national_id AS \"national_id?: String\" -- 👈 THÊM\nFROM\n  contact\nWHERE\n  tenant_id = $1\n  AND (\n    $2 :: bool IS NULL\n    OR is_company = $2\n  )\nORDER BY\n  created_at DESC\nLIMIT\n  $3 OFFSET $4\n" rows_affected=8 rows_returned=8 elapsed=324.649608ms elapsed_secs=0.324649608
+2025-11-09T16:39:22.262032Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:39:22.262223Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:39:22.262257Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:39:22.262333Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-09T16:39:22.273573Z DEBUG sqlx::query: summary="SELECT id, COALESCE(NULLIF(name,''), display_name, …" db.statement="\n\nSELECT\n  id,\n  COALESCE(\n    NULLIF(name, ''),\n    display_name,\n    email,\n    phone,\n    '(không tên)'\n  ) AS \"name!: String\",\n  display_name,\n  email,\n  phone,\n  is_company,\n  NULLIF(tags_cached, '') AS \"tags?: String\",\n  state,\n  created_at,\n  updated_at,\n  national_id AS \"national_id?: String\" -- 👈 THÊM\nFROM\n  contact\nWHERE\n  tenant_id = $1\n  AND (\n    $2 :: bool IS NULL\n    OR is_company = $2\n  )\nORDER BY\n  created_at DESC\nLIMIT\n  $3 OFFSET $4\n" rows_affected=8 rows_returned=8 elapsed=7.250821ms elapsed_secs=0.007250821
+2025-11-09T16:39:32.319257Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:39:32.319390Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:39:32.319425Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:39:32.319485Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /create
+2025-11-09T16:39:32.319803Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-09T16:39:32.319875Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-09T16:39:32.319908Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-09T16:39:32.320454Z  INFO milan::module::loan::handler::loan: 🌐 Handler language: en, message: At least 1 transaction is required
+2025-11-09T16:53:18.861112Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
+2025-11-09T16:53:18.875879Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
+2025-11-09T16:53:23.842867Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
