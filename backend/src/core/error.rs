@@ -5,6 +5,7 @@ use axum::{
 };
 use serde::Serialize;
 use std::fmt;
+use crate::core::i18n::I18n;
 
 #[derive(Debug, Serialize, Clone)]
 pub struct ErrorResponse {
@@ -40,6 +41,10 @@ impl From<sqlx::Error> for AppError {
 
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
+        // Use default i18n for error messages
+        // In production, you might want to extract i18n from request extensions
+        let i18n = I18n::default();
+        
         match self {
             AppError::Validation(err) => err.into_response(),
 
@@ -50,7 +55,7 @@ impl IntoResponse for AppError {
                     code: "db_error",
                     message: match e {
                         sqlx::Error::Database(db_err) => db_err.message().to_string(),
-                        _ => "Lỗi hệ thống (DB)".into(),
+                        _ => i18n.t("error.db_error"),
                     },
                 };
 
@@ -91,5 +96,23 @@ impl AppError {
 
     pub fn not_found(msg: impl Into<String>) -> Self {
         AppError::NotFound(msg.into())
+    }
+
+    /// Create error with i18n translation
+    pub fn bad_request_i18n(i18n: &I18n, key: &str) -> Self {
+        AppError::Validation(ErrorResponse {
+            code: "bad_request",
+            message: i18n.t(key),
+        })
+    }
+
+    /// Create not found error with i18n
+    pub fn not_found_i18n(i18n: &I18n, key: &str) -> Self {
+        AppError::NotFound(i18n.t(key))
+    }
+
+    /// Create internal error with i18n
+    pub fn internal_i18n(i18n: &I18n, key: &str) -> Self {
+        AppError::InternalServerError(i18n.t(key))
     }
 }

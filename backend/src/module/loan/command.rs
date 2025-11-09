@@ -7,6 +7,7 @@ use crate::module::loan::model::LoanTransaction;
 use crate::module::loan::calculator::{settlement_quote_as_of, calculate_interest_fields, calculate_interest_fields_as_of};
 use crate::module::loan::query;
 use crate::core::error::{AppError, ErrorResponse};
+use crate::core::i18n::I18n;
 use crate::module::loan::dto::CreateCollateralDto;
 
 // epoch seconds -> DateTime<Utc>
@@ -20,11 +21,10 @@ pub async fn create_contract(
     tenant_id: Uuid,
     input: CreateContractInput,
 ) -> Result<LoanContract, AppError> {
+    // Defense in depth: validate again (validation should be done in handler, but this is extra safety)
+    let i18n = I18n::default(); // Use default language in command layer
     if input.transactions.is_empty() {
-        return Err(AppError::Validation(ErrorResponse {
-            code: "transactions_empty",
-            message: "Phải có ít nhất 1 giao dịch".into(),
-        }));
+        return Err(AppError::bad_request_i18n(&i18n, "error.loan.transactions_empty"));
     }
 
     let mut tx = pool.begin().await?;
@@ -213,11 +213,10 @@ pub async fn update_contract(
     contract_id: Uuid,
     input: CreateContractInput,
 ) -> Result<LoanContract, AppError> {
+    // Defense in depth: validate again (validation should be done in handler, but this is extra safety)
+    let i18n = I18n::default(); // Use default language in command layer
     if input.transactions.is_empty() {
-        return Err(AppError::Validation(ErrorResponse {
-            code: "transactions_empty",
-            message: "Phải có ít nhất 1 giao dịch".into(),
-        }));
+        return Err(AppError::bad_request_i18n(&i18n, "error.loan.transactions_empty"));
     }
 
     let mut tx = pool.begin().await?;

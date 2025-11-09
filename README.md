@@ -680,3 +680,62 @@ pub fn health_routes() -> Router<Arc<AppState>> {
 pub async fn check_database_health(pool: &PgPool) -> ServiceHealth;
 pub async fn check_redis_health() -> ServiceHealth;
 ```
+
+---
+
+## 🌐 Hệ thống i18n (Đa ngôn ngữ)
+
+### Tổng quan
+
+Milan Finance hỗ trợ đa ngôn ngữ cho backend và frontend, cho phép hệ thống hoạt động với nhiều ngôn ngữ khác nhau.
+
+### Ngôn ngữ được hỗ trợ
+
+- **vi** (Tiếng Việt) - Ngôn ngữ mặc định
+- **en** (English) - Ngôn ngữ fallback
+- **zh-cn** (中文) - Tiếng Trung
+- **es** (Español) - Tiếng Tây Ban Nha
+- **ar** (العربية) - Tiếng Ả Rập
+
+### Cấu trúc
+
+```
+backend/
+├── src/core/i18n.rs              # Core i18n module
+├── src/core/i18n_middleware.rs   # Middleware để detect language
+├── src/api/i18n.rs               # API endpoints
+└── locales/
+    ├── vi/translations.json
+    ├── en/translations.json
+    ├── zh-cn/translations.json
+    ├── es/translations.json
+    └── ar/translations.json
+```
+
+### Sử dụng trong Backend
+
+```rust
+use crate::core::i18n::I18n;
+use crate::core::error::AppError;
+
+// Tạo I18n từ request headers
+let i18n = I18n::from_headers(&headers);
+
+// Sử dụng i18n để tạo error messages
+return Err(AppError::not_found_i18n(&i18n, "error.user.not_found"));
+```
+
+### API Endpoints
+
+- `GET /i18n/translations?lang=vi` - Lấy translations cho một ngôn ngữ
+- `GET /i18n/languages` - Lấy danh sách ngôn ngữ được hỗ trợ
+
+### Language Detection
+
+Hệ thống tự động detect ngôn ngữ từ:
+1. Query parameter: `?lang=vi`
+2. Header `X-Language`: `X-Language: vi`
+3. Header `Accept-Language`: `Accept-Language: vi,en;q=0.9`
+4. Default: `vi` (Tiếng Việt)
+
+Xem thêm chi tiết trong [I18N_GUIDE.md](backend/I18N_GUIDE.md)

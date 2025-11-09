@@ -258,3 +258,37 @@
 2025-11-08T16:21:38.872908Z DEBUG sqlx::query: summary="SELECT am.id, am.tenant_id, am.name, …" db.statement="\n\nSELECT\n  am.id,\n  am.tenant_id,\n  am.name,\n  am.ref as ref_field,\n  am.date,\n  am.journal_id,\n  am.currency_id,\n  am.move_type,\n  am.state,\n  am.partner_id,\n  am.invoice_partner_display_name as partner_display_name,\n  am.commercial_partner_id,\n  am.invoice_date,\n  am.invoice_date_due,\n  am.invoice_origin,\n  am.invoice_payment_term_id,\n  am.invoice_user_id,\n  am.fiscal_position_id,\n  am.payment_state,\n  am.payment_reference,\n  COALESCE(am.amount_untaxed, 0) :: numeric as amount_untaxed,\n  COALESCE(am.amount_tax, 0) :: numeric as amount_tax,\n  COALESCE(am.amount_total, 0) :: numeric as amount_total,\n  COALESCE(am.amount_residual, 0) :: numeric as amount_residual,\n  am.narration,\n  am.created_at,\n  am.updated_at,\n  am.created_by,\n  am.assignee_id\nFROM\n  account_move am\nWHERE\n  am.tenant_id = $1\nORDER BY\n  am.date DESC,\n  am.created_at DESC\nLIMIT\n  $2 OFFSET $3\n" rows_affected=5 rows_returned=5 elapsed=23.971048ms elapsed_secs=0.023971048
 2025-11-08T16:21:38.874699Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
 2025-11-08T16:21:39.086320Z DEBUG sqlx::query: summary="SELECT am.id, am.tenant_id, am.name, …" db.statement="\n\nSELECT\n  am.id,\n  am.tenant_id,\n  am.name,\n  am.ref as ref_field,\n  am.date,\n  am.journal_id,\n  am.currency_id,\n  am.move_type,\n  am.state,\n  am.partner_id,\n  am.invoice_partner_display_name as partner_display_name,\n  am.commercial_partner_id,\n  am.invoice_date,\n  am.invoice_date_due,\n  am.invoice_origin,\n  am.invoice_payment_term_id,\n  am.invoice_user_id,\n  am.fiscal_position_id,\n  am.payment_state,\n  am.payment_reference,\n  COALESCE(am.amount_untaxed, 0) :: numeric as amount_untaxed,\n  COALESCE(am.amount_tax, 0) :: numeric as amount_tax,\n  COALESCE(am.amount_total, 0) :: numeric as amount_total,\n  COALESCE(am.amount_residual, 0) :: numeric as amount_residual,\n  am.narration,\n  am.created_at,\n  am.updated_at,\n  am.created_by,\n  am.assignee_id\nFROM\n  account_move am\nWHERE\n  am.tenant_id = $1\nORDER BY\n  am.date DESC,\n  am.created_at DESC\nLIMIT\n  $2 OFFSET $3\n" rows_affected=5 rows_returned=5 elapsed=204.902651ms elapsed_secs=0.204902651
+2025-11-08T17:22:51.819068Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
+2025-11-08T17:22:51.867776Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
+2025-11-08T17:22:56.866939Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
+2025-11-08T17:22:56.883531Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
+2025-11-08T17:23:04.383555Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
+2025-11-08T17:23:39.470869Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
+2025-11-08T17:42:30.424513Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-08T17:42:30.428322Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-08T17:42:32.170876Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-08T17:42:32.189535Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-08T17:42:33.874860Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-08T17:42:33.892731Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-08T17:42:36.312120Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-08T17:42:36.331634Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-08T17:42:44.912392Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-08T17:42:44.929842Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-08T17:42:48.838320Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-08T17:42:48.851123Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-08T17:42:48.851119Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-08T17:42:48.851125Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-08T17:42:48.851228Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-08T17:42:48.852964Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-08T17:42:48.857429Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-08T17:42:48.857429Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-08T17:42:48.867094Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-08T17:42:48.878948Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-08T17:42:48.878948Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-08T17:42:48.878948Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-08T17:42:48.878948Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-08T17:42:48.879263Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-08T17:42:48.883238Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-08T17:42:48.883238Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-08T17:49:26.501986Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
+2025-11-08T17:49:26.517626Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist

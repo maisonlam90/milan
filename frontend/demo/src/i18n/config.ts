@@ -8,8 +8,29 @@ import { type LocaleCode, supportedLanguages } from "./langs";
 
 // ----------------------------------------------------------------------
 
-export const defaultLang: LocaleCode = "en";
+export const defaultLang: LocaleCode = "vi";
 export const fallbackLang: LocaleCode = "en";
+
+// Check URL parameter first, then localStorage, then default
+const getInitialLanguage = (): LocaleCode => {
+  // Check URL parameter ?lang=vi
+  if (typeof window !== "undefined") {
+    const urlParams = new URLSearchParams(window.location.search);
+    const langParam = urlParams.get("lang") as LocaleCode;
+    if (langParam && supportedLanguages.includes(langParam)) {
+      localStorage.setItem("i18nextLng", langParam);
+      return langParam;
+    }
+    
+    // Check localStorage
+    const storedLang = localStorage.getItem("i18nextLng") as LocaleCode;
+    if (storedLang && supportedLanguages.includes(storedLang)) {
+      return storedLang;
+    }
+  }
+  
+  return defaultLang;
+};
 
 i18n
   .use(LanguageDetector)
@@ -21,7 +42,7 @@ i18n
       lookupSessionStorage: "i18nextLng",
     },
     fallbackLng: fallbackLang,
-    lng: localStorage.getItem("i18nextLng") || defaultLang,
+    lng: getInitialLanguage(),
     supportedLngs: supportedLanguages,
     ns: ["translations"],
     defaultNS: "translations",

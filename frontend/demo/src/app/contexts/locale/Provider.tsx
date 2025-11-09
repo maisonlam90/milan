@@ -9,10 +9,26 @@ import { LocaleContext } from "./context";
 
 // ----------------------------------------------------------------------
 
-// Set the initial language from i18n or fallback to the default theme language
-const initialLang: LocaleCode =
-  ((typeof localStorage !== "undefined" &&
-    localStorage.getItem("i18nextLng")) as LocaleCode) || defaultLang;
+// Set the initial language from URL param, then localStorage, then default
+const getInitialLang = (): LocaleCode => {
+  if (typeof window !== "undefined") {
+    // Check URL parameter first
+    const urlParams = new URLSearchParams(window.location.search);
+    const langParam = urlParams.get("lang") as LocaleCode;
+    if (langParam && Object.keys(locales).includes(langParam)) {
+      return langParam;
+    }
+    
+    // Check localStorage
+    const stored = localStorage.getItem("i18nextLng") as LocaleCode;
+    if (stored && Object.keys(locales).includes(stored)) {
+      return stored;
+    }
+  }
+  return defaultLang;
+};
+
+const initialLang: LocaleCode = getInitialLang();
 
 const initialDir = i18n.dir(initialLang);
 
@@ -30,11 +46,19 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
         const i18nResources = await locales[newLocale].i18n();
         i18n.addResourceBundle(newLocale, "translations", i18nResources);
       }
-      i18n.changeLanguage(newLocale);
+      // Update i18n language and save to localStorage
+      await i18n.changeLanguage(newLocale);
+      localStorage.setItem("i18nextLng", newLocale);
       setLocale(newLocale);
+      
+      // Update URL if needed (optional - add ?lang=vi to URL)
+      const url = new URL(window.location.href);
+      url.searchParams.set("lang", newLocale);
+      window.history.replaceState({}, "", url);
     } catch (error) {
       console.error("Failed to update locale:", error);
-      i18n.changeLanguage(newLocale);
+      await i18n.changeLanguage(newLocale);
+      localStorage.setItem("i18nextLng", newLocale);
       setLocale(newLocale);
     }
   }, []);

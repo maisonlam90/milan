@@ -1,6 +1,6 @@
 use axum::{
     extract::{Path, State},
-    http::StatusCode,
+    http::{StatusCode, HeaderMap},
     Json,
 };
 use std::sync::Arc;
@@ -9,8 +9,9 @@ use uuid::Uuid;
 use tracing::error;
 
 use crate::core::auth::AuthUser;
-use crate::core::error::{AppError, ErrorResponse};
+use crate::core::error::AppError;
 use crate::core::state::AppState;
+use crate::core::i18n::I18n;
 
 use crate::module::loan::{
     calculator,
@@ -26,15 +27,15 @@ pub async fn get_metadata() -> Result<Json<serde_json::Value>, StatusCode> {
 
 pub async fn create_contract(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
     auth: AuthUser,
     Json(mut input): Json<CreateContractInput>,
 ) -> Result<Json<serde_json::Value>, AppError> {
     // ✅ validate sớm
+    let i18n = I18n::from_headers(&headers);
+    tracing::info!("🌐 Handler language: {}, message: {}", i18n.language(), i18n.t("error.loan.transactions_empty"));
     if input.transactions.is_empty() {
-        return Err(AppError::Validation(ErrorResponse {
-            code: "transactions_empty",
-            message: "Phải có ít nhất 1 giao dịch".into(),
-        }));
+        return Err(AppError::bad_request_i18n(&i18n, "error.loan.transactions_empty"));
     }
 
     let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
@@ -114,16 +115,15 @@ pub async fn get_contract_by_id(
 
 pub async fn update_contract(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
     auth: AuthUser,
     Path(contract_id): Path<Uuid>,
     Json(input): Json<CreateContractInput>,
 ) -> Result<Json<serde_json::Value>, AppError> {
     // ✅ validate policy
+    let i18n = I18n::from_headers(&headers);
     if input.transactions.is_empty() {
-        return Err(AppError::Validation(ErrorResponse {
-            code: "transactions_empty",
-            message: "Phải có ít nhất 1 giao dịch".into(),
-        }));
+        return Err(AppError::bad_request_i18n(&i18n, "error.loan.transactions_empty"));
     }
 
     let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
