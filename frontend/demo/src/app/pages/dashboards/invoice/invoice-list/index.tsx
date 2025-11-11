@@ -93,16 +93,14 @@ function PaymentStateBadgeRenderer(params: ICellRendererParams<Invoice>) {
   );
 }
 
-// Amount Formatter
-function amountFormatter(params: ValueFormatterParams<Invoice>) {
-  const value = params.value;
-  if (value == null) return "";
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(Number(value));
+// Amount Formatter - format như loan-list
+const formatAmount = (v?: number | null) => {
+  if (v == null || v === undefined) return "";
+  return new Intl.NumberFormat("vi-VN").format(Number(v));
+};
+
+function AmountCell(params: ICellRendererParams<Invoice, number>) {
+  return <span>{formatAmount(params.value ?? null)}</span>;
 }
 
 // Move Type Formatter
@@ -135,14 +133,7 @@ export default function InvoiceListPage() {
       headerName: "Number",
       minWidth: 150,
       flex: 1,
-      cellRenderer: (params: ICellRendererParams<Invoice>) => {
-        const name = params.value || "-";
-        return (
-          <span className="font-medium text-primary-600 dark:text-primary-400 cursor-pointer hover:underline">
-            {name}
-          </span>
-        );
-      },
+      valueGetter: (params) => params.data?.name || "-",
     },
     {
       field: "partner_display_name",
@@ -223,8 +214,7 @@ export default function InvoiceListPage() {
       field: "amount_total",
       headerName: "Total",
       minWidth: 120,
-      type: "numericColumn",
-      valueFormatter: amountFormatter,
+      cellRenderer: AmountCell,
       cellStyle: { textAlign: "right" },
       headerClass: "ag-right-aligned-header",
       comparator: (valueA, valueB) => {
@@ -235,8 +225,7 @@ export default function InvoiceListPage() {
       field: "amount_residual",
       headerName: "Amount Due",
       minWidth: 120,
-      type: "numericColumn",
-      valueFormatter: amountFormatter,
+      cellRenderer: AmountCell,
       cellStyle: { textAlign: "right" },
       headerClass: "ag-right-aligned-header",
       comparator: (valueA, valueB) => {
@@ -271,13 +260,12 @@ export default function InvoiceListPage() {
 
   const fetchUrl = joinUrl(JWT_HOST_API, "/invoice/list");
 
-  const handleRowDoubleClick = (e: RowDoubleClickedEvent<Invoice>) => {
+  const handleRowDoubleClick = useCallback((e: RowDoubleClickedEvent<Invoice>) => {
     const id = e.data?.id;
     if (id) {
-      // Navigate to invoice detail/edit page
-      navigate(`/dashboards/invoice/invoice-edit/${id}`);
+      navigate(`/dashboards/invoice/invoice-create?id=${id}`);
     }
-  };
+  }, [navigate]);
 
   const handleCreateInvoice = () => {
     navigate("/dashboards/invoice/invoice-create");

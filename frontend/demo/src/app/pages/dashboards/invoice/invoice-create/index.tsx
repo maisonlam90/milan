@@ -1,6 +1,6 @@
 // Import Dependencies
-import { useState, useMemo } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -9,7 +9,7 @@ import dayjs from "dayjs";
 
 // Local Imports
 import { Page } from "@/components/shared/Page";
-import { Input, Button, Textarea, Card } from "@/components/ui";
+import { Input, Button, Textarea, Card, Select } from "@/components/ui";
 import { DatePicker } from "@/components/shared/form/Datepicker";
 import {
   Table,
@@ -19,7 +19,6 @@ import {
   Tr,
   Td,
 } from "@/components/ui";
-import { ChevronDownIcon } from "@heroicons/react/20/solid";
 
 // ----------------------------------------------------------------------
 
@@ -32,6 +31,7 @@ interface InvoiceLine {
   quantity?: number;
   price_unit?: number;
   discount?: number;
+  tax_rate?: number; // Thuế suất (%)
   tax_ids?: string[];
   amount?: number;
   display_type?: "line_section" | "line_note" | null;
@@ -44,6 +44,40 @@ interface InvoiceFormData {
   invoice_payment_term_id?: string;
   narration?: string;
   invoice_lines: InvoiceLine[];
+}
+
+interface ContactLite {
+  id: string;
+  display_name?: string | null;
+  name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  [k: string]: unknown;
+}
+
+interface InvoiceDto {
+  id: string;
+  partner_id?: string | null;
+  invoice_date?: string | null;
+  invoice_date_due?: string | null;
+  invoice_payment_term_id?: string | null;
+  narration?: string | null;
+  state?: string;
+  invoice_lines?: InvoiceLineDto[];
+  [k: string]: unknown;
+}
+
+interface InvoiceLineDto {
+  id?: string;
+  product_id?: string | null;
+  product_name?: string | null;
+  name?: string | null;
+  quantity?: number | string | null;
+  price_unit?: number | string | null;
+  discount?: number | string | null;
+  tax_ids?: string[] | null;
+  display_type?: string | null;
+  [k: string]: unknown;
 }
 
 // Validation Schema
@@ -60,6 +94,7 @@ const schema = yup.object({
       quantity: yup.number().min(0).optional(),
       price_unit: yup.number().min(0).optional(),
       discount: yup.number().min(0).max(100).optional(),
+      tax_rate: yup.number().min(0).max(100).optional(),
       amount: yup.number().optional(),
       display_type: yup.string().optional(),
     })
@@ -76,6 +111,8 @@ export default function InvoiceCreate() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState<boolean>(!invoiceId);
+  const [contacts, setContacts] = useState<ContactLite[]>([]);
+  const [isLoadingInvoice, setIsLoadingInvoice] = useState<boolean>(!!invoiceId);
 
   const {
     register,
@@ -93,12 +130,133 @@ export default function InvoiceCreate() {
     },
   });
 
-  const { fields, append, remove, update } = useFieldArray({
+  const { fields, append, remove, update, replace } = useFieldArray({
     control,
     name: "invoice_lines",
   });
 
   const invoiceLines = watch("invoice_lines");
+
+  // Fetch contacts
+  const fetchContacts = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      const authHeader = token ? { Authorization: `Bearer ${token}` } : undefined;
+      const res = await axiosInstance.get<ContactLite[]>("/contact/list", {
+        headers: authHeader,
+      });
+      setContacts(res.data || []);
+    } catch (err) {
+      console.error("❌ Lỗi load contacts:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchContacts();
+  }, [fetchContacts]);
+
+  // Fetch invoice data when invoiceId exists
+  const fetchInvoice = useCallback(async () => {
+    if (!invoiceId) return;
+    
+    try {
+      setIsLoadingInvoice(true);
+      const token = localStorage.getItem("authToken");
+      const authHeader = token ? { Authorization: `Bearer ${token}` } : undefined;
+      const res = await axiosInstance.get<InvoiceDto>(`/invoice/${invoiceId}`, {
+        headers: authHeader,
+      });
+      
+      const invoice = res.data;
+      
+      // Set status from invoice state
+      if (invoice.state) {
+        if (invoice.state === "posted") {
+          setStatus("posted");
+        } else {
+          setStatus("draft");
+        }
+      }
+      
+      // Load invoice data into form
+      if (invoice.partner_id) {
+        setValue("partner_id", invoice.partner_id);
+      }
+      if (invoice.invoice_date) {
+        setValue("invoice_date", invoice.invoice_date);
+      }
+      if (invoice.invoice_date_due) {
+        setValue("invoice_date_due", invoice.invoice_date_due);
+      }
+      if (invoice.invoice_payment_term_id) {
+        setValue("invoice_payment_term_id", invoice.invoice_payment_term_id);
+      }
+      if (invoice.narration) {
+        setValue("narration", invoice.narration);
+      }
+      
+      // Load invoice lines
+      if (invoice.invoice_lines && invoice.invoice_lines.length > 0) {
+        const lines: InvoiceLine[] = invoice.invoice_lines.map((line) => {
+          const displayType = line.display_type === "line_section" || line.display_type === "line_note" 
+            ? line.display_type as "line_section" | "line_note"
+            : null;
+          
+          // Calculate tax_rate from tax data if available, otherwise default to 0
+          // TODO: Calculate actual tax_rate from tax_ids if tax data is available
+          const taxRate = 0; // Default, can be calculated from tax data later
+          
+          return {
+            id: line.id,
+            product_id: line.product_id || undefined,
+            product_name: line.product_name || undefined,
+            name: line.name || undefined,
+            quantity: typeof line.quantity === "string" ? parseFloat(line.quantity) : (line.quantity || 0),
+            price_unit: typeof line.price_unit === "string" ? parseFloat(line.price_unit) : (line.price_unit || 0),
+            discount: typeof line.discount === "string" ? parseFloat(line.discount) : (line.discount || 0),
+            tax_rate: taxRate,
+            tax_ids: line.tax_ids || [],
+            display_type: displayType,
+            amount: 0, // Will be calculated
+          };
+        });
+        
+        // Calculate amounts for each line
+        lines.forEach((line) => {
+          if (!line.display_type) {
+            const qty = line.quantity || 0;
+            const price = line.price_unit || 0;
+            const discount = line.discount || 0;
+            const taxRate = line.tax_rate || 0;
+            const subtotal = qty * price * (1 - discount / 100);
+            const taxAmount = subtotal * (taxRate / 100);
+            line.amount = subtotal + taxAmount;
+          }
+        });
+        
+        replace(lines);
+      }
+    } catch (err) {
+      console.error("❌ Lỗi load invoice:", err);
+      setError("Không thể tải dữ liệu hóa đơn");
+    } finally {
+      setIsLoadingInvoice(false);
+    }
+  }, [invoiceId, setValue, replace]);
+
+  useEffect(() => {
+    fetchInvoice();
+  }, [fetchInvoice]);
+
+  // Map contacts to select options
+  const contactOptions = useMemo(() => {
+    const options = contacts.map((contact) => ({
+      value: contact.id,
+      label: contact.display_name || contact.name || contact.email || contact.phone || contact.id,
+    }));
+    // Add empty option at the beginning
+    return [{ value: "", label: "-- Chọn khách hàng --" }, ...options];
+  }, [contacts]);
 
   // Calculate totals
   const totals = useMemo(() => {
@@ -112,10 +270,11 @@ export default function InvoiceCreate() {
       const qty = line.quantity || 0;
       const price = line.price_unit || 0;
       const discount = line.discount || 0;
+      const taxRate = line.tax_rate || 0;
       const subtotal = qty * price * (1 - discount / 100);
       untaxed += subtotal;
-      // TODO: Calculate tax based on tax_ids
-      tax += subtotal * 0.1; // Placeholder 10% tax
+      const taxAmount = subtotal * (taxRate / 100);
+      tax += taxAmount;
     });
 
     total = untaxed + tax;
@@ -130,6 +289,7 @@ export default function InvoiceCreate() {
       quantity: 1,
       price_unit: 0,
       discount: 0,
+      tax_rate: 0,
       amount: 0,
     });
   };
@@ -162,7 +322,10 @@ export default function InvoiceCreate() {
     const qty = line.quantity || 0;
     const price = line.price_unit || 0;
     const discount = line.discount || 0;
-    const amount = qty * price * (1 - discount / 100);
+    const taxRate = line.tax_rate || 0;
+    const subtotal = qty * price * (1 - discount / 100);
+    const taxAmount = subtotal * (taxRate / 100);
+    const amount = subtotal + taxAmount;
     
     update(index, { ...line, amount });
   };
@@ -207,29 +370,63 @@ export default function InvoiceCreate() {
 
       console.log("Invoice payload:", payload);
 
-      // Create invoice
-      const response = await axiosInstance.post("/invoice/create", payload);
-      console.log("Invoice created successfully:", response.data);
+      if (invoiceId) {
+        // Update existing invoice (without invoice_lines - they need to be updated separately)
+        const updatePayload = {
+          partner_id: data.partner_id || null,
+          invoice_date: data.invoice_date,
+          invoice_date_due: data.invoice_date_due,
+          invoice_payment_term_id: data.invoice_payment_term_id || null,
+          narration: data.narration || null,
+          date: data.invoice_date,
+        };
+        await axiosInstance.put(`/invoice/${invoiceId}/update`, updatePayload);
+        console.log("Invoice updated successfully");
+        
+        // TODO: Update invoice lines separately if needed
+        // For now, invoice lines are not updated through this form
 
-      if (!response.data?.id) {
-        throw new Error("Không nhận được ID hóa đơn từ server");
-      }
-
-      // If status is posted, confirm the invoice
-      if (status === "posted") {
-        try {
-          await axiosInstance.post(`/invoice/${response.data.id}/confirm`);
-          console.log("Invoice confirmed successfully");
-        } catch (confirmError: any) {
-          console.error("Error confirming invoice:", confirmError);
-          setError(`Hóa đơn đã được tạo nhưng không thể xác nhận: ${confirmError?.response?.data?.message || confirmError.message}`);
-          setIsSubmitting(false);
-          return;
+        // If status is posted, confirm the invoice
+        if (status === "posted") {
+          try {
+            await axiosInstance.post(`/invoice/${invoiceId}/confirm`);
+            console.log("Invoice confirmed successfully");
+          } catch (confirmError: any) {
+            console.error("Error confirming invoice:", confirmError);
+            setError(`Hóa đơn đã được cập nhật nhưng không thể xác nhận: ${confirmError?.response?.data?.message || confirmError.message}`);
+            setIsSubmitting(false);
+            return;
+          }
         }
-      }
 
-      // Navigate to invoice list
-      navigate("/dashboards/invoice/invoice-list");
+        // Refresh invoice data
+        await fetchInvoice();
+        setIsEditing(false);
+      } else {
+        // Create new invoice
+        const response = await axiosInstance.post("/invoice/create", payload);
+        console.log("Invoice created successfully:", response.data);
+
+        if (!response.data?.id) {
+          throw new Error("Không nhận được ID hóa đơn từ server");
+        }
+
+        // If status is posted, confirm the invoice
+        if (status === "posted") {
+          try {
+            await axiosInstance.post(`/invoice/${response.data.id}/confirm`);
+            console.log("Invoice confirmed successfully");
+          } catch (confirmError: any) {
+            console.error("Error confirming invoice:", confirmError);
+            setError(`Hóa đơn đã được tạo nhưng không thể xác nhận: ${confirmError?.response?.data?.message || confirmError.message}`);
+            setIsSubmitting(false);
+            return;
+          }
+        }
+
+        // Navigate to invoice list
+        navigate("/dashboards/invoice/invoice-list");
+      }
     } catch (error: any) {
       console.error("Error creating invoice:", error);
       const errorMessage = error?.response?.data?.message || error?.response?.data?.error || error?.message || "Có lỗi xảy ra khi tạo hóa đơn";
@@ -266,6 +463,9 @@ export default function InvoiceCreate() {
             <h2 className="line-clamp-1 text-xl font-medium text-gray-700 dark:text-dark-50">
               {invoiceId ? "Chi tiết hóa đơn" : "Tạo hóa đơn mới"}
             </h2>
+            {isLoadingInvoice && (
+              <span className="text-xs text-gray-400">Đang tải dữ liệu...</span>
+            )}
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setStatus("draft")}
@@ -356,13 +556,21 @@ export default function InvoiceCreate() {
                   {/* Customer & Date Fields */}
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
-                      <Input
-                        label="Customer"
-                        placeholder="Search a name or Tax ID..."
-                        {...register("partner_id")}
-                        error={errors.partner_id?.message}
-                        suffix={<ChevronDownIcon className="w-4" />}
-                        disabled={!isEditing}
+                      <Controller
+                        name="partner_id"
+                        control={control}
+                        render={({ field: { value, onChange, onBlur, name } }) => (
+                          <Select
+                            label="Customer"
+                            name={name}
+                            value={value || ""}
+                            onChange={onChange}
+                            onBlur={onBlur}
+                            error={errors.partner_id?.message}
+                            data={contactOptions}
+                            disabled={!isEditing}
+                          />
+                        )}
                       />
                     </div>
                     <div>
@@ -416,16 +624,17 @@ export default function InvoiceCreate() {
                       <Table>
                         <THead>
                           <Tr>
-                            <Th className="bg-gray-50 dark:bg-dark-800">Product</Th>
-                            <Th className="bg-gray-50 dark:bg-dark-800">Quantity</Th>
-                            <Th className="bg-gray-50 dark:bg-dark-800">Price Taxes</Th>
-                            <Th className="bg-gray-50 dark:bg-dark-800">Amount</Th>
+                            <Th className="bg-gray-50 dark:bg-dark-800">Tên sản phẩm</Th>
+                            <Th className="bg-gray-50 dark:bg-dark-800">Số lượng</Th>
+                            <Th className="bg-gray-50 dark:bg-dark-800">Đơn giá</Th>
+                            <Th className="bg-gray-50 dark:bg-dark-800">Thuế (%)</Th>
+                            <Th className="bg-gray-50 dark:bg-dark-800">Thành tiền</Th>
                           </Tr>
                         </THead>
                         <TBody>
                           {fields.length === 0 ? (
                             <Tr>
-                              <Td colSpan={4} className="py-8 text-center text-gray-500">
+                              <Td colSpan={5} className="py-8 text-center text-gray-500">
                                 No invoice lines. Click "Add a line" to add items.
                               </Td>
                             </Tr>
@@ -438,7 +647,7 @@ export default function InvoiceCreate() {
                               if (isSection || isNote) {
                                 return (
                                   <Tr key={field.id}>
-                                    <Td colSpan={4} className="bg-gray-50 dark:bg-dark-800">
+                                    <Td colSpan={5} className="bg-gray-50 dark:bg-dark-800">
                                       <Input
                                         {...register(`invoice_lines.${index}.name`)}
                                         className="border-0 bg-transparent font-semibold"
@@ -455,7 +664,7 @@ export default function InvoiceCreate() {
                                   <Td>
                                     <Input
                                       {...register(`invoice_lines.${index}.name`)}
-                                      placeholder="Product"
+                                      placeholder="Tên sản phẩm"
                                       onBlur={() => updateLineAmount(index)}
                                       disabled={!isEditing}
                                     />
@@ -467,6 +676,7 @@ export default function InvoiceCreate() {
                                       {...register(`invoice_lines.${index}.quantity`, {
                                         valueAsNumber: true,
                                       })}
+                                      placeholder="Số lượng"
                                       onBlur={() => updateLineAmount(index)}
                                       disabled={!isEditing}
                                     />
@@ -478,6 +688,19 @@ export default function InvoiceCreate() {
                                       {...register(`invoice_lines.${index}.price_unit`, {
                                         valueAsNumber: true,
                                       })}
+                                      placeholder="Đơn giá"
+                                      onBlur={() => updateLineAmount(index)}
+                                      disabled={!isEditing}
+                                    />
+                                  </Td>
+                                  <Td>
+                                    <Input
+                                      type="number"
+                                      step="0.01"
+                                      {...register(`invoice_lines.${index}.tax_rate`, {
+                                        valueAsNumber: true,
+                                      })}
+                                      placeholder="Thuế (%)"
                                       onBlur={() => updateLineAmount(index)}
                                       disabled={!isEditing}
                                     />
@@ -492,6 +715,7 @@ export default function InvoiceCreate() {
                                         })}
                                         readOnly
                                         className="flex-1"
+                                        placeholder="Thành tiền"
                                         disabled={!isEditing}
                                       />
                                       {isEditing && (
@@ -577,7 +801,7 @@ export default function InvoiceCreate() {
                       Untaxed Amount:
                     </span>
                     <span className="font-medium text-gray-900 dark:text-dark-50">
-                      $ {totals.untaxed.toFixed(2)}
+                      {new Intl.NumberFormat("vi-VN").format(totals.untaxed)}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
@@ -585,13 +809,13 @@ export default function InvoiceCreate() {
                       Tax:
                     </span>
                     <span className="font-medium text-gray-900 dark:text-dark-50">
-                      $ {totals.tax.toFixed(2)}
+                      {new Intl.NumberFormat("vi-VN").format(totals.tax)}
                     </span>
                   </div>
                   <div className="flex justify-between text-lg font-bold border-t border-gray-200 dark:border-dark-500 pt-2">
                     <span className="text-gray-900 dark:text-dark-50">Total:</span>
                     <span className="text-gray-900 dark:text-dark-50">
-                      $ {totals.total.toFixed(2)}
+                      {new Intl.NumberFormat("vi-VN").format(totals.total)}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
@@ -599,7 +823,7 @@ export default function InvoiceCreate() {
                       Amount Due:
                     </span>
                     <span className="font-medium text-gray-900 dark:text-dark-50">
-                      $ {totals.amountDue.toFixed(2)}
+                      {new Intl.NumberFormat("vi-VN").format(totals.amountDue)}
                     </span>
                   </div>
                 </div>

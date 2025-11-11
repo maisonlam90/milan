@@ -1,9 +1,10 @@
 // src/components/datagrid/AgGridView.tsx
 "use client";
 
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, useRef, type CSSProperties } from "react";
 import { AgGridReact } from "ag-grid-react";
 import type { AgGridReactProps } from "ag-grid-react";
+import type { AgGridReact as AgGridReactType } from "ag-grid-react";
 import {
   ModuleRegistry,
   ClientSideRowModelModule,
@@ -30,6 +31,7 @@ import {
   // ✨ Event types
   type RowClickedEvent,
   type RowDoubleClickedEvent,
+  type CellClickedEvent,
 } from "ag-grid-community";
 
 // ❗️ KHÔNG import CSS ở file này (Next không cho). CSS đã import trong app/layout.tsx.
@@ -153,6 +155,8 @@ export default function AgGridView<T = any>({
   const [loading, setLoading] = useState<boolean>(!!fetchUrl);
   const [activeThemeId, setActiveThemeId] = useState<ThemeId>(theme);
   const [activeSchemeId, setActiveSchemeId] = useState<SchemeId>("darkBlue"); // default Dark Blue
+  const gridRef = useRef<AgGridReactType<T>>(null);
+  const [selectedCell, setSelectedCell] = useState<{ value: any; colId: string } | null>(null);
 
   // Fetch nếu có fetchUrl
   useEffect(() => {
@@ -176,6 +180,30 @@ export default function AgGridView<T = any>({
       cancelled = true;
     };
   }, [fetchUrl, getHeaders]);
+
+  // ✨ Handler để lưu cell được click
+  const handleCellClicked = (event: CellClickedEvent<T>) => {
+    setSelectedCell({
+      value: event.value,
+      colId: event.column.getColId(),
+    });
+  };
+
+  // ✨ Listen Ctrl+C để copy cell đã chọn
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "c" && selectedCell) {
+        e.preventDefault();
+        const textToCopy = selectedCell.value != null ? String(selectedCell.value) : "";
+        navigator.clipboard.writeText(textToCopy).then(() => {
+          console.log("Copied:", textToCopy);
+        });
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedCell]);
 
   // Functional theme + withPart(color scheme) + withParams (nếu có)
   const themed = useMemo(() => {
@@ -258,6 +286,7 @@ export default function AgGridView<T = any>({
         {/* ✅ Bọc className theme để đảm bảo có CSS */}
         <div style={gridStyle} className={`${THEME_CLASS[activeThemeId]} ${className ?? ""}`}>
           <AgGridReact<T>
+            ref={gridRef}
             theme={themed}                       // functional theme (để dùng Color scheme)
             rowData={rowData ?? data}
             loading={loadingOverride ?? (!!fetchUrl && loading)}
@@ -269,8 +298,9 @@ export default function AgGridView<T = any>({
             // ✨ Forward handler & props thường dùng
             onRowClicked={onRowClicked}
             onRowDoubleClicked={onRowDoubleClicked}
+            onCellClicked={handleCellClicked}
             domLayout={domLayout}
-            // ✅ Bật lại copy nội dung & DOM order ổn định
+            // ✅ Bật text selection để có thể select và copy bằng Ctrl+C
             enableCellTextSelection={true}
             ensureDomOrder={true}
             {...gridProps}
