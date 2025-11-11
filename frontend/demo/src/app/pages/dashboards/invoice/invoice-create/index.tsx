@@ -3,12 +3,13 @@ import { useState, useMemo } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import axiosInstance from "@/utils/axios";
 import dayjs from "dayjs";
 
 // Local Imports
-import { Input, Button, Textarea } from "@/components/ui";
+import { Page } from "@/components/shared/Page";
+import { Input, Button, Textarea, Card } from "@/components/ui";
 import { DatePicker } from "@/components/shared/form/Datepicker";
 import {
   Table,
@@ -69,9 +70,12 @@ const schema = yup.object({
 
 export default function InvoiceCreate() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const invoiceId = searchParams.get("id");
   const [status, setStatus] = useState<"draft" | "posted">("draft");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState<boolean>(!invoiceId);
 
   const {
     register,
@@ -249,68 +253,82 @@ export default function InvoiceCreate() {
     handleSubmit(onSubmit)();
   };
 
+  const handleCancel = () => {
+    setIsEditing(false);
+    // TODO: Reload invoice data if editing
+  };
+
   return (
-    <div className="flex h-full flex-col bg-white dark:bg-dark-900">
-      {/* Header */}
-      <div className="border-b border-gray-200 bg-white px-6 py-4 dark:border-dark-500 dark:bg-dark-800">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+    <Page title={invoiceId ? "✏️ Chi tiết hóa đơn" : "Tạo hóa đơn mới"}>
+      <div className="transition-content px-(--margin-x) pb-6">
+        <div className="flex flex-col items-center justify-between space-y-4 py-5 sm:flex-row sm:space-y-0 lg:py-6">
+          <div className="flex items-center gap-2">
+            <h2 className="line-clamp-1 text-xl font-medium text-gray-700 dark:text-dark-50">
+              {invoiceId ? "Chi tiết hóa đơn" : "Tạo hóa đơn mới"}
+            </h2>
             <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                onClick={handleSave}
-                variant="outlined"
-                className="border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-dark-500 dark:text-dark-200"
-                disabled={isSubmitting}
+              <button
+                onClick={() => setStatus("draft")}
+                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                  status === "draft"
+                    ? "bg-primary-500 text-white"
+                    : "bg-gray-100 text-gray-600 dark:bg-dark-600 dark:text-dark-300"
+                }`}
               >
-                {isSubmitting ? "Đang lưu..." : "Lưu"}
-              </Button>
-              <Button
-                type="button"
-                onClick={handleConfirm}
-                className="bg-purple-600 text-white hover:bg-purple-700"
-                disabled={isSubmitting}
+                Draft
+              </button>
+              <button
+                onClick={() => setStatus("posted")}
+                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                  status === "posted"
+                    ? "bg-primary-500 text-white"
+                    : "bg-gray-100 text-gray-600 dark:bg-dark-600 dark:text-dark-300"
+                }`}
               >
-                {isSubmitting ? "Đang xử lý..." : "Confirm"}
-              </Button>
-            </div>
-            <div>
-              <h1 className="text-xl font-semibold text-gray-900 dark:text-dark-50">
-                Customer Invoice
-              </h1>
-              <p className="mt-1 text-sm font-medium text-gray-700 dark:text-dark-200">
-                {status === "draft" ? "Draft" : "Posted"}
-              </p>
+                Posted
+              </button>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setStatus("draft")}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                status === "draft"
-                  ? "bg-purple-600 text-white"
-                  : "bg-gray-100 text-gray-600 dark:bg-dark-600 dark:text-dark-300"
-              }`}
-            >
-              Draft
-            </button>
-            <button
-              onClick={() => setStatus("posted")}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                status === "posted"
-                  ? "bg-purple-600 text-white"
-                  : "bg-gray-100 text-gray-600 dark:bg-dark-600 dark:text-dark-300"
-              }`}
-            >
-              Posted
-            </button>
+          <div className="flex gap-2">
+            {invoiceId && !isEditing && (
+              <Button className="min-w-[7rem]" onClick={() => setIsEditing(true)}>
+                Chỉnh sửa
+              </Button>
+            )}
+            {isEditing && (
+              <>
+                <Button
+                  className="min-w-[7rem]"
+                  variant="outlined"
+                  onClick={handleCancel}
+                  disabled={isSubmitting}
+                >
+                  Hủy
+                </Button>
+                <Button
+                  className="min-w-[7rem]"
+                  color="primary"
+                  type="button"
+                  onClick={handleSave}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Đang lưu..." : "Lưu"}
+                </Button>
+                <Button
+                  className="min-w-[7rem]"
+                  color="primary"
+                  type="button"
+                  onClick={handleConfirm}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Đang xử lý..." : "Xác nhận"}
+                </Button>
+              </>
+            )}
           </div>
         </div>
-      </div>
 
-      {/* Form Content */}
-      <form onSubmit={handleSubmit(onSubmit)} className="flex-1 overflow-auto">
-        <div className="mx-auto max-w-7xl px-6 py-6">
+        <form autoComplete="off" onSubmit={handleSubmit(onSubmit)} id="invoice-form">
           {/* Error Message */}
           {error && (
             <div className="mb-4 rounded-lg border border-red-300 bg-red-50 p-4 text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-400">
@@ -326,270 +344,283 @@ export default function InvoiceCreate() {
               </div>
             </div>
           )}
-          {/* Customer & Date Fields */}
-          <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <div>
-              <Input
-                label="Customer"
-                placeholder="Search a name or Tax ID..."
-                {...register("partner_id")}
-                error={errors.partner_id?.message}
-                suffix={<ChevronDownIcon className="w-4" />}
-              />
-            </div>
-            <div>
-              <DatePicker
-                label="Invoice Date"
-                defaultValue={dayjs().format("YYYY-MM-DD")}
-                onChange={(_selectedDates, dateStr) => {
-                  if (dateStr) {
-                    setValue("invoice_date", dateStr);
-                  }
-                }}
-                error={errors.invoice_date?.message}
-                options={{
-                  defaultDate: dayjs().toDate(),
-                  dateFormat: "Y-m-d",
-                }}
-              />
-            </div>
-            <div>
-              <DatePicker
-                label="Due Date"
-                defaultValue={dayjs().add(30, "day").format("YYYY-MM-DD")}
-                onChange={(_selectedDates, dateStr) => {
-                  if (dateStr) {
-                    setValue("invoice_date_due", dateStr);
-                  }
-                }}
-                error={errors.invoice_date_due?.message}
-                options={{
-                  defaultDate: dayjs().add(30, "day").toDate(),
-                  dateFormat: "Y-m-d",
-                }}
-              />
-            </div>
-            <div>
-              <Input
-                label="Payment Terms"
-                placeholder="or"
-                {...register("invoice_payment_term_id")}
-                error={errors.invoice_payment_term_id?.message}
-              />
-            </div>
-          </div>
 
-          {/* Invoice Lines Tabs */}
-          <div className="mb-4 border-b border-gray-200 dark:border-dark-500">
-            <div className="flex gap-6">
-              <button
-                type="button"
-                className="border-b-2 border-purple-600 px-1 pb-2 text-sm font-medium text-purple-600"
-              >
-                Invoice Lines
-              </button>
-              <button
-                type="button"
-                className="px-1 pb-2 text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-dark-400 dark:hover:text-dark-200"
-              >
-                Other Info
-              </button>
-            </div>
-          </div>
+          <div className="grid grid-cols-12 place-content-start gap-4 sm:gap-5 lg:gap-6">
+            <div className="col-span-12 lg:col-span-8">
+              <Card className="p-4 sm:px-5">
+                <h3 className="text-base font-medium text-gray-800 dark:text-dark-100">
+                  Thông tin hóa đơn
+                </h3>
 
-          {/* Invoice Lines Table */}
-          <div className="mb-6">
-            <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-dark-500">
-              <Table>
-                <THead>
-                  <Tr>
-                    <Th className="bg-gray-50 dark:bg-dark-800">Product</Th>
-                    <Th className="bg-gray-50 dark:bg-dark-800">Quantity</Th>
-                    <Th className="bg-gray-50 dark:bg-dark-800">Price Taxes</Th>
-                    <Th className="bg-gray-50 dark:bg-dark-800">
-                      Amount
-                      <button type="button" className="ml-2">
-                        <svg
-                          className="h-4 w-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"
-                          />
-                        </svg>
-                      </button>
-                    </Th>
-                  </Tr>
-                </THead>
-                <TBody>
-                  {fields.length === 0 ? (
-                    <Tr>
-                      <Td colSpan={4} className="py-8 text-center text-gray-500">
-                        No invoice lines. Click "Add a line" to add items.
-                      </Td>
-                    </Tr>
-                  ) : (
-                    fields.map((field, index) => {
-                      const line = invoiceLines[index];
-                      const isSection = line?.display_type === "line_section";
-                      const isNote = line?.display_type === "line_note";
+                <div className="mt-5 space-y-5">
+                  {/* Customer & Date Fields */}
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div>
+                      <Input
+                        label="Customer"
+                        placeholder="Search a name or Tax ID..."
+                        {...register("partner_id")}
+                        error={errors.partner_id?.message}
+                        suffix={<ChevronDownIcon className="w-4" />}
+                        disabled={!isEditing}
+                      />
+                    </div>
+                    <div>
+                      <DatePicker
+                        label="Invoice Date"
+                        defaultValue={dayjs().format("YYYY-MM-DD")}
+                        onChange={(_selectedDates, dateStr) => {
+                          if (dateStr) {
+                            setValue("invoice_date", dateStr);
+                          }
+                        }}
+                        error={errors.invoice_date?.message}
+                        options={{
+                          defaultDate: dayjs().toDate(),
+                          dateFormat: "Y-m-d",
+                        }}
+                        disabled={!isEditing}
+                      />
+                    </div>
+                    <div>
+                      <DatePicker
+                        label="Due Date"
+                        defaultValue={dayjs().add(30, "day").format("YYYY-MM-DD")}
+                        onChange={(_selectedDates, dateStr) => {
+                          if (dateStr) {
+                            setValue("invoice_date_due", dateStr);
+                          }
+                        }}
+                        error={errors.invoice_date_due?.message}
+                        options={{
+                          defaultDate: dayjs().add(30, "day").toDate(),
+                          dateFormat: "Y-m-d",
+                        }}
+                        disabled={!isEditing}
+                      />
+                    </div>
+                    <div>
+                      <Input
+                        label="Payment Terms"
+                        placeholder="or"
+                        {...register("invoice_payment_term_id")}
+                        error={errors.invoice_payment_term_id?.message}
+                        disabled={!isEditing}
+                      />
+                    </div>
+                  </div>
 
-                      if (isSection || isNote) {
-                        return (
-                          <Tr key={field.id}>
-                            <Td colSpan={4} className="bg-gray-50 dark:bg-dark-800">
-                              <Input
-                                {...register(`invoice_lines.${index}.name`)}
-                                className="border-0 bg-transparent font-semibold"
-                                onBlur={() => updateLineAmount(index)}
-                              />
-                            </Td>
+                  {/* Invoice Lines Table */}
+                  <div>
+                    <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-dark-500">
+                      <Table>
+                        <THead>
+                          <Tr>
+                            <Th className="bg-gray-50 dark:bg-dark-800">Product</Th>
+                            <Th className="bg-gray-50 dark:bg-dark-800">Quantity</Th>
+                            <Th className="bg-gray-50 dark:bg-dark-800">Price Taxes</Th>
+                            <Th className="bg-gray-50 dark:bg-dark-800">Amount</Th>
                           </Tr>
-                        );
-                      }
+                        </THead>
+                        <TBody>
+                          {fields.length === 0 ? (
+                            <Tr>
+                              <Td colSpan={4} className="py-8 text-center text-gray-500">
+                                No invoice lines. Click "Add a line" to add items.
+                              </Td>
+                            </Tr>
+                          ) : (
+                            fields.map((field, index) => {
+                              const line = invoiceLines[index];
+                              const isSection = line?.display_type === "line_section";
+                              const isNote = line?.display_type === "line_note";
 
-                      return (
-                        <Tr key={field.id}>
-                          <Td>
-                            <Input
-                              {...register(`invoice_lines.${index}.name`)}
-                              placeholder="Product"
-                              onBlur={() => updateLineAmount(index)}
-                            />
-                          </Td>
-                          <Td>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              {...register(`invoice_lines.${index}.quantity`, {
-                                valueAsNumber: true,
-                              })}
-                              onBlur={() => updateLineAmount(index)}
-                            />
-                          </Td>
-                          <Td>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              {...register(`invoice_lines.${index}.price_unit`, {
-                                valueAsNumber: true,
-                              })}
-                              onBlur={() => updateLineAmount(index)}
-                            />
-                          </Td>
-                          <Td>
-                            <div className="flex items-center gap-2">
-                              <Input
-                                type="number"
-                                step="0.01"
-                                {...register(`invoice_lines.${index}.amount`, {
-                                  valueAsNumber: true,
-                                })}
-                                readOnly
-                                className="flex-1"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => remove(index)}
-                                className="text-red-600 hover:text-red-700"
-                              >
-                                ×
-                              </button>
-                            </div>
-                          </Td>
-                        </Tr>
-                      );
-                    })
-                  )}
-                </TBody>
-              </Table>
+                              if (isSection || isNote) {
+                                return (
+                                  <Tr key={field.id}>
+                                    <Td colSpan={4} className="bg-gray-50 dark:bg-dark-800">
+                                      <Input
+                                        {...register(`invoice_lines.${index}.name`)}
+                                        className="border-0 bg-transparent font-semibold"
+                                        onBlur={() => updateLineAmount(index)}
+                                        disabled={!isEditing}
+                                      />
+                                    </Td>
+                                  </Tr>
+                                );
+                              }
+
+                              return (
+                                <Tr key={field.id}>
+                                  <Td>
+                                    <Input
+                                      {...register(`invoice_lines.${index}.name`)}
+                                      placeholder="Product"
+                                      onBlur={() => updateLineAmount(index)}
+                                      disabled={!isEditing}
+                                    />
+                                  </Td>
+                                  <Td>
+                                    <Input
+                                      type="number"
+                                      step="0.01"
+                                      {...register(`invoice_lines.${index}.quantity`, {
+                                        valueAsNumber: true,
+                                      })}
+                                      onBlur={() => updateLineAmount(index)}
+                                      disabled={!isEditing}
+                                    />
+                                  </Td>
+                                  <Td>
+                                    <Input
+                                      type="number"
+                                      step="0.01"
+                                      {...register(`invoice_lines.${index}.price_unit`, {
+                                        valueAsNumber: true,
+                                      })}
+                                      onBlur={() => updateLineAmount(index)}
+                                      disabled={!isEditing}
+                                    />
+                                  </Td>
+                                  <Td>
+                                    <div className="flex items-center gap-2">
+                                      <Input
+                                        type="number"
+                                        step="0.01"
+                                        {...register(`invoice_lines.${index}.amount`, {
+                                          valueAsNumber: true,
+                                        })}
+                                        readOnly
+                                        className="flex-1"
+                                        disabled={!isEditing}
+                                      />
+                                      {isEditing && (
+                                        <button
+                                          type="button"
+                                          onClick={() => remove(index)}
+                                          className="text-red-600 hover:text-red-700"
+                                        >
+                                          ×
+                                        </button>
+                                      )}
+                                    </div>
+                                  </Td>
+                                </Tr>
+                              );
+                            })
+                          )}
+                        </TBody>
+                      </Table>
+                    </div>
+
+                    {/* Actions */}
+                    {isEditing && (
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant="flat"
+                          onClick={handleAddLine}
+                          className="text-sm"
+                        >
+                          Add a line
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="flat"
+                          onClick={handleAddSection}
+                          className="text-sm"
+                        >
+                          Add a section
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="flat"
+                          onClick={handleAddNote}
+                          className="text-sm"
+                        >
+                          Add a note
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="flat"
+                          className="text-sm"
+                        >
+                          Catalog
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* Terms and Conditions */}
+                    <div>
+                      <Textarea
+                        label="Terms and Conditions"
+                        rows={4}
+                        {...register("narration")}
+                        error={errors.narration?.message}
+                        placeholder="Terms and Conditions"
+                        disabled={!isEditing}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </Card>
             </div>
 
-            {/* Actions */}
-            <div className="mt-2 flex gap-2">
-              <Button
-                type="button"
-                variant="flat"
-                onClick={handleAddLine}
-                className="text-sm"
-              >
-                Add a line
-              </Button>
-              <Button
-                type="button"
-                variant="flat"
-                onClick={handleAddSection}
-                className="text-sm"
-              >
-                Add a section
-              </Button>
-              <Button
-                type="button"
-                variant="flat"
-                onClick={handleAddNote}
-                className="text-sm"
-              >
-                Add a note
-              </Button>
-              <Button
-                type="button"
-                variant="flat"
-                className="text-sm"
-              >
-                Catalog
-              </Button>
+            <div className="col-span-12 lg:col-span-4 space-y-4 sm:space-y-5 lg:space-y-6">
+              <Card className="p-4 sm:px-5">
+                <h6 className="text-base font-medium text-gray-800 dark:text-dark-100">
+                  Tổng kết
+                </h6>
+                <div className="mt-3 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600 dark:text-dark-300">
+                      Untaxed Amount:
+                    </span>
+                    <span className="font-medium text-gray-900 dark:text-dark-50">
+                      $ {totals.untaxed.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600 dark:text-dark-300">
+                      Tax:
+                    </span>
+                    <span className="font-medium text-gray-900 dark:text-dark-50">
+                      $ {totals.tax.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-lg font-bold border-t border-gray-200 dark:border-dark-500 pt-2">
+                    <span className="text-gray-900 dark:text-dark-50">Total:</span>
+                    <span className="text-gray-900 dark:text-dark-50">
+                      $ {totals.total.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600 dark:text-dark-300">
+                      Amount Due:
+                    </span>
+                    <span className="font-medium text-gray-900 dark:text-dark-50">
+                      $ {totals.amountDue.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-4 sm:px-5">
+                <h6 className="text-base font-medium text-gray-800 dark:text-dark-100">
+                  Thông tin khác
+                </h6>
+                <div className="mt-3 text-sm text-gray-600 dark:text-dark-50 space-y-2">
+                  <div>
+                    <span className="opacity-70">Trạng thái:&nbsp;</span>
+                    {status === "draft" ? "Draft" : "Posted"}
+                  </div>
+                </div>
+              </Card>
             </div>
           </div>
-
-          {/* Footer */}
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            {/* Terms and Conditions */}
-            <div>
-              <Textarea
-                label="Terms and Conditions"
-                rows={4}
-                {...register("narration")}
-                error={errors.narration?.message}
-                placeholder="Terms and Conditions"
-              />
-            </div>
-
-            {/* Totals */}
-            <div className="flex flex-col justify-end">
-              <div className="space-y-2 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-dark-500 dark:bg-dark-800">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600 dark:text-dark-300">
-                    Untaxed Amount:
-                  </span>
-                  <span className="font-medium text-gray-900 dark:text-dark-50">
-                    $ {totals.untaxed.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-lg font-bold">
-                  <span className="text-gray-900 dark:text-dark-50">Total:</span>
-                  <span className="text-gray-900 dark:text-dark-50">
-                    $ {totals.total.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600 dark:text-dark-300">
-                    Amount Due:
-                  </span>
-                  <span className="font-medium text-gray-900 dark:text-dark-50">
-                    $ {totals.amountDue.toFixed(2)}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </form>
-    </div>
+        </form>
+      </div>
+    </Page>
   );
 }
 

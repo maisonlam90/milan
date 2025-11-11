@@ -3,8 +3,8 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useForm, type UseFormReturn } from "react-hook-form";
 import { Page } from "@/components/shared/Page";
-import axios, { type AxiosError } from "axios";
-import { JWT_HOST_API } from "@/configs/auth";
+import type { AxiosError } from "axios";
+import axiosInstance from "@/utils/axios";
 import { Card, Button } from "@/components/ui";
 import DynamicForm from "@/components/shared/DynamicForm";
 import Notebook from "@/components/shared/Notebook";
@@ -135,7 +135,8 @@ const normalizeNotebookColumns = (fields?: FormFieldDef[])/*: NotebookColumn[]*/
 
 /* ====================== API ====================== */
 
-const api = axios.create({ baseURL: JWT_HOST_API });
+// Use shared axios instance (includes Accept-Language header)
+const api = axiosInstance;
 
 /** Lấy message lỗi từ BE (AppError -> {code, message}) */
 const extractErrMsg = (err: unknown): string => {
