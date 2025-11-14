@@ -1,14 +1,14 @@
 use axum::{
     extract::{Path, Query, State},
+    http::{HeaderMap, StatusCode},
     response::IntoResponse,
     Json,
 };
-use axum::http::StatusCode;
 use serde_json::json;
 use uuid::Uuid;
 use std::sync::Arc;
 
-use crate::core::{auth::AuthUser, state::AppState, error::AppError};
+use crate::core::{auth::AuthUser, state::AppState, error::AppError, i18n::I18n};
 
 use super::{
     command,
@@ -46,8 +46,9 @@ fn norm_opt_trim(v: &Option<String>) -> Option<String> {
 /// -------------------------
 /// Metadata
 /// -------------------------
-pub async fn get_metadata() -> Result<impl IntoResponse, AppError> {
-    Ok(Json(contact_form_schema()))
+pub async fn get_metadata(headers: HeaderMap) -> Result<impl IntoResponse, AppError> {
+    let i18n = I18n::from_headers(&headers);
+    Ok(Json(contact_form_schema(&i18n)))
 }
 
 /// -------------------------

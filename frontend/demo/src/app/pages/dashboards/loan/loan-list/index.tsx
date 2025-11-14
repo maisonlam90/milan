@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Page } from "@/components/shared/Page";
 import { Button } from "@/components/ui";
 import AgGridView, {
@@ -30,6 +31,7 @@ function CurrencyCell(p: ICellRendererParams<LoanRow, number | null>) {
 
 export default function LoanListPage() {
   const navigate = useNavigate();
+  const { i18n } = useTranslation(); // Get i18n instance to listen to language changes
   const [columnDefs, setColumnDefs] = useState<ColDef<LoanRow>[]>([]);
 
   const rowSelection: RowSelectionOptions = {
@@ -55,8 +57,19 @@ export default function LoanListPage() {
   }, []);
 
   // 🧠 Tạo columnDefs từ metadata API
-  useEffect(() => {
-    fetch(`${JWT_HOST_API}/loan/metadata`)
+  const loadMetadata = useCallback(() => {
+    const getHeaders = (): Record<string, string> => {
+      const headers: Record<string, string> = {};
+      const token = localStorage.getItem("authToken");
+      if (token) headers.Authorization = `Bearer ${token}`;
+      // Add Accept-Language header
+      const urlParams = new URLSearchParams(window.location.search);
+      const langParam = urlParams.get("lang");
+      headers["Accept-Language"] = langParam || i18n.language || "vi";
+      return headers;
+    };
+
+    fetch(`${JWT_HOST_API}/loan/metadata`, { headers: getHeaders() })
       .then((res) => res.json())
       .then((data) => {
         const cols = data?.list?.columns?.map((col: any): ColDef<LoanRow> => {
@@ -88,7 +101,11 @@ export default function LoanListPage() {
       .catch((err) => {
         console.error("❌ Lỗi load metadata:", err);
       });
-  }, []);
+  }, [i18n.language]);
+
+  useEffect(() => {
+    loadMetadata();
+  }, [loadMetadata]);
 
   return (
     <Page title="Danh sách hợp đồng vay">

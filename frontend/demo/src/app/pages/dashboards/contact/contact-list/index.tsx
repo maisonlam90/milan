@@ -1,6 +1,7 @@
 // src/app/pages/dashboards/contact/contact-list/index.tsx
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { Page } from "@/components/shared/Page";
 import { Breadcrumbs } from "@/components/shared/Breadcrumbs";
@@ -29,6 +30,7 @@ const fmtDate = (p: ValueFormatterParams) => {
 
 export default function ContactListPage() {
   const navigate = useNavigate();
+  const { i18n } = useTranslation(); // Get i18n instance to listen to language changes
   const [cols, setCols] = useState<ColDef<ContactRow>[] | null>(null);
 
   const rowSelection: RowSelectionOptions = { mode: "multiRow", headerCheckbox: false };
@@ -40,11 +42,17 @@ export default function ContactListPage() {
   }, []);
 
   // load metadata tối giản
-  useEffect(() => {
+  const loadMetadata = useCallback(() => {
     let stop = false;
     (async () => {
       try {
-        const res = await api.get<ContactMetadata>("/contact/metadata", { headers: getHeaders() });
+        // Add Accept-Language header
+        const headers = getHeaders();
+        const urlParams = new URLSearchParams(window.location.search);
+        const langParam = urlParams.get("lang");
+        headers["Accept-Language"] = langParam || i18n.language || "vi";
+        
+        const res = await api.get<ContactMetadata>("/contact/metadata", { headers });
         const mcols = res.data?.list?.columns ?? [];
         const mapped: ColDef<ContactRow>[] = [
           makeIndexCol(),
@@ -74,7 +82,11 @@ export default function ContactListPage() {
       }
     })();
     return () => { stop = true; };
-  }, [getHeaders]);
+  }, [getHeaders, i18n.language]);
+
+  useEffect(() => {
+    loadMetadata();
+  }, [loadMetadata]);
 
   const handleRowDoubleClick = (e: RowDoubleClickedEvent<ContactRow>) => {
     const id = e.data?.id;

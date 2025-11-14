@@ -21,8 +21,9 @@ use crate::module::loan::{
     query,
 };
 
-pub async fn get_metadata() -> Result<Json<serde_json::Value>, StatusCode> {
-    Ok(Json(loan_form_schema()))
+pub async fn get_metadata(headers: HeaderMap) -> Result<Json<serde_json::Value>, StatusCode> {
+    let i18n = I18n::from_headers(&headers);
+    Ok(Json(loan_form_schema(&i18n)))
 }
 
 pub async fn create_contract(

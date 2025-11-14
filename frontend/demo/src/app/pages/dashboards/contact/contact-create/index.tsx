@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { useSearchParams } from "react-router-dom";
-import axios, { AxiosError } from "axios";
+import { useTranslation } from "react-i18next";
+import { AxiosError } from "axios";
+import axiosInstance from "@/utils/axios";
 
 import { Page } from "@/components/shared/Page";
 import { Card, Button } from "@/components/ui";
@@ -45,7 +47,8 @@ interface AppErrorShape {
   raw: unknown;
 }
 
-const api = axios.create({ baseURL: JWT_HOST_API });
+// Use shared axios instance which includes Accept-Language header interceptor
+const api = axiosInstance;
 
 /* --- Constraint mapping cho validation errors --- */
 const constraintMap: Record<string, { field: string; message: string }> = {
@@ -120,6 +123,7 @@ function toDynamicFields(raw: unknown): DynamicFieldConfig[] {
 
 /* ================== Component ================== */
 const ContactCreatePage: React.FC = () => {
+  const { i18n } = useTranslation(); // Get i18n instance to listen to language changes
   const [metadata, setMetadata] = useState<Metadata | null>(null);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loadingContact, setLoadingContact] = useState<boolean>(false);
@@ -157,13 +161,23 @@ const ContactCreatePage: React.FC = () => {
 
   const fetchMetadata = useCallback(async () => {
     try {
+      // Use axiosInstance which automatically includes Accept-Language header
+      // The interceptor will read from URL parameter or i18n.language
+      const currentLang = typeof window !== "undefined" 
+        ? new URLSearchParams(window.location.search).get("lang") || i18n.language || "vi"
+        : i18n.language || "vi";
+      
+      if (process.env.NODE_ENV === "development") {
+        console.log(`[contact-create] Fetching metadata with language: ${currentLang}`);
+      }
+      
       const res = await api.get<Metadata>("/contact/metadata");
       setMetadata(res.data);
     } catch (err) {
       const e = getAppError(err);
       console.error("❌ Lỗi load metadata:", e.message);
     }
-  }, []);
+  }, [i18n]);
 
   const fetchCompanies = useCallback(async () => {
     try {
@@ -238,6 +252,15 @@ const ContactCreatePage: React.FC = () => {
     fetchMetadata();
     fetchCompanies();
   }, [fetchMetadata, fetchCompanies]);
+
+  // Refetch metadata when language changes
+  useEffect(() => {
+    // Add small delay to ensure i18n.language is fully updated
+    const timer = setTimeout(() => {
+      fetchMetadata();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [i18n.language, fetchMetadata]);
 
   // Chỉ fetch contact khi đã có metadata
   useEffect(() => {

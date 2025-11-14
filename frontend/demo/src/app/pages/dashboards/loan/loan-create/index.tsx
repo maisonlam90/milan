@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useForm, type UseFormReturn } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { Page } from "@/components/shared/Page";
 import type { AxiosError } from "axios";
 import axiosInstance from "@/utils/axios";
@@ -155,6 +156,7 @@ export default function LoanPage() {
   const { state } = location as { state?: { preview?: Partial<LoanFormValues> } };
   const [search] = useSearchParams();
   const urlId = search.get("id");
+  const { i18n } = useTranslation(); // Get i18n instance to listen to language changes
 
   const [metadata, setMetadata] = useState<MetadataDto | null>(null);
   const [customers, setCustomers] = useState<ContactLite[]>([]);
@@ -308,6 +310,11 @@ export default function LoanPage() {
     fetchCustomers();
     fetchLoan();
   }, [fetchMetadata, fetchCustomers, fetchLoan]);
+
+  // Refetch metadata when language changes
+  useEffect(() => {
+    fetchMetadata();
+  }, [i18n.language, fetchMetadata]);
 
   // ✅ Submit
   const onSubmit = async (data: LoanFormValues) => {

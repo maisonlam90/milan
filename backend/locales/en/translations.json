@@ -80,5 +80,80 @@
     "confirm": "Confirm",
     "yes": "Yes",
     "no": "No"
+  },
+  "loan": {
+    "field": {
+      "customer": "Customer",
+      "contractNumber": "Contract Number",
+      "contractId": "Contract ID",
+      "interestRate": "Interest Rate (%)",
+      "dateStart": "Start Date",
+      "dateEnd": "End Date",
+      "termMonths": "Term (months)",
+      "state": "Status",
+      "principal": "Principal (VND)",
+      "assetType": "Asset Type",
+      "estimatedValue": "Estimated Value",
+      "status": "Status",
+      "description": "Description",
+      "accumulatedInterest": "Accumulated Interest"
+    },
+    "collateral": {
+      "ownerContact": "Owner (Contact)",
+      "assetType": {
+        "vehicle": "Vehicle",
+        "realEstate": "Real Estate",
+        "jewelry": "Jewelry",
+        "electronics": "Electronics",
+        "other": "Other"
+      },
+      "status": {
+        "available": "Available",
+        "pledged": "Pledged",
+        "released": "Released",
+        "sold": "Sold"
+      }
+    },
+    "notebook": {
+      "date": "Date",
+      "transactionType": "Transaction Type",
+      "transactionType.disbursement": "Disbursement",
+      "transactionType.additional": "Additional Loan",
+      "transactionType.interest": "Interest Payment",
+      "transactionType.principal": "Principal Payment",
+      "transactionType.liquidation": "Liquidation",
+      "transactionType.settlement": "Settlement",
+      "amount": "Amount",
+      "daysFromPrev": "Days from Previous",
+      "interestForPeriod": "Interest for Period",
+      "principalBalance": "Principal Balance",
+      "note": "Note"
+    }
+  },
+  "contact": {
+    "field": {
+      "isCompany": "Is Company",
+      "belongsToCompany": "Belongs to Company",
+      "name": "Name",
+      "displayName": "Display Name",
+      "nationalId": "National ID",
+      "email": "Email",
+      "phone": "Phone",
+      "mobile": "Mobile",
+      "website": "Website",
+      "street": "Address",
+      "street2": "Address 2",
+      "city": "City",
+      "state": "State/Province",
+      "zip": "Postal Code",
+      "countryCode": "Country Code (e.g. VN)",
+      "tags": "Tags",
+      "notes": "Notes",
+      "company": "Company",
+      "address": "Address"
+    },
+    "list": {
+      "searchPlaceholder": "Search by name/email/phone"
+    }
   }
 }

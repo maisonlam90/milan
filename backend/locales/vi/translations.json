@@ -80,5 +80,80 @@
     "confirm": "Xác nhận",
     "yes": "Có",
     "no": "Không"
+  },
+  "loan": {
+    "field": {
+      "customer": "Khách hàng",
+      "contractNumber": "Số hợp đồng",
+      "contractId": "Id HĐ",
+      "interestRate": "Lãi suất (%)",
+      "dateStart": "Ngày bắt đầu",
+      "dateEnd": "Ngày kết thúc",
+      "termMonths": "Kỳ hạn (tháng)",
+      "state": "Trạng thái",
+      "principal": "Gốc (VNĐ)",
+      "assetType": "Loại tài sản",
+      "estimatedValue": "Giá trị ước tính",
+      "status": "Trạng thái",
+      "description": "Mô tả",
+      "accumulatedInterest": "Lãi tích lũy"
+    },
+    "collateral": {
+      "ownerContact": "Chủ sở hữu (Contact)",
+      "assetType": {
+        "vehicle": "Xe cộ",
+        "realEstate": "Bất động sản",
+        "jewelry": "Trang sức",
+        "electronics": "Điện tử",
+        "other": "Khác"
+      },
+      "status": {
+        "available": "Có sẵn",
+        "pledged": "Đã thế chấp",
+        "released": "Đã giải phóng",
+        "sold": "Đã bán"
+      }
+    },
+    "notebook": {
+      "date": "Ngày",
+      "transactionType": "Loại GD",
+      "transactionType.disbursement": "Giải ngân",
+      "transactionType.additional": "Vay thêm",
+      "transactionType.interest": "Thu lãi",
+      "transactionType.principal": "Thu gốc",
+      "transactionType.liquidation": "Thanh lý",
+      "transactionType.settlement": "Tất toán",
+      "amount": "Số tiền",
+      "daysFromPrev": "Số ngày",
+      "interestForPeriod": "Lãi kỳ này",
+      "principalBalance": "Dư nợ gốc",
+      "note": "Ghi chú"
+    }
+  },
+  "contact": {
+    "field": {
+      "isCompany": "Là công ty",
+      "belongsToCompany": "Thuộc công ty",
+      "name": "Tên",
+      "displayName": "Tên hiển thị",
+      "nationalId": "Số CCCD",
+      "email": "Email",
+      "phone": "Điện thoại",
+      "mobile": "Di động",
+      "website": "Website",
+      "street": "Địa chỉ",
+      "street2": "Địa chỉ 2",
+      "city": "Thành phố",
+      "state": "Tỉnh/Bang",
+      "zip": "Mã bưu chính",
+      "countryCode": "Mã quốc gia (Ví dụ VN)",
+      "tags": "Nhãn",
+      "notes": "Ghi chú",
+      "company": "Công ty",
+      "address": "Địa chỉ"
+    },
+    "list": {
+      "searchPlaceholder": "Tìm theo tên/email/điện thoại"
+    }
   }
 }
