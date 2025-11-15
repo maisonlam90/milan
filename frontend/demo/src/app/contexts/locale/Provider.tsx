@@ -91,17 +91,39 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Listen to URL changes and update locale when ?lang= parameter changes
+  // Also preserve ?lang= parameter when navigating to new pages
   useEffect(() => {
     if (typeof window === "undefined") return;
     
     let lastUrl = window.location.href;
+    let isUpdatingUrl = false; // Flag to prevent infinite loop
+    
+    // Save original functions before overriding
+    const originalPushState = window.history.pushState;
+    const originalReplaceState = window.history.replaceState;
     
     const checkUrlLang = () => {
+      // Skip if we're currently updating the URL to avoid infinite loop
+      if (isUpdatingUrl) return;
+      
       const urlParams = new URLSearchParams(window.location.search);
       const langParam = urlParams.get("lang") as LocaleCode;
       
+      // If URL has lang param and it's different from current locale, update locale
       if (langParam && Object.keys(locales).includes(langParam) && langParam !== locale) {
         updateLocale(langParam);
+      }
+      // If URL doesn't have lang param, preserve current locale in URL
+      else if (!langParam && locale) {
+        isUpdatingUrl = true;
+        const url = new URL(window.location.href);
+        url.searchParams.set("lang", locale);
+        // Use original replaceState to avoid triggering our overridden version
+        originalReplaceState.call(window.history, {}, "", url);
+        // Reset flag after a short delay
+        setTimeout(() => {
+          isUpdatingUrl = false;
+        }, 0);
       }
     };
 
@@ -112,9 +134,6 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     window.addEventListener("popstate", checkUrlLang);
     
     // Override pushState and replaceState to detect programmatic navigation
-    const originalPushState = window.history.pushState;
-    const originalReplaceState = window.history.replaceState;
-    
     window.history.pushState = function(...args) {
       originalPushState.apply(window.history, args);
       setTimeout(checkUrlLang, 0);

@@ -58,7 +58,7 @@ pub fn loan_form_schema(i18n: &I18n) -> serde_json::Value {
         "notebook": {
             "fields": [
                 { "name": "date", "label": i18n.t("loan.notebook.date"), "type": "date" },
-                { "name": "transaction_type", "label": i18n.t("loan.notebook.transactionType"), "type": "select", "options": json!([
+                { "name": "transaction_type", "label": i18n.t("loan.notebook.transactionType.label"), "type": "select", "options": json!([
                     { "value": "disbursement", "label": i18n.t("loan.notebook.transactionType.disbursement") },
                     { "value": "additional", "label": i18n.t("loan.notebook.transactionType.additional") },
                     { "value": "interest", "label": i18n.t("loan.notebook.transactionType.interest") },

@@ -116,13 +116,15 @@
     },
     "notebook": {
       "date": "Ngày",
-      "transactionType": "Loại GD",
-      "transactionType.disbursement": "Giải ngân",
-      "transactionType.additional": "Vay thêm",
-      "transactionType.interest": "Thu lãi",
-      "transactionType.principal": "Thu gốc",
-      "transactionType.liquidation": "Thanh lý",
-      "transactionType.settlement": "Tất toán",
+      "transactionType": {
+        "label": "Loại GD",
+        "disbursement": "Giải ngân",
+        "additional": "Vay thêm",
+        "interest": "Thu lãi",
+        "principal": "Thu gốc",
+        "liquidation": "Thanh lý",
+        "settlement": "Tất toán"
+      },
       "amount": "Số tiền",
       "daysFromPrev": "Số ngày",
       "interestForPeriod": "Lãi kỳ này",
@@ -131,29 +133,60 @@
     }
   },
   "contact": {
-    "field": {
-      "isCompany": "Là công ty",
-      "belongsToCompany": "Thuộc công ty",
-      "name": "Tên",
-      "displayName": "Tên hiển thị",
-      "nationalId": "Số CCCD",
-      "email": "Email",
-      "phone": "Điện thoại",
-      "mobile": "Di động",
-      "website": "Website",
-      "street": "Địa chỉ",
-      "street2": "Địa chỉ 2",
-      "city": "Thành phố",
-      "state": "Tỉnh/Bang",
-      "zip": "Mã bưu chính",
-      "countryCode": "Mã quốc gia (Ví dụ VN)",
-      "tags": "Nhãn",
-      "notes": "Ghi chú",
-      "company": "Công ty",
-      "address": "Địa chỉ"
+      "field": {
+        "isCompany": "Là công ty",
+        "belongsToCompany": "Thuộc công ty",
+        "name": "Tên",
+        "displayName": "Tên hiển thị",
+        "nationalId": "Số CCCD",
+        "email": "Email",
+        "phone": "Điện thoại",
+        "mobile": "Di động",
+        "website": "Website",
+        "street": "Địa chỉ",
+        "street2": "Địa chỉ 2",
+        "city": "Thành phố",
+        "state": "Tỉnh/Bang",
+        "zip": "Mã bưu chính",
+        "countryCode": "Mã quốc gia (Ví dụ VN)",
+        "tags": "Nhãn",
+        "notes": "Ghi chú",
+        "company": "Công ty",
+        "address": "Địa chỉ"
+      },
+      "list": {
+        "searchPlaceholder": "Tìm theo tên/email/điện thoại"
+      }
     },
-    "list": {
-      "searchPlaceholder": "Tìm theo tên/email/điện thoại"
+    "invoice": {
+      "field": {
+        "partner": "Khách hàng",
+        "invoiceDate": "Ngày hóa đơn",
+        "dueDate": "Ngày đến hạn",
+        "paymentTerms": "Điều khoản thanh toán",
+        "termsAndConditions": "Điều khoản và điều kiện",
+        "invoiceNumber": "Số hóa đơn",
+        "total": "Tổng tiền",
+        "amountDue": "Còn nợ",
+        "state": "Trạng thái"
+      },
+      "line": {
+        "name": "Tên sản phẩm",
+        "quantity": "Số lượng",
+        "unitPrice": "Đơn giá",
+        "tax": "Thuế (%)",
+        "amount": "Thành tiền"
+      },
+      "state": {
+        "draft": "Nháp",
+        "posted": "Đã đăng",
+        "cancelled": "Đã hủy"
+      },
+      "paymentState": {
+        "notPaid": "Chưa thanh toán",
+        "inPayment": "Đang thanh toán",
+        "paid": "Đã thanh toán",
+        "partial": "Thanh toán một phần"
+      }
     }
   }
-}

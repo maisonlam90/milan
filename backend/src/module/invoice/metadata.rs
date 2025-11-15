@@ -1,194 +1,74 @@
 use serde_json::json;
+use crate::core::i18n::I18n;
 
-/// Invoice form schema/metadata for frontend
-pub fn invoice_form_schema() -> serde_json::Value {
+pub const DISPLAY_NAME: &str = "Invoice";
+pub const DESCRIPTION: &str = "Quản lí hóa đơn";
+
+pub fn invoice_form_schema(i18n: &I18n) -> serde_json::Value {
     json!({
-        "fields": [
-            {
-                "name": "partner_id",
-                "label": "Customer",
-                "type": "relation",
-                "required": true,
-                "relation": {
-                    "model": "contact",
-                    "search_fields": ["name", "email", "phone"],
-                    "display_field": "display_name"
-                }
-            },
-            {
-                "name": "invoice_date",
-                "label": "Invoice Date",
-                "type": "date",
-                "required": true,
-                "default": "today"
-            },
-            {
-                "name": "invoice_date_due",
-                "label": "Due Date",
-                "type": "date",
-                "required": false
-            },
-            {
-                "name": "invoice_payment_term_id",
-                "label": "Payment Terms",
-                "type": "relation",
-                "required": false,
-                "relation": {
-                    "model": "account_payment_term"
-                }
-            },
-            {
-                "name": "journal_id",
-                "label": "Journal",
-                "type": "relation",
-                "required": true,
-                "relation": {
-                    "model": "account_journal",
-                    "filter": {
-                        "type": "sale"
-                    }
-                }
-            },
-            {
-                "name": "currency_id",
-                "label": "Currency",
-                "type": "relation",
-                "required": true,
-                "relation": {
-                    "model": "currency"
-                }
-            },
-            {
-                "name": "narration",
-                "label": "Terms and Conditions",
-                "type": "textarea",
-                "required": false
-            },
-            {
-                "name": "invoice_lines",
-                "label": "Invoice Lines",
-                "type": "one2many",
-                "relation": {
-                    "model": "account_move_line",
-                    "fields": [
-                        {
-                            "name": "product_id",
-                            "label": "Product",
-                            "type": "relation",
-                            "relation": {
-                                "model": "product"
-                            }
-                        },
-                        {
-                            "name": "name",
-                            "label": "Description",
-                            "type": "text"
-                        },
-                        {
-                            "name": "quantity",
-                            "label": "Quantity",
-                            "type": "decimal",
-                            "default": 1.0
-                        },
-                        {
-                            "name": "price_unit",
-                            "label": "Unit Price",
-                            "type": "decimal"
-                        },
-                        {
-                            "name": "discount",
-                            "label": "Discount (%)",
-                            "type": "decimal"
-                        },
-                        {
-                            "name": "tax_ids",
-                            "label": "Taxes",
-                            "type": "many2many",
-                            "relation": {
-                                "model": "account_tax"
-                            }
-                        },
-                        {
-                            "name": "price_subtotal",
-                            "label": "Subtotal",
-                            "type": "decimal",
-                            "readonly": true,
-                            "computed": true
-                        },
-                        {
-                            "name": "price_total",
-                            "label": "Total",
-                            "type": "decimal",
-                            "readonly": true,
-                            "computed": true
-                        }
-                    ]
-                }
-            },
-            {
-                "name": "amount_untaxed",
-                "label": "Untaxed Amount",
-                "type": "decimal",
-                "readonly": true,
-                "computed": true
-            },
-            {
-                "name": "amount_tax",
-                "label": "Tax",
-                "type": "decimal",
-                "readonly": true,
-                "computed": true
-            },
-            {
-                "name": "amount_total",
-                "label": "Total",
-                "type": "decimal",
-                "readonly": true,
-                "computed": true
-            },
-            {
-                "name": "amount_residual",
-                "label": "Amount Due",
-                "type": "decimal",
-                "readonly": true,
-                "computed": true
-            }
-        ],
+        "form": {
+            "fields": [
+                { "name": "partner_id", "label": i18n.t("invoice.field.partner"), "type": "select", "width": 12 },
+                { "name": "invoice_date", "label": i18n.t("invoice.field.invoiceDate"), "type": "date", "width": 6, "required": true },
+                { "name": "invoice_date_due", "label": i18n.t("invoice.field.dueDate"), "type": "date", "width": 6 },
+                { "name": "invoice_payment_term_id", "label": i18n.t("invoice.field.paymentTerms"), "type": "text", "width": 6 },
+                { "name": "narration", "label": i18n.t("invoice.field.termsAndConditions"), "type": "textarea", "width": 12 },
+            ]
+        },
+        "list": {
+            "columns": [
+                { "key": "invoice_number", "label": i18n.t("invoice.field.invoiceNumber") },
+                { "key": "partner_id", "label": i18n.t("invoice.field.partner") },
+                { "key": "invoice_date", "label": i18n.t("invoice.field.invoiceDate") },
+                { "key": "invoice_date_due", "label": i18n.t("invoice.field.dueDate") },
+                { "key": "amount_total", "label": i18n.t("invoice.field.total") },
+                { "key": "amount_residual", "label": i18n.t("invoice.field.amountDue") },
+                { "key": "state", "label": i18n.t("invoice.field.state") }
+            ]
+        },
+        "invoiceLines": {
+            "fields": [
+                { "name": "name", "label": i18n.t("invoice.line.name"), "type": "text" },
+                { "name": "quantity", "label": i18n.t("invoice.line.quantity"), "type": "number" },
+                { "name": "price_unit", "label": i18n.t("invoice.line.unitPrice"), "type": "number" },
+                { "name": "tax_rate", "label": i18n.t("invoice.line.tax"), "type": "number" },
+                { "name": "amount", "label": i18n.t("invoice.line.amount"), "type": "compute" },
+            ]
+        },
         "states": [
             {
                 "value": "draft",
-                "label": "Draft",
+                "label": i18n.t("invoice.state.draft"),
                 "color": "secondary"
             },
             {
                 "value": "posted",
-                "label": "Posted",
+                "label": i18n.t("invoice.state.posted"),
                 "color": "success"
             },
             {
                 "value": "cancel",
-                "label": "Cancelled",
+                "label": i18n.t("invoice.state.cancelled"),
                 "color": "danger"
             }
         ],
         "payment_states": [
             {
                 "value": "not_paid",
-                "label": "Not Paid"
+                "label": i18n.t("invoice.paymentState.notPaid")
             },
             {
                 "value": "in_payment",
-                "label": "In Payment"
+                "label": i18n.t("invoice.paymentState.inPayment")
             },
             {
                 "value": "paid",
-                "label": "Paid"
+                "label": i18n.t("invoice.paymentState.paid")
             },
             {
                 "value": "partial",
-                "label": "Partially Paid"
+                "label": i18n.t("invoice.paymentState.partial")
             }
         ]
     })
 }
-

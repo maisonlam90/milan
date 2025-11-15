@@ -116,13 +116,15 @@
     },
     "notebook": {
       "date": "Date",
-      "transactionType": "Transaction Type",
-      "transactionType.disbursement": "Disbursement",
-      "transactionType.additional": "Additional Loan",
-      "transactionType.interest": "Interest Payment",
-      "transactionType.principal": "Principal Payment",
-      "transactionType.liquidation": "Liquidation",
-      "transactionType.settlement": "Settlement",
+      "transactionType": {
+        "label": "Transaction Type",
+        "disbursement": "Disbursement",
+        "additional": "Additional Loan",
+        "interest": "Interest Payment",
+        "principal": "Principal Payment",
+        "liquidation": "Liquidation",
+        "settlement": "Settlement"
+      },
       "amount": "Amount",
       "daysFromPrev": "Days from Previous",
       "interestForPeriod": "Interest for Period",
@@ -131,29 +133,60 @@
     }
   },
   "contact": {
-    "field": {
-      "isCompany": "Is Company",
-      "belongsToCompany": "Belongs to Company",
-      "name": "Name",
-      "displayName": "Display Name",
-      "nationalId": "National ID",
-      "email": "Email",
-      "phone": "Phone",
-      "mobile": "Mobile",
-      "website": "Website",
-      "street": "Address",
-      "street2": "Address 2",
-      "city": "City",
-      "state": "State/Province",
-      "zip": "Postal Code",
-      "countryCode": "Country Code (e.g. VN)",
-      "tags": "Tags",
-      "notes": "Notes",
-      "company": "Company",
-      "address": "Address"
+      "field": {
+        "isCompany": "Is Company",
+        "belongsToCompany": "Belongs to Company",
+        "name": "Name",
+        "displayName": "Display Name",
+        "nationalId": "National ID",
+        "email": "Email",
+        "phone": "Phone",
+        "mobile": "Mobile",
+        "website": "Website",
+        "street": "Address",
+        "street2": "Address 2",
+        "city": "City",
+        "state": "State/Province",
+        "zip": "Postal Code",
+        "countryCode": "Country Code (e.g. VN)",
+        "tags": "Tags",
+        "notes": "Notes",
+        "company": "Company",
+        "address": "Address"
+      },
+      "list": {
+        "searchPlaceholder": "Search by name/email/phone"
+      }
     },
-    "list": {
-      "searchPlaceholder": "Search by name/email/phone"
+    "invoice": {
+      "field": {
+        "partner": "Customer",
+        "invoiceDate": "Invoice Date",
+        "dueDate": "Due Date",
+        "paymentTerms": "Payment Terms",
+        "termsAndConditions": "Terms and Conditions",
+        "invoiceNumber": "Invoice Number",
+        "total": "Total",
+        "amountDue": "Amount Due",
+        "state": "Status"
+      },
+      "line": {
+        "name": "Product Name",
+        "quantity": "Quantity",
+        "unitPrice": "Unit Price",
+        "tax": "Tax (%)",
+        "amount": "Amount"
+      },
+      "state": {
+        "draft": "Draft",
+        "posted": "Posted",
+        "cancelled": "Cancelled"
+      },
+      "paymentState": {
+        "notPaid": "Not Paid",
+        "inPayment": "In Payment",
+        "paid": "Paid",
+        "partial": "Partially Paid"
+      }
     }
   }
-}

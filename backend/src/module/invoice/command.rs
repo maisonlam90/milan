@@ -36,6 +36,7 @@ pub struct CreateInvoiceLineDto {
     pub price_unit: Option<BigDecimal>,
     pub discount: Option<BigDecimal>,
     pub account_id: Option<Uuid>,
+    pub tax_rate: Option<BigDecimal>,        // Tax rate (%) - for simple calculation
     pub tax_ids: Vec<Uuid>,
     pub display_type: Option<String>,
     pub sequence: Option<i32>,
@@ -274,7 +275,15 @@ pub async fn create_invoice(
         let discount = line.discount.as_ref().map(|d| d.clone()).unwrap_or_else(|| BigDecimal::from(0));
         let discount_factor = BigDecimal::from(1) - (discount / BigDecimal::from(100));
         let price_subtotal = &quantity * &price_unit * &discount_factor;
-        let price_total = price_subtotal.clone(); // TODO: Add tax calculation
+        
+        // Calculate tax from tax_rate if provided
+        let price_total = if let Some(tax_rate) = line.tax_rate.as_ref() {
+            let tax_rate_decimal = tax_rate / BigDecimal::from(100);
+            let tax_amount = &price_subtotal * tax_rate_decimal;
+            &price_subtotal + &tax_amount
+        } else {
+            price_subtotal.clone()
+        };
         
         sqlx::query!(
             r#"

@@ -1,16 +1,17 @@
 // Import Dependencies
 import { useState, useMemo, useEffect, useCallback } from "react";
-import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import axiosInstance from "@/utils/axios";
 import dayjs from "dayjs";
 
 // Local Imports
 import { Page } from "@/components/shared/Page";
-import { Input, Button, Textarea, Card, Select } from "@/components/ui";
-import { DatePicker } from "@/components/shared/form/Datepicker";
+import { Input, Button, Textarea, Card } from "@/components/ui";
+import DynamicForm, { type DynamicFieldConfig } from "@/components/shared/DynamicForm";
 import {
   Table,
   THead,
@@ -80,6 +81,46 @@ interface InvoiceLineDto {
   [k: string]: unknown;
 }
 
+interface FormFieldDef {
+  name: string;
+  label?: string;
+  type?: string;
+  width?: number;
+  disabled?: boolean;
+  required?: boolean;
+  options?: Array<{ label?: string; value: string | number }>;
+  [k: string]: unknown;
+}
+
+interface MetadataDto {
+  form?: { fields?: FormFieldDef[] };
+  invoiceLines?: { fields?: FormFieldDef[] };
+  [k: string]: unknown;
+}
+
+/* ====================== Chuẩn hoá metadata -> đúng type ====================== */
+
+// FormFieldDef -> DynamicFieldConfig (label luôn là string)
+const normalizeDynamicFields = (fields?: FormFieldDef[]): DynamicFieldConfig[] => {
+  if (!fields) return [];
+  return fields.map((f) => {
+    const hasOptions = Array.isArray(f.options);
+    return {
+      ...f,
+      label: f.label ?? "",
+      type: (f.type as any) ?? "text",
+      ...(hasOptions
+        ? {
+            options: f.options!.map((o) => ({
+              label: o?.label ?? String(o?.value ?? ""),
+              value: o?.value,
+            })),
+          }
+        : {}),
+    } as DynamicFieldConfig;
+  });
+};
+
 // Validation Schema
 const schema = yup.object({
   partner_id: yup.string().optional(),
@@ -107,21 +148,16 @@ export default function InvoiceCreate() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const invoiceId = searchParams.get("id");
+  const { i18n } = useTranslation(); // Get i18n instance to listen to language changes
   const [status, setStatus] = useState<"draft" | "posted">("draft");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState<boolean>(!invoiceId);
   const [contacts, setContacts] = useState<ContactLite[]>([]);
   const [isLoadingInvoice, setIsLoadingInvoice] = useState<boolean>(!!invoiceId);
+  const [metadata, setMetadata] = useState<MetadataDto | null>(null);
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useForm<InvoiceFormData>({
+  const form = useForm<InvoiceFormData>({
     resolver: yupResolver(schema),
     defaultValues: {
       invoice_date: dayjs().format("YYYY-MM-DD"),
@@ -130,6 +166,8 @@ export default function InvoiceCreate() {
     },
   });
 
+  const { register, handleSubmit, control, watch, setValue, formState: { errors } } = form;
+
   const { fields, append, remove, update, replace } = useFieldArray({
     control,
     name: "invoice_lines",
@@ -137,11 +175,32 @@ export default function InvoiceCreate() {
 
   const invoiceLines = watch("invoice_lines");
 
+  // ✅ giữ ổn định header để tránh loop useEffect
+  const token = (typeof window !== "undefined" && localStorage.getItem("authToken")) || "";
+  const authHeader = useMemo<undefined | Record<string, string>>(
+    () => (token ? { Authorization: `Bearer ${token}` } : undefined),
+    [token]
+  );
+
+  const fetchMetadata = useCallback(async () => {
+    try {
+      const res = await axiosInstance.get<MetadataDto>("/invoice/metadata");
+      setMetadata(res.data);
+    } catch (err) {
+      console.error("❌ Lỗi load metadata:", err);
+    }
+  }, []);
+
+  // ✅ Tạo danh sách fields đã chỉnh sửa: (chuẩn hoá -> chèn field nếu cần)
+  const adjustedFields = useMemo<DynamicFieldConfig[]>(() => {
+    if (!metadata?.form?.fields) return [];
+    // chuẩn hoá trước để label luôn là string
+    return normalizeDynamicFields(metadata.form.fields);
+  }, [metadata]);
+
   // Fetch contacts
   const fetchContacts = useCallback(async () => {
     try {
-      const token = localStorage.getItem("authToken");
-      const authHeader = token ? { Authorization: `Bearer ${token}` } : undefined;
       const res = await axiosInstance.get<ContactLite[]>("/contact/list", {
         headers: authHeader,
       });
@@ -149,11 +208,17 @@ export default function InvoiceCreate() {
     } catch (err) {
       console.error("❌ Lỗi load contacts:", err);
     }
-  }, []);
+  }, [authHeader]);
 
   useEffect(() => {
+    fetchMetadata();
     fetchContacts();
-  }, [fetchContacts]);
+  }, [fetchMetadata, fetchContacts]);
+
+  // Refetch metadata when language changes
+  useEffect(() => {
+    fetchMetadata();
+  }, [i18n.language, fetchMetadata]);
 
   // Fetch invoice data when invoiceId exists
   const fetchInvoice = useCallback(async () => {
@@ -161,8 +226,6 @@ export default function InvoiceCreate() {
     
     try {
       setIsLoadingInvoice(true);
-      const token = localStorage.getItem("authToken");
-      const authHeader = token ? { Authorization: `Bearer ${token}` } : undefined;
       const res = await axiosInstance.get<InvoiceDto>(`/invoice/${invoiceId}`, {
         headers: authHeader,
       });
@@ -242,7 +305,7 @@ export default function InvoiceCreate() {
     } finally {
       setIsLoadingInvoice(false);
     }
-  }, [invoiceId, setValue, replace]);
+  }, [invoiceId, setValue, replace, authHeader]);
 
   useEffect(() => {
     fetchInvoice();
@@ -361,6 +424,7 @@ export default function InvoiceCreate() {
           quantity: line.quantity || 0,
           price_unit: line.price_unit || 0,
           discount: line.discount || 0,
+          tax_rate: line.tax_rate || 0, // Gửi tax_rate lên backend
           tax_ids: line.tax_ids || [],
         })),
         date: data.invoice_date,
@@ -553,70 +617,14 @@ export default function InvoiceCreate() {
                 </h3>
 
                 <div className="mt-5 space-y-5">
-                  {/* Customer & Date Fields */}
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <div>
-                      <Controller
-                        name="partner_id"
-                        control={control}
-                        render={({ field: { value, onChange, onBlur, name } }) => (
-                          <Select
-                            label="Customer"
-                            name={name}
-                            value={value || ""}
-                            onChange={onChange}
-                            onBlur={onBlur}
-                            error={errors.partner_id?.message}
-                            data={contactOptions}
-                            disabled={!isEditing}
-                          />
-                        )}
-                      />
-                    </div>
-                    <div>
-                      <DatePicker
-                        label="Invoice Date"
-                        defaultValue={dayjs().format("YYYY-MM-DD")}
-                        onChange={(_selectedDates, dateStr) => {
-                          if (dateStr) {
-                            setValue("invoice_date", dateStr);
-                          }
-                        }}
-                        error={errors.invoice_date?.message}
-                        options={{
-                          defaultDate: dayjs().toDate(),
-                          dateFormat: "Y-m-d",
-                        }}
-                        disabled={!isEditing}
-                      />
-                    </div>
-                    <div>
-                      <DatePicker
-                        label="Due Date"
-                        defaultValue={dayjs().add(30, "day").format("YYYY-MM-DD")}
-                        onChange={(_selectedDates, dateStr) => {
-                          if (dateStr) {
-                            setValue("invoice_date_due", dateStr);
-                          }
-                        }}
-                        error={errors.invoice_date_due?.message}
-                        options={{
-                          defaultDate: dayjs().add(30, "day").toDate(),
-                          dateFormat: "Y-m-d",
-                        }}
-                        disabled={!isEditing}
-                      />
-                    </div>
-                    <div>
-                      <Input
-                        label="Payment Terms"
-                        placeholder="or"
-                        {...register("invoice_payment_term_id")}
-                        error={errors.invoice_payment_term_id?.message}
-                        disabled={!isEditing}
-                      />
-                    </div>
-                  </div>
+                  <DynamicForm
+                    form={form}
+                    fields={adjustedFields}
+                    optionsMap={{
+                      partner_id: contactOptions,
+                    }}
+                    disabled={!isEditing}
+                  />
 
                   {/* Invoice Lines Table */}
                   <div>

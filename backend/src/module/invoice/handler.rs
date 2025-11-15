@@ -3,12 +3,12 @@ use axum::{
     response::IntoResponse,
     Json,
 };
-use axum::http::StatusCode;
+use axum::http::{StatusCode, HeaderMap};
 use serde_json::json;
 use uuid::Uuid;
 use std::sync::Arc;
 
-use crate::core::{auth::AuthUser, state::AppState, error::AppError};
+use crate::core::{auth::AuthUser, state::AppState, error::AppError, i18n::I18n};
 
 use super::{
     command,
@@ -23,8 +23,9 @@ use super::{
 /// -------------------------
 /// Metadata
 /// -------------------------
-pub async fn get_metadata() -> Result<impl IntoResponse, AppError> {
-    Ok(Json(invoice_form_schema()))
+pub async fn get_metadata(headers: HeaderMap) -> Result<impl IntoResponse, AppError> {
+    let i18n = I18n::from_headers(&headers);
+    Ok(Json(invoice_form_schema(&i18n)))
 }
 
 /// -------------------------
@@ -61,6 +62,7 @@ pub async fn create_invoice(
             price_unit: line.price_unit,
             discount: line.discount,
             account_id: line.account_id,
+            tax_rate: line.tax_rate,              // Pass tax_rate to command
             tax_ids: line.tax_ids.unwrap_or_default(),
             display_type: line.display_type,
             sequence: line.sequence,
@@ -223,6 +225,7 @@ pub async fn add_invoice_line(
         price_unit: input.price_unit,
         discount: input.discount,
         account_id: input.account_id,
+        tax_rate: input.tax_rate,              // Pass tax_rate to command
         tax_ids: input.tax_ids.unwrap_or_default(),
         display_type: input.display_type,
         sequence: input.sequence,

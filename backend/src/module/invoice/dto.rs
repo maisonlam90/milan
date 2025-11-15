@@ -54,6 +54,7 @@ pub struct CreateInvoiceLineInput {
     pub account_id: Option<Uuid>,
     
     // Tax
+    pub tax_rate: Option<BigDecimal>,          // Tax rate (%) - for simple calculation
     pub tax_ids: Option<Vec<Uuid>>,           // Tax IDs
     
     // Display type
