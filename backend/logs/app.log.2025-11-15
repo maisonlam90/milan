@@ -1,0 +1,2 @@
+2025-11-15T09:28:22.076040Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
+2025-11-15T09:28:22.085450Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
