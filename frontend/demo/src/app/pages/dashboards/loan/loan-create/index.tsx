@@ -398,7 +398,7 @@ export default function LoanPage() {
   };
 
   return (
-    <Page title={loanId ? "Chi tiết hợp đồng vay" : "💰 Tạo hợp đồng vay mới"}>
+    <Page title={loanId ? "Chi tiết hợp đồng vay" : "Tạo hợp đồng vay mới"}>
       <div className="transition-content px-(--margin-x) pb-6">
         <div className="flex flex-col items-center justify-between space-y-4 py-5 sm:flex-row sm:space-y-0 lg:py-6">
           <div className="flex items-center gap-1">
