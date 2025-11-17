@@ -77,6 +77,7 @@ interface InvoiceLineDto {
   price_unit?: number | string | null;
   discount?: number | string | null;
   tax_ids?: string[] | null;
+  tax_rate?: number | string | null; // Tax rate (%) - calculated from backend
   display_type?: string | null;
   [k: string]: unknown;
 }
@@ -123,23 +124,72 @@ const normalizeDynamicFields = (fields?: FormFieldDef[]): DynamicFieldConfig[] =
 
 // Validation Schema
 const schema = yup.object({
-  partner_id: yup.string().optional(),
+  partner_id: yup.string().nullable().optional(),
   invoice_date: yup.string().required("Invoice Date is required"),
   invoice_date_due: yup.string().required("Due Date is required"),
-  invoice_payment_term_id: yup.string().optional(),
-  narration: yup.string().optional(),
+  invoice_payment_term_id: yup.string().nullable().optional(),
+  narration: yup.string().nullable().optional(),
   invoice_lines: yup.array().of(
     yup.object().shape({
-      product_id: yup.string().optional(),
-      name: yup.string().optional(),
-      quantity: yup.number().min(0).optional(),
-      price_unit: yup.number().min(0).optional(),
-      discount: yup.number().min(0).max(100).optional(),
-      tax_rate: yup.number().min(0).max(100).optional(),
-      amount: yup.number().optional(),
-      display_type: yup.string().optional(),
+      id: yup.string().optional(),
+      product_id: yup.string().nullable().optional(),
+      product_name: yup.string().optional(),
+      name: yup.string().nullable().optional(),
+      quantity: yup.number()
+        .transform((value, originalValue) => {
+          if (originalValue === '' || originalValue === null || originalValue === undefined) return undefined;
+          const num = Number(value);
+          return isNaN(num) ? undefined : num;
+        })
+        .nullable()
+        .optional()
+        .test('min', 'Quantity must be >= 0', (value) => {
+          return value === undefined || value === null || value >= 0;
+        }),
+      price_unit: yup.number()
+        .transform((value, originalValue) => {
+          if (originalValue === '' || originalValue === null || originalValue === undefined) return undefined;
+          const num = Number(value);
+          return isNaN(num) ? undefined : num;
+        })
+        .nullable()
+        .optional()
+        .test('min', 'Price unit must be >= 0', (value) => {
+          return value === undefined || value === null || value >= 0;
+        }),
+      discount: yup.number()
+        .transform((value, originalValue) => {
+          if (originalValue === '' || originalValue === null || originalValue === undefined) return undefined;
+          const num = Number(value);
+          return isNaN(num) ? undefined : num;
+        })
+        .nullable()
+        .optional()
+        .test('range', 'Discount must be between 0 and 100', (value) => {
+          return value === undefined || value === null || (value >= 0 && value <= 100);
+        }),
+      tax_rate: yup.number()
+        .transform((value, originalValue) => {
+          if (originalValue === '' || originalValue === null || originalValue === undefined) return undefined;
+          const num = Number(value);
+          return isNaN(num) ? undefined : num;
+        })
+        .nullable()
+        .optional()
+        .test('range', 'Tax rate must be between 0 and 100', (value) => {
+          return value === undefined || value === null || (value >= 0 && value <= 100);
+        }),
+      tax_ids: yup.array().of(yup.string()).optional(),
+      amount: yup.number()
+        .transform((value, originalValue) => {
+          if (originalValue === '' || originalValue === null || originalValue === undefined) return undefined;
+          return isNaN(value) ? undefined : value;
+        })
+        .nullable()
+        .optional(),
+      display_type: yup.string().nullable().optional(),
     })
-  ),
+  ).optional(),
 }) as yup.ObjectSchema<InvoiceFormData>;
 
 // ----------------------------------------------------------------------
@@ -166,7 +216,7 @@ export default function InvoiceCreate() {
     },
   });
 
-  const { register, handleSubmit, control, watch, setValue, formState: { errors } } = form;
+  const { register, control, watch, setValue, handleSubmit, formState: { errors } } = form;
 
   const { fields, append, remove, update, replace } = useFieldArray({
     control,
@@ -265,9 +315,10 @@ export default function InvoiceCreate() {
             ? line.display_type as "line_section" | "line_note"
             : null;
           
-          // Calculate tax_rate from tax data if available, otherwise default to 0
-          // TODO: Calculate actual tax_rate from tax_ids if tax data is available
-          const taxRate = 0; // Default, can be calculated from tax data later
+          // Get tax_rate from backend (calculated from tax_amount and price_subtotal)
+          const taxRate = line.tax_rate 
+            ? (typeof line.tax_rate === "string" ? parseFloat(line.tax_rate) : (line.tax_rate || 0))
+            : 0;
           
           return {
             id: line.id,
@@ -398,9 +449,11 @@ export default function InvoiceCreate() {
     setIsSubmitting(true);
     setError(null);
     
+    // Use current status state
+    const currentStatus = status;
+    console.log("Submitting invoice data:", data, "with status:", currentStatus);
+    
     try {
-      console.log("Submitting invoice data:", data);
-      
       // Validate that we have at least one invoice line
       const validLines = data.invoice_lines.filter((line) => !line.display_type);
       if (validLines.length === 0) {
@@ -435,7 +488,7 @@ export default function InvoiceCreate() {
       console.log("Invoice payload:", payload);
 
       if (invoiceId) {
-        // Update existing invoice (without invoice_lines - they need to be updated separately)
+        // Update existing invoice with invoice lines (include all lines: products, sections, notes)
         const updatePayload = {
           partner_id: data.partner_id || null,
           invoice_date: data.invoice_date,
@@ -443,15 +496,31 @@ export default function InvoiceCreate() {
           invoice_payment_term_id: data.invoice_payment_term_id || null,
           narration: data.narration || null,
           date: data.invoice_date,
+          invoice_lines: data.invoice_lines.map((line) => ({
+            ...(line.id ? { id: line.id } : {}), // Include ID only if line already exists
+            product_id: line.product_id || null,
+            name: line.name || "",
+            quantity: line.quantity || 0,
+            price_unit: line.price_unit || 0,
+            discount: line.discount || 0,
+            tax_rate: line.tax_rate || 0,
+            tax_ids: line.tax_ids || [],
+            display_type: line.display_type || null,
+          })),
         };
-        await axiosInstance.put(`/invoice/${invoiceId}/update`, updatePayload);
-        console.log("Invoice updated successfully");
-        
-        // TODO: Update invoice lines separately if needed
-        // For now, invoice lines are not updated through this form
+        console.log("Update payload:", updatePayload);
+        console.log("Sending PUT request to:", `/invoice/${invoiceId}/update`);
+        try {
+          const response = await axiosInstance.put(`/invoice/${invoiceId}/update`, updatePayload);
+          console.log("Invoice updated successfully, response:", response);
+        } catch (updateError: any) {
+          console.error("Error updating invoice:", updateError);
+          console.error("Error response:", updateError?.response);
+          throw updateError;
+        }
 
         // If status is posted, confirm the invoice
-        if (status === "posted") {
+        if (currentStatus === "posted") {
           try {
             await axiosInstance.post(`/invoice/${invoiceId}/confirm`);
             console.log("Invoice confirmed successfully");
@@ -476,7 +545,7 @@ export default function InvoiceCreate() {
         }
 
         // If status is posted, confirm the invoice
-        if (status === "posted") {
+        if (currentStatus === "posted") {
           try {
             await axiosInstance.post(`/invoice/${response.data.id}/confirm`);
             console.log("Invoice confirmed successfully");
@@ -492,25 +561,30 @@ export default function InvoiceCreate() {
         navigate("/dashboards/invoice/invoice-list");
       }
     } catch (error: any) {
-      console.error("Error creating invoice:", error);
-      const errorMessage = error?.response?.data?.message || error?.response?.data?.error || error?.message || "Có lỗi xảy ra khi tạo hóa đơn";
+      console.error("Error saving invoice:", error);
+      console.error("Error response:", error?.response?.data);
+      const errorMessage = error?.response?.data?.message || error?.response?.data?.error || error?.message || "Có lỗi xảy ra khi lưu hóa đơn";
       setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Handle save (draft)
-  const handleSave = async (e: React.MouseEvent) => {
+  // Handle save (draft) - set status and submit form
+  const handleSave = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setStatus("draft");
+    // Trigger form submit - status will be used in onSubmit
     handleSubmit(onSubmit)();
   };
 
-  // Handle confirm (post)
-  const handleConfirm = async (e: React.MouseEvent) => {
+  // Handle confirm (post) - set status and submit form
+  const handleConfirm = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setStatus("posted");
+    // Trigger form submit - status will be used in onSubmit
     handleSubmit(onSubmit)();
   };
 
@@ -575,6 +649,7 @@ export default function InvoiceCreate() {
                   type="button"
                   onClick={handleSave}
                   disabled={isSubmitting}
+                  form="invoice-form"
                 >
                   {isSubmitting ? "Đang lưu..." : "Lưu"}
                 </Button>
@@ -584,6 +659,7 @@ export default function InvoiceCreate() {
                   type="button"
                   onClick={handleConfirm}
                   disabled={isSubmitting}
+                  form="invoice-form"
                 >
                   {isSubmitting ? "Đang xử lý..." : "Xác nhận"}
                 </Button>

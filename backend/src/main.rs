@@ -87,7 +87,7 @@ async fn main() {
     // 🌐 CORS middleware để frontend gọi được
     let cors = CorsLayer::new()
         .allow_origin(Any)
-        .allow_methods([Method::GET, Method::POST, Method::OPTIONS, Method::DELETE])
+        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::PATCH, Method::DELETE, Method::OPTIONS])
         .allow_headers([AUTHORIZATION, CONTENT_TYPE]);
 
     // + Thêm route "/" để test nhanh BE có sống

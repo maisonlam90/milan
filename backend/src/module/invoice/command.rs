@@ -62,10 +62,12 @@ pub struct UpdateInvoiceDto {
     pub narration: Option<String>,
     pub assignee_id: Option<Uuid>,
     pub shared_with: Option<Vec<Uuid>>,
+    pub invoice_lines: Option<Vec<UpdateInvoiceLineDto>>,
 }
 
 #[derive(Debug)]
 pub struct UpdateInvoiceLineDto {
+    pub id: Option<Uuid>, // ID của line nếu đã tồn tại
     pub product_id: Option<Uuid>,
     pub product_uom_id: Option<Uuid>,
     pub name: Option<String>,
@@ -73,6 +75,7 @@ pub struct UpdateInvoiceLineDto {
     pub price_unit: Option<BigDecimal>,
     pub discount: Option<BigDecimal>,
     pub account_id: Option<Uuid>,
+    pub tax_rate: Option<BigDecimal>, // Tax rate (%) - for simple calculation
     pub tax_ids: Option<Vec<Uuid>>,
     pub display_type: Option<String>,
     pub sequence: Option<i32>,
@@ -400,6 +403,15 @@ pub async fn update_invoice(
         has_updates = true;
     }
 
+    if let Some(ref val) = dto.invoice_payment_term_id {
+        if has_updates {
+            query.push(", ");
+        }
+        query.push("invoice_payment_term_id = ");
+        query.push_bind(val);
+        has_updates = true;
+    }
+
     if let Some(ref val) = dto.narration {
         if has_updates {
             query.push(", ");
@@ -427,17 +439,25 @@ pub async fn update_invoice(
         has_updates = true;
     }
 
-    if !has_updates {
-        return Ok(());
+    // Always update updated_at if there are any changes or if invoice_lines need to be synced
+    if has_updates || dto.invoice_lines.is_some() {
+        if has_updates {
+            query.push(", updated_at = now()");
+        } else {
+            query.push("updated_at = now()");
+        }
+        query.push(" WHERE tenant_id = ");
+        query.push_bind(tenant_id);
+        query.push(" AND id = ");
+        query.push_bind(invoice_id);
+
+        query.build().execute(pool).await?;
     }
 
-    query.push(", updated_at = now()");
-    query.push(" WHERE tenant_id = ");
-    query.push_bind(tenant_id);
-    query.push(" AND id = ");
-    query.push_bind(invoice_id);
-
-    query.build().execute(pool).await?;
+    // Sync invoice lines if provided (always sync even if no other fields changed)
+    if let Some(ref lines) = dto.invoice_lines {
+        sync_invoice_lines(pool, tenant_id, invoice_id, lines).await?;
+    }
 
     Ok(())
 }
@@ -576,6 +596,213 @@ pub async fn add_invoice_line(
     Ok(line_id)
 }
 
+/// Sync invoice lines (add/update/delete)
+async fn sync_invoice_lines(
+    pool: &Pool<Postgres>,
+    tenant_id: Uuid,
+    invoice_id: Uuid,
+    lines: &[UpdateInvoiceLineDto],
+) -> Result<(), sqlx::Error> {
+    // Get currency and default account from invoice
+    let invoice = sqlx::query!(
+        "SELECT currency_id FROM account_move WHERE tenant_id = $1 AND id = $2",
+        tenant_id, invoice_id
+    )
+    .fetch_one(pool)
+    .await?;
+
+    let default_account_id = get_or_create_default_revenue_account(pool, tenant_id, Uuid::nil()).await?;
+
+    // Get existing line IDs
+    let existing_lines = sqlx::query!(
+        "SELECT id FROM account_move_line WHERE tenant_id = $1 AND move_id = $2",
+        tenant_id, invoice_id
+    )
+    .fetch_all(pool)
+    .await?;
+
+    let existing_ids: std::collections::HashSet<Uuid> = existing_lines.iter().map(|l| l.id).collect();
+    let new_ids: std::collections::HashSet<Uuid> = lines.iter()
+        .filter_map(|l| l.id)
+        .collect();
+
+    // Delete lines that are not in the new list
+    for existing_id in &existing_ids {
+        if !new_ids.contains(existing_id) {
+            delete_invoice_line(pool, tenant_id, invoice_id, *existing_id).await?;
+        }
+    }
+
+    // Process each line
+    for (idx, line) in lines.iter().enumerate() {
+        let sequence = line.sequence.unwrap_or((idx * 10) as i32);
+
+        if let Some(line_id) = line.id {
+            // Update existing line
+            update_invoice_line_full(pool, tenant_id, invoice_id, line_id, line, invoice.currency_id, default_account_id).await?;
+        } else {
+            // Create new line
+            let line_id = Uuid::new_v4();
+            let quantity = line.quantity.as_ref().map(|q| q.clone()).unwrap_or_else(|| BigDecimal::from(1));
+            let price_unit = line.price_unit.as_ref().map(|p| p.clone()).unwrap_or_else(|| BigDecimal::from(0));
+            let discount = line.discount.as_ref().map(|d| d.clone()).unwrap_or_else(|| BigDecimal::from(0));
+            let discount_factor = BigDecimal::from(1) - (discount / BigDecimal::from(100));
+            let price_subtotal = &quantity * &price_unit * &discount_factor;
+
+            // Calculate tax from tax_rate if provided
+            let price_total = if let Some(tax_rate) = line.tax_rate.as_ref() {
+                let tax_rate_decimal = tax_rate / BigDecimal::from(100);
+                let tax_amount = &price_subtotal * tax_rate_decimal;
+                &price_subtotal + &tax_amount
+            } else {
+                price_subtotal.clone()
+            };
+
+            let account_id = if line.display_type.is_some() {
+                None
+            } else {
+                Some(line.account_id.unwrap_or(default_account_id))
+            };
+
+            sqlx::query!(
+                r#"
+                INSERT INTO account_move_line (
+                    tenant_id, id, move_id, currency_id,
+                    product_id, product_uom_id, quantity, price_unit, discount,
+                    name, sequence, display_type,
+                    account_id,
+                    price_subtotal, price_total,
+                    debit, credit, balance, amount_currency,
+                    exclude_from_invoice_tab
+                ) VALUES (
+                    $1, $2, $3, $4,
+                    $5, $6, $7, $8, $9,
+                    $10, $11, $12,
+                    $13,
+                    $14, $15,
+                    0, 0, 0, 0,
+                    false
+                )
+                "#,
+                tenant_id, line_id, invoice_id, invoice.currency_id,
+                line.product_id, line.product_uom_id, line.quantity, line.price_unit, line.discount,
+                line.name.as_deref(), sequence, line.display_type.as_deref(),
+                account_id,
+                price_subtotal, price_total
+            )
+            .execute(pool)
+            .await?;
+
+            // Create tax relations
+            if let Some(ref tax_ids) = line.tax_ids {
+                for tax_id in tax_ids {
+                    sqlx::query!(
+                        r#"
+                        INSERT INTO account_move_line_tax_rel (tenant_id, move_line_id, tax_id)
+                        VALUES ($1, $2, $3)
+                        ON CONFLICT DO NOTHING
+                        "#,
+                        tenant_id, line_id, tax_id
+                    )
+                    .execute(pool)
+                    .await?;
+                }
+            }
+        }
+    }
+
+    // Recalculate totals
+    recalculate_invoice_totals(pool, tenant_id, invoice_id).await?;
+
+    Ok(())
+}
+
+/// Update invoice line (full update with all fields)
+async fn update_invoice_line_full(
+    pool: &Pool<Postgres>,
+    tenant_id: Uuid,
+    invoice_id: Uuid,
+    line_id: Uuid,
+    dto: &UpdateInvoiceLineDto,
+    currency_id: Uuid,
+    default_account_id: Uuid,
+) -> Result<(), sqlx::Error> {
+    // Calculate amounts
+    let quantity = dto.quantity.as_ref().map(|q| q.clone()).unwrap_or_else(|| BigDecimal::from(1));
+    let price_unit = dto.price_unit.as_ref().map(|p| p.clone()).unwrap_or_else(|| BigDecimal::from(0));
+    let discount = dto.discount.as_ref().map(|d| d.clone()).unwrap_or_else(|| BigDecimal::from(0));
+    let discount_factor = BigDecimal::from(1) - (discount / BigDecimal::from(100));
+    let price_subtotal = &quantity * &price_unit * &discount_factor;
+
+    // Calculate tax from tax_rate if provided
+    let price_total = if let Some(tax_rate) = dto.tax_rate.as_ref() {
+        let tax_rate_decimal = tax_rate / BigDecimal::from(100);
+        let tax_amount = &price_subtotal * tax_rate_decimal;
+        &price_subtotal + &tax_amount
+    } else {
+        price_subtotal.clone()
+    };
+
+    let account_id = if dto.display_type.is_some() {
+        None
+    } else {
+        Some(dto.account_id.unwrap_or(default_account_id))
+    };
+
+    // Update line
+    sqlx::query!(
+        r#"
+        UPDATE account_move_line
+        SET 
+            product_id = $1,
+            product_uom_id = $2,
+            name = $3,
+            quantity = $4,
+            price_unit = $5,
+            discount = $6,
+            account_id = $7,
+            price_subtotal = $8,
+            price_total = $9,
+            sequence = COALESCE($10, sequence),
+            display_type = $11
+        WHERE tenant_id = $12 AND id = $13 AND move_id = $14
+        "#,
+        dto.product_id, dto.product_uom_id, dto.name.as_deref(),
+        dto.quantity, dto.price_unit, dto.discount,
+        account_id, price_subtotal, price_total,
+        dto.sequence, dto.display_type.as_deref(),
+        tenant_id, line_id, invoice_id
+    )
+    .execute(pool)
+    .await?;
+
+    // Update tax relations - always delete existing first
+    sqlx::query!(
+        "DELETE FROM account_move_line_tax_rel WHERE tenant_id = $1 AND move_line_id = $2",
+        tenant_id, line_id
+    )
+    .execute(pool)
+    .await?;
+
+    // Add new tax relations if provided
+    if let Some(ref tax_ids) = dto.tax_ids {
+        for tax_id in tax_ids {
+            sqlx::query!(
+                r#"
+                INSERT INTO account_move_line_tax_rel (tenant_id, move_line_id, tax_id)
+                VALUES ($1, $2, $3)
+                ON CONFLICT DO NOTHING
+                "#,
+                tenant_id, line_id, tax_id
+            )
+            .execute(pool)
+            .await?;
+        }
+    }
+
+    Ok(())
+}
+
 /// Update invoice line
 pub async fn update_invoice_line(
     pool: &Pool<Postgres>,
@@ -584,33 +811,17 @@ pub async fn update_invoice_line(
     line_id: Uuid,
     dto: UpdateInvoiceLineDto,
 ) -> Result<(), sqlx::Error> {
-    // Simplified update - in production, build dynamic query
-    if let Some(ref quantity) = dto.quantity {
-        sqlx::query!(
-            "UPDATE account_move_line SET quantity = $1 WHERE tenant_id = $2 AND id = $3 AND move_id = $4",
-            quantity, tenant_id, line_id, invoice_id
-        )
-        .execute(pool)
-        .await?;
-    }
+    // Get currency and default account from invoice
+    let invoice = sqlx::query!(
+        "SELECT currency_id FROM account_move WHERE tenant_id = $1 AND id = $2",
+        tenant_id, invoice_id
+    )
+    .fetch_one(pool)
+    .await?;
 
-    if let Some(ref price_unit) = dto.price_unit {
-        sqlx::query!(
-            "UPDATE account_move_line SET price_unit = $1 WHERE tenant_id = $2 AND id = $3 AND move_id = $4",
-            price_unit, tenant_id, line_id, invoice_id
-        )
-        .execute(pool)
-        .await?;
-    }
+    let default_account_id = get_or_create_default_revenue_account(pool, tenant_id, Uuid::nil()).await?;
 
-    if let Some(name) = dto.name {
-        sqlx::query!(
-            "UPDATE account_move_line SET name = $1 WHERE tenant_id = $2 AND id = $3 AND move_id = $4",
-            name, tenant_id, line_id, invoice_id
-        )
-        .execute(pool)
-        .await?;
-    }
+    update_invoice_line_full(pool, tenant_id, invoice_id, line_id, &dto, invoice.currency_id, default_account_id).await?;
 
     // Recalculate totals
     recalculate_invoice_totals(pool, tenant_id, invoice_id).await?;

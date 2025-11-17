@@ -146,6 +146,21 @@ pub async fn update_invoice(
         narration: input.narration,
         assignee_id: input.assignee_id,
         shared_with: input.shared_with,
+        invoice_lines: input.invoice_lines.map(|lines| lines.into_iter().map(|line| command::UpdateInvoiceLineDto {
+            id: line.id,
+            product_id: line.product_id,
+            product_uom_id: line.product_uom_id,
+            name: line.name,
+            quantity: line.quantity,
+            price_unit: line.price_unit,
+            discount: line.discount,
+            account_id: line.account_id,
+            tax_rate: line.tax_rate,
+            tax_ids: line.tax_ids,
+            display_type: line.display_type,
+            sequence: line.sequence,
+            analytic_distribution: line.analytic_distribution,
+        }).collect()),
     };
 
     command::update_invoice(pool, auth.tenant_id, id, dto)
@@ -251,6 +266,7 @@ pub async fn update_invoice_line(
     let pool = state.shard.get_pool_for_tenant(&auth.tenant_id);
 
     let dto = command::UpdateInvoiceLineDto {
+        id: input.id,
         product_id: input.product_id,
         product_uom_id: input.product_uom_id,
         name: input.name,
@@ -258,6 +274,7 @@ pub async fn update_invoice_line(
         price_unit: input.price_unit,
         discount: input.discount,
         account_id: input.account_id,
+        tax_rate: input.tax_rate,
         tax_ids: input.tax_ids,
         display_type: input.display_type,
         sequence: input.sequence,

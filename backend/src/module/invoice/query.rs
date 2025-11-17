@@ -206,6 +206,14 @@ pub async fn get_invoice_lines(
         let price_total: BigDecimal = row.try_get("price_total")?;
         let tax_amount = &price_total - &price_subtotal;
 
+        // Calculate tax_rate from tax_amount and price_subtotal
+        // tax_rate = (tax_amount / price_subtotal) * 100
+        let tax_rate = if price_subtotal > BigDecimal::from(0) {
+            Some((&tax_amount / &price_subtotal) * BigDecimal::from(100))
+        } else {
+            Some(BigDecimal::from(0))
+        };
+
         lines.push(InvoiceLineDto {
             id: line_id,
             move_id: row.try_get("move_id")?,
@@ -221,6 +229,7 @@ pub async fn get_invoice_lines(
             price_total,
             tax_ids,
             tax_amount,
+            tax_rate,
             display_type: row.try_get("display_type")?,
             sequence: row.try_get("sequence")?,
         });

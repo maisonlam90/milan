@@ -90,6 +90,9 @@ pub struct UpdateInvoiceInput {
     pub invoice_incoterm_id: Option<Uuid>,
     pub fiscal_position_id: Option<Uuid>,
     
+    // Invoice lines
+    pub invoice_lines: Option<Vec<UpdateInvoiceLineInput>>,
+    
     // Narration
     pub narration: Option<String>,
     
@@ -101,6 +104,7 @@ pub struct UpdateInvoiceInput {
 /// Input cập nhật invoice line
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct UpdateInvoiceLineInput {
+    pub id: Option<Uuid>, // ID của line nếu đã tồn tại
     pub product_id: Option<Uuid>,
     pub product_uom_id: Option<Uuid>,
     pub name: Option<String>,
@@ -108,6 +112,7 @@ pub struct UpdateInvoiceLineInput {
     pub price_unit: Option<BigDecimal>,
     pub discount: Option<BigDecimal>,
     pub account_id: Option<Uuid>,
+    pub tax_rate: Option<BigDecimal>, // Tax rate (%) - for simple calculation
     pub tax_ids: Option<Vec<Uuid>>,
     pub display_type: Option<String>,
     pub sequence: Option<i32>,
@@ -194,6 +199,7 @@ pub struct InvoiceLineDto {
     // Tax
     pub tax_ids: Vec<Uuid>,
     pub tax_amount: BigDecimal,
+    pub tax_rate: Option<BigDecimal>, // Tax rate (%) - calculated from tax_amount and price_subtotal
     
     // Display type
     pub display_type: Option<String>,

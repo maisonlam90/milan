@@ -8,3 +8,5 @@
 2025-11-15T15:07:25.249560Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
 2025-11-15T15:07:26.069188Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
 2025-11-15T15:07:26.092945Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-15T17:13:09.895812Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
+2025-11-15T17:13:09.911175Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
