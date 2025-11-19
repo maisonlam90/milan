@@ -9,8 +9,6 @@ import { Page } from "@/components/shared/Page";
 import { Card, Button } from "@/components/ui";
 import DynamicForm from "@/components/shared/DynamicForm";
 import type { DynamicFieldConfig } from "@/components/shared/DynamicForm";
-import { JWT_HOST_API } from "@/configs/auth";
-
 /* ================== Types ================== */
 type ID = string;
 
