@@ -21,14 +21,6 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Giải mã yugabyte.crt từ secret (optional)
-        run: |
-          if [ -n "${{ secrets.YUGA_CRT_B64 }}" ]; then
-            echo "${{ secrets.YUGA_CRT_B64 }}" | base64 -d > yugabyte.crt
-            echo "Wrote yugabyte.crt"
-          else
-            echo "No YUGA_CRT_B64 provided, skipping."
-          fi
 
       - name: Build frontend (Tailux)
         run: |
