@@ -34,6 +34,13 @@ jobs:
         run: |
           cargo install sqlx-cli --version 0.7.3 --no-default-features --features postgres --locked
 
+      - name: Verify SQLx prepare
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          cd backend
+          cargo sqlx prepare --check --workspace
+
       - name: Build project
         env:
           SQLX_OFFLINE: true
