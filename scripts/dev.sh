@@ -23,7 +23,7 @@ psql "postgres://yugabyte:Maisonlan123@192.168.1.7:5433/milan" \
   -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
 
 // cache lai sqlx
-export DATABASE_URL="postgres://yugabyte:Maisonlan123@192.168.1.4:5433/milan"
+export DATABASE_URL="postgres://yugabyte:Maisonlan123@192.168.1.8:5433/milan"
 cargo sqlx prepare --workspace
 
 // backup database
