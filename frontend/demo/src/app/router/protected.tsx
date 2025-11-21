@@ -839,6 +839,13 @@ const protectedRoutes: RouteObject = {
               }),
             },
             {
+              path: "invoice/invoice-link",
+              lazy: async () => ({
+                Component: (await import("@/app/pages/dashboards/invoice/invoice-link/index"))
+                  .default,
+              }),
+            },
+            {
               path: "crm-analytics",
               lazy: async () => ({
                 Component: (

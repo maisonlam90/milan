@@ -1,0 +1,19 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                UPDATE invoice_link\n                SET status = $1,\n                    error_message = $2,\n                    request_data = $3,\n                    updated_at = $4\n                WHERE id = $5 AND tenant_id = $6\n                ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Text",
+        "Jsonb",
+        "Timestamptz",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "9e2928c88756766994345bf436a74f4248ca86bf13826b6dd92b828b9965ca63"
+}

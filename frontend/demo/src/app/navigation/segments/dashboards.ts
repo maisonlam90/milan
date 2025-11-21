@@ -132,6 +132,13 @@ export const dashboards: NavigationTree = {
           title: "Invoice create",
           transKey: "nav.dashboards.invoice-create",
         },
+        {
+          id: "dashboards.invoice-link",
+          type: "item",
+          path: path(ROOT_DASHBOARDS, "/invoice/invoice-link"),
+          title: "Invoice link",
+          transKey: "nav.dashboards.invoice-link",
+        },
       ],
     },
     {

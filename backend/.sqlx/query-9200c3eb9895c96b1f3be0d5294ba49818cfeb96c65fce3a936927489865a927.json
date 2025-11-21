@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE meinvoice_credentials\n            SET username = $1,\n                api_key = $2,\n                api_url = $3,\n                token = $4,\n                updated_at = $5\n            WHERE id = $6 AND tenant_id = $7\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Text",
+        "Timestamptz",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "9200c3eb9895c96b1f3be0d5294ba49818cfeb96c65fce3a936927489865a927"
+}
