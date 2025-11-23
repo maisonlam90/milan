@@ -18,6 +18,7 @@
       "invoice": "Invoice" ,
       "invoice-create": "Invoice Create" ,
       "invoice-list": "Invoice List" ,
+      "invoice-link": "Invoice Link" ,
       "school": "School" ,
       "school-create": "School Create" ,
       "school-list": "School List" ,
