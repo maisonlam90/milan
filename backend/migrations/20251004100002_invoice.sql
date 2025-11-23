@@ -20,6 +20,10 @@
 -- 12. Additional Features
 -- ============================================================
 
+-- Tăng timeout để tránh lỗi timeout khi tạo nhiều bảng và index
+SET statement_timeout = '15min';
+SET lock_timeout = '5min';
+
 -- ============================================================
 -- SECTION 1: CHART OF ACCOUNTS
 -- ============================================================

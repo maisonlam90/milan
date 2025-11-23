@@ -3,7 +3,18 @@
  * https://github.com/pinia-studio/jwt-api-node
  **/
 
-export const JWT_HOST_API =
-  window.location.hostname === "localhost"
-    ? "http://localhost:3000"
-    : "/api/";
+// Detect environment and set API URL
+const getApiUrl = () => {
+  // Development: localhost
+  if (window.location.hostname === "localhost") {
+    return "http://localhost:3000";
+  }
+  
+  // Production: Use same hostname but port 3000 (backend port)
+  // Frontend runs on port 2000, backend on port 3000
+  const hostname = window.location.hostname;
+  const protocol = window.location.protocol;
+  return `${protocol}//${hostname}:3000`;
+};
+
+export const JWT_HOST_API = getApiUrl();
