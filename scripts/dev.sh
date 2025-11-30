@@ -41,5 +41,5 @@ pg_dump "postgres://yugabyte:Maisonlan123@192.168.1.21:5433/postgres" \
   -F c \
   -f milan.dump
 
-// restore database
+// restore database đfdfgdfg gdfg
 PGPASSWORD="Maisonlan123" pg_restore -d "postgres://yugabyte:Maisonlan123@192.168.1.21:5433/milan" -v milan.dump
