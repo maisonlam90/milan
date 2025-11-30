@@ -37,9 +37,13 @@ export DATABASE_URL="postgres://yugabyte:Maisonlan123@192.168.1.21:5433/milan"
 cargo sqlx prepare --workspace
 
 // backup database
-pg_dump "postgres://yugabyte:Maisonlan123@192.168.1.21:5433/postgres" \
+pg_dump "postgres://yugabyte:Maisonlan123@192.168.1.21:5433/milan" \
   -F c \
   -f milan.dump
+
+// backup database
+yb-admin --master_addresses 192.168.1.21:7100,192.168.1.22:7100,192.168.1.23:7100 create_database_snapshot ysql.milan 0
+
 
 // restore database đfdfgdfg gdfg
 PGPASSWORD="Maisonlan123" pg_restore -d "postgres://yugabyte:Maisonlan123@192.168.1.21:5433/milan" -v milan.dump
