@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO account_journal (\n            tenant_id, id, name, code, type, active, created_by\n        ) VALUES (\n            $1, $2, 'Sales', 'SALE', 'sale', TRUE, $3\n        )\n        ON CONFLICT (tenant_id, code) DO NOTHING\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a7e1a27120a929ce21bef6f47da889405d78047cfaa4a7967b98b4cf0df9ea7a"
+}

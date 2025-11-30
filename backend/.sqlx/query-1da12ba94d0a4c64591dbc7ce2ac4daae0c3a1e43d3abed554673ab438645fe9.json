@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT tax_id FROM account_move_line_tax_rel WHERE tenant_id = $1 AND move_line_id = $2",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tax_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "1da12ba94d0a4c64591dbc7ce2ac4daae0c3a1e43d3abed554673ab438645fe9"
+}

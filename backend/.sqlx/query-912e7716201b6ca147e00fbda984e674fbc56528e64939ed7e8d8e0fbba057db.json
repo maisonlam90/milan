@@ -1,0 +1,32 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE contact SET\n            is_company   = COALESCE($3, is_company),\n            parent_id    = COALESCE($4, parent_id),\n            name         = $5,\n            display_name = $6,\n            email        = COALESCE($7, email),\n            phone        = COALESCE($8, phone),\n            mobile       = COALESCE($9, mobile),\n            website      = COALESCE($10, website),\n            street       = COALESCE($11, street),\n            street2      = COALESCE($12, street2),\n            city         = COALESCE($13, city),\n            state        = COALESCE($14, state),\n            zip          = COALESCE($15, zip),\n            country_code = COALESCE($16, country_code),\n            national_id  = COALESCE($17, national_id),  -- 👈 THÊM\n            notes        = COALESCE($18, notes),\n            tags_cached  = COALESCE($19, tags_cached),\n            updated_at   = NOW()\n        WHERE tenant_id = $1 AND id = $2\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Bool",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Bpchar",
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "912e7716201b6ca147e00fbda984e674fbc56528e64939ed7e8d8e0fbba057db"
+}

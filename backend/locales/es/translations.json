@@ -1,0 +1,84 @@
+{
+  "error": {
+    "not_found": "No encontrado",
+    "bad_request": "Solicitud incorrecta",
+    "internal_error": "Error interno del servidor",
+    "db_error": "Error de base de datos",
+    "validation": {
+      "required": "El campo {field} es obligatorio",
+      "invalid_email": "Correo electrónico inválido",
+      "invalid_format": "Formato inválido",
+      "min_length": "Mínimo {min} caracteres",
+      "max_length": "Máximo {max} caracteres",
+      "invalid_number": "Número inválido",
+      "invalid_date": "Fecha inválida"
+    },
+    "auth": {
+      "unauthorized": "No autorizado",
+      "forbidden": "Prohibido",
+      "invalid_token": "Token inválido",
+      "expired_token": "Token expirado",
+      "login_failed": "Error de inicio de sesión",
+      "invalid_credentials": "Credenciales inválidas"
+    },
+    "user": {
+      "not_found": "Usuario no encontrado",
+      "already_exists": "El usuario ya existe",
+      "create_failed": "Error al crear usuario",
+      "update_failed": "Error al actualizar usuario",
+      "delete_failed": "Error al eliminar usuario"
+    },
+    "loan": {
+      "not_found": "Préstamo no encontrado",
+      "already_exists": "El préstamo ya existe",
+      "create_failed": "Error al crear préstamo",
+      "update_failed": "Error al actualizar préstamo",
+      "delete_failed": "Error al eliminar préstamo",
+      "invalid_amount": "Cantidad inválida",
+      "invalid_interest_rate": "Tasa de interés inválida",
+      "transactions_empty": "Se requiere al menos 1 transacción"
+    },
+    "contact": {
+      "not_found": "Contacto no encontrado",
+      "already_exists": "El contacto ya existe",
+      "create_failed": "Error al crear contacto",
+      "update_failed": "Error al actualizar contacto",
+      "delete_failed": "Error al eliminar contacto"
+    },
+    "invoice": {
+      "not_found": "Factura no encontrada",
+      "already_exists": "La factura ya existe",
+      "create_failed": "Error al crear factura",
+      "update_failed": "Error al actualizar factura",
+      "delete_failed": "Error al eliminar factura"
+    },
+    "tenant": {
+      "not_found": "Inquilino no encontrado",
+      "already_exists": "El inquilino ya existe",
+      "create_failed": "Error al crear inquilino",
+      "update_failed": "Error al actualizar inquilino"
+    }
+  },
+  "success": {
+    "created": "Creado con éxito",
+    "updated": "Actualizado con éxito",
+    "deleted": "Eliminado con éxito",
+    "saved": "Guardado con éxito"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "create": "Crear",
+    "update": "Actualizar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "export": "Exportar",
+    "import": "Importar",
+    "confirm": "Confirmar",
+    "yes": "Sí",
+    "no": "No"
+  }
+}

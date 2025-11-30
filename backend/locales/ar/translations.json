@@ -1,0 +1,84 @@
+{
+  "error": {
+    "not_found": "غير موجود",
+    "bad_request": "طلب غير صالح",
+    "internal_error": "خطأ داخلي في الخادم",
+    "db_error": "خطأ في قاعدة البيانات",
+    "validation": {
+      "required": "الحقل {field} مطلوب",
+      "invalid_email": "بريد إلكتروني غير صالح",
+      "invalid_format": "تنسيق غير صالح",
+      "min_length": "الحد الأدنى {min} أحرف",
+      "max_length": "الحد الأقصى {max} أحرف",
+      "invalid_number": "رقم غير صالح",
+      "invalid_date": "تاريخ غير صالح"
+    },
+    "auth": {
+      "unauthorized": "غير مصرح",
+      "forbidden": "محظور",
+      "invalid_token": "رمز غير صالح",
+      "expired_token": "انتهت صلاحية الرمز",
+      "login_failed": "فشل تسجيل الدخول",
+      "invalid_credentials": "بيانات اعتماد غير صالحة"
+    },
+    "user": {
+      "not_found": "المستخدم غير موجود",
+      "already_exists": "المستخدم موجود بالفعل",
+      "create_failed": "فشل في إنشاء المستخدم",
+      "update_failed": "فشل في تحديث المستخدم",
+      "delete_failed": "فشل في حذف المستخدم"
+    },
+    "loan": {
+      "not_found": "القرض غير موجود",
+      "already_exists": "القرض موجود بالفعل",
+      "create_failed": "فشل في إنشاء القرض",
+      "update_failed": "فشل في تحديث القرض",
+      "delete_failed": "فشل في حذف القرض",
+      "invalid_amount": "مبلغ غير صالح",
+      "invalid_interest_rate": "معدل فائدة غير صالح",
+      "transactions_empty": "يجب أن يكون هناك معاملة واحدة على الأقل"
+    },
+    "contact": {
+      "not_found": "جهة الاتصال غير موجودة",
+      "already_exists": "جهة الاتصال موجودة بالفعل",
+      "create_failed": "فشل في إنشاء جهة الاتصال",
+      "update_failed": "فشل في تحديث جهة الاتصال",
+      "delete_failed": "فشل في حذف جهة الاتصال"
+    },
+    "invoice": {
+      "not_found": "الفاتورة غير موجودة",
+      "already_exists": "الفاتورة موجودة بالفعل",
+      "create_failed": "فشل في إنشاء الفاتورة",
+      "update_failed": "فشل في تحديث الفاتورة",
+      "delete_failed": "فشل في حذف الفاتورة"
+    },
+    "tenant": {
+      "not_found": "المستأجر غير موجود",
+      "already_exists": "المستأجر موجود بالفعل",
+      "create_failed": "فشل في إنشاء المستأجر",
+      "update_failed": "فشل في تحديث المستأجر"
+    }
+  },
+  "success": {
+    "created": "تم الإنشاء بنجاح",
+    "updated": "تم التحديث بنجاح",
+    "deleted": "تم الحذف بنجاح",
+    "saved": "تم الحفظ بنجاح"
+  },
+  "common": {
+    "loading": "جاري التحميل...",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "create": "إنشاء",
+    "update": "تحديث",
+    "search": "بحث",
+    "filter": "تصفية",
+    "export": "تصدير",
+    "import": "استيراد",
+    "confirm": "تأكيد",
+    "yes": "نعم",
+    "no": "لا"
+  }
+}

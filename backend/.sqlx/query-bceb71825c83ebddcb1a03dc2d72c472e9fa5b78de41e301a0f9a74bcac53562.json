@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT module_name, config_json, enabled_at\n        FROM tenant_module\n        WHERE tenant_id = $1\n        ORDER BY module_name\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "module_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "config_json",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 2,
+        "name": "enabled_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "bceb71825c83ebddcb1a03dc2d72c472e9fa5b78de41e301a0f9a74bcac53562"
+}

@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE provider_credentials\n            SET is_default = false\n            WHERE tenant_id = $1 AND provider = $2\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "b667c5e7f6341a13f7870344db306a8d243fd1861200340d9bdba2c5860c7968"
+}

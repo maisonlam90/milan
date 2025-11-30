@@ -1,0 +1,113 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            lt.id,\n            lt.contract_id,\n            lt.tenant_id,\n            lt.contact_id,\n            lt.transaction_type,\n            lt.amount,\n            lt.date                         AS \"date!\",\n            lt.note,\n            0::int4                         AS \"days_from_prev!\",\n            0::int8                         AS \"interest_for_period!\",\n            0::int8                         AS \"accumulated_interest!\",\n            0::int8                         AS \"principal_balance!\",\n            0::int8                         AS \"principal_applied!\",\n            0::int8                         AS \"interest_applied!\",\n            lt.created_at                   AS \"created_at!\",\n            lt.updated_at                   AS \"updated_at!\"\n        FROM loan_transaction lt\n        WHERE lt.tenant_id = $1\n          AND lt.contract_id = $2\n        ORDER BY lt.date ASC, lt.id ASC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "contract_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "contact_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "transaction_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "amount",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 6,
+        "name": "date!",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "note",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "days_from_prev!",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 9,
+        "name": "interest_for_period!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 10,
+        "name": "accumulated_interest!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 11,
+        "name": "principal_balance!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 12,
+        "name": "principal_applied!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 13,
+        "name": "interest_applied!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 14,
+        "name": "created_at!",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 15,
+        "name": "updated_at!",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      false,
+      false
+    ]
+  },
+  "hash": "042de06eca655293553f70e79afb354dbdc3270254d82b94cb288ad5131c645f"
+}

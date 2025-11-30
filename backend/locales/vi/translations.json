@@ -1,0 +1,192 @@
+{
+  "error": {
+    "not_found": "Không tìm thấy",
+    "bad_request": "Yêu cầu không hợp lệ",
+    "internal_error": "Lỗi hệ thống",
+    "db_error": "Lỗi cơ sở dữ liệu",
+    "validation": {
+      "required": "Trường {field} là bắt buộc",
+      "invalid_email": "Email không hợp lệ",
+      "invalid_format": "Định dạng không hợp lệ",
+      "min_length": "Tối thiểu {min} ký tự",
+      "max_length": "Tối đa {max} ký tự",
+      "invalid_number": "Số không hợp lệ",
+      "invalid_date": "Ngày không hợp lệ"
+    },
+    "auth": {
+      "unauthorized": "Không có quyền truy cập",
+      "forbidden": "Bị cấm truy cập",
+      "invalid_token": "Token không hợp lệ",
+      "expired_token": "Token đã hết hạn",
+      "login_failed": "Đăng nhập thất bại",
+      "invalid_credentials": "Thông tin đăng nhập không đúng"
+    },
+    "user": {
+      "not_found": "Không tìm thấy người dùng",
+      "already_exists": "Người dùng đã tồn tại",
+      "create_failed": "Tạo người dùng thất bại",
+      "update_failed": "Cập nhật người dùng thất bại",
+      "delete_failed": "Xóa người dùng thất bại"
+    },
+    "loan": {
+      "not_found": "Không tìm thấy khoản vay",
+      "already_exists": "Khoản vay đã tồn tại",
+      "create_failed": "Tạo khoản vay thất bại",
+      "update_failed": "Cập nhật khoản vay thất bại",
+      "delete_failed": "Xóa khoản vay thất bại",
+      "invalid_amount": "Số tiền không hợp lệ",
+      "invalid_interest_rate": "Lãi suất không hợp lệ",
+      "transactions_empty": "Phải có ít nhất 1 giao dịch"
+    },
+    "contact": {
+      "not_found": "Không tìm thấy liên hệ",
+      "already_exists": "Liên hệ đã tồn tại",
+      "create_failed": "Tạo liên hệ thất bại",
+      "update_failed": "Cập nhật liên hệ thất bại",
+      "delete_failed": "Xóa liên hệ thất bại"
+    },
+    "invoice": {
+      "not_found": "Không tìm thấy hóa đơn",
+      "already_exists": "Hóa đơn đã tồn tại",
+      "create_failed": "Tạo hóa đơn thất bại",
+      "update_failed": "Cập nhật hóa đơn thất bại",
+      "delete_failed": "Xóa hóa đơn thất bại"
+    },
+    "tenant": {
+      "not_found": "Không tìm thấy tenant",
+      "already_exists": "Tenant đã tồn tại",
+      "create_failed": "Tạo tenant thất bại",
+      "update_failed": "Cập nhật tenant thất bại"
+    }
+  },
+  "success": {
+    "created": "Tạo thành công",
+    "updated": "Cập nhật thành công",
+    "deleted": "Xóa thành công",
+    "saved": "Lưu thành công"
+  },
+  "common": {
+    "loading": "Đang tải...",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "delete": "Xóa",
+    "edit": "Sửa",
+    "create": "Tạo mới",
+    "update": "Cập nhật",
+    "search": "Tìm kiếm",
+    "filter": "Lọc",
+    "export": "Xuất",
+    "import": "Nhập",
+    "confirm": "Xác nhận",
+    "yes": "Có",
+    "no": "Không"
+  },
+  "loan": {
+    "field": {
+      "customer": "Khách hàng",
+      "contractNumber": "Số hợp đồng",
+      "contractId": "Id HĐ",
+      "interestRate": "Lãi suất (%)",
+      "dateStart": "Ngày bắt đầu",
+      "dateEnd": "Ngày kết thúc",
+      "termMonths": "Kỳ hạn (tháng)",
+      "state": "Trạng thái",
+      "principal": "Gốc (VNĐ)",
+      "assetType": "Loại tài sản",
+      "estimatedValue": "Giá trị ước tính",
+      "status": "Trạng thái",
+      "description": "Mô tả",
+      "accumulatedInterest": "Lãi tích lũy"
+    },
+    "collateral": {
+      "ownerContact": "Chủ sở hữu (Contact)",
+      "assetType": {
+        "vehicle": "Xe cộ",
+        "realEstate": "Bất động sản",
+        "jewelry": "Trang sức",
+        "electronics": "Điện tử",
+        "other": "Khác"
+      },
+      "status": {
+        "available": "Có sẵn",
+        "pledged": "Đã thế chấp",
+        "released": "Đã giải phóng",
+        "sold": "Đã bán"
+      }
+    },
+    "notebook": {
+      "date": "Ngày",
+      "transactionType": {
+        "label": "Loại GD",
+        "disbursement": "Giải ngân",
+        "additional": "Vay thêm",
+        "interest": "Thu lãi",
+        "principal": "Thu gốc",
+        "liquidation": "Thanh lý",
+        "settlement": "Tất toán"
+      },
+      "amount": "Số tiền",
+      "daysFromPrev": "Số ngày",
+      "interestForPeriod": "Lãi kỳ này",
+      "principalBalance": "Dư nợ gốc",
+      "note": "Ghi chú"
+    }
+  },
+  "contact": {
+      "field": {
+        "isCompany": "Là công ty",
+        "belongsToCompany": "Thuộc công ty",
+        "name": "Tên",
+        "displayName": "Tên hiển thị",
+        "nationalId": "Số CCCD",
+        "email": "Email",
+        "phone": "Điện thoại",
+        "mobile": "Di động",
+        "website": "Website",
+        "street": "Địa chỉ",
+        "street2": "Địa chỉ 2",
+        "city": "Thành phố",
+        "state": "Tỉnh/Bang",
+        "zip": "Mã bưu chính",
+        "countryCode": "Mã quốc gia (Ví dụ VN)",
+        "tags": "Nhãn",
+        "notes": "Ghi chú",
+        "company": "Công ty",
+        "address": "Địa chỉ"
+      },
+      "list": {
+        "searchPlaceholder": "Tìm theo tên/email/điện thoại"
+      }
+    },
+    "invoice": {
+      "field": {
+        "partner": "Khách hàng",
+        "invoiceDate": "Ngày hóa đơn",
+        "dueDate": "Ngày đến hạn",
+        "paymentTerms": "Điều khoản thanh toán",
+        "termsAndConditions": "Điều khoản và điều kiện",
+        "invoiceNumber": "Số hóa đơn",
+        "total": "Tổng tiền",
+        "amountDue": "Còn nợ",
+        "state": "Trạng thái"
+      },
+      "line": {
+        "name": "Tên sản phẩm",
+        "quantity": "Số lượng",
+        "unitPrice": "Đơn giá",
+        "tax": "Thuế (%)",
+        "amount": "Thành tiền"
+      },
+      "state": {
+        "draft": "Nháp",
+        "posted": "Đã đăng",
+        "cancelled": "Đã hủy"
+      },
+      "paymentState": {
+        "notPaid": "Chưa thanh toán",
+        "inPayment": "Đang thanh toán",
+        "paid": "Đã thanh toán",
+        "partial": "Thanh toán một phần"
+      }
+    }
+  }

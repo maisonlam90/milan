@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE account_move\n        SET state = 'posted', posted_before = true, updated_at = now()\n        WHERE tenant_id = $1 AND id = $2 AND state = 'draft'\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "ff98466be64f3432c8fea76d83583682614708d3495343d6f180a15ffce04af2"
+}

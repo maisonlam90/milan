@@ -1,0 +1,106 @@
+{
+  "hash": "b7143590",
+  "configHash": "c0ec0645",
+  "lockfileHash": "24845b81",
+  "browserHash": "39677603",
+  "optimized": {
+    "react/jsx-dev-runtime": {
+      "src": "../../node_modules/react/jsx-dev-runtime.js",
+      "file": "react_jsx-dev-runtime.js",
+      "fileHash": "1c97c2d9",
+      "needsInterop": true
+    },
+    "react": {
+      "src": "../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "da42b14d",
+      "needsInterop": true
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "13f93d67",
+      "needsInterop": true
+    },
+    "react-router": {
+      "src": "../../node_modules/react-router/dist/development/index.mjs",
+      "file": "react-router.js",
+      "fileHash": "d57c74f4",
+      "needsInterop": false
+    },
+    "i18next": {
+      "src": "../../node_modules/i18next/dist/esm/i18next.js",
+      "file": "i18next.js",
+      "fileHash": "ed9e588b",
+      "needsInterop": false
+    },
+    "react-i18next": {
+      "src": "../../node_modules/react-i18next/dist/es/index.js",
+      "file": "react-i18next.js",
+      "fileHash": "9836fe92",
+      "needsInterop": false
+    },
+    "i18next-browser-languagedetector": {
+      "src": "../../node_modules/i18next-browser-languagedetector/dist/esm/i18nextBrowserLanguageDetector.js",
+      "file": "i18next-browser-languagedetector.js",
+      "fileHash": "4759722d",
+      "needsInterop": false
+    },
+    "dayjs/locale/en": {
+      "src": "../../node_modules/dayjs/locale/en.js",
+      "file": "dayjs_locale_en.js",
+      "fileHash": "70dbefb0",
+      "needsInterop": true
+    },
+    "dayjs/locale/ar": {
+      "src": "../../node_modules/dayjs/locale/ar.js",
+      "file": "dayjs_locale_ar.js",
+      "fileHash": "5acc437f",
+      "needsInterop": true
+    },
+    "flatpickr/dist/l10n/ar": {
+      "src": "../../node_modules/flatpickr/dist/l10n/ar.js",
+      "file": "flatpickr_dist_l10n_ar.js",
+      "fileHash": "c1e609c7",
+      "needsInterop": true
+    },
+    "dayjs/locale/es": {
+      "src": "../../node_modules/dayjs/locale/es.js",
+      "file": "dayjs_locale_es.js",
+      "fileHash": "a92778e1",
+      "needsInterop": true
+    },
+    "flatpickr/dist/l10n/es": {
+      "src": "../../node_modules/flatpickr/dist/l10n/es.js",
+      "file": "flatpickr_dist_l10n_es.js",
+      "fileHash": "db8e8f69",
+      "needsInterop": true
+    },
+    "dayjs/locale/zh-cn": {
+      "src": "../../node_modules/dayjs/locale/zh-cn.js",
+      "file": "dayjs_locale_zh-cn.js",
+      "fileHash": "7b4a367b",
+      "needsInterop": true
+    },
+    "flatpickr/dist/l10n/zh": {
+      "src": "../../node_modules/flatpickr/dist/l10n/zh.js",
+      "file": "flatpickr_dist_l10n_zh.js",
+      "fileHash": "d904fd8e",
+      "needsInterop": true
+    }
+  },
+  "chunks": {
+    "chunk-M2USQNJ4": {
+      "file": "chunk-M2USQNJ4.js"
+    },
+    "chunk-IIT576ZH": {
+      "file": "chunk-IIT576ZH.js"
+    },
+    "chunk-3VDXVL42": {
+      "file": "chunk-3VDXVL42.js"
+    },
+    "chunk-5WRI5ZAA": {
+      "file": "chunk-5WRI5ZAA.js"
+    }
+  }
+}

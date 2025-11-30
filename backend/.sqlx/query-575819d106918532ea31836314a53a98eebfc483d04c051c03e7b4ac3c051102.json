@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT \n            lt.id,\n            lt.transaction_type,\n            lt.amount,\n            lt.date,\n            lt.note,\n            lc.contract_number,\n            c.name as contact_name\n        FROM loan_transaction lt\n        JOIN loan_contract lc ON lt.contract_id = lc.id\n        JOIN contact c ON lc.contact_id = c.id\n        WHERE lt.tenant_id = $1\n        ORDER BY lt.date DESC, lt.created_at DESC\n        LIMIT 5\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "transaction_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "amount",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 3,
+        "name": "date",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "note",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "contract_number",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "contact_name",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "575819d106918532ea31836314a53a98eebfc483d04c051c03e7b4ac3c051102"
+}

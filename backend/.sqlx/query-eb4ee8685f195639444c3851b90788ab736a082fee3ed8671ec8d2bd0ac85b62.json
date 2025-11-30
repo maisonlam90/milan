@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO permissions (resource, action, label)\n        VALUES ($1, $2, $3)\n        ON CONFLICT (resource, action)\n        DO UPDATE SET label = EXCLUDED.label\n        RETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "eb4ee8685f195639444c3851b90788ab736a082fee3ed8671ec8d2bd0ac85b62"
+}

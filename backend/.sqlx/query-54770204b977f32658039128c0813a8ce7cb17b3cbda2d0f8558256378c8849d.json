@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO account_account (\n            tenant_id, id, code, name, account_type, internal_group, created_by\n        ) VALUES (\n            $1, $2, '400000', 'Product Sales', 'income', 'income', $3\n        )\n        ON CONFLICT (tenant_id, code) DO NOTHING\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "54770204b977f32658039128c0813a8ce7cb17b3cbda2d0f8558256378c8849d"
+}

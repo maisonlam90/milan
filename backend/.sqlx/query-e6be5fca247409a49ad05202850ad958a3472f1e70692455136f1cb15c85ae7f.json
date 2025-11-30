@@ -1,0 +1,155 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            id, tenant_id, contact_id, contract_number,\n            interest_rate, term_months,\n            date_start, date_end,\n            storage_fee_rate, storage_fee,\n            current_principal, current_interest,\n            accumulated_interest, total_paid_interest, total_settlement_amount,\n            state, created_at, updated_at,\n            created_by, assignee_id, shared_with,\n            0::int8 AS \"total_paid_principal!\",\n            0::int8 AS \"payoff_due!\"\n        FROM loan_contract\n        WHERE tenant_id = $1 AND id = $2\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "contact_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "contract_number",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "interest_rate",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 5,
+        "name": "term_months",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 6,
+        "name": "date_start",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "date_end",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "storage_fee_rate",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 9,
+        "name": "storage_fee",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 10,
+        "name": "current_principal",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 11,
+        "name": "current_interest",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 12,
+        "name": "accumulated_interest",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 13,
+        "name": "total_paid_interest",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 14,
+        "name": "total_settlement_amount",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 15,
+        "name": "state",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 16,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 17,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 18,
+        "name": "created_by",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 19,
+        "name": "assignee_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 20,
+        "name": "shared_with",
+        "type_info": "UuidArray"
+      },
+      {
+        "ordinal": 21,
+        "name": "total_paid_principal!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 22,
+        "name": "payoff_due!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      null,
+      null
+    ]
+  },
+  "hash": "e6be5fca247409a49ad05202850ad958a3472f1e70692455136f1cb15c85ae7f"
+}

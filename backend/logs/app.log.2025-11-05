@@ -1,0 +1,10 @@
+2025-11-05T14:10:39.186668Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: column "tenant_id" is of type uuid but expression is of type text
+2025-11-05T14:13:04.008545Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: column "created_by" is of type uuid but expression is of type text
+2025-11-05T14:13:16.504998Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: column "created_by" is of type uuid but expression is of type text
+2025-11-05T14:15:45.094451Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: null value in column "name" violates not-null constraint
+2025-11-05T14:17:51.017903Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: null value in column "name" violates not-null constraint
+2025-11-05T14:18:00.188668Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: null value in column "name" violates not-null constraint
+2025-11-05T14:37:17.737397Z ERROR milan::core::auth: ❌ Không tìm thấy header Authorization (middleware)
+2025-11-05T14:42:40.035985Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(InvalidToken)
+2025-11-05T15:49:16.110119Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-05T15:50:31.198788Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: column "descriptiona" of relation "school_schools" does not exist

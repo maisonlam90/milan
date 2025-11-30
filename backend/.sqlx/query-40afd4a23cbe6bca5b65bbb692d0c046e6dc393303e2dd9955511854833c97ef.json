@@ -1,0 +1,86 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT\n                id,\n                COALESCE(NULLIF(name,''), display_name, email, phone, '(không tên)') AS \"name!: String\",\n                display_name,\n                email,\n                phone,\n                is_company,\n                NULLIF(tags_cached,'') AS \"tags?: String\",\n                state,\n                created_at,\n                updated_at,\n                national_id AS \"national_id?: String\"     -- 👈 THÊM\n            FROM contact\n            WHERE tenant_id = $1\n              AND ($2::bool IS NULL OR is_company = $2)\n              AND (\n                    lower(coalesce(name, ''))         LIKE $3\n                 OR lower(coalesce(display_name, '')) LIKE $3\n                 OR lower(coalesce(email, ''))        LIKE $3\n                 OR lower(coalesce(phone, ''))        LIKE $3\n              )\n            ORDER BY created_at DESC\n            LIMIT $4 OFFSET $5\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name!: String",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "display_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "email",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "phone",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "is_company",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "tags?: String",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "state",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "national_id?: String",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Bool",
+        "Text",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      null,
+      true,
+      true,
+      true,
+      false,
+      null,
+      true,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "40afd4a23cbe6bca5b65bbb692d0c046e6dc393303e2dd9955511854833c97ef"
+}

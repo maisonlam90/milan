@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                        INSERT INTO permissions (resource, action, label)\n                        VALUES ($1, $2, $3)\n                        ON CONFLICT DO NOTHING\n                        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "0a728d56b7d33ef6cdb685347ae9150c5259afbfa9208407fa0df424e2aa564c"
+}

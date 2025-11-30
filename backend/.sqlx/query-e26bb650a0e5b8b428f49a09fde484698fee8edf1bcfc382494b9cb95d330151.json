@@ -1,0 +1,82 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT a.tenant_id,\n               a.asset_id,\n               a.asset_type,\n               a.description,\n               a.value_estimate,\n               a.owner_contact_id,\n               a.status,\n               a.created_by,\n               a.created_at,\n               lc.contract_id,\n               c.contract_number\n        FROM collateral_assets a\n        LEFT JOIN loan_collateral lc\n          ON lc.tenant_id = a.tenant_id\n         AND lc.asset_id  = a.asset_id\n         AND lc.status    = 'active'\n        LEFT JOIN loan_contract c\n          ON c.tenant_id = lc.tenant_id\n         AND c.id        = lc.contract_id\n        WHERE a.tenant_id = $1\n        ORDER BY a.created_at DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "asset_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "asset_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "value_estimate",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 5,
+        "name": "owner_contact_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "created_by",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "contract_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 10,
+        "name": "contract_number",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "e26bb650a0e5b8b428f49a09fde484698fee8edf1bcfc382494b9cb95d330151"
+}

@@ -1,0 +1,95 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            r.tenant_id,\n            r.contract_id,\n            r.contact_id,\n            r.date,\n            r.current_principal,\n            r.current_interest,\n            r.accumulated_interest,\n            r.total_paid_interest,\n            r.total_paid_principal,\n            r.payoff_due,\n            r.state,\n            c.contract_number,\n            co.name as contact_name\n        FROM loan_report r\n        JOIN loan_contract c\n          ON c.id = r.contract_id AND c.tenant_id = r.tenant_id\n        JOIN contact co\n          ON co.id = r.contact_id AND co.tenant_id = r.tenant_id\n        WHERE r.tenant_id = $1 AND r.date = $2\n        ORDER BY c.contract_number DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "contract_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "contact_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 4,
+        "name": "current_principal",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 5,
+        "name": "current_interest",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 6,
+        "name": "accumulated_interest",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 7,
+        "name": "total_paid_interest",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 8,
+        "name": "total_paid_principal",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 9,
+        "name": "payoff_due",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 10,
+        "name": "state",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "contract_number",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "contact_name",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Date"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "d277eadff2bfc68843ccda2079d75d50a8d49b0d617798668ad308e9d74b42b4"
+}

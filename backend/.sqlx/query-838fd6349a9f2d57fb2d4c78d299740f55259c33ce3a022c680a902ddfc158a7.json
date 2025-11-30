@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                        INSERT INTO account_move_line_tax_rel (tenant_id, move_line_id, tax_id)\n                        VALUES ($1, $2, $3)\n                        ON CONFLICT DO NOTHING\n                        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "838fd6349a9f2d57fb2d4c78d299740f55259c33ce3a022c680a902ddfc158a7"
+}

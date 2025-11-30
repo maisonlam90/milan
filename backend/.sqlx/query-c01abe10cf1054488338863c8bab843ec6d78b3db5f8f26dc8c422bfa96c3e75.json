@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        DELETE FROM tenant_module\n        WHERE tenant_id = $1 AND module_name = $2\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c01abe10cf1054488338863c8bab843ec6d78b3db5f8f26dc8c422bfa96c3e75"
+}

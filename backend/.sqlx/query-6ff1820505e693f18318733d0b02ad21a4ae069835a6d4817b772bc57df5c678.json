@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT id FROM account_journal\n        WHERE tenant_id = $1 AND type = 'sale' AND active = TRUE\n        ORDER BY sequence, created_at\n        LIMIT 1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "6ff1820505e693f18318733d0b02ad21a4ae069835a6d4817b772bc57df5c678"
+}

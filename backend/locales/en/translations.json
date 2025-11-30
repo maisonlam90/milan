@@ -1,0 +1,192 @@
+{
+  "error": {
+    "not_found": "Not found",
+    "bad_request": "Bad request",
+    "internal_error": "Internal server error",
+    "db_error": "Database error",
+    "validation": {
+      "required": "Field {field} is required",
+      "invalid_email": "Invalid email",
+      "invalid_format": "Invalid format",
+      "min_length": "Minimum {min} characters",
+      "max_length": "Maximum {max} characters",
+      "invalid_number": "Invalid number",
+      "invalid_date": "Invalid date"
+    },
+    "auth": {
+      "unauthorized": "Unauthorized",
+      "forbidden": "Forbidden",
+      "invalid_token": "Invalid token",
+      "expired_token": "Token expired",
+      "login_failed": "Login failed",
+      "invalid_credentials": "Invalid credentials"
+    },
+    "user": {
+      "not_found": "User not found",
+      "already_exists": "User already exists",
+      "create_failed": "Failed to create user",
+      "update_failed": "Failed to update user",
+      "delete_failed": "Failed to delete user"
+    },
+    "loan": {
+      "not_found": "Loan not found",
+      "already_exists": "Loan already exists",
+      "create_failed": "Failed to create loan",
+      "update_failed": "Failed to update loan",
+      "delete_failed": "Failed to delete loan",
+      "invalid_amount": "Invalid amount",
+      "invalid_interest_rate": "Invalid interest rate",
+      "transactions_empty": "At least 1 transaction is required"
+    },
+    "contact": {
+      "not_found": "Contact not found",
+      "already_exists": "Contact already exists",
+      "create_failed": "Failed to create contact",
+      "update_failed": "Failed to update contact",
+      "delete_failed": "Failed to delete contact"
+    },
+    "invoice": {
+      "not_found": "Invoice not found",
+      "already_exists": "Invoice already exists",
+      "create_failed": "Failed to create invoice",
+      "update_failed": "Failed to update invoice",
+      "delete_failed": "Failed to delete invoice"
+    },
+    "tenant": {
+      "not_found": "Tenant not found",
+      "already_exists": "Tenant already exists",
+      "create_failed": "Failed to create tenant",
+      "update_failed": "Failed to update tenant"
+    }
+  },
+  "success": {
+    "created": "Created successfully",
+    "updated": "Updated successfully",
+    "deleted": "Deleted successfully",
+    "saved": "Saved successfully"
+  },
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "update": "Update",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "loan": {
+    "field": {
+      "customer": "Customer",
+      "contractNumber": "Contract Number",
+      "contractId": "Contract ID",
+      "interestRate": "Interest Rate (%)",
+      "dateStart": "Start Date",
+      "dateEnd": "End Date",
+      "termMonths": "Term (months)",
+      "state": "Status",
+      "principal": "Principal (VND)",
+      "assetType": "Asset Type",
+      "estimatedValue": "Estimated Value",
+      "status": "Status",
+      "description": "Description",
+      "accumulatedInterest": "Accumulated Interest"
+    },
+    "collateral": {
+      "ownerContact": "Owner (Contact)",
+      "assetType": {
+        "vehicle": "Vehicle",
+        "realEstate": "Real Estate",
+        "jewelry": "Jewelry",
+        "electronics": "Electronics",
+        "other": "Other"
+      },
+      "status": {
+        "available": "Available",
+        "pledged": "Pledged",
+        "released": "Released",
+        "sold": "Sold"
+      }
+    },
+    "notebook": {
+      "date": "Date",
+      "transactionType": {
+        "label": "Transaction Type",
+        "disbursement": "Disbursement",
+        "additional": "Additional Loan",
+        "interest": "Interest Payment",
+        "principal": "Principal Payment",
+        "liquidation": "Liquidation",
+        "settlement": "Settlement"
+      },
+      "amount": "Amount",
+      "daysFromPrev": "Days from Previous",
+      "interestForPeriod": "Interest for Period",
+      "principalBalance": "Principal Balance",
+      "note": "Note"
+    }
+  },
+  "contact": {
+      "field": {
+        "isCompany": "Is Company",
+        "belongsToCompany": "Belongs to Company",
+        "name": "Name",
+        "displayName": "Display Name",
+        "nationalId": "National ID",
+        "email": "Email",
+        "phone": "Phone",
+        "mobile": "Mobile",
+        "website": "Website",
+        "street": "Address",
+        "street2": "Address 2",
+        "city": "City",
+        "state": "State/Province",
+        "zip": "Postal Code",
+        "countryCode": "Country Code (e.g. VN)",
+        "tags": "Tags",
+        "notes": "Notes",
+        "company": "Company",
+        "address": "Address"
+      },
+      "list": {
+        "searchPlaceholder": "Search by name/email/phone"
+      }
+    },
+    "invoice": {
+      "field": {
+        "partner": "Customer",
+        "invoiceDate": "Invoice Date",
+        "dueDate": "Due Date",
+        "paymentTerms": "Payment Terms",
+        "termsAndConditions": "Terms and Conditions",
+        "invoiceNumber": "Invoice Number",
+        "total": "Total",
+        "amountDue": "Amount Due",
+        "state": "Status"
+      },
+      "line": {
+        "name": "Product Name",
+        "quantity": "Quantity",
+        "unitPrice": "Unit Price",
+        "tax": "Tax (%)",
+        "amount": "Amount"
+      },
+      "state": {
+        "draft": "Draft",
+        "posted": "Posted",
+        "cancelled": "Cancelled"
+      },
+      "paymentState": {
+        "notPaid": "Not Paid",
+        "inPayment": "In Payment",
+        "paid": "Paid",
+        "partial": "Partially Paid"
+      }
+    }
+  }

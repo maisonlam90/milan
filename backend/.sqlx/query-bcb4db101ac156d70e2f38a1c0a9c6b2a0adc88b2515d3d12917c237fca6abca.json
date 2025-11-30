@@ -1,0 +1,100 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT id, contract_id, tenant_id, contact_id,\n            transaction_type, amount, date, note,\n            days_from_prev, interest_for_period,\n            accumulated_interest, principal_balance,\n            created_at, updated_at\n        FROM loan_transaction\n        WHERE tenant_id = $1\n        ORDER BY contract_id, date, id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "contract_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "contact_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "transaction_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "amount",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 6,
+        "name": "date",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "note",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "days_from_prev",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 9,
+        "name": "interest_for_period",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 10,
+        "name": "accumulated_interest",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 11,
+        "name": "principal_balance",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 12,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 13,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "bcb4db101ac156d70e2f38a1c0a9c6b2a0adc88b2515d3d12917c237fca6abca"
+}

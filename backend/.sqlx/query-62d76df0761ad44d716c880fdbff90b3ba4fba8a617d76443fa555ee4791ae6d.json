@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                    INSERT INTO available_module (module_name, display_name, description)\n                    VALUES ($1, $2, $3)\n                    ON CONFLICT DO NOTHING\n                    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "62d76df0761ad44d716c880fdbff90b3ba4fba8a617d76443fa555ee4791ae6d"
+}

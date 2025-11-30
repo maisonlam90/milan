@@ -1,0 +1,386 @@
+2025-11-12T14:32:39.477696Z ERROR milan::core::error: ❌ SQLx error: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:32:39.516917Z ERROR milan::core::error: ❌ SQLx error: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:32:39.958547Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:32:39.988523Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:32:42.163736Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:32:42.190967Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:32:51.562555Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:32:51.591923Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:32:53.744949Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:32:53.779430Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:32:56.715854Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:32:56.745852Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:33:03.041143Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:33:03.067106Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:33:06.342788Z ERROR milan::core::error: ❌ Internal error: Lỗi load báo cáo: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:33:06.370117Z ERROR milan::core::error: ❌ Internal error: Lỗi load báo cáo: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:33:09.300400Z ERROR milan::core::error: ❌ SQLx error: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:33:09.329760Z ERROR milan::core::error: ❌ SQLx error: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:33:26.822209Z ERROR milan::core::error: ❌ SQLx error: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:33:26.848987Z ERROR milan::core::error: ❌ SQLx error: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:34:11.525238Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:34:11.564285Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:34:13.374869Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:34:13.400839Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:34:15.227837Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:34:15.259347Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:34:24.976748Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:34:25.004021Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:34:26.753009Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:34:26.782016Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:34:28.347469Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:34:28.374394Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:34:43.228951Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:34:43.260671Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:34:54.302679Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:34:54.341075Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T14:37:46.613322Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Error, code: "42P01", message: "relation \"loan_contract\" does not exist", detail: None, hint: None, position: Some(Original(510)), where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("parse_relation.c"), line: Some(1404), routine: Some("parserOpenTable") })
+2025-11-12T14:37:46.618401Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Error, code: "42P01", message: "relation \"loan_contract\" does not exist", detail: None, hint: None, position: Some(Original(510)), where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("parse_relation.c"), line: Some(1404), routine: Some("parserOpenTable") })
+2025-11-12T14:49:24.044077Z  INFO milan::infra::wasm_loader: ✅ Loaded module: school
+2025-11-12T14:49:24.044263Z  INFO milan: ✅ Loaded 1 modules ngoài binary từ "../modules"
+2025-11-12T14:49:24.045908Z  INFO milan::api::external_modules: ✅ Registered routes cho module: school
+2025-11-12T14:49:24.714224Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:49:24.714336Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:49:24.714365Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:49:24.714505Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-12T14:49:28.225701Z  WARN sqlx::query: slow statement: execution time exceeded alert threshold summary="SELECT id, COALESCE(NULLIF(name,''), display_name, …" db.statement="\n\nSELECT\n  id,\n  COALESCE(\n    NULLIF(name, ''),\n    display_name,\n    email,\n    phone,\n    '(không tên)'\n  ) AS \"name!: String\",\n  display_name,\n  email,\n  phone,\n  is_company,\n  NULLIF(tags_cached, '') AS \"tags?: String\",\n  state,\n  created_at,\n  updated_at,\n  national_id AS \"national_id?: String\" -- 👈 THÊM\nFROM\n  contact\nWHERE\n  tenant_id = $1\n  AND (\n    $2 :: bool IS NULL\n    OR is_company = $2\n  )\nORDER BY\n  created_at DESC\nLIMIT\n  $3 OFFSET $4\n" rows_affected=0 rows_returned=0 elapsed=3.502397616s elapsed_secs=3.502397616 slow_threshold=1s
+2025-11-12T14:49:28.435457Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-12T14:49:28.435638Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-12T14:49:28.435676Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-12T14:49:28.435764Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /profile
+2025-11-12T14:49:28.438449Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-12T14:49:28.438611Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-12T14:49:28.438652Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-12T14:49:28.438796Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /profile
+2025-11-12T14:49:28.786372Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:49:28.786513Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:49:28.786547Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:49:28.786609Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-12T14:49:28.787506Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:49:28.787655Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:49:28.787687Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:49:28.813890Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:49:28.814012Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:49:28.814036Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:49:34.110925Z  WARN sqlx_core::pool::connection: error occurred while testing the connection on-release error=error communicating with database: Connection reset by peer (os error 104)
+2025-11-12T14:49:34.114906Z  WARN sqlx::query: slow statement: execution time exceeded alert threshold summary="SELECT id, COALESCE(NULLIF(name,''), display_name, …" db.statement="\n\nSELECT\n  id,\n  COALESCE(\n    NULLIF(name, ''),\n    display_name,\n    email,\n    phone,\n    '(không tên)'\n  ) AS \"name!: String\",\n  display_name,\n  email,\n  phone,\n  is_company,\n  NULLIF(tags_cached, '') AS \"tags?: String\",\n  state,\n  created_at,\n  updated_at,\n  national_id AS \"national_id?: String\" -- 👈 THÊM\nFROM\n  contact\nWHERE\n  tenant_id = $1\n  AND (\n    $2 :: bool IS NULL\n    OR is_company = $2\n  )\nORDER BY\n  created_at DESC\nLIMIT\n  $3 OFFSET $4\n" rows_affected=0 rows_returned=0 elapsed=5.271438008s elapsed_secs=5.271438008 slow_threshold=1s
+2025-11-12T14:49:34.115132Z ERROR milan::core::error: ❌ SQLx error: Io(Custom { kind: UnexpectedEof, error: "expected to read 5 bytes, got 0 bytes at EOF" })
+2025-11-12T14:49:34.115895Z  WARN sqlx_core::pool::connection: error occurred while testing the connection on-release error=error communicating with database: expected to read 5 bytes, got 0 bytes at EOF
+2025-11-12T14:49:34.117820Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:49:34.117948Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:49:34.117963Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:49:34.118013Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-12T14:49:34.123900Z ERROR milan::core::error: ❌ SQLx error: Io(Os { code: 104, kind: ConnectionReset, message: "Connection reset by peer" })
+2025-11-12T14:49:52.572213Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-12T14:49:52.572213Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-12T14:49:52.572401Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-12T14:49:52.572403Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-12T14:49:52.572419Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-12T14:49:52.572423Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-12T14:49:52.572470Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-12T14:49:52.574772Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-12T14:49:52.574879Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-12T14:49:52.574905Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-12T14:49:53.144264Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:49:53.144387Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:49:53.144418Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:49:53.145149Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:49:53.145246Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:49:53.145274Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:49:53.145328Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-12T14:49:53.168145Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:49:53.168259Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:49:53.168285Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:49:54.742445Z  WARN sqlx::query: slow statement: execution time exceeded alert threshold summary="SELECT id, COALESCE(NULLIF(name,''), display_name, …" db.statement="\n\nSELECT\n  id,\n  COALESCE(\n    NULLIF(name, ''),\n    display_name,\n    email,\n    phone,\n    '(không tên)'\n  ) AS \"name!: String\",\n  display_name,\n  email,\n  phone,\n  is_company,\n  NULLIF(tags_cached, '') AS \"tags?: String\",\n  state,\n  created_at,\n  updated_at,\n  national_id AS \"national_id?: String\" -- 👈 THÊM\nFROM\n  contact\nWHERE\n  tenant_id = $1\n  AND (\n    $2 :: bool IS NULL\n    OR is_company = $2\n  )\nORDER BY\n  created_at DESC\nLIMIT\n  $3 OFFSET $4\n" rows_affected=0 rows_returned=0 elapsed=1.91264726s elapsed_secs=1.91264726 slow_threshold=1s
+2025-11-12T14:49:54.747467Z  WARN sqlx::query: slow statement: execution time exceeded alert threshold summary="SELECT id, tenant_id, contact_id, …" db.statement="\n\nSELECT\n  id,\n  tenant_id,\n  contact_id,\n  contract_number,\n  interest_rate,\n  term_months,\n  date_start,\n  date_end,\n  storage_fee_rate,\n  storage_fee,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_settlement_amount,\n  state,\n  created_at,\n  updated_at,\n  created_by,\n  assignee_id,\n  shared_with,\n  0 :: int8 AS \"total_paid_principal!\",\n  0 :: int8 AS \"payoff_due!\"\nFROM\n  loan_contract\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_number DESC\n" rows_affected=0 rows_returned=0 elapsed=1.546600161s elapsed_secs=1.546600161 slow_threshold=1s
+2025-11-12T14:49:54.965889Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-12T14:49:54.966032Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-12T14:49:54.966050Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-12T14:49:54.966100Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /profile
+2025-11-12T14:49:54.968170Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-12T14:49:54.968298Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-12T14:49:54.968332Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-12T14:49:54.968389Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /profile
+2025-11-12T14:49:55.304794Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:49:55.305024Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:49:55.305067Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:49:55.305131Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-12T14:49:55.306477Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:49:55.306609Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:49:55.306642Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:49:55.331613Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:49:55.331759Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:49:55.331797Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:50:13.666375Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:50:13.666533Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:50:13.666560Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:50:13.666609Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-12T14:50:23.034526Z  WARN sqlx::query: slow statement: execution time exceeded alert threshold summary="SELECT id, tenant_id, contact_id, …" db.statement="\n\nSELECT\n  id,\n  tenant_id,\n  contact_id,\n  contract_number,\n  interest_rate,\n  term_months,\n  date_start,\n  date_end,\n  storage_fee_rate,\n  storage_fee,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_settlement_amount,\n  state,\n  created_at,\n  updated_at,\n  created_by,\n  assignee_id,\n  shared_with,\n  0 :: int8 AS \"total_paid_principal!\",\n  0 :: int8 AS \"payoff_due!\"\nFROM\n  loan_contract\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_number DESC\n" rows_affected=0 rows_returned=0 elapsed=27.676166435s elapsed_secs=27.676166435 slow_threshold=1s
+2025-11-12T14:50:23.038428Z  WARN sqlx::query: slow statement: execution time exceeded alert threshold summary="SELECT id, tenant_id, contact_id, …" db.statement="\n\nSELECT\n  id,\n  tenant_id,\n  contact_id,\n  contract_number,\n  interest_rate,\n  term_months,\n  date_start,\n  date_end,\n  storage_fee_rate,\n  storage_fee,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_settlement_amount,\n  state,\n  created_at,\n  updated_at,\n  created_by,\n  assignee_id,\n  shared_with,\n  0 :: int8 AS \"total_paid_principal!\",\n  0 :: int8 AS \"payoff_due!\"\nFROM\n  loan_contract\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_number DESC\n" rows_affected=0 rows_returned=0 elapsed=9.331036423s elapsed_secs=9.331036423 slow_threshold=1s
+2025-11-12T14:50:23.242023Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-12T14:50:23.242148Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-12T14:50:23.242176Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-12T14:50:23.242232Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /profile
+2025-11-12T14:50:23.244271Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-12T14:50:23.244401Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-12T14:50:23.244438Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-12T14:50:23.244507Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /profile
+2025-11-12T14:50:23.589042Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:50:23.589185Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:50:23.589222Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:50:23.589940Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:50:23.590041Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:50:23.590067Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:50:23.590120Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-12T14:50:23.620905Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:50:23.621047Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:50:23.621086Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:50:37.193984Z  WARN sqlx::query: slow statement: execution time exceeded alert threshold summary="SELECT id, tenant_id, contact_id, …" db.statement="\n\nSELECT\n  id,\n  tenant_id,\n  contact_id,\n  contract_number,\n  interest_rate,\n  term_months,\n  date_start,\n  date_end,\n  storage_fee_rate,\n  storage_fee,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_settlement_amount,\n  state,\n  created_at,\n  updated_at,\n  created_by,\n  assignee_id,\n  shared_with,\n  0 :: int8 AS \"total_paid_principal!\",\n  0 :: int8 AS \"payoff_due!\"\nFROM\n  loan_contract\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_number DESC\n" rows_affected=0 rows_returned=0 elapsed=13.546947102s elapsed_secs=13.546947102 slow_threshold=1s
+2025-11-12T14:50:37.393276Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-12T14:50:37.393445Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-12T14:50:37.393483Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-12T14:50:37.393576Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /profile
+2025-11-12T14:50:37.396842Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-12T14:50:37.397044Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-12T14:50:37.397100Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-12T14:50:37.397193Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /profile
+2025-11-12T14:50:37.753469Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:50:37.753588Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:50:37.753618Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:50:37.754419Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:50:37.754520Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:50:37.754549Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:50:37.754602Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-12T14:50:37.786576Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:50:37.786702Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:50:37.786736Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:51:02.704220Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:51:02.704384Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:51:02.704436Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:51:02.704492Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-12T14:51:03.168796Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:51:03.168886Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:51:03.168907Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:51:04.272979Z  WARN sqlx::query: slow statement: execution time exceeded alert threshold summary="SELECT id, tenant_id, contact_id, …" db.statement="\n\nSELECT\n  id,\n  tenant_id,\n  contact_id,\n  contract_number,\n  interest_rate,\n  term_months,\n  date_start,\n  date_end,\n  storage_fee_rate,\n  storage_fee,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_settlement_amount,\n  state,\n  created_at,\n  updated_at,\n  created_by,\n  assignee_id,\n  shared_with,\n  0 :: int8 AS \"total_paid_principal!\",\n  0 :: int8 AS \"payoff_due!\"\nFROM\n  loan_contract\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_number DESC\n" rows_affected=10 rows_returned=10 elapsed=1.504888481s elapsed_secs=1.504888481 slow_threshold=1s
+2025-11-12T14:51:04.306041Z  WARN sqlx::query: slow statement: execution time exceeded alert threshold summary="SELECT id, tenant_id, contact_id, …" db.statement="\n\nSELECT\n  id,\n  tenant_id,\n  contact_id,\n  contract_number,\n  interest_rate,\n  term_months,\n  date_start,\n  date_end,\n  storage_fee_rate,\n  storage_fee,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_settlement_amount,\n  state,\n  created_at,\n  updated_at,\n  created_by,\n  assignee_id,\n  shared_with,\n  0 :: int8 AS \"total_paid_principal!\",\n  0 :: int8 AS \"payoff_due!\"\nFROM\n  loan_contract\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_number DESC\n" rows_affected=10 rows_returned=10 elapsed=22.238418634s elapsed_secs=22.238418634 slow_threshold=1s
+2025-11-12T14:51:08.570835Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:51:08.570999Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:51:08.571039Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:51:08.572097Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:51:08.572214Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:51:08.572245Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:51:08.572306Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-12T14:51:08.595824Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:51:08.595931Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:51:08.595953Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:51:08.604096Z DEBUG sqlx::query: summary="SELECT id, tenant_id, contact_id, …" db.statement="\n\nSELECT\n  id,\n  tenant_id,\n  contact_id,\n  contract_number,\n  interest_rate,\n  term_months,\n  date_start,\n  date_end,\n  storage_fee_rate,\n  storage_fee,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_settlement_amount,\n  state,\n  created_at,\n  updated_at,\n  created_by,\n  assignee_id,\n  shared_with,\n  0 :: int8 AS \"total_paid_principal!\",\n  0 :: int8 AS \"payoff_due!\"\nFROM\n  loan_contract\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_number DESC\n" rows_affected=10 rows_returned=10 elapsed=25.961211ms elapsed_secs=0.025961211
+2025-11-12T14:51:08.606323Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:51:08.606457Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:51:08.606494Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:51:08.606563Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-12T14:51:08.632355Z DEBUG sqlx::query: summary="SELECT id, tenant_id, contact_id, …" db.statement="\n\nSELECT\n  id,\n  tenant_id,\n  contact_id,\n  contract_number,\n  interest_rate,\n  term_months,\n  date_start,\n  date_end,\n  storage_fee_rate,\n  storage_fee,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_settlement_amount,\n  state,\n  created_at,\n  updated_at,\n  created_by,\n  assignee_id,\n  shared_with,\n  0 :: int8 AS \"total_paid_principal!\",\n  0 :: int8 AS \"payoff_due!\"\nFROM\n  loan_contract\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_number DESC\n" rows_affected=10 rows_returned=10 elapsed=18.735412ms elapsed_secs=0.018735412
+2025-11-12T14:51:12.263141Z  WARN sqlx::query: slow statement: execution time exceeded alert threshold summary="SELECT t.tenant_id, t.enterprise_id, t.company_id, …" db.statement="\n\nSELECT\n  t.tenant_id,\n  t.enterprise_id,\n  t.company_id,\n  t.name,\n  t.slug,\n  t.shard_id,\n  m.module_name as \"module_name?\"\nFROM\n  tenant t\n  LEFT JOIN tenant_module m ON m.tenant_id = t.tenant_id\nORDER BY\n  t.name\n" rows_affected=0 rows_returned=0 elapsed=9.043704743s elapsed_secs=9.043704743 slow_threshold=1s
+2025-11-12T14:51:12.512387Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-12T14:51:12.512561Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-12T14:51:12.512613Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-12T14:51:12.512695Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /profile
+2025-11-12T14:51:12.514924Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-12T14:51:12.515093Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-12T14:51:12.515114Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-12T14:51:12.515175Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /profile
+2025-11-12T14:51:12.906230Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:51:12.906230Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:51:12.906360Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:51:12.906361Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:51:12.906380Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:51:12.906380Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:51:12.906448Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-12T14:51:12.948165Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:51:12.948349Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:51:12.948374Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:51:12.953296Z DEBUG sqlx::query: summary="SELECT id, tenant_id, contact_id, …" db.statement="\n\nSELECT\n  id,\n  tenant_id,\n  contact_id,\n  contract_number,\n  interest_rate,\n  term_months,\n  date_start,\n  date_end,\n  storage_fee_rate,\n  storage_fee,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_settlement_amount,\n  state,\n  created_at,\n  updated_at,\n  created_by,\n  assignee_id,\n  shared_with,\n  0 :: int8 AS \"total_paid_principal!\",\n  0 :: int8 AS \"payoff_due!\"\nFROM\n  loan_contract\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_number DESC\n" rows_affected=10 rows_returned=10 elapsed=37.848534ms elapsed_secs=0.037848534
+2025-11-12T14:51:12.955884Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T14:51:12.956074Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T14:51:12.956120Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T14:51:12.956191Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-12T14:51:12.980290Z DEBUG sqlx::query: summary="SELECT id, tenant_id, contact_id, …" db.statement="\n\nSELECT\n  id,\n  tenant_id,\n  contact_id,\n  contract_number,\n  interest_rate,\n  term_months,\n  date_start,\n  date_end,\n  storage_fee_rate,\n  storage_fee,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_settlement_amount,\n  state,\n  created_at,\n  updated_at,\n  created_by,\n  assignee_id,\n  shared_with,\n  0 :: int8 AS \"total_paid_principal!\",\n  0 :: int8 AS \"payoff_due!\"\nFROM\n  loan_contract\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_number DESC\n" rows_affected=10 rows_returned=10 elapsed=18.021362ms elapsed_secs=0.018021362
+2025-11-12T15:09:41.160303Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-12T15:09:41.160547Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-12T15:09:41.160583Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-12T15:09:41.160644Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /profile
+2025-11-12T15:09:41.164800Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-12T15:09:41.164950Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-12T15:09:41.165059Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-12T15:09:41.165219Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /profile
+2025-11-12T15:09:41.494820Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T15:09:41.494913Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T15:09:41.494937Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T15:09:41.495871Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T15:09:41.495997Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T15:09:41.496032Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T15:09:41.496096Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-12T15:09:41.496514Z  INFO sqlx_core::pool::inner: ping on idle connection returned error error=error returned from database: terminating connection due to administrator command
+2025-11-12T15:09:41.521204Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T15:09:41.521302Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T15:09:41.521327Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T15:09:57.917393Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-12T15:09:57.917601Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-12T15:09:57.917628Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-12T15:09:57.917690Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /profile
+2025-11-12T15:09:57.919999Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-12T15:09:57.920148Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-12T15:09:57.920186Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-12T15:09:57.920267Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /profile
+2025-11-12T15:09:58.238840Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T15:09:58.238973Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T15:09:58.239011Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T15:09:58.239693Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T15:09:58.239776Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T15:09:58.239801Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T15:09:58.239859Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-12T15:09:58.240197Z  INFO sqlx_core::pool::inner: ping on idle connection returned error error=error returned from database: terminating connection due to administrator command
+2025-11-12T15:09:58.266610Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T15:09:58.266723Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T15:09:58.266752Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T15:10:06.394064Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-12T15:10:06.394212Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-12T15:10:06.394246Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-12T15:10:06.394310Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /profile
+2025-11-12T15:10:06.396363Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-12T15:10:06.396569Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-12T15:10:06.396606Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-12T15:10:06.396680Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /profile
+2025-11-12T15:10:06.738908Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T15:10:06.739034Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T15:10:06.739070Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T15:10:06.739880Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T15:10:06.739998Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T15:10:06.740030Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T15:10:06.740085Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-12T15:10:06.740461Z  INFO sqlx_core::pool::inner: ping on idle connection returned error error=error returned from database: terminating connection due to administrator command
+2025-11-12T15:10:06.768012Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T15:10:06.768118Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T15:10:06.768144Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T15:10:13.085562Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T15:10:13.085681Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T15:10:13.085700Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T15:10:13.085748Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-12T15:10:13.086115Z  INFO sqlx_core::pool::inner: ping on idle connection returned error error=error returned from database: terminating connection due to administrator command
+2025-11-12T15:10:13.244102Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-12T15:10:13.244202Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-12T15:10:13.244214Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-12T15:10:13.244246Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /profile
+2025-11-12T15:10:13.245629Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-12T15:10:13.245781Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-12T15:10:13.245816Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-12T15:10:13.245878Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /profile
+2025-11-12T15:10:13.561522Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T15:10:13.561696Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T15:10:13.561731Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T15:10:13.563047Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T15:10:13.563182Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T15:10:13.563222Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T15:10:13.563294Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-12T15:10:13.563610Z  INFO sqlx_core::pool::inner: ping on idle connection returned error error=error returned from database: terminating connection due to administrator command
+2025-11-12T15:10:13.587397Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T15:10:13.587534Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T15:10:13.587568Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T15:10:14.256444Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T15:10:14.257972Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T15:10:14.258073Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T15:10:14.258105Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T15:10:14.258159Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-12T15:10:14.258444Z  INFO sqlx_core::pool::inner: ping on idle connection returned error error=error returned from database: terminating connection due to administrator command
+2025-11-12T15:10:14.288924Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T15:10:17.366659Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-12T15:10:17.366798Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-12T15:10:17.366832Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-12T15:10:17.366908Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /profile
+2025-11-12T15:10:17.369394Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-12T15:10:17.369589Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-12T15:10:17.369624Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-12T15:10:17.369692Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /profile
+2025-11-12T15:10:17.689347Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T15:10:17.689395Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T15:10:17.689465Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T15:10:17.689500Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T15:10:17.689524Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T15:10:17.689551Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T15:10:17.689557Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-12T15:10:17.689871Z  INFO sqlx_core::pool::inner: ping on idle connection returned error error=error returned from database: terminating connection due to administrator command
+2025-11-12T15:10:17.711120Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T15:10:17.713595Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T15:10:17.713595Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T15:10:17.713679Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T15:10:17.713680Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T15:10:17.713691Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T15:10:17.713694Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T15:10:17.713737Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-12T15:10:17.714166Z  INFO sqlx_core::pool::inner: ping on idle connection returned error error=error returned from database: terminating connection due to administrator command
+2025-11-12T15:10:17.741354Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Fatal, code: "3D000", message: "database \"milan\" does not exist", detail: None, hint: None, position: None, where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("postinit.c"), line: Some(1111), routine: Some("InitPostgresImpl") })
+2025-11-12T15:11:13.493480Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-12T15:11:13.493631Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-12T15:11:13.493676Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-12T15:11:13.493774Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /profile
+2025-11-12T15:11:13.495609Z DEBUG milan::core::i18n: 🌐 Accept-Language header: vi
+2025-11-12T15:11:13.495749Z DEBUG milan::core::i18n: 🌐 Normalized language from header: vi
+2025-11-12T15:11:13.495781Z  INFO milan::core::i18n: ✅ Using language from header: vi
+2025-11-12T15:11:13.495855Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /profile
+2025-11-12T15:11:13.805696Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T15:11:13.805809Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T15:11:13.805826Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T15:11:13.806640Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T15:11:13.806737Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T15:11:13.806763Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T15:11:13.806819Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-12T15:11:13.829849Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T15:11:13.829962Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T15:11:13.829983Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T15:11:14.030078Z DEBUG sqlx::query: summary="SELECT id, tenant_id, contact_id, …" db.statement="\n\nSELECT\n  id,\n  tenant_id,\n  contact_id,\n  contract_number,\n  interest_rate,\n  term_months,\n  date_start,\n  date_end,\n  storage_fee_rate,\n  storage_fee,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_settlement_amount,\n  state,\n  created_at,\n  updated_at,\n  created_by,\n  assignee_id,\n  shared_with,\n  0 :: int8 AS \"total_paid_principal!\",\n  0 :: int8 AS \"payoff_due!\"\nFROM\n  loan_contract\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_number DESC\n" rows_affected=0 rows_returned=0 elapsed=9.07688ms elapsed_secs=0.00907688
+2025-11-12T15:11:14.030218Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Error, code: "42P01", message: "relation \"loan_contract\" does not exist", detail: None, hint: None, position: Some(Original(510)), where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("parse_relation.c"), line: Some(1404), routine: Some("parserOpenTable") })
+2025-11-12T15:11:14.031529Z DEBUG milan::core::i18n: 🌐 Accept-Language header: en-US,en;q=0.9,vi;q=0.8,nl;q=0.7
+2025-11-12T15:11:14.031624Z DEBUG milan::core::i18n: 🌐 Normalized language from header: en
+2025-11-12T15:11:14.031646Z  INFO milan::core::i18n: ✅ Using language from header: en
+2025-11-12T15:11:14.031692Z DEBUG milan::core::auth: 🔐 Middleware nhận request: /list
+2025-11-12T15:11:14.037687Z DEBUG sqlx::query: summary="SELECT id, tenant_id, contact_id, …" db.statement="\n\nSELECT\n  id,\n  tenant_id,\n  contact_id,\n  contract_number,\n  interest_rate,\n  term_months,\n  date_start,\n  date_end,\n  storage_fee_rate,\n  storage_fee,\n  current_principal,\n  current_interest,\n  accumulated_interest,\n  total_paid_interest,\n  total_settlement_amount,\n  state,\n  created_at,\n  updated_at,\n  created_by,\n  assignee_id,\n  shared_with,\n  0 :: int8 AS \"total_paid_principal!\",\n  0 :: int8 AS \"payoff_due!\"\nFROM\n  loan_contract\nWHERE\n  tenant_id = $1\nORDER BY\n  contract_number DESC\n" rows_affected=0 rows_returned=0 elapsed=2.677264ms elapsed_secs=0.002677264
+2025-11-12T15:11:14.037852Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: Database(PgDatabaseError { severity: Error, code: "42P01", message: "relation \"loan_contract\" does not exist", detail: None, hint: None, position: Some(Original(510)), where: None, schema: None, table: None, column: None, data_type: None, constraint: None, file: Some("parse_relation.c"), line: Some(1404), routine: Some("parserOpenTable") })
+2025-11-12T15:56:41.374412Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
+2025-11-12T15:56:41.396850Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
+2025-11-12T16:01:56.629405Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
+2025-11-12T16:01:56.648694Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
+2025-11-12T16:03:38.639936Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
+2025-11-12T16:03:38.658675Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
+2025-11-12T17:17:05.169685Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:05.169699Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:05.171911Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:05.172249Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:05.172843Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:05.173043Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:05.173509Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:05.173877Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:05.175055Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:05.175071Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:05.175411Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:05.175513Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:05.175727Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:05.175841Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:05.178049Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:05.178564Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:05.524739Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:05.526032Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:06.537167Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:06.546548Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:06.546548Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:06.548281Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:06.549051Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:06.549527Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:06.553409Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:06.553409Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:06.565691Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:06.574380Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:06.574380Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:06.574629Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:06.574795Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:06.574987Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:06.579320Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-11-12T17:17:06.579320Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)

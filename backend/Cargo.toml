@@ -1,0 +1,58 @@
+[package]
+name = "milan"
+version = "0.1.0"
+edition = "2021"
+default-run = "milan"
+
+[dependencies]
+axum = { version = "0.7", features = ["macros"] }
+tokio = { version = "1", features = ["full"] }
+tower = "0.4"
+tower-http = { version = "0.5", features = ["cors"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+dotenvy = "0.15"
+sqlx = { version = "0.7", default-features = false, features = [
+    "runtime-tokio-rustls",
+    "postgres",
+    "macros",
+    "uuid",
+    "chrono",
+    "migrate",
+    "json"  ,   
+    "bigdecimal",   
+
+] }
+convert_case = "0.5"
+tokio-tungstenite = { version = "0.20", features = ["rustls-tls-webpki-roots"] }
+futures-util = "0.3"
+url = "2"
+async-trait = "0.1"
+anyhow = "1.0"
+
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde", "clock"] }
+bcrypt = "0.15"
+jsonwebtoken = "9"
+chrono-tz = "0.8"
+
+# 🐾 Ghi log ra stdout và file
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing-appender = "0.2"
+
+# Bao cao
+bigdecimal = { version = "0.3.1", features = ["serde"] }
+rust_decimal = "1.37.2"
+futures = "0.3.31"
+once_cell = "1.21.3"
+
+# Redis Cache
+redis = { version = "0.24", features = ["tokio-comp", "connection-manager"] }
+
+# HTTP Client
+reqwest = { version = "0.11", features = ["json"] }
+# sinh permission trong db neu co thu muc module chua file metadata.rs ke ca ko co noi dung trong metadata
+[[bin]]
+name = "gen_module"
+path = "tools/gen_module.rs"

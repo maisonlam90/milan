@@ -1,0 +1,27 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE account_move_line\n        SET \n            product_id = $1,\n            product_uom_id = $2,\n            name = $3,\n            quantity = $4,\n            price_unit = $5,\n            discount = $6,\n            account_id = $7,\n            price_subtotal = $8,\n            price_total = $9,\n            sequence = COALESCE($10, sequence),\n            display_type = $11\n        WHERE tenant_id = $12 AND id = $13 AND move_id = $14\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Numeric",
+        "Numeric",
+        "Numeric",
+        "Uuid",
+        "Numeric",
+        "Numeric",
+        "Int4",
+        "Varchar",
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "59e0d126eb24a4a64e0a4bee5c47297a668d9e3183df20e17442a61f1d99ff05"
+}

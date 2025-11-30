@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE loan_collateral\n        SET status = 'released',\n            released_at = NOW()\n        WHERE tenant_id = $1\n          AND contract_id = $2\n          AND asset_id = $3\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e7b7abe5bc99fed64de4618a374bcb76df39394cfb591b2d01fe2b18ef2af08a"
+}

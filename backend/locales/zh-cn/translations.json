@@ -1,0 +1,84 @@
+{
+  "error": {
+    "not_found": "未找到",
+    "bad_request": "错误请求",
+    "internal_error": "内部服务器错误",
+    "db_error": "数据库错误",
+    "validation": {
+      "required": "字段 {field} 是必需的",
+      "invalid_email": "无效的电子邮件",
+      "invalid_format": "无效的格式",
+      "min_length": "最少 {min} 个字符",
+      "max_length": "最多 {max} 个字符",
+      "invalid_number": "无效的数字",
+      "invalid_date": "无效的日期"
+    },
+    "auth": {
+      "unauthorized": "未授权",
+      "forbidden": "禁止访问",
+      "invalid_token": "无效的令牌",
+      "expired_token": "令牌已过期",
+      "login_failed": "登录失败",
+      "invalid_credentials": "无效的凭据"
+    },
+    "user": {
+      "not_found": "未找到用户",
+      "already_exists": "用户已存在",
+      "create_failed": "创建用户失败",
+      "update_failed": "更新用户失败",
+      "delete_failed": "删除用户失败"
+    },
+    "loan": {
+      "not_found": "未找到贷款",
+      "already_exists": "贷款已存在",
+      "create_failed": "创建贷款失败",
+      "update_failed": "更新贷款失败",
+      "delete_failed": "删除贷款失败",
+      "invalid_amount": "无效的金额",
+      "invalid_interest_rate": "无效的利率",
+      "transactions_empty": "至少需要1笔交易"
+    },
+    "contact": {
+      "not_found": "未找到联系人",
+      "already_exists": "联系人已存在",
+      "create_failed": "创建联系人失败",
+      "update_failed": "更新联系人失败",
+      "delete_failed": "删除联系人失败"
+    },
+    "invoice": {
+      "not_found": "未找到发票",
+      "already_exists": "发票已存在",
+      "create_failed": "创建发票失败",
+      "update_failed": "更新发票失败",
+      "delete_failed": "删除发票失败"
+    },
+    "tenant": {
+      "not_found": "未找到租户",
+      "already_exists": "租户已存在",
+      "create_failed": "创建租户失败",
+      "update_failed": "更新租户失败"
+    }
+  },
+  "success": {
+    "created": "创建成功",
+    "updated": "更新成功",
+    "deleted": "删除成功",
+    "saved": "保存成功"
+  },
+  "common": {
+    "loading": "加载中...",
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "create": "创建",
+    "update": "更新",
+    "search": "搜索",
+    "filter": "过滤",
+    "export": "导出",
+    "import": "导入",
+    "confirm": "确认",
+    "yes": "是",
+    "no": "否"
+  }
+}

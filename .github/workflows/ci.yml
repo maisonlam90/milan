@@ -1,0 +1,42 @@
+name: CI build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Build frontend (Tailux)
+        run: |
+          cd frontend/demo
+          yarn install --frozen-lockfile
+          yarn build
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@1.89.0
+        with:
+          components: rustfmt, clippy
+
+      - name: Cài sqlx-cli (bản cũ tránh edition2024)
+        run: |
+          cargo install sqlx-cli --version 0.7.3 --no-default-features --features postgres --locked
+
+      - name: Build project
+        env:
+          SQLX_OFFLINE: true
+        run: |
+          cd backend
+          cargo build --release
