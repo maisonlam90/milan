@@ -51,6 +51,7 @@ export default function InvoiceLink() {
   const [formFields, setFormFields] = useState<FormField[]>([]);
   const [isLoadingProviders, setIsLoadingProviders] = useState(true);
   const [isLoadingFields, setIsLoadingFields] = useState(false);
+  const [providerCredentials, setProviderCredentials] = useState<any>(null);
 
   // Build dynamic validation schema based on form fields
   const buildSchema = useCallback((fields: FormField[]) => {
@@ -153,9 +154,33 @@ export default function InvoiceLink() {
     }
   }, [buildSchema, reset]);
 
+  // Fetch provider credentials để hiển thị thông tin nhà cung cấp mặc định
+  const fetchProviderCredentials = useCallback(async () => {
+    try {
+      const token = (typeof window !== "undefined" && localStorage.getItem("authToken")) || "";
+      const authHeader = token ? { Authorization: `Bearer ${token}` } : undefined;
+
+      const res = await axiosInstance.get('/invoice-link/providers/credentials', {
+        headers: authHeader,
+      });
+      
+      // Lấy credentials mặc định của Viettel
+      const defaultCred = res.data?.items?.find(
+        (cred: any) => cred.is_default && cred.is_active
+      );
+      
+      if (defaultCred) {
+        setProviderCredentials(defaultCred);
+      }
+    } catch (err) {
+      console.error("❌ Lỗi load provider credentials:", err);
+    }
+  }, []);
+
   useEffect(() => {
     fetchProviders();
-  }, [fetchProviders]);
+    fetchProviderCredentials();
+  }, [fetchProviders, fetchProviderCredentials]);
 
   // When provider changes, fetch form fields
   useEffect(() => {
@@ -362,6 +387,45 @@ export default function InvoiceLink() {
           </div>
 
           <div className="col-span-12 lg:col-span-4 space-y-4 sm:space-y-5 lg:space-y-6">
+            {/* Provider Credentials Info Card */}
+            {providerCredentials && (
+              <Card className="p-4 sm:px-5 border-l-4 border-primary-500 bg-gradient-to-r from-primary-50 to-transparent dark:from-primary-900/10">
+                <h6 className="text-base font-medium text-gray-800 dark:text-dark-100 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                  Nhà cung cấp mặc định
+                </h6>
+                <div className="mt-3 space-y-2 text-sm">
+                  <div className="flex items-start justify-between">
+                    <span className="text-gray-600 dark:text-dark-300 font-medium">Provider:</span>
+                    <span className="text-gray-900 dark:text-dark-50 font-semibold capitalize">{providerCredentials.provider}</span>
+                  </div>
+                  <div className="flex items-start justify-between">
+                    <span className="text-gray-600 dark:text-dark-300 font-medium">Mẫu hóa đơn:</span>
+                    <span className="text-gray-900 dark:text-dark-50 font-mono">{providerCredentials.template_code || 'N/A'}</span>
+                  </div>
+                  <div className="flex items-start justify-between">
+                    <span className="text-gray-600 dark:text-dark-300 font-medium">Ký hiệu:</span>
+                    <span className="text-gray-900 dark:text-dark-50 font-mono">{providerCredentials.invoice_series || 'N/A'}</span>
+                  </div>
+                  <div className="flex items-start justify-between pt-2 border-t border-gray-200 dark:border-dark-500">
+                    <span className="text-gray-600 dark:text-dark-300 font-medium">Trạng thái:</span>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                      providerCredentials.is_active 
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' 
+                        : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400'
+                    }`}>
+                      <span className={`w-1.5 h-1.5 rounded-full mr-1 ${
+                        providerCredentials.is_active ? 'bg-green-500' : 'bg-gray-500'
+                      }`}></span>
+                      {providerCredentials.is_active ? 'Hoạt động' : 'Không hoạt động'}
+                    </span>
+                  </div>
+                </div>
+              </Card>
+            )}
+
             <Card className="p-4 sm:px-5">
               <h6 className="text-base font-medium text-gray-800 dark:text-dark-100">
                 Hướng dẫn

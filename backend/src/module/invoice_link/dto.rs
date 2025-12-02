@@ -94,6 +94,8 @@ pub struct ProviderCredentialsDto {
     pub provider: String,
     pub is_active: bool,
     pub is_default: bool,
+    pub template_code: Option<String>,
+    pub invoice_series: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }

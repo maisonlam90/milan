@@ -221,6 +221,8 @@ export default function InvoiceCreate() {
   const [contacts, setContacts] = useState<ContactLite[]>([]);
   const [isLoadingInvoice, setIsLoadingInvoice] = useState<boolean>(!!invoiceId);
   const [metadata, setMetadata] = useState<MetadataDto | null>(null);
+  const [isSendingEInvoice, setIsSendingEInvoice] = useState(false);
+  const [eInvoiceMessage, setEInvoiceMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   const form = useForm<InvoiceFormData>({
     resolver: yupResolver(schema),
@@ -645,6 +647,55 @@ export default function InvoiceCreate() {
     // TODO: Reload invoice data if editing
   };
 
+  // Handle creating e-invoice
+  const handleCreateEInvoice = async () => {
+    if (!invoiceId) {
+      setEInvoiceMessage({ 
+        type: 'error', 
+        text: 'Vui lòng lưu hóa đơn trước khi tạo hóa đơn điện tử' 
+      });
+      return;
+    }
+
+    setIsSendingEInvoice(true);
+    setEInvoiceMessage(null);
+
+    try {
+      const response = await axiosInstance.post('/invoice-link/send', {
+        invoice_id: invoiceId,
+        provider: 'viettel',
+      });
+
+      const data = response.data;
+      
+      if (data.status === 'linked') {
+        setEInvoiceMessage({ 
+          type: 'success', 
+          text: data.message || 'Hóa đơn điện tử đã được tạo thành công trên Viettel!' 
+        });
+      } else if (data.status === 'failed') {
+        setEInvoiceMessage({ 
+          type: 'error', 
+          text: data.message || 'Không thể tạo hóa đơn điện tử' 
+        });
+      } else {
+        setEInvoiceMessage({ 
+          type: 'success', 
+          text: 'Đang xử lý hóa đơn điện tử...' 
+        });
+      }
+    } catch (error: any) {
+      console.error("Error creating e-invoice:", error);
+      const errorMessage = error?.response?.data?.message 
+        || error?.response?.data?.error 
+        || error?.message 
+        || "Không thể tạo hóa đơn điện tử. Vui lòng kiểm tra kết nối với Viettel.";
+      setEInvoiceMessage({ type: 'error', text: errorMessage });
+    } finally {
+      setIsSendingEInvoice(false);
+    }
+  };
+
   return (
     <Page title={invoiceId ? "Chi tiết hóa đơn" : "Tạo hóa đơn mới"}>
       <div className="transition-content px-(--margin-x) pb-6">
@@ -829,6 +880,37 @@ export default function InvoiceCreate() {
                   </div>
                 </div>
               </Card>
+
+              {/* E-Invoice Card */}
+              {invoiceId && (
+                <Card className="p-4 sm:px-5">
+                  <h6 className="text-base font-medium text-gray-800 dark:text-dark-100">
+                    Hóa đơn điện tử
+                  </h6>
+                  <div className="mt-3 space-y-3">
+                    {eInvoiceMessage && (
+                      <div className={`text-sm p-3 rounded ${
+                        eInvoiceMessage.type === 'success' 
+                          ? 'bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-400' 
+                          : 'bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                      }`}>
+                        {eInvoiceMessage.text}
+                      </div>
+                    )}
+                    <Button
+                      className="w-full"
+                      color="primary"
+                      onClick={handleCreateEInvoice}
+                      disabled={isSendingEInvoice || !invoiceId}
+                    >
+                      {isSendingEInvoice ? "Đang gửi..." : "Tạo hóa đơn điện tử"}
+                    </Button>
+                    <p className="text-xs text-gray-500 dark:text-dark-400">
+                      Gửi hóa đơn lên hệ thống Viettel Invoice
+                    </p>
+                  </div>
+                </Card>
+              )}
             </div>
           </div>
         </form>

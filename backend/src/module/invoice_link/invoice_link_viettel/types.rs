@@ -13,11 +13,16 @@ pub struct ViettelLoginResponse {
 /// Request body để tạo draft invoice Viettel
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ViettelCreateInvoiceRequest {
+    #[serde(rename = "generalInvoiceInfo")]
     pub general_invoice_info: ViettelGeneralInvoiceInfo,
+    #[serde(rename = "buyerInfo")]
     pub buyer_info: ViettelBuyerInfo,
+    #[serde(rename = "sellerInfo")]
     pub seller_info: ViettelSellerInfo,
     pub payments: Vec<ViettelPayment>,
+    #[serde(rename = "itemInfo")]
     pub item_info: Vec<ViettelItemInfo>,
+    #[serde(rename = "summarizeInfo")]
     pub summarize_info: ViettelSummarizeInfo,
 }
 
@@ -89,6 +94,8 @@ pub struct ViettelItemInfo {
     #[serde(rename = "unitName")]
     pub unit_name: String,
     pub quantity: i32,
+    #[serde(rename = "unitPrice", skip_serializing_if = "Option::is_none")]
+    pub unit_price: Option<i64>,
     #[serde(rename = "unitPriceWithTax")]
     pub unit_price_with_tax: i64,
     #[serde(rename = "itemTotalAmountWithTax")]

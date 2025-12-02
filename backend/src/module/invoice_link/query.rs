@@ -56,17 +56,17 @@ pub async fn list_invoice_links(
 
     let mut param_count = 2;
 
-    if let Some(ref invoice_id) = filter.invoice_id {
+    if let Some(ref _invoice_id) = filter.invoice_id {
         query.push_str(&format!(" AND invoice_id = ${}", param_count));
         param_count += 1;
     }
 
-    if let Some(ref provider) = filter.provider {
+    if let Some(ref _provider) = filter.provider {
         query.push_str(&format!(" AND provider = ${}", param_count));
         param_count += 1;
     }
 
-    if let Some(ref status) = filter.status {
+    if let Some(ref _status) = filter.status {
         query.push_str(&format!(" AND status = ${}", param_count));
         param_count += 1;
     }
@@ -155,8 +155,15 @@ pub async fn list_provider_credentials(
 ) -> Result<Vec<ProviderCredentialsDto>, sqlx::Error> {
     let rows = sqlx::query!(
         r#"
-        SELECT id, provider, is_active, is_default, created_at, updated_at
-        FROM provider_credentials
+        SELECT 
+            id, 
+            provider, 
+            is_active, 
+            is_default, 
+            credentials,
+            created_at, 
+            updated_at
+        FROM invoice_link_provider_credentials
         WHERE tenant_id = $1
         ORDER BY is_default DESC, updated_at DESC
         "#,
@@ -165,13 +172,26 @@ pub async fn list_provider_credentials(
     .fetch_all(pool)
     .await?;
 
-    Ok(rows.into_iter().map(|r| ProviderCredentialsDto {
-        id: r.id,
-        provider: r.provider,
-        is_active: r.is_active,
-        is_default: r.is_default,
-        created_at: r.created_at,
-        updated_at: r.updated_at,
+    Ok(rows.into_iter().map(|r| {
+        // Extract template_code and invoice_series from credentials JSON
+        let template_code = r.credentials.get("template_code")
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_string());
+        
+        let invoice_series = r.credentials.get("invoice_series")
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_string());
+        
+        ProviderCredentialsDto {
+            id: r.id,
+            provider: r.provider,
+            is_active: r.is_active,
+            is_default: r.is_default,
+            template_code,
+            invoice_series,
+            created_at: r.created_at,
+            updated_at: r.updated_at,
+        }
     }).collect())
 }
 

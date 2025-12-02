@@ -5,40 +5,41 @@
 -- ============================================================
 
 -- ============================================================
--- 1. PROVIDER CREDENTIALS TABLE
+-- 1. INVOICE LINK PROVIDER CREDENTIALS TABLE
 -- ============================================================
 -- Lưu thông tin đăng nhập của các provider hóa đơn điện tử
-CREATE TABLE IF NOT EXISTS provider_credentials (
+CREATE TABLE IF NOT EXISTS invoice_link_provider_credentials (
     tenant_id UUID NOT NULL,
     id UUID NOT NULL,
-    user_id UUID NOT NULL,                          -- User tạo credentials
+    user_id UUID NOT NULL,                          -- User tạo credentials (không có FK constraint vì user có thể không tồn tại trong hệ thống)
     provider VARCHAR(50) NOT NULL,                 -- 'viettel', 'mobifone', etc.
-    credentials JSONB NOT NULL,                     -- Encrypted credentials (username, password, etc.)
+    credentials JSONB NOT NULL,                     -- Encrypted credentials (username, password, template_code, invoice_series, etc.)
     access_token TEXT,                              -- Access token từ provider API
     token_expires_at TIMESTAMPTZ,                   -- Thời gian hết hạn token
     is_active BOOLEAN NOT NULL DEFAULT true,        -- Credentials có đang active không
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     
-    PRIMARY KEY (tenant_id, id),
-    FOREIGN KEY (tenant_id, user_id) REFERENCES users(tenant_id, user_id) ON DELETE CASCADE
+    PRIMARY KEY (tenant_id, id)
+    -- Note: Không có FK constraint với bảng users vì credentials thuộc về tenant
 );
 
--- Indexes cho provider_credentials
-CREATE INDEX IF NOT EXISTS idx_provider_credentials_tenant_provider 
-    ON provider_credentials(tenant_id, provider) WHERE is_active = true;
-CREATE INDEX IF NOT EXISTS idx_provider_credentials_user 
-    ON provider_credentials(tenant_id, user_id);
-CREATE INDEX IF NOT EXISTS idx_provider_credentials_updated_at 
-    ON provider_credentials(tenant_id, updated_at DESC);
+-- Indexes cho invoice_link_provider_credentials
+CREATE INDEX IF NOT EXISTS idx_invoice_link_provider_credentials_tenant_provider 
+    ON invoice_link_provider_credentials(tenant_id, provider) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_invoice_link_provider_credentials_user 
+    ON invoice_link_provider_credentials(tenant_id, user_id);
+CREATE INDEX IF NOT EXISTS idx_invoice_link_provider_credentials_updated_at 
+    ON invoice_link_provider_credentials(tenant_id, updated_at DESC);
 
 -- Comments
-COMMENT ON TABLE provider_credentials IS 'Thông tin đăng nhập của các provider hóa đơn điện tử';
-COMMENT ON COLUMN provider_credentials.provider IS 'Tên provider: viettel, mobifone, etc.';
-COMMENT ON COLUMN provider_credentials.credentials IS 'Thông tin đăng nhập dạng JSON (nên được encrypt trước khi lưu)';
-COMMENT ON COLUMN provider_credentials.access_token IS 'Access token từ provider API (có thể refresh)';
-COMMENT ON COLUMN provider_credentials.token_expires_at IS 'Thời gian hết hạn của access_token';
-COMMENT ON COLUMN provider_credentials.is_active IS 'Credentials có đang được sử dụng không';
+COMMENT ON TABLE invoice_link_provider_credentials IS 'Thông tin đăng nhập của các provider hóa đơn điện tử';
+COMMENT ON COLUMN invoice_link_provider_credentials.user_id IS 'User tạo credentials (không có FK constraint)';
+COMMENT ON COLUMN invoice_link_provider_credentials.provider IS 'Tên provider: viettel, mobifone, etc.';
+COMMENT ON COLUMN invoice_link_provider_credentials.credentials IS 'Thông tin đăng nhập dạng JSON (username, password, template_code, invoice_series, etc.) - nên được encrypt trước khi lưu';
+COMMENT ON COLUMN invoice_link_provider_credentials.access_token IS 'Access token từ provider API (có thể refresh)';
+COMMENT ON COLUMN invoice_link_provider_credentials.token_expires_at IS 'Thời gian hết hạn của access_token';
+COMMENT ON COLUMN invoice_link_provider_credentials.is_active IS 'Credentials có đang được sử dụng không';
 
 -- ============================================================
 -- 2. INVOICE LINK TABLE

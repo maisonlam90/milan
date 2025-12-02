@@ -87,15 +87,15 @@ BEGIN
     -- SECTION 1: Additional Customers
     -- ============================================================
     
-    INSERT INTO contact (tenant_id, id, is_company, name, display_name, email, phone, mobile, street, city, country_code, created_by, assignee_id, created_at)
+    INSERT INTO contact (tenant_id, id, is_company, name, display_name, email, phone, street, city, country_code, created_by, assignee_id, created_at)
     VALUES 
-        (v_tenant_id, v_cust4_id, FALSE, 'Trần Văn B', 'Trần Văn B', 'tranvanb@gmail.com', NULL, '0909111222', '100 Lê Duẩn', 'Hồ Chí Minh', 'VN', v_admin_id, v_admin_id, now()),
-        (v_tenant_id, v_cust5_id, TRUE, 'Công ty TNHH DEF', 'DEF Company', 'info@def.com', '0283456789', NULL, '200 Điện Biên Phủ', 'Hà Nội', 'VN', v_admin_id, v_admin_id, now()),
-        (v_tenant_id, v_cust6_id, FALSE, 'Nguyễn Thị C', 'Nguyễn Thị C', 'nguyenthic@yahoo.com', NULL, '0912345678', '300 Hoàng Văn Thụ', 'Đà Nẵng', 'VN', v_admin_id, v_admin_id, now()),
-        (v_tenant_id, v_cust7_id, TRUE, 'Công ty CP GHI', 'GHI Corp', 'contact@ghi.vn', '0287654321', NULL, '400 Nguyễn Trãi', 'Hồ Chí Minh', 'VN', v_admin_id, v_admin_id, now()),
-        (v_tenant_id, v_cust8_id, FALSE, 'Phạm Văn D', 'Phạm Văn D', 'phamvand@hotmail.com', NULL, '0908765432', '500 Lý Tự Trọng', 'Cần Thơ', 'VN', v_admin_id, v_admin_id, now()),
-        (v_tenant_id, v_cust9_id, TRUE, 'Công ty TNHH JKL', 'JKL Ltd', 'sales@jkl.vn', '0289876543', NULL, '600 Hai Bà Trưng', 'Hà Nội', 'VN', v_admin_id, v_admin_id, now()),
-        (v_tenant_id, v_cust10_id, FALSE, 'Lê Thị E', 'Lê Thị E', 'lethie@outlook.com', NULL, '0901122334', '700 Trần Phú', 'Huế', 'VN', v_admin_id, v_admin_id, now())
+        (v_tenant_id, v_cust4_id, FALSE, 'Trần Văn B', 'Trần Văn B', 'tranvanb@gmail.com', '0909111222', '100 Lê Duẩn', 'Hồ Chí Minh', 'VN', v_admin_id, v_admin_id, now()),
+        (v_tenant_id, v_cust5_id, TRUE, 'Công ty TNHH DEF', 'DEF Company', 'info@def.com', '0283456789', '200 Điện Biên Phủ', 'Hà Nội', 'VN', v_admin_id, v_admin_id, now()),
+        (v_tenant_id, v_cust6_id, FALSE, 'Nguyễn Thị C', 'Nguyễn Thị C', 'nguyenthic@yahoo.com', '0912345678', '300 Hoàng Văn Thụ', 'Đà Nẵng', 'VN', v_admin_id, v_admin_id, now()),
+        (v_tenant_id, v_cust7_id, TRUE, 'Công ty CP GHI', 'GHI Corp', 'contact@ghi.vn', '0287654321', '400 Nguyễn Trãi', 'Hồ Chí Minh', 'VN', v_admin_id, v_admin_id, now()),
+        (v_tenant_id, v_cust8_id, FALSE, 'Phạm Văn D', 'Phạm Văn D', 'phamvand@hotmail.com', '0908765432', '500 Lý Tự Trọng', 'Cần Thơ', 'VN', v_admin_id, v_admin_id, now()),
+        (v_tenant_id, v_cust9_id, TRUE, 'Công ty TNHH JKL', 'JKL Ltd', 'sales@jkl.vn', '0289876543', '600 Hai Bà Trưng', 'Hà Nội', 'VN', v_admin_id, v_admin_id, now()),
+        (v_tenant_id, v_cust10_id, FALSE, 'Lê Thị E', 'Lê Thị E', 'lethie@outlook.com', '0901122334', '700 Trần Phú', 'Huế', 'VN', v_admin_id, v_admin_id, now())
     ON CONFLICT (tenant_id, id) DO NOTHING;
     
     RAISE NOTICE '✅ Created 7 additional customers';

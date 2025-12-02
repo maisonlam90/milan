@@ -51,7 +51,6 @@ const api = axiosInstance;
 /* --- Constraint mapping cho validation errors --- */
 const constraintMap: Record<string, { field: string; message: string }> = {
   contact_phone_digits_check: { field: "phone", message: "Số điện thoại chỉ gồm 8–15 chữ số." },
-  contact_mobile_digits_check: { field: "mobile", message: "Số mobile chỉ gồm 8–15 chữ số." },
   contact_email_lower_check: { field: "email", message: "Email phải là chữ thường." },
   contact_email_format_check: { field: "email", message: "Email không hợp lệ." },
   contact_web_format_check: { field: "website", message: "URL không hợp lệ." },

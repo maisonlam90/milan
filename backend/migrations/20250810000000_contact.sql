@@ -13,14 +13,13 @@ CREATE TABLE IF NOT EXISTS contact (
   display_name  TEXT,
   email         TEXT,     -- CHECK + UNIQUE per-tenant ở dưới
   phone         TEXT,     -- digits only
-  mobile        TEXT,     -- digits only
   website       TEXT,
   street        TEXT,
-  street2       TEXT,
   city          TEXT,
   state         TEXT,
   zip           TEXT,
   country_code  CHAR(2),
+  tax_code      TEXT,     -- Mã số thuế
   notes         TEXT,
   tags_cached   TEXT,
   idempotency_key TEXT,
@@ -41,8 +40,6 @@ CREATE TABLE IF NOT EXISTS contact (
     CHECK (email IS NULL OR email ~ '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$'),
   CONSTRAINT contact_phone_digits_check
     CHECK (phone IS NULL OR phone  ~ '^[0-9]{8,15}$'),
-  CONSTRAINT contact_mobile_digits_check
-    CHECK (mobile IS NULL OR mobile ~ '^[0-9]{8,15}$'),
   CONSTRAINT contact_web_format_check
     CHECK (website IS NULL OR website ~* '^(https?://)?[a-z0-9.-]+\.[a-z]{2,}(/.*)?$'),
   CONSTRAINT contact_country_code_check
