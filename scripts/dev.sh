@@ -28,8 +28,8 @@ WHERE datname='milan';
 psql "postgres://yugabyte:Maisonlan123@192.168.1.21:5433/postgres" -c "DROP DATABASE milan;"
 
 // đổi pass xong tạo pass mới
-PGPASSWORD="yugabyte" psql -h 192.168.1.21 -p 5433 -U yugabyte -d yugabyte -c "ALTER USER yugabyte WITH PASSWORD 'Maisonlan123';"
-psql "postgres://yugabyte:Maisonlan123@192.168.1.21:5433/postgres" -c "CREATE DATABASE milan;"
+PGPASSWORD="yugabyte" psql -h 103.82.193.198 -p 5433 -U yugabyte -d yugabyte -c "ALTER USER yugabyte WITH PASSWORD 'Maisonlan123';"
+psql "postgres://yugabyte:Maisonlan123@103.82.193.198:5433/postgres" -c "CREATE DATABASE milan;"
 
 
 // cache lai sqlx

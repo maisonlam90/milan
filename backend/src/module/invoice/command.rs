@@ -626,11 +626,22 @@ async fn sync_invoice_lines(
         .filter_map(|l| l.id)
         .collect();
 
-    // Delete lines that are not in the new list
-    for existing_id in &existing_ids {
-        if !new_ids.contains(existing_id) {
-            delete_invoice_line(pool, tenant_id, invoice_id, *existing_id).await?;
-        }
+    // Delete lines that are not in the new list (batch delete)
+    let ids_to_delete: Vec<Uuid> = existing_ids.iter()
+        .filter(|id| !new_ids.contains(id))
+        .copied()
+        .collect();
+    
+    if !ids_to_delete.is_empty() {
+        sqlx::query!(
+            r#"
+            DELETE FROM account_move_line
+            WHERE tenant_id = $1 AND move_id = $2 AND id = ANY($3)
+            "#,
+            tenant_id, invoice_id, &ids_to_delete
+        )
+        .execute(pool)
+        .await?;
     }
 
     // Process each line
@@ -638,8 +649,8 @@ async fn sync_invoice_lines(
         let sequence = line.sequence.unwrap_or((idx * 10) as i32);
 
         if let Some(line_id) = line.id {
-            // Update existing line
-            update_invoice_line_full(pool, tenant_id, invoice_id, line_id, line, invoice.currency_id, default_account_id).await?;
+            // Update existing line (without recalculating totals)
+            update_invoice_line_only(pool, tenant_id, invoice_id, line_id, line, invoice.currency_id, default_account_id).await?;
         } else {
             // Create new line
             let line_id = Uuid::new_v4();
@@ -711,8 +722,94 @@ async fn sync_invoice_lines(
         }
     }
 
-    // Recalculate totals
+    // Recalculate totals ONCE at the end
     recalculate_invoice_totals(pool, tenant_id, invoice_id).await?;
+
+    Ok(())
+}
+
+/// Update invoice line only (without recalculating totals)
+async fn update_invoice_line_only(
+    pool: &Pool<Postgres>,
+    tenant_id: Uuid,
+    invoice_id: Uuid,
+    line_id: Uuid,
+    dto: &UpdateInvoiceLineDto,
+    currency_id: Uuid,
+    default_account_id: Uuid,
+) -> Result<(), sqlx::Error> {
+    // Calculate amounts
+    let quantity = dto.quantity.as_ref().map(|q| q.clone()).unwrap_or_else(|| BigDecimal::from(1));
+    let price_unit = dto.price_unit.as_ref().map(|p| p.clone()).unwrap_or_else(|| BigDecimal::from(0));
+    let discount = dto.discount.as_ref().map(|d| d.clone()).unwrap_or_else(|| BigDecimal::from(0));
+    let discount_factor = BigDecimal::from(1) - (discount / BigDecimal::from(100));
+    let price_subtotal = &quantity * &price_unit * &discount_factor;
+
+    // Calculate tax from tax_rate if provided
+    let price_total = if let Some(tax_rate) = dto.tax_rate.as_ref() {
+        let tax_rate_decimal = tax_rate / BigDecimal::from(100);
+        let tax_amount = &price_subtotal * tax_rate_decimal;
+        &price_subtotal + &tax_amount
+    } else {
+        price_subtotal.clone()
+    };
+
+    let account_id = if dto.display_type.is_some() {
+        None
+    } else {
+        Some(dto.account_id.unwrap_or(default_account_id))
+    };
+
+    // Update line
+    sqlx::query!(
+        r#"
+        UPDATE account_move_line
+        SET 
+            product_id = $1,
+            product_uom_id = $2,
+            name = $3,
+            quantity = $4,
+            price_unit = $5,
+            discount = $6,
+            account_id = $7,
+            price_subtotal = $8,
+            price_total = $9,
+            sequence = COALESCE($10, sequence),
+            display_type = $11
+        WHERE tenant_id = $12 AND id = $13 AND move_id = $14
+        "#,
+        dto.product_id, dto.product_uom_id, dto.name.as_deref(),
+        dto.quantity, dto.price_unit, dto.discount,
+        account_id, price_subtotal, price_total,
+        dto.sequence, dto.display_type.as_deref(),
+        tenant_id, line_id, invoice_id
+    )
+    .execute(pool)
+    .await?;
+
+    // Update tax relations - always delete existing first
+    sqlx::query!(
+        "DELETE FROM account_move_line_tax_rel WHERE tenant_id = $1 AND move_line_id = $2",
+        tenant_id, line_id
+    )
+    .execute(pool)
+    .await?;
+
+    // Add new tax relations if provided
+    if let Some(ref tax_ids) = dto.tax_ids {
+        for tax_id in tax_ids {
+            sqlx::query!(
+                r#"
+                INSERT INTO account_move_line_tax_rel (tenant_id, move_line_id, tax_id)
+                VALUES ($1, $2, $3)
+                ON CONFLICT DO NOTHING
+                "#,
+                tenant_id, line_id, tax_id
+            )
+            .execute(pool)
+            .await?;
+        }
+    }
 
     Ok(())
 }

@@ -1,8 +1,9 @@
 // Import Dependencies
-import { useMemo, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import AgGridView, { makeIndexCol } from "@/components/datagrid/AgGridView";
-import type { ColDef, RowSelectionOptions, RowDoubleClickedEvent, ValueFormatterParams, ICellRendererParams } from "ag-grid-community";
+import type { ColDef, RowSelectionOptions, RowDoubleClickedEvent, ICellRendererParams } from "ag-grid-community";
 import { Badge, Button } from "@/components/ui";
 import { Page } from "@/components/shared/Page";
 import { Breadcrumbs } from "@/components/shared/Breadcrumbs";
@@ -11,47 +12,28 @@ import { JWT_HOST_API } from "@/configs/auth";
 // ----------------------------------------------------------------------
 
 // Types
-interface Invoice {
+export type InvoiceRow = {
   id: string;
-  tenant_id: string;
-  name: string | null;
-  ref_field: string | null;
-  date: string;
-  journal_id: string;
-  currency_id: string;
-  move_type: string;
-  state: string;
-  partner_id: string | null;
-  partner_display_name: string | null;
-  commercial_partner_id: string | null;
-  invoice_date: string | null;
-  invoice_date_due: string | null;
-  invoice_origin: string | null;
-  invoice_payment_term_id: string | null;
-  invoice_user_id: string | null;
-  fiscal_position_id: string | null;
-  payment_state: string | null;
-  payment_reference: string | null;
-  amount_untaxed: number;
-  amount_tax: number;
-  amount_total: number;
-  amount_residual: number;
-  narration: string | null;
-  created_at: string;
-  updated_at: string;
-  created_by: string;
-  assignee_id: string | null;
-}
-
-// ----------------------------------------------------------------------
+  [key: string]: unknown;
+};
 
 // Helper function to join URL
 function joinUrl(base: string, path: string) {
   return `${base.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
 }
 
+// Amount Formatter
+const formatAmount = (v?: number | null) => {
+  if (v == null || v === undefined) return "";
+  return new Intl.NumberFormat("vi-VN").format(Number(v));
+};
+
+function AmountCell(params: ICellRendererParams<InvoiceRow, number>) {
+  return <span>{formatAmount(params.value ?? null)}</span>;
+}
+
 // State Badge Cell Renderer
-function StateBadgeRenderer(params: ICellRendererParams<Invoice>) {
+function StateBadgeRenderer(params: ICellRendererParams<InvoiceRow>) {
   const state = params.value;
   if (!state) return null;
 
@@ -61,7 +43,7 @@ function StateBadgeRenderer(params: ICellRendererParams<Invoice>) {
     cancel: { label: "Cancelled", color: "error" },
   };
 
-  const config = stateConfig[state.toLowerCase()] || { label: state, color: "neutral" as const };
+  const config = stateConfig[String(state).toLowerCase()] || { label: String(state), color: "neutral" as const };
 
   return (
     <Badge variant="soft" color={config.color}>
@@ -71,7 +53,7 @@ function StateBadgeRenderer(params: ICellRendererParams<Invoice>) {
 }
 
 // Payment State Badge Cell Renderer
-function PaymentStateBadgeRenderer(params: ICellRendererParams<Invoice>) {
+function PaymentStateBadgeRenderer(params: ICellRendererParams<InvoiceRow>) {
   const paymentState = params.value;
   if (!paymentState) return null;
 
@@ -84,7 +66,7 @@ function PaymentStateBadgeRenderer(params: ICellRendererParams<Invoice>) {
     invoicing_legacy: { label: "Legacy", color: "neutral" },
   };
 
-  const config = stateConfig[paymentState.toLowerCase()] || { label: paymentState, color: "neutral" as const };
+  const config = stateConfig[String(paymentState).toLowerCase()] || { label: String(paymentState), color: "neutral" as const };
 
   return (
     <Badge variant="soft" color={config.color}>
@@ -93,179 +75,31 @@ function PaymentStateBadgeRenderer(params: ICellRendererParams<Invoice>) {
   );
 }
 
-// Amount Formatter - format như loan-list
-const formatAmount = (v?: number | null) => {
-  if (v == null || v === undefined) return "";
-  return new Intl.NumberFormat("vi-VN").format(Number(v));
-};
-
-function AmountCell(params: ICellRendererParams<Invoice, number>) {
-  return <span>{formatAmount(params.value ?? null)}</span>;
-}
-
-// Move Type Formatter
-function moveTypeFormatter(params: ValueFormatterParams<Invoice>) {
-  const moveType = params.value;
-  if (!moveType) return "";
-
-  const typeMap: Record<string, string> = {
-    out_invoice: "Customer Invoice",
-    in_invoice: "Vendor Bill",
-    out_refund: "Customer Credit Note",
-    in_refund: "Vendor Credit Note",
-    entry: "Journal Entry",
-    out_receipt: "Sales Receipt",
-    in_receipt: "Purchase Receipt",
-  };
-
-  return typeMap[moveType] || moveType;
-}
-
 // ----------------------------------------------------------------------
 
 export default function InvoiceListPage() {
   const navigate = useNavigate();
+  const { i18n } = useTranslation(); // Get i18n instance to listen to language changes
+  const [columnDefs, setColumnDefs] = useState<ColDef<InvoiceRow>[]>([]);
 
-  const columns = useMemo<ColDef<Invoice>[]>(() => [
-    makeIndexCol(),
-    {
-      field: "name",
-      headerName: "Number",
-      minWidth: 150,
-      flex: 1,
-      valueGetter: (params) => params.data?.name || "-",
-    },
-    {
-      field: "partner_display_name",
-      headerName: "Customer",
-      minWidth: 200,
-      flex: 2,
-      valueGetter: (params) => params.data?.partner_display_name || "-",
-    },
-    {
-      field: "date",
-      headerName: "Date",
-      minWidth: 120,
-      valueFormatter: (params) => {
-        const value = params.value;
-        if (!value) return "";
-        try {
-          const date = new Date(value);
-          return date.toLocaleDateString("vi-VN");
-        } catch {
-          return String(value);
-        }
-      },
-      filter: "agDateColumnFilter",
-    },
-    {
-      field: "invoice_date",
-      headerName: "Invoice Date",
-      minWidth: 120,
-      valueFormatter: (params) => {
-        const value = params.value;
-        if (!value) return "-";
-        try {
-          const date = new Date(value);
-          return date.toLocaleDateString("vi-VN");
-        } catch {
-          return String(value);
-        }
-      },
-      filter: "agDateColumnFilter",
-    },
-    {
-      field: "invoice_date_due",
-      headerName: "Due Date",
-      minWidth: 120,
-      valueFormatter: (params) => {
-        const value = params.value;
-        if (!value) return "-";
-        try {
-          const date = new Date(value);
-          return date.toLocaleDateString("vi-VN");
-        } catch {
-          return String(value);
-        }
-      },
-      filter: "agDateColumnFilter",
-    },
-    {
-      field: "state",
-      headerName: "Status",
-      minWidth: 120,
-      cellRenderer: StateBadgeRenderer,
-      filter: "agSetColumnFilter",
-      filterParams: {
-        values: ["draft", "posted", "cancel"],
-      },
-    },
-    {
-      field: "payment_state",
-      headerName: "Payment Status",
-      minWidth: 140,
-      cellRenderer: PaymentStateBadgeRenderer,
-      filter: "agSetColumnFilter",
-      filterParams: {
-        values: ["not_paid", "in_payment", "paid", "partial"],
-      },
-    },
-    {
-      field: "amount_total",
-      headerName: "Total",
-      minWidth: 120,
-      cellRenderer: AmountCell,
-      cellStyle: { textAlign: "right" },
-      headerClass: "ag-right-aligned-header",
-      comparator: (valueA, valueB) => {
-        return Number(valueA) - Number(valueB);
-      },
-    },
-    {
-      field: "amount_residual",
-      headerName: "Amount Due",
-      minWidth: 120,
-      cellRenderer: AmountCell,
-      cellStyle: { textAlign: "right" },
-      headerClass: "ag-right-aligned-header",
-      comparator: (valueA, valueB) => {
-        return Number(valueA) - Number(valueB);
-      },
-    },
-    {
-      field: "move_type",
-      headerName: "Type",
-      minWidth: 150,
-      valueFormatter: moveTypeFormatter,
-      filter: "agSetColumnFilter",
-    },
-    {
-      field: "invoice_origin",
-      headerName: "Origin",
-      minWidth: 150,
-      valueGetter: (params) => params.data?.invoice_origin || "-",
-    },
-  ], []);
+  const rowSelection: RowSelectionOptions = {
+    mode: "multiRow",
+    headerCheckbox: false,
+  };
 
-  const rowSelection: RowSelectionOptions = { mode: "multiRow", headerCheckbox: false };
-
-  const getHeaders = useCallback((): Record<string, string> => {
-    const headers: Record<string, string> = {
-      "Accept": "application/json",
-    };
-    const token = localStorage.getItem("authToken");
-    if (token) headers.Authorization = `Bearer ${token}`;
-    return headers;
-  }, []);
-
-  const fetchUrl = joinUrl(JWT_HOST_API, "/invoice/list");
-
-  const handleRowDoubleClick = useCallback((e: RowDoubleClickedEvent<Invoice>) => {
+  const handleRowDoubleClick = useCallback((e: RowDoubleClickedEvent<InvoiceRow>) => {
     const id = e.data?.id;
     if (id) {
       navigate(`/dashboards/invoice/invoice-create?id=${id}`);
     }
   }, [navigate]);
+
+  const getHeaders = useCallback((): Record<string, string> => {
+    const headers: Record<string, string> = {};
+    const token = localStorage.getItem("authToken");
+    if (token) headers.Authorization = `Bearer ${token}`;
+    return headers;
+  }, []);
 
   const handleCreateInvoice = () => {
     navigate("/dashboards/invoice/invoice-create");
@@ -275,6 +109,122 @@ export default function InvoiceListPage() {
     { title: "Invoice", path: "/dashboards/invoice/invoice-list" },
     { title: "Danh sách" },
   ], []);
+
+  // 🧠 Load columns from metadata API
+  const loadMetadata = useCallback(() => {
+    const getMetadataHeaders = (): Record<string, string> => {
+      const headers: Record<string, string> = {};
+      const token = localStorage.getItem("authToken");
+      if (token) headers.Authorization = `Bearer ${token}`;
+      // Add Accept-Language header
+      const urlParams = new URLSearchParams(window.location.search);
+      const langParam = urlParams.get("lang");
+      headers["Accept-Language"] = langParam || i18n.language || "vi";
+      return headers;
+    };
+
+    fetch(joinUrl(JWT_HOST_API, "/invoice/metadata"), { headers: getMetadataHeaders() })
+      .then((res) => res.json())
+      .then((data) => {
+        const cols = data?.list?.columns?.map((col: any): ColDef<InvoiceRow> => {
+          const key = col.key;
+          
+          // Special handling for date fields
+          if (key === "invoice_date" || key === "invoice_date_due" || key === "date") {
+            return {
+              field: key,
+              headerName: col.label,
+              minWidth: 120,
+              valueFormatter: (params) => {
+                const value = params.value;
+                if (!value) return "-";
+                try {
+                  const date = new Date(String(value));
+                  return date.toLocaleDateString("vi-VN");
+                } catch {
+                  return String(value);
+                }
+              },
+              filter: "agDateColumnFilter",
+            };
+          }
+          
+          // Special handling for amount fields
+          if (key === "amount_total" || key === "amount_residual" || key === "amount_untaxed" || key === "amount_tax") {
+            return {
+              field: key,
+              headerName: col.label,
+              minWidth: 120,
+              cellRenderer: AmountCell,
+              cellStyle: { textAlign: "right" },
+              headerClass: "ag-right-aligned-header",
+              comparator: (valueA, valueB) => {
+                return Number(valueA || 0) - Number(valueB || 0);
+              },
+            };
+          }
+          
+          // Special handling for state field
+          if (key === "state") {
+            return {
+              field: key,
+              headerName: col.label,
+              minWidth: 120,
+              cellRenderer: StateBadgeRenderer,
+              filter: "agSetColumnFilter",
+              filterParams: {
+                values: ["draft", "posted", "cancel"],
+              },
+            };
+          }
+          
+          // Special handling for payment_state field
+          if (key === "payment_state") {
+            return {
+              field: key,
+              headerName: col.label,
+              minWidth: 140,
+              cellRenderer: PaymentStateBadgeRenderer,
+              filter: "agSetColumnFilter",
+              filterParams: {
+                values: ["not_paid", "in_payment", "paid", "partial"],
+              },
+            };
+          }
+          
+          // Default column
+          return {
+            field: key,
+            headerName: col.label,
+            minWidth: 150,
+            flex: 1,
+          };
+        }) ?? [];
+
+        setColumnDefs([
+          makeIndexCol(),
+          ...cols,
+        ]);
+      })
+      .catch((err) => {
+        console.error("❌ Lỗi load metadata:", err);
+        // Fallback to basic columns if metadata fails
+        setColumnDefs([
+          makeIndexCol(),
+          { field: "name", headerName: "Number", minWidth: 150 },
+          { field: "partner_display_name", headerName: "Customer", minWidth: 200 },
+          { field: "invoice_date", headerName: "Invoice Date", minWidth: 120 },
+          { field: "amount_total", headerName: "Total", minWidth: 120, cellRenderer: AmountCell },
+          { field: "state", headerName: "Status", minWidth: 120, cellRenderer: StateBadgeRenderer },
+        ]);
+      });
+  }, [i18n.language]);
+
+  useEffect(() => {
+    loadMetadata();
+  }, [loadMetadata]);
+
+  const fetchUrl = joinUrl(JWT_HOST_API, "/invoice/list");
 
   return (
     <Page title="Danh sách hóa đơn">
@@ -296,24 +246,16 @@ export default function InvoiceListPage() {
           </div>
         </div>
 
-        <AgGridView<Invoice>
+        <AgGridView<InvoiceRow>
           title=""
           height={700}
           theme="quartz"
-          themeSwitcher={false}
-          schemeSwitcher={false}
+          themeSwitcher
           fetchUrl={fetchUrl}
           getHeaders={getHeaders}
-          columnDefs={columns}
+          columnDefs={columnDefs}
           rowSelection={rowSelection}
           onRowDoubleClicked={handleRowDoubleClick}
-          domLayout="normal"
-          defaultColDef={{
-            resizable: true,
-            sortable: true,
-            filter: true,
-            floatingFilter: true,
-          }}
         />
       </div>
     </Page>

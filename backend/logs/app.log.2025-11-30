@@ -3933,3 +3933,8 @@
 2025-11-30T13:23:58.312549Z DEBUG sqlx::query: summary="SELECT id, COALESCE(NULLIF(name,''), display_name, …" db.statement="\n\nSELECT\n  id,\n  COALESCE(\n    NULLIF(name, ''),\n    display_name,\n    email,\n    phone,\n    '(không tên)'\n  ) AS \"name!: String\",\n  display_name,\n  email,\n  phone,\n  is_company,\n  NULLIF(tags_cached, '') AS \"tags?: String\",\n  state,\n  created_at,\n  updated_at,\n  national_id AS \"national_id?: String\" -- 👈 THÊM\nFROM\n  contact\nWHERE\n  tenant_id = $1\n  AND (\n    $2 :: bool IS NULL\n    OR is_company = $2\n  )\nORDER BY\n  created_at DESC\nLIMIT\n  $3 OFFSET $4\n" rows_affected=12 rows_returned=12 elapsed=94.397365ms elapsed_secs=0.094397365
 2025-11-30T14:09:36.512164Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
 2025-11-30T14:09:36.612075Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
+2025-11-30T15:02:08.591770Z ERROR milan::core::error: ❌ Internal error: pool timed out while waiting for an open connection
+2025-11-30T15:02:29.901519Z ERROR milan::core::error: ❌ Internal error: pool timed out while waiting for an open connection
+2025-11-30T15:03:11.955927Z ERROR milan::core::error: ❌ Internal error: pool timed out while waiting for an open connection
+2025-11-30T15:03:18.197036Z ERROR milan::core::error: ❌ SQLx error: PoolTimedOut
+2025-11-30T15:04:17.943714Z ERROR milan::module::loan::handler::loan: ❌ Lỗi query list_contracts: PoolTimedOut
