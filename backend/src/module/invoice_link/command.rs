@@ -3,7 +3,9 @@ use sqlx::{Pool, Postgres};
 use serde_json::json;
 use tracing::{error, info, warn};
 use anyhow::Result;
-use chrono::{Utc, Duration};
+use chrono::{Utc, Duration, DateTime};
+use jsonwebtoken::{decode, decode_header, DecodingKey, Validation};
+use serde::{Deserialize, Serialize};
 
 use super::{
     model::{InvoiceLinkStatus, ProviderCredentials},
@@ -12,6 +14,37 @@ use super::{
 };
 use crate::module::invoice::query as invoice_query;
 use crate::module::contact::query as contact_query;
+
+/// JWT Claims structure để decode token
+#[derive(Debug, Serialize, Deserialize)]
+struct TokenClaims {
+    exp: i64, // Unix timestamp
+    iat: i64,
+}
+
+/// Decode JWT token để lấy expiry time
+/// Trả về None nếu không decode được
+fn get_token_expiry(token: &str) -> Option<DateTime<Utc>> {
+    // JWT không cần verify signature để đọc claims, vì ta chỉ cần exp time
+    // Nhưng vẫn cần decode header để biết algorithm
+    let header = decode_header(token).ok()?;
+    
+    // Tạo validation với algorithm từ header, nhưng tắt tất cả validation
+    let mut validation = Validation::new(header.alg);
+    validation.insecure_disable_signature_validation();
+    validation.validate_exp = false;
+    validation.validate_nbf = false;
+    
+    // Decode với key rỗng (vì đã tắt signature validation)
+    let token_data = decode::<TokenClaims>(
+        token,
+        &DecodingKey::from_secret(&[]),
+        &validation,
+    ).ok()?;
+    
+    // Convert Unix timestamp to DateTime
+    DateTime::from_timestamp(token_data.claims.exp, 0)
+}
 
 /// Kiểm tra và refresh token nếu cần
 /// Trả về access_token mới (hoặc token cũ nếu còn hạn)
@@ -79,9 +112,15 @@ async fn ensure_valid_token(
         }
     };
 
-    // Tính thời gian hết hạn (giả sử token có hiệu lực 24 giờ)
-    // Viettel API không trả về expires_in, nên ta set mặc định
-    let token_expires_at = Utc::now() + Duration::hours(24);
+    // Lấy thời gian hết hạn từ token JWT
+    // Nếu không decode được, set mặc định 15 phút (an toàn hơn)
+    let token_expires_at = get_token_expiry(&new_token)
+        .unwrap_or_else(|| {
+            warn!("Could not decode token expiry, using default 15 minutes");
+            Utc::now() + Duration::minutes(15)
+        });
+
+    info!("Token expiry time: {}", token_expires_at);
 
     // Cập nhật token mới vào database
     sqlx::query!(
@@ -204,8 +243,15 @@ pub async fn link_provider(
     .fetch_optional(pool)
     .await?;
 
-    // Tính thời gian hết hạn token (mặc định 24 giờ)
-    let token_expires_at = Utc::now() + Duration::hours(24);
+    // Lấy thời gian hết hạn từ token JWT
+    // Nếu không decode được, set mặc định 15 phút (an toàn hơn)
+    let token_expires_at = get_token_expiry(&access_token)
+        .unwrap_or_else(|| {
+            warn!("Could not decode token expiry during link_provider, using default 15 minutes");
+            Utc::now() + Duration::minutes(15)
+        });
+
+    info!("Token expiry time: {}", token_expires_at);
 
     let credential_id = if let Some(record) = existing {
         // Update existing credentials
@@ -349,7 +395,7 @@ pub async fn send_invoice_to_provider(
     .execute(pool)
     .await?;
 
-    // 4. Gửi invoice đến provider
+    // 4. Gửi invoice đến provider với retry logic
     let result = match input.provider.as_str() {
         "viettel" => {
             let username = credentials.credentials.get("username")
@@ -359,15 +405,78 @@ pub async fn send_invoice_to_provider(
                     sqlx::Error::RowNotFound
                 })?;
             
-            // Sử dụng access_token đã được đảm bảo còn hạn
-            invoice_link_viettel::create_draft_invoice(
+            // Lần thử đầu tiên với access_token hiện tại
+            let mut result = invoice_link_viettel::create_draft_invoice(
                 username, 
                 &access_token, 
                 &invoice, 
                 &credentials.credentials,
                 contact_info.as_ref()
             )
-            .await
+            .await;
+            
+            // Nếu gặp lỗi token (401/invalid_token), tự động refresh và retry
+            if let Err(ref e) = result {
+                let error_msg = e.to_string().to_lowercase();
+                if error_msg.contains("401") || 
+                   error_msg.contains("unauthorized") || 
+                   error_msg.contains("invalid_token") || 
+                   error_msg.contains("token expired") {
+                    warn!("Token expired or invalid, forcing refresh and retry...");
+                    
+                    // Force refresh token bằng cách login lại
+                    match invoice_link_viettel::login(
+                        username,
+                        credentials.credentials.get("password")
+                            .and_then(|v| v.as_str())
+                            .ok_or_else(|| sqlx::Error::RowNotFound)?
+                    ).await {
+                        Ok(new_token) => {
+                            // Lấy expiry time từ token mới
+                            let token_expires_at = get_token_expiry(&new_token)
+                                .unwrap_or_else(|| {
+                                    warn!("Could not decode token expiry on retry, using default 15 minutes");
+                                    Utc::now() + Duration::minutes(15)
+                                });
+                            
+                            // Cập nhật token mới vào database
+                            sqlx::query!(
+                                r#"
+                                UPDATE invoice_link_provider_credentials
+                                SET access_token = $1,
+                                    token_expires_at = $2,
+                                    updated_at = $3
+                                WHERE id = $4 AND tenant_id = $5
+                                "#,
+                                new_token,
+                                token_expires_at,
+                                Utc::now(),
+                                credentials.id,
+                                credentials.tenant_id,
+                            )
+                            .execute(pool)
+                            .await?;
+                            
+                            info!("Token refreshed after 401 error, retrying create invoice...");
+                            
+                            // Retry với token mới
+                            result = invoice_link_viettel::create_draft_invoice(
+                                username, 
+                                &new_token, 
+                                &invoice, 
+                                &credentials.credentials,
+                                contact_info.as_ref()
+                            )
+                            .await;
+                        }
+                        Err(login_err) => {
+                            error!("Failed to refresh token on retry: {}", login_err);
+                        }
+                    }
+                }
+            }
+            
+            result
         }
         "mobifone" => {
             // TODO: Implement Mobifone

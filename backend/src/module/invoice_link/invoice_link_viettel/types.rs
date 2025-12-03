@@ -17,8 +17,8 @@ pub struct ViettelCreateInvoiceRequest {
     pub general_invoice_info: ViettelGeneralInvoiceInfo,
     #[serde(rename = "buyerInfo")]
     pub buyer_info: ViettelBuyerInfo,
-    #[serde(rename = "sellerInfo")]
-    pub seller_info: ViettelSellerInfo,
+    #[serde(rename = "sellerInfo", skip_serializing_if = "Option::is_none")]
+    pub seller_info: Option<ViettelSellerInfo>,
     pub payments: Vec<ViettelPayment>,
     #[serde(rename = "itemInfo")]
     pub item_info: Vec<ViettelItemInfo>,
@@ -101,7 +101,7 @@ pub struct ViettelItemInfo {
     #[serde(rename = "itemTotalAmountWithTax")]
     pub item_total_amount_with_tax: i64,
     #[serde(rename = "taxPercentage")]
-    pub tax_percentage: i32,
+    pub tax_percentage: f64,  // BigDecimal: -2, -1, 0, 5, 8, 10, hoặc giá trị % khác (vd: 12.34)
     #[serde(rename = "itemTotalAmountWithoutTax")]
     pub item_total_amount_without_tax: i64,
     #[serde(rename = "taxAmount")]

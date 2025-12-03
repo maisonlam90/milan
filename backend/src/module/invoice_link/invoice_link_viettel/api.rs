@@ -1,6 +1,6 @@
 use serde_json::json;
 use anyhow::{Result, Context};
-use tracing::{info, error};
+use tracing::{info, error, warn};
 
 use super::types::*;
 use crate::module::invoice::dto::InvoiceDto;
@@ -76,14 +76,15 @@ pub async fn create_draft_invoice(
     // Log itemInfo chi tiết
     info!("📋 Total items: {}", viettel_request.item_info.len());
     for item in &viettel_request.item_info {
-        info!("  - Line {}: {} x {} @ {} (with tax: {}) = {} (tax: {})", 
+        info!("  - Line {}: {} x {} @ {} (with tax: {}) = {} (tax: {}, tax%: {})", 
               item.line_number,
               item.item_name,
               item.quantity,
               item.unit_price.unwrap_or(0),
               item.unit_price_with_tax,
               item.item_total_amount_with_tax,
-              item.tax_amount);
+              item.tax_amount,
+              item.tax_percentage);
     }
     
     let url = format!("{}/{}", VIETTEL_CREATE_INVOICE_URL_TEMPLATE, username);
@@ -146,9 +147,18 @@ fn convert_invoice_to_viettel_format(
                 .unwrap_or(0.0);
             
             // Lấy tax rate từ line (nếu có)
-            let tax_percentage = line.tax_rate.as_ref()
-                .and_then(|r| r.to_string().parse::<i32>().ok())
-                .unwrap_or(10); // Default 10% nếu không có
+            // Theo Viettel: -2 (không thuế), -1 (không kê khai), 0, 5, 8, 10, hoặc giá trị % khác
+            let tax_percentage = if let Some(tax_rate) = &line.tax_rate {
+                let rate_str = tax_rate.to_string();
+                info!("Line {} tax_rate from DB: {}", idx + 1, rate_str);
+                rate_str.parse::<f64>().unwrap_or_else(|e| {
+                    error!("Failed to parse tax_rate '{}': {}, using default 10%", rate_str, e);
+                    10.0
+                })
+            } else {
+                warn!("Line {} has no tax_rate, using default 10%", idx + 1);
+                10.0
+            };
             
             // Lấy discount (%)
             let discount = line.discount.as_ref()
@@ -156,7 +166,7 @@ fn convert_invoice_to_viettel_format(
                 .unwrap_or(0.0);
             
             // Log để debug
-            info!("Line {}: name={}, qty={}, price_unit={}, tax={}", 
+            info!("Line {}: name={}, qty={}, price_unit={}, tax={}%", 
                   idx + 1, 
                   line.name.as_ref().unwrap_or(&"N/A".to_string()),
                   quantity,
@@ -165,8 +175,16 @@ fn convert_invoice_to_viettel_format(
             
             // Tính toán các giá trị
             let subtotal_before_tax = quantity * unit_price_without_tax * (1.0 - discount / 100.0);
-            let tax_amount_calc = subtotal_before_tax * (tax_percentage as f64 / 100.0);
-            let subtotal_with_tax = subtotal_before_tax + tax_amount_calc;
+            
+            // Xử lý thuế đặc biệt: -2 (không thuế), -1 (không kê khai)
+            let (tax_amount_calc, subtotal_with_tax) = if tax_percentage < 0.0 {
+                // Không thuế hoặc không kê khai: tax_amount = 0
+                (0.0, subtotal_before_tax)
+            } else {
+                // Thuế bình thường: 0%, 5%, 8%, 10%, hoặc % khác
+                let tax_calc = subtotal_before_tax * (tax_percentage / 100.0);
+                (tax_calc, subtotal_before_tax + tax_calc)
+            };
             
             // Đơn giá chưa thuế (làm tròn)
             let unit_price = if unit_price_without_tax > 0.0 {
@@ -177,7 +195,12 @@ fn convert_invoice_to_viettel_format(
             
             // Tính đơn giá có thuế (từ đơn giá chưa thuế)
             let unit_price_with_tax = if unit_price_without_tax > 0.0 {
-                (unit_price_without_tax * (1.0 + tax_percentage as f64 / 100.0)).round() as i64
+                if tax_percentage < 0.0 {
+                    // Không thuế: đơn giá có thuế = đơn giá chưa thuế
+                    unit_price_without_tax.round() as i64
+                } else {
+                    (unit_price_without_tax * (1.0 + tax_percentage / 100.0)).round() as i64
+                }
             } else {
                 // Fallback: tính từ tổng tiền và số lượng
                 if quantity > 0.0 {
@@ -189,10 +212,12 @@ fn convert_invoice_to_viettel_format(
             
             let item_total_with_tax = subtotal_with_tax.round() as i64;
             let item_total_without_tax = subtotal_before_tax.round() as i64;
+            // QUAN TRỌNG: taxAmount phải bằng chính xác (total_with_tax - total_without_tax)
+            // để pass validation của Viettel
             let tax_amount = item_total_with_tax - item_total_without_tax;
             
-            info!("Line {} calculated: unit_price={:?}, unit_price_with_tax={}, total_with_tax={}, total_without_tax={}, tax={}", 
-                  idx + 1, unit_price, unit_price_with_tax, item_total_with_tax, item_total_without_tax, tax_amount);
+            info!("Line {} calculated: unit_price={:?}, unit_price_with_tax={}, total_with_tax={}, total_without_tax={}, tax={}, tax_percentage={}", 
+                  idx + 1, unit_price, unit_price_with_tax, item_total_with_tax, item_total_without_tax, tax_amount, tax_percentage);
             
             ViettelItemInfo {
                 line_number: (idx + 1) as i32, // Line number từ 1, 2, 3... sau khi đã filter
@@ -286,15 +311,8 @@ fn convert_invoice_to_viettel_format(
             buyer_tax_code,
             buyer_address_line: buyer_address,
         },
-        seller_info: ViettelSellerInfo {
-            seller_legal_name: "CÔNG TY TNHH DUY TÂN LONG AN".to_string(),
-            seller_tax_code: "0100109106-507".to_string(),
-            seller_address_line: Some("518A Đường Hòa Hảo, phường Minh Phụng, Thành phố Hồ Chí Minh".to_string()),
-            seller_phone_number: Some("0123456789".to_string()),
-            seller_email: Some("einvoice@oms.vn".to_string()),
-            seller_bank_account: Some("11223344".to_string()),
-            seller_bank_name: Some("Ngân hàng ACB - CN Sài Gòn, Hồ Chí Minh".to_string()),
-        },
+        // Không gửi seller_info, để Viettel tự lấy từ cấu hình hệ thống
+        seller_info: None,
         payments: vec![
             ViettelPayment {
                 payment_method_name: "TM/CK".to_string(),

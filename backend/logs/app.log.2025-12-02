@@ -8,3 +8,9 @@
 2025-12-02T16:38:57.998963Z ERROR milan::module::invoice_link::command: No active credentials found for provider: viettel
 2025-12-02T17:01:35.356876Z ERROR milan::module::invoice_link::invoice_link_viettel::api: Viettel create invoice failed: 400 Bad Request - {"code":400,"message":"API_TAX_CODE_NOT_MATCH","data":"Mã số thuế người bán không khớp với {supplierTaxCode}","errorCode":null}
 2025-12-02T17:01:35.357047Z ERROR milan::module::invoice_link::command: Failed to send invoice to viettel: Viettel create invoice failed: 400 Bad Request - {"code":400,"message":"API_TAX_CODE_NOT_MATCH","data":"Mã số thuế người bán không khớp với {supplierTaxCode}","errorCode":null}
+2025-12-02T17:32:09.750707Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-12-02T17:32:09.751383Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-12-02T17:32:09.752111Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-12-02T17:32:09.752661Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-12-02T17:34:22.141966Z ERROR milan::module::invoice_link::invoice_link_viettel::api: Viettel create invoice failed: 400 Bad Request - {"code":400,"message":"INVOICE_VALID_INPUT_INVALID_BUYER_TAX_CODE","data":"Mã số thuế người mua không hợp lệ","errorCode":null}
+2025-12-02T17:34:22.142108Z ERROR milan::module::invoice_link::command: Failed to send invoice to viettel: Viettel create invoice failed: 400 Bad Request - {"code":400,"message":"INVOICE_VALID_INPUT_INVALID_BUYER_TAX_CODE","data":"Mã số thuế người mua không hợp lệ","errorCode":null}
