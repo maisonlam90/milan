@@ -1,0 +1,85 @@
+{
+  "name": "sale",
+  "display_name": "Quản lý Bán Hàng",
+  "description": "Module quản lý đơn hàng bán hàng - Sales Order Management",
+  "version": "0.1.0",
+  "metadata": {
+    "root_table": "sale_order",
+    "form": {
+      "fields": [
+        { "name": "name", "label": "Mã đơn hàng", "type": "text", "width": 4, "required": true },
+        { "name": "state", "label": "Trạng thái", "type": "select", "width": 4, "required": true,
+          "options": [
+            { "value": "draft", "label": "Nháp" },
+            { "value": "sent", "label": "Đã gửi" },
+            { "value": "sale", "label": "Đơn bán" },
+            { "value": "done", "label": "Hoàn thành" },
+            { "value": "cancel", "label": "Hủy" }
+          ]
+        },
+        { "name": "date_order", "label": "Ngày đặt hàng", "type": "datetime", "width": 4, "required": true },
+        { "name": "partner_id", "label": "Khách hàng", "type": "number", "width": 6, "required": true },
+        { "name": "user_id", "label": "Nhân viên bán", "type": "number", "width": 6 },
+        { "name": "company_id", "label": "Công ty", "type": "number", "width": 4, "required": true },
+        { "name": "team_id", "label": "Đội bán hàng", "type": "number", "width": 4 },
+        { "name": "warehouse_id", "label": "Kho", "type": "number", "width": 4 },
+        { "name": "client_order_ref", "label": "Mã tham chiếu KH", "type": "text", "width": 6 },
+        { "name": "origin", "label": "Nguồn gốc", "type": "text", "width": 6 },
+        { "name": "partner_invoice_id", "label": "Địa chỉ hóa đơn", "type": "number", "width": 6, "required": true },
+        { "name": "partner_shipping_id", "label": "Địa chỉ giao hàng", "type": "number", "width": 6, "required": true },
+        { "name": "pricelist_id", "label": "Bảng giá", "type": "number", "width": 4 },
+        { "name": "currency_id", "label": "Tiền tệ", "type": "number", "width": 4 },
+        { "name": "payment_term_id", "label": "Điều khoản thanh toán", "type": "number", "width": 4 },
+        { "name": "fiscal_position_id", "label": "Vị trí thuế", "type": "number", "width": 4 },
+        { "name": "incoterm", "label": "Điều khoản Incoterm", "type": "number", "width": 4 },
+        { "name": "incoterm_location", "label": "Địa điểm Incoterm", "type": "text", "width": 4 },
+        { "name": "amount_untaxed", "label": "Tổng chưa thuế", "type": "number", "width": 4, "readonly": true },
+        { "name": "amount_tax", "label": "Thuế", "type": "number", "width": 4, "readonly": true },
+        { "name": "amount_total", "label": "Tổng cộng", "type": "number", "width": 4, "readonly": true },
+        { "name": "currency_rate", "label": "Tỷ giá", "type": "number", "width": 4 },
+        { "name": "validity_date", "label": "Ngày hết hạn", "type": "date", "width": 4 },
+        { "name": "commitment_date", "label": "Ngày giao hàng", "type": "datetime", "width": 4 },
+        { "name": "effective_date", "label": "Ngày hiệu lực", "type": "datetime", "width": 4 },
+        { "name": "picking_policy", "label": "Chính sách giao hàng", "type": "text", "width": 4, "required": true },
+        { "name": "delivery_status", "label": "Trạng thái giao hàng", "type": "text", "width": 4 },
+        { "name": "invoice_status", "label": "Trạng thái hóa đơn", "type": "text", "width": 4 },
+        { "name": "reference", "label": "Tham chiếu thanh toán", "type": "text", "width": 6 },
+        { "name": "require_signature", "label": "Yêu cầu chữ ký", "type": "checkbox", "width": 3 },
+        { "name": "require_payment", "label": "Yêu cầu thanh toán", "type": "checkbox", "width": 3 },
+        { "name": "locked", "label": "Đã khóa", "type": "checkbox", "width": 3 },
+        { "name": "signed_by", "label": "Người ký", "type": "text", "width": 6 },
+        { "name": "signed_on", "label": "Ngày ký", "type": "datetime", "width": 6 },
+        { "name": "prepayment_percent", "label": "% Thanh toán trước", "type": "number", "width": 4 },
+        { "name": "note", "label": "Điều khoản và điều kiện", "type": "textarea", "width": 12 }
+      ]
+    },
+    "notebook": {
+      "table": "sale_order_line",
+      "foreign_key": "order_id",
+      "fields": [
+        { "name": "product_id", "label": "Sản phẩm", "type": "number", "width": 4 },
+        { "name": "name", "label": "Mô tả", "type": "text", "width": 6, "required": true },
+        { "name": "product_uom_qty", "label": "Số lượng", "type": "number", "width": 3, "required": true },
+        { "name": "product_uom_id", "label": "Đơn vị", "type": "number", "width": 3 },
+        { "name": "price_unit", "label": "Đơn giá", "type": "number", "width": 4, "required": true },
+        { "name": "price_tax", "label": "Thuế", "type": "number", "width": 4, "readonly": true },
+        { "name": "price_subtotal", "label": "Thành tiền", "type": "number", "width": 4, "readonly": true },
+        { "name": "price_total", "label": "Tổng tiền", "type": "number", "width": 4, "readonly": true }
+      ]
+    },
+    "list": {
+      "columns": [
+        { "name": "name", "label": "Mã đơn hàng" },
+        { "name": "date_order", "label": "Ngày đặt" },
+        { "name": "partner_id", "label": "Khách hàng" },
+        { "name": "user_id", "label": "Nhân viên bán" },
+        { "name": "amount_total", "label": "Tổng tiền" },
+        { "name": "state", "label": "Trạng thái" },
+        { "name": "invoice_status", "label": "Trạng thái HĐ" },
+        { "name": "delivery_status", "label": "Trạng thái GH" }
+      ],
+      "search": { "placeholder": "Tìm theo mã đơn/khách hàng/tham chiếu" }
+    }
+  }
+}
+

@@ -166,6 +166,30 @@ export const dashboards: NavigationTree = {
       ],
     },
     {
+      id: "dashboards.sale",
+      path: path(ROOT_DASHBOARDS, "/sale"),
+      type: "collapse",
+      title: "Sale",
+      transKey: "nav.dashboards.sale",
+      icon: "dashboards.meetings",
+      childs: [
+        {
+          id: "dashboards.sale-list",
+          type: "item",
+          path: path(ROOT_DASHBOARDS, "/sale/sale-list"),
+          title: "Sale list",
+          transKey: "nav.dashboards.sale-list",
+        },
+        {
+          id: "dashboards.sale-create",
+          type: "item",
+          path: path(ROOT_DASHBOARDS, "/sale/sale-create"),
+          title: "Sale create",
+          transKey: "nav.dashboards.sale-create",
+        },
+      ],
+    },
+    {
       id: "dashboards.crm-analytics",
       path: path(ROOT_DASHBOARDS, "/crm-analytics"),
       type: "item",

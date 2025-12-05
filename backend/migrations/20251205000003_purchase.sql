@@ -20,7 +20,6 @@
 -- Table: purchase_order
 -- ============================================================
 
-
 CREATE TABLE public.purchase_order (
     tenant_id UUID NOT NULL,
     id UUID NOT NULL DEFAULT gen_random_uuid(),
@@ -112,7 +111,6 @@ COMMENT ON COLUMN public.purchase_order.incoterm_location IS 'Incoterm Location'
 COMMENT ON COLUMN public.purchase_order.receipt_status IS 'Receipt Status';
 COMMENT ON COLUMN public.purchase_order.effective_date IS 'Arrival';
 
-
 -- Business constraint: Valid states
 ALTER TABLE public.purchase_order
     ADD CONSTRAINT check_purchase_order_valid_state 
@@ -123,16 +121,13 @@ CREATE INDEX IF NOT EXISTS idx_purchase_order_state
     ON public.purchase_order(tenant_id, state) 
     WHERE state IS NOT NULL;
 
-
 -- Index: Queries by partner
 CREATE INDEX IF NOT EXISTS idx_purchase_order_partner 
     ON public.purchase_order(tenant_id, partner_id);
 
-
 -- Index: Queries by date range
 CREATE INDEX IF NOT EXISTS idx_purchase_order_date_order 
     ON public.purchase_order(tenant_id, date_order DESC);
-
 
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_purchase_order_company 
@@ -140,7 +135,6 @@ CREATE INDEX IF NOT EXISTS idx_purchase_order_company
 -- ============================================================
 -- Table: purchase_order_line
 -- ============================================================
-
 
 CREATE TABLE public.purchase_order_line (
     tenant_id UUID NOT NULL,
@@ -178,6 +172,9 @@ CREATE TABLE public.purchase_order_line (
     location_final_id integer,
     product_description_variants character varying,
     propagate_cancel boolean
+,
+    CONSTRAINT purchase_order_line_accountable_required_fields CHECK ((display_type IS NOT NULL) OR is_downpayment OR ((product_id IS NOT NULL) AND (product_uom_id IS NOT NULL) AND (date_planned IS NOT NULL))),
+    CONSTRAINT purchase_order_line_non_accountable_null_fields CHECK ((display_type IS NULL) OR ((product_id IS NULL) AND (price_unit = 0) AND (product_uom_qty = 0) AND (product_uom_id IS NULL) AND (date_planned IS NULL)))
 );
 
 ALTER TABLE ONLY public.purchase_order_line
@@ -222,9 +219,6 @@ COMMENT ON COLUMN public.purchase_order_line.orderpoint_id IS 'Orderpoint';
 COMMENT ON COLUMN public.purchase_order_line.location_final_id IS 'Location from procurement';
 COMMENT ON COLUMN public.purchase_order_line.product_description_variants IS 'Custom Description';
 COMMENT ON COLUMN public.purchase_order_line.propagate_cancel IS 'Propagate cancellation';
-COMMENT ON CONSTRAINT purchase_order_line_accountable_required_fields ON public.purchase_order_line IS 'CHECK(display_type IS NOT NULL OR is_downpayment OR (product_id IS NOT NULL AND product_uom_id IS NOT NULL AND date_planned IS NOT NULL))';
-COMMENT ON CONSTRAINT purchase_order_line_non_accountable_null_fields ON public.purchase_order_line IS 'CHECK(display_type IS NULL OR (product_id IS NULL AND price_unit = 0 AND product_uom_qty = 0 AND product_uom_id IS NULL AND date_planned is NULL))';
-
 
 -- Business constraint: Positive quantities
 ALTER TABLE public.purchase_order_line
@@ -235,39 +229,26 @@ ALTER TABLE public.purchase_order_line
 CREATE INDEX IF NOT EXISTS idx_purchase_order_line_partner 
     ON public.purchase_order_line(tenant_id, partner_id);
 
-
 -- Index: Queries by product
 CREATE INDEX IF NOT EXISTS idx_purchase_order_line_product 
     ON public.purchase_order_line(tenant_id, product_id);
-
 
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_purchase_order_line_company 
     ON public.purchase_order_line(tenant_id, company_id);
 
--- Foreign key: Product reference
-ALTER TABLE public.purchase_order_line
-    ADD CONSTRAINT fk_purchase_order_line_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
-
-
--- Foreign key: Purchase order reference
-ALTER TABLE public.purchase_order_line
-    ADD CONSTRAINT fk_purchase_order_line_order 
-    FOREIGN KEY (tenant_id, order_id) 
-    REFERENCES public.purchase_order(tenant_id, id)
-    ON DELETE CASCADE;
 -- ============================================================
 -- Table: purchase_order_stock_picking_rel
 -- ============================================================
-
 
 CREATE TABLE public.purchase_order_stock_picking_rel (
     purchase_order_id integer NOT NULL,
     stock_picking_id integer NOT NULL
 );
 
+ALTER TABLE ONLY public.purchase_order_stock_picking_rel
+    ADD CONSTRAINT purchase_order_stock_picking_rel_pkey PRIMARY KEY (purchase_order_id, stock_picking_id);
+
 COMMENT ON TABLE public.purchase_order_stock_picking_rel IS 'RELATION BETWEEN purchase_order AND stock_picking';
 
+-- ============================================================

@@ -20,7 +20,6 @@
 -- Table: sale_advance_payment_inv
 -- ============================================================
 
-
 CREATE TABLE public.sale_advance_payment_inv (
     tenant_id UUID NOT NULL,
     id UUID NOT NULL DEFAULT gen_random_uuid(),
@@ -34,7 +33,12 @@ CREATE TABLE public.sale_advance_payment_inv (
     consolidated_billing boolean,
     create_date timestamp without time zone,
     write_date timestamp without time zone,
-    amount double precision
+    amount double precision,
+    created_by UUID,
+    assignee_id UUID,
+    shared_with UUID[],
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 ALTER TABLE ONLY public.sale_advance_payment_inv
@@ -58,7 +62,6 @@ COMMENT ON COLUMN public.sale_advance_payment_inv.create_date IS 'Created on';
 COMMENT ON COLUMN public.sale_advance_payment_inv.write_date IS 'Last Updated on';
 COMMENT ON COLUMN public.sale_advance_payment_inv.amount IS 'Down Payment';
 
-
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_sale_advance_payment_inv_company 
     ON public.sale_advance_payment_inv(tenant_id, company_id);
@@ -66,11 +69,13 @@ CREATE INDEX IF NOT EXISTS idx_sale_advance_payment_inv_company
 -- Table: sale_advance_payment_inv_sale_order_rel
 -- ============================================================
 
-
 CREATE TABLE public.sale_advance_payment_inv_sale_order_rel (
-    sale_advance_payment_inv_id integer NOT NULL,
-    sale_order_id integer NOT NULL
+    sale_advance_payment_inv_id UUID NOT NULL,
+    sale_order_id UUID NOT NULL
 );
+
+ALTER TABLE ONLY public.sale_advance_payment_inv_sale_order_rel
+    ADD CONSTRAINT sale_advance_payment_inv_sale_order_rel_pkey PRIMARY KEY (sale_advance_payment_inv_id, sale_order_id);
 
 COMMENT ON TABLE public.sale_advance_payment_inv_sale_order_rel IS 'RELATION BETWEEN sale_advance_payment_inv AND sale_order';
 
@@ -78,14 +83,18 @@ COMMENT ON TABLE public.sale_advance_payment_inv_sale_order_rel IS 'RELATION BET
 -- Table: sale_mass_cancel_orders
 -- ============================================================
 
-
 CREATE TABLE public.sale_mass_cancel_orders (
     tenant_id UUID NOT NULL,
     id UUID NOT NULL DEFAULT gen_random_uuid(),
     create_uid integer,
     write_uid integer,
     create_date timestamp without time zone,
-    write_date timestamp without time zone
+    write_date timestamp without time zone,
+    created_by UUID,
+    assignee_id UUID,
+    shared_with UUID[],
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 ALTER TABLE ONLY public.sale_mass_cancel_orders
@@ -105,7 +114,6 @@ COMMENT ON COLUMN public.sale_mass_cancel_orders.write_date IS 'Last Updated on'
 -- ============================================================
 -- Table: sale_order
 -- ============================================================
-
 
 CREATE TABLE public.sale_order (
     tenant_id UUID NOT NULL,
@@ -151,14 +159,21 @@ CREATE TABLE public.sale_order (
     signed_on timestamp without time zone,
     write_date timestamp without time zone,
     prepayment_percent double precision,
-    sale_order_template_id integer,
+    sale_order_template_id UUID,
     customizable_pdf_form_fields jsonb,
     incoterm integer,
     warehouse_id integer,
     incoterm_location character varying,
     picking_policy character varying NOT NULL,
     delivery_status character varying,
-    effective_date timestamp without time zone
+    effective_date timestamp without time zone,
+    created_by UUID,
+    assignee_id UUID,
+    shared_with UUID[],
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+,
+    CONSTRAINT sale_order_date_order_conditional_required CHECK (((state = 'sale' AND date_order IS NOT NULL) OR state != 'sale'))
 );
 
 ALTER TABLE ONLY public.sale_order
@@ -218,8 +233,6 @@ COMMENT ON COLUMN public.sale_order.incoterm_location IS 'Incoterm Location';
 COMMENT ON COLUMN public.sale_order.picking_policy IS 'Shipping Policy';
 COMMENT ON COLUMN public.sale_order.delivery_status IS 'Delivery Status';
 COMMENT ON COLUMN public.sale_order.effective_date IS 'Effective Date';
-COMMENT ON CONSTRAINT sale_order_date_order_conditional_required ON public.sale_order IS 'CHECK((state = ''sale'' AND date_order IS NOT NULL) OR state != ''sale'')';
-
 
 -- Business constraint: Non-negative amounts
 ALTER TABLE public.sale_order
@@ -228,7 +241,6 @@ ALTER TABLE public.sale_order
         (amount_untaxed IS NULL OR amount_untaxed >= 0) AND
         (amount_total IS NULL OR amount_total >= 0)
     );
-
 
 -- Business constraint: Valid states
 ALTER TABLE public.sale_order
@@ -240,16 +252,13 @@ CREATE INDEX IF NOT EXISTS idx_sale_order_state
     ON public.sale_order(tenant_id, state) 
     WHERE state IS NOT NULL;
 
-
 -- Index: Queries by partner
 CREATE INDEX IF NOT EXISTS idx_sale_order_partner 
     ON public.sale_order(tenant_id, partner_id);
 
-
 -- Index: Queries by date range
 CREATE INDEX IF NOT EXISTS idx_sale_order_date_order 
     ON public.sale_order(tenant_id, date_order DESC);
-
 
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_sale_order_company 
@@ -258,18 +267,22 @@ CREATE INDEX IF NOT EXISTS idx_sale_order_company
 -- Table: sale_order_discount
 -- ============================================================
 
-
 CREATE TABLE public.sale_order_discount (
     tenant_id UUID NOT NULL,
     id UUID NOT NULL DEFAULT gen_random_uuid(),
-    sale_order_id integer NOT NULL,
+    sale_order_id UUID NOT NULL,
     create_uid integer,
     write_uid integer,
     discount_type character varying,
     discount_amount numeric,
     create_date timestamp without time zone,
     write_date timestamp without time zone,
-    discount_percentage double precision
+    discount_percentage double precision,
+    created_by UUID,
+    assignee_id UUID,
+    shared_with UUID[],
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 ALTER TABLE ONLY public.sale_order_discount
@@ -290,23 +303,21 @@ COMMENT ON COLUMN public.sale_order_discount.create_date IS 'Created on';
 COMMENT ON COLUMN public.sale_order_discount.write_date IS 'Last Updated on';
 COMMENT ON COLUMN public.sale_order_discount.discount_percentage IS 'Percentage';
 
-
 -- Business constraint: Non-negative amounts
 ALTER TABLE public.sale_order_discount
     ADD CONSTRAINT check_sale_order_discount_positive_amounts 
     CHECK (
-        (amount_untaxed IS NULL OR amount_untaxed >= 0) AND
-        (amount_total IS NULL OR amount_total >= 0)
+        (discount_amount IS NULL OR discount_amount >= 0) AND
+        (discount_percentage IS NULL OR discount_percentage >= 0)
     );
 -- ============================================================
 -- Table: sale_order_line
 -- ============================================================
 
-
 CREATE TABLE public.sale_order_line (
     tenant_id UUID NOT NULL,
     id UUID NOT NULL DEFAULT gen_random_uuid(),
-    order_id integer NOT NULL,
+    order_id UUID NOT NULL,
     sequence integer,
     company_id integer,
     currency_id integer,
@@ -349,7 +360,15 @@ CREATE TABLE public.sale_order_line (
     price_tax double precision,
     customer_lead double precision NOT NULL,
     is_optional boolean,
-    warehouse_id integer
+    warehouse_id integer,
+    created_by UUID,
+    assignee_id UUID,
+    shared_with UUID[],
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+,
+    CONSTRAINT sale_order_line_accountable_required_fields CHECK ((display_type IS NOT NULL) OR is_downpayment OR ((product_id IS NOT NULL) AND (product_uom_id IS NOT NULL))),
+    CONSTRAINT sale_order_line_non_accountable_null_fields CHECK ((display_type IS NULL) OR ((product_id IS NULL) AND (price_unit = 0) AND (product_uom_qty = 0) AND (product_uom_id IS NULL)))
 );
 
 ALTER TABLE ONLY public.sale_order_line
@@ -405,24 +424,19 @@ COMMENT ON COLUMN public.sale_order_line.price_tax IS 'Total Tax';
 COMMENT ON COLUMN public.sale_order_line.customer_lead IS 'Lead Time';
 COMMENT ON COLUMN public.sale_order_line.is_optional IS 'Optional Line';
 COMMENT ON COLUMN public.sale_order_line.warehouse_id IS 'Warehouse';
-COMMENT ON CONSTRAINT sale_order_line_accountable_required_fields ON public.sale_order_line IS 'CHECK(display_type IS NOT NULL OR is_downpayment OR (product_id IS NOT NULL AND product_uom_id IS NOT NULL))';
-COMMENT ON CONSTRAINT sale_order_line_non_accountable_null_fields ON public.sale_order_line IS 'CHECK(display_type IS NULL OR (product_id IS NULL AND price_unit = 0 AND product_uom_qty = 0 AND product_uom_id IS NULL AND customer_lead = 0))';
-
 
 -- Business constraint: Non-negative amounts
 ALTER TABLE public.sale_order_line
     ADD CONSTRAINT check_sale_order_line_positive_amounts 
     CHECK (
-        (amount_untaxed IS NULL OR amount_untaxed >= 0) AND
-        (amount_total IS NULL OR amount_total >= 0)
+        (price_subtotal IS NULL OR price_subtotal >= 0) AND
+        (price_total IS NULL OR price_total >= 0)
     );
-
 
 -- Business constraint: Positive quantities
 ALTER TABLE public.sale_order_line
     ADD CONSTRAINT check_sale_order_line_positive_qty 
     CHECK (product_uom_qty IS NULL OR product_uom_qty > 0);
-
 
 -- Business constraint: Valid states
 ALTER TABLE public.sale_order_line
@@ -434,44 +448,29 @@ CREATE INDEX IF NOT EXISTS idx_sale_order_line_state
     ON public.sale_order_line(tenant_id, state) 
     WHERE state IS NOT NULL;
 
-
 -- Index: Queries by partner
 CREATE INDEX IF NOT EXISTS idx_sale_order_line_partner 
-    ON public.sale_order_line(tenant_id, partner_id);
-
+    ON public.sale_order_line(tenant_id, order_partner_id);
 
 -- Index: Queries by product
 CREATE INDEX IF NOT EXISTS idx_sale_order_line_product 
     ON public.sale_order_line(tenant_id, product_id);
 
-
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_sale_order_line_company 
     ON public.sale_order_line(tenant_id, company_id);
 
--- Foreign key: Product reference
-ALTER TABLE public.sale_order_line
-    ADD CONSTRAINT fk_sale_order_line_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
-
-
--- Foreign key: Sale order reference
-ALTER TABLE public.sale_order_line
-    ADD CONSTRAINT fk_sale_order_line_order 
-    FOREIGN KEY (tenant_id, order_id) 
-    REFERENCES public.sale_order(tenant_id, id)
-    ON DELETE CASCADE;
 -- ============================================================
 -- Table: sale_order_line_invoice_rel
 -- ============================================================
-
 
 CREATE TABLE public.sale_order_line_invoice_rel (
     invoice_line_id integer NOT NULL,
     order_line_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.sale_order_line_invoice_rel
+    ADD CONSTRAINT sale_order_line_invoice_rel_pkey PRIMARY KEY (invoice_line_id, order_line_id);
 
 COMMENT ON TABLE public.sale_order_line_invoice_rel IS 'RELATION BETWEEN account_move_line AND sale_order_line';
 
@@ -479,11 +478,13 @@ COMMENT ON TABLE public.sale_order_line_invoice_rel IS 'RELATION BETWEEN account
 -- Table: sale_order_line_product_document_rel
 -- ============================================================
 
-
 CREATE TABLE public.sale_order_line_product_document_rel (
     sale_order_line_id integer NOT NULL,
     product_document_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.sale_order_line_product_document_rel
+    ADD CONSTRAINT sale_order_line_product_document_rel_pkey PRIMARY KEY (sale_order_line_id, product_document_id);
 
 COMMENT ON TABLE public.sale_order_line_product_document_rel IS 'RELATION BETWEEN sale_order_line AND product_document';
 
@@ -491,11 +492,13 @@ COMMENT ON TABLE public.sale_order_line_product_document_rel IS 'RELATION BETWEE
 -- Table: sale_order_line_stock_route_rel
 -- ============================================================
 
-
 CREATE TABLE public.sale_order_line_stock_route_rel (
     sale_order_line_id integer NOT NULL,
     stock_route_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.sale_order_line_stock_route_rel
+    ADD CONSTRAINT sale_order_line_stock_route_rel_pkey PRIMARY KEY (sale_order_line_id, stock_route_id);
 
 COMMENT ON TABLE public.sale_order_line_stock_route_rel IS 'RELATION BETWEEN sale_order_line AND stock_route';
 
@@ -503,11 +506,13 @@ COMMENT ON TABLE public.sale_order_line_stock_route_rel IS 'RELATION BETWEEN sal
 -- Table: sale_order_mass_cancel_wizard_rel
 -- ============================================================
 
-
 CREATE TABLE public.sale_order_mass_cancel_wizard_rel (
-    sale_mass_cancel_orders_id integer NOT NULL,
-    sale_order_id integer NOT NULL
+    sale_mass_cancel_orders_id UUID NOT NULL,
+    sale_order_id UUID NOT NULL
 );
+
+ALTER TABLE ONLY public.sale_order_mass_cancel_wizard_rel
+    ADD CONSTRAINT sale_order_mass_cancel_wizard_rel_pkey PRIMARY KEY (sale_mass_cancel_orders_id, sale_order_id);
 
 COMMENT ON TABLE public.sale_order_mass_cancel_wizard_rel IS 'RELATION BETWEEN sale_mass_cancel_orders AND sale_order';
 
@@ -515,18 +520,19 @@ COMMENT ON TABLE public.sale_order_mass_cancel_wizard_rel IS 'RELATION BETWEEN s
 -- Table: sale_order_tag_rel
 -- ============================================================
 
-
 CREATE TABLE public.sale_order_tag_rel (
     order_id integer NOT NULL,
     tag_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.sale_order_tag_rel
+    ADD CONSTRAINT sale_order_tag_rel_pkey PRIMARY KEY (order_id, tag_id);
 
 COMMENT ON TABLE public.sale_order_tag_rel IS 'RELATION BETWEEN sale_order AND crm_tag';
 
 -- ============================================================
 -- Table: sale_order_template
 -- ============================================================
-
 
 CREATE TABLE public.sale_order_template (
     tenant_id UUID NOT NULL,
@@ -545,7 +551,12 @@ CREATE TABLE public.sale_order_template (
     require_payment boolean,
     create_date timestamp without time zone,
     write_date timestamp without time zone,
-    prepayment_percent double precision
+    prepayment_percent double precision,
+    created_by UUID,
+    assignee_id UUID,
+    shared_with UUID[],
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 ALTER TABLE ONLY public.sale_order_template
@@ -573,7 +584,6 @@ COMMENT ON COLUMN public.sale_order_template.create_date IS 'Created on';
 COMMENT ON COLUMN public.sale_order_template.write_date IS 'Last Updated on';
 COMMENT ON COLUMN public.sale_order_template.prepayment_percent IS 'Prepayment percentage';
 
-
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_sale_order_template_company 
     ON public.sale_order_template(tenant_id, company_id);
@@ -581,11 +591,10 @@ CREATE INDEX IF NOT EXISTS idx_sale_order_template_company
 -- Table: sale_order_template_line
 -- ============================================================
 
-
 CREATE TABLE public.sale_order_template_line (
     tenant_id UUID NOT NULL,
     id UUID NOT NULL DEFAULT gen_random_uuid(),
-    sale_order_template_id integer NOT NULL,
+    sale_order_template_id UUID NOT NULL,
     sequence integer,
     company_id integer,
     product_id integer,
@@ -597,7 +606,15 @@ CREATE TABLE public.sale_order_template_line (
     product_uom_qty numeric NOT NULL,
     is_optional boolean,
     create_date timestamp without time zone,
-    write_date timestamp without time zone
+    write_date timestamp without time zone,
+    created_by UUID,
+    assignee_id UUID,
+    shared_with UUID[],
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+,
+    CONSTRAINT sale_order_template_line_accountable_product_id_required CHECK ((display_type IS NOT NULL) OR ((product_id IS NOT NULL) AND (product_uom_id IS NOT NULL))),
+    CONSTRAINT sale_order_template_line_non_accountable_fields_null CHECK ((display_type IS NULL) OR ((product_id IS NULL) AND (product_uom_qty = 0) AND (product_uom_id IS NULL)))
 );
 
 ALTER TABLE ONLY public.sale_order_template_line
@@ -622,41 +639,32 @@ COMMENT ON COLUMN public.sale_order_template_line.product_uom_qty IS 'Quantity';
 COMMENT ON COLUMN public.sale_order_template_line.is_optional IS 'Optional Line';
 COMMENT ON COLUMN public.sale_order_template_line.create_date IS 'Created on';
 COMMENT ON COLUMN public.sale_order_template_line.write_date IS 'Last Updated on';
-COMMENT ON CONSTRAINT sale_order_template_line_accountable_product_id_required ON public.sale_order_template_line IS 'CHECK(display_type IS NOT NULL OR (product_id IS NOT NULL AND product_uom_id IS NOT NULL))';
-COMMENT ON CONSTRAINT sale_order_template_line_non_accountable_fields_null ON public.sale_order_template_line IS 'CHECK(display_type IS NULL OR (product_id IS NULL AND product_uom_qty = 0 AND product_uom_id IS NULL))';
-
 
 -- Index: Queries by product
 CREATE INDEX IF NOT EXISTS idx_sale_order_template_line_product 
     ON public.sale_order_template_line(tenant_id, product_id);
 
-
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_sale_order_template_line_company 
     ON public.sale_order_template_line(tenant_id, company_id);
 
--- Foreign key: Product reference
-ALTER TABLE public.sale_order_template_line
-    ADD CONSTRAINT fk_sale_order_template_line_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
 -- ============================================================
 -- Table: sale_order_transaction_rel
 -- ============================================================
 
-
 CREATE TABLE public.sale_order_transaction_rel (
-    transaction_id integer NOT NULL,
-    sale_order_id integer NOT NULL
+    transaction_id UUID NOT NULL,
+    sale_order_id UUID NOT NULL
 );
+
+ALTER TABLE ONLY public.sale_order_transaction_rel
+    ADD CONSTRAINT sale_order_transaction_rel_pkey PRIMARY KEY (transaction_id, sale_order_id);
 
 COMMENT ON TABLE public.sale_order_transaction_rel IS 'RELATION BETWEEN payment_transaction AND sale_order';
 
 -- ============================================================
 -- Table: sale_pdf_form_field
 -- ============================================================
-
 
 CREATE TABLE public.sale_pdf_form_field (
     tenant_id UUID NOT NULL,
@@ -667,7 +675,12 @@ CREATE TABLE public.sale_pdf_form_field (
     document_type character varying NOT NULL,
     path character varying,
     create_date timestamp without time zone,
-    write_date timestamp without time zone
+    write_date timestamp without time zone,
+    created_by UUID,
+    assignee_id UUID,
+    shared_with UUID[],
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 ALTER TABLE ONLY public.sale_pdf_form_field
@@ -687,3 +700,81 @@ COMMENT ON COLUMN public.sale_pdf_form_field.path IS 'Path';
 COMMENT ON COLUMN public.sale_pdf_form_field.create_date IS 'Created on';
 COMMENT ON COLUMN public.sale_pdf_form_field.write_date IS 'Last Updated on';
 
+-- ============================================================
+-- Triggers for updated_at
+-- ============================================================
+
+-- Touch-up triggers for updated_at
+CREATE OR REPLACE FUNCTION set_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DO $$ BEGIN
+    PERFORM 1 FROM pg_trigger WHERE tgname = 't_sale_order_updated_at';
+    IF NOT FOUND THEN
+        CREATE TRIGGER t_sale_order_updated_at BEFORE UPDATE ON sale_order
+        FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+    END IF;
+END $$;
+
+DO $$ BEGIN
+    PERFORM 1 FROM pg_trigger WHERE tgname = 't_sale_order_line_updated_at';
+    IF NOT FOUND THEN
+        CREATE TRIGGER t_sale_order_line_updated_at BEFORE UPDATE ON sale_order_line
+        FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+    END IF;
+END $$;
+
+DO $$ BEGIN
+    PERFORM 1 FROM pg_trigger WHERE tgname = 't_sale_order_discount_updated_at';
+    IF NOT FOUND THEN
+        CREATE TRIGGER t_sale_order_discount_updated_at BEFORE UPDATE ON sale_order_discount
+        FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+    END IF;
+END $$;
+
+DO $$ BEGIN
+    PERFORM 1 FROM pg_trigger WHERE tgname = 't_sale_order_template_updated_at';
+    IF NOT FOUND THEN
+        CREATE TRIGGER t_sale_order_template_updated_at BEFORE UPDATE ON sale_order_template
+        FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+    END IF;
+END $$;
+
+DO $$ BEGIN
+    PERFORM 1 FROM pg_trigger WHERE tgname = 't_sale_order_template_line_updated_at';
+    IF NOT FOUND THEN
+        CREATE TRIGGER t_sale_order_template_line_updated_at BEFORE UPDATE ON sale_order_template_line
+        FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+    END IF;
+END $$;
+
+DO $$ BEGIN
+    PERFORM 1 FROM pg_trigger WHERE tgname = 't_sale_advance_payment_inv_updated_at';
+    IF NOT FOUND THEN
+        CREATE TRIGGER t_sale_advance_payment_inv_updated_at BEFORE UPDATE ON sale_advance_payment_inv
+        FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+    END IF;
+END $$;
+
+DO $$ BEGIN
+    PERFORM 1 FROM pg_trigger WHERE tgname = 't_sale_mass_cancel_orders_updated_at';
+    IF NOT FOUND THEN
+        CREATE TRIGGER t_sale_mass_cancel_orders_updated_at BEFORE UPDATE ON sale_mass_cancel_orders
+        FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+    END IF;
+END $$;
+
+DO $$ BEGIN
+    PERFORM 1 FROM pg_trigger WHERE tgname = 't_sale_pdf_form_field_updated_at';
+    IF NOT FOUND THEN
+        CREATE TRIGGER t_sale_pdf_form_field_updated_at BEFORE UPDATE ON sale_pdf_form_field
+        FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+    END IF;
+END $$;
+
+-- ============================================================

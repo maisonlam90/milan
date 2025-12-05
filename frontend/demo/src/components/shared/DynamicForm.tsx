@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import clsx from "clsx";
 import { Controller, FieldValues, UseFormReturn } from "react-hook-form";
+import dayjs from "dayjs";
 
 import { Input, Textarea, Checkbox } from "@/components/ui";
 import { DatePicker } from "@/components/shared/form/Datepicker";
@@ -17,7 +18,7 @@ export interface SelectOption {
 
 // ✅ THÊM email và checkbox
 // ✅ Export FieldType để có thể dùng ở nơi khác nếu cần
-export type FieldType = "text" | "textarea" | "select" | "date" | "number" | "email" | "checkbox";
+export type FieldType = "text" | "textarea" | "select" | "date" | "datetime" | "number" | "email" | "checkbox";
 
 export interface DynamicFieldConfig {
   name: string;
@@ -86,16 +87,34 @@ export default function DynamicForm<TForm extends FieldValues = FieldValues>({
 
   const formatDateDisplay = (v: unknown): string => {
     if (!v) return "";
-    if (typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v)) {
-      const [y, m, d] = v.split("-").map(Number);
-      return `${String(d).padStart(2, "0")}/${String(m).padStart(2, "0")}/${y}`;
+    
+    // Use dayjs for better date parsing and formatting
+    if (typeof v === "string") {
+      const d = dayjs(v);
+      if (d.isValid()) {
+        return d.format("DD/MM/YYYY");
+      }
     }
-    const d = v instanceof Date ? v : new Date(v as any);
-    if (Number.isNaN(d.getTime())) return String(v ?? "");
-    const dd = String(d.getDate()).padStart(2, "0");
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const yy = d.getFullYear();
-    return `${dd}/${mm}/${yy}`;
+    
+    // Fallback for Date objects
+    if (v instanceof Date) {
+      const d = dayjs(v);
+      if (d.isValid()) {
+        return d.format("DD/MM/YYYY");
+      }
+    }
+    
+    // Last resort: try to parse as Date
+    try {
+      const d = dayjs(v as any);
+      if (d.isValid()) {
+        return d.format("DD/MM/YYYY");
+      }
+    } catch (e) {
+      // Ignore
+    }
+    
+    return String(v ?? "");
   };
 
   const roBox = "bg-gray-100 dark:bg-dark-800 text-gray-600 px-2 py-1 rounded";
@@ -292,8 +311,8 @@ function renderField<TForm extends FieldValues>({
     );
   }
 
-  /* -------- date -------- */
-  if (field.type === "date") {
+  /* -------- date và datetime -------- */
+  if (field.type === "date" || field.type === "datetime") {
     if (disabled) {
       const val = form.watch(field.name as any);
       return (

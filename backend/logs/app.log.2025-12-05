@@ -1,0 +1,26 @@
+2025-12-05T13:49:52.593985Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
+2025-12-05T13:49:52.610168Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
+2025-12-05T13:49:55.512581Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
+2025-12-05T13:49:55.532911Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
+2025-12-05T14:15:27.578405Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: column "created_by" of relation "sale_order" does not exist
+2025-12-05T14:35:06.030037Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: column "date_order" is of type timestamp without time zone but expression is of type text
+2025-12-05T14:39:00.806632Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: cannot cast type integer to timestamp without time zone
+2025-12-05T14:42:11.720478Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: bind message supplies 23 parameters, but prepared statement "sqlx_s_1" requires 24
+2025-12-05T14:45:08.099725Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: invalid input syntax for type timestamp: ""
+2025-12-05T15:52:08.861641Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-12-05T15:52:08.879902Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-12-05T16:48:18.466664Z ERROR milan::core::error: ❌ Internal error: Lỗi khi xóa notebook lines cũ: error returned from database: operator does not exist: integer = uuid
+2025-12-05T16:57:47.850189Z ERROR milan::core::error: ❌ Internal error: Lỗi khi insert notebook line: error returned from database: column "created_by" is of type uuid but expression is of type text
+2025-12-05T16:57:53.391225Z ERROR milan::core::error: ❌ Internal error: Lỗi khi insert notebook line: error returned from database: column "created_by" is of type uuid but expression is of type text
+2025-12-05T17:06:06.886615Z ERROR milan::core::error: ❌ Internal error: Lỗi khi insert notebook line: error returned from database: null value in column "customer_lead" of relation "sale_order_line" violates not-null constraint
+2025-12-05T17:08:57.923996Z ERROR milan::core::error: ❌ Internal error: Lỗi khi insert notebook line: error returned from database: null value in column "name" of relation "sale_order_line" violates not-null constraint
+2025-12-05T17:09:15.619906Z ERROR milan::core::error: ❌ Internal error: Lỗi khi insert notebook line: error returned from database: null value in column "name" of relation "sale_order_line" violates not-null constraint
+2025-12-05T17:20:19.888918Z ERROR milan::core::error: ❌ Internal error: Lỗi khi insert notebook line: error returned from database: new row for relation "sale_order_line" violates check constraint "check_sale_order_line_positive_qty"
+2025-12-05T17:42:47.155710Z ERROR milan::core::error: ❌ Internal error: Lỗi khi insert notebook line: error returned from database: column "id" is of type uuid but expression is of type text
+2025-12-05T17:43:08.773323Z ERROR milan::core::error: ❌ Internal error: Lỗi khi insert notebook line: error returned from database: column "id" is of type uuid but expression is of type text
+2025-12-05T17:58:20.041838Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-12-05T17:58:20.043281Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-12-05T17:58:20.836253Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-12-05T18:01:26.870352Z ERROR milan::module::invoice_link::command: No active credentials found for provider: viettel
+2025-12-05T18:01:52.030545Z ERROR milan::module::invoice_link::command: No active credentials found for provider: viettel
+2025-12-05T18:06:02.268664Z ERROR milan::core::error: ❌ Internal error: Lỗi khi insert notebook line: error returned from database: null value in column "customer_lead" of relation "sale_order_line" violates not-null constraint

@@ -20,7 +20,6 @@
 -- Table: stock_location
 -- ============================================================
 
-
 CREATE TABLE public.stock_location (
     tenant_id UUID NOT NULL,
     id UUID NOT NULL DEFAULT gen_random_uuid(),
@@ -44,6 +43,8 @@ CREATE TABLE public.stock_location (
     create_date timestamp without time zone,
     write_date timestamp without time zone,
     valuation_account_id integer
+,
+    CONSTRAINT stock_location_inventory_freq_nonneg CHECK (cyclic_inventory_frequency >= 0)
 );
 
 ALTER TABLE ONLY public.stock_location
@@ -75,23 +76,14 @@ COMMENT ON COLUMN public.stock_location.replenish_location IS 'Replenishments';
 COMMENT ON COLUMN public.stock_location.create_date IS 'Created on';
 COMMENT ON COLUMN public.stock_location.write_date IS 'Last Updated on';
 COMMENT ON COLUMN public.stock_location.valuation_account_id IS 'Stock Valuation Account';
-COMMENT ON CONSTRAINT stock_location_inventory_freq_nonneg ON public.stock_location IS 'check(cyclic_inventory_frequency >= 0)';
-
 
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_stock_location_company 
     ON public.stock_location(tenant_id, company_id);
 
--- Foreign key: Location reference
-ALTER TABLE public.stock_location
-    ADD CONSTRAINT fk_stock_location_location 
-    FOREIGN KEY (tenant_id, location_id) 
-    REFERENCES public.stock_location(tenant_id, id)
-    ON DELETE RESTRICT;
 -- ============================================================
 -- Table: stock_move
 -- ============================================================
-
 
 CREATE TABLE public.stock_move (
     tenant_id UUID NOT NULL,
@@ -210,45 +202,26 @@ COMMENT ON COLUMN public.stock_move.is_dropship IS 'Is Dropship';
 COMMENT ON COLUMN public.stock_move.purchase_line_id IS 'Purchase Order Line';
 COMMENT ON COLUMN public.stock_move.sale_line_id IS 'Sale Line';
 
-
 -- Index: Queries by state
 CREATE INDEX IF NOT EXISTS idx_stock_move_state 
     ON public.stock_move(tenant_id, state) 
     WHERE state IS NOT NULL;
 
-
 -- Index: Queries by partner
 CREATE INDEX IF NOT EXISTS idx_stock_move_partner 
     ON public.stock_move(tenant_id, partner_id);
-
 
 -- Index: Queries by product
 CREATE INDEX IF NOT EXISTS idx_stock_move_product 
     ON public.stock_move(tenant_id, product_id);
 
-
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_stock_move_company 
     ON public.stock_move(tenant_id, company_id);
 
--- Foreign key: Product reference
-ALTER TABLE public.stock_move
-    ADD CONSTRAINT fk_stock_move_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
-
-
--- Foreign key: Location reference
-ALTER TABLE public.stock_move
-    ADD CONSTRAINT fk_stock_move_location 
-    FOREIGN KEY (tenant_id, location_id) 
-    REFERENCES public.stock_location(tenant_id, id)
-    ON DELETE RESTRICT;
 -- ============================================================
 -- Table: stock_quant
 -- ============================================================
-
 
 CREATE TABLE public.stock_quant (
     tenant_id UUID NOT NULL,
@@ -303,34 +276,17 @@ COMMENT ON COLUMN public.stock_quant.create_date IS 'Created on';
 COMMENT ON COLUMN public.stock_quant.write_date IS 'Last Updated on';
 COMMENT ON COLUMN public.stock_quant.accounting_date IS 'Accounting Date';
 
-
 -- Index: Queries by product
 CREATE INDEX IF NOT EXISTS idx_stock_quant_product 
     ON public.stock_quant(tenant_id, product_id);
-
 
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_stock_quant_company 
     ON public.stock_quant(tenant_id, company_id);
 
--- Foreign key: Product reference
-ALTER TABLE public.stock_quant
-    ADD CONSTRAINT fk_stock_quant_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
-
-
--- Foreign key: Location reference
-ALTER TABLE public.stock_quant
-    ADD CONSTRAINT fk_stock_quant_location 
-    FOREIGN KEY (tenant_id, location_id) 
-    REFERENCES public.stock_location(tenant_id, id)
-    ON DELETE RESTRICT;
 -- ============================================================
 -- Table: stock_warehouse
 -- ============================================================
-
 
 CREATE TABLE public.stock_warehouse (
     tenant_id UUID NOT NULL,
@@ -407,26 +363,17 @@ COMMENT ON COLUMN public.stock_warehouse.create_date IS 'Created on';
 COMMENT ON COLUMN public.stock_warehouse.write_date IS 'Last Updated on';
 COMMENT ON COLUMN public.stock_warehouse.buy_pull_id IS 'Buy rule';
 
-
 -- Index: Queries by partner
 CREATE INDEX IF NOT EXISTS idx_stock_warehouse_partner 
     ON public.stock_warehouse(tenant_id, partner_id);
-
 
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_stock_warehouse_company 
     ON public.stock_warehouse(tenant_id, company_id);
 
--- Foreign key: Location reference
-ALTER TABLE public.stock_warehouse
-    ADD CONSTRAINT fk_stock_warehouse_location 
-    FOREIGN KEY (tenant_id, location_id) 
-    REFERENCES public.stock_location(tenant_id, id)
-    ON DELETE RESTRICT;
 -- ============================================================
 -- Table: stock_picking
 -- ============================================================
-
 
 CREATE TABLE public.stock_picking (
     tenant_id UUID NOT NULL,
@@ -498,7 +445,6 @@ COMMENT ON COLUMN public.stock_picking.date_done IS 'Date of Transfer';
 COMMENT ON COLUMN public.stock_picking.create_date IS 'Created on';
 COMMENT ON COLUMN public.stock_picking.write_date IS 'Last Updated on';
 
-
 -- Business constraint: Valid states
 ALTER TABLE public.stock_picking
     ADD CONSTRAINT check_stock_picking_valid_state 
@@ -509,26 +455,17 @@ CREATE INDEX IF NOT EXISTS idx_stock_picking_state
     ON public.stock_picking(tenant_id, state) 
     WHERE state IS NOT NULL;
 
-
 -- Index: Queries by partner
 CREATE INDEX IF NOT EXISTS idx_stock_picking_partner 
     ON public.stock_picking(tenant_id, partner_id);
-
 
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_stock_picking_company 
     ON public.stock_picking(tenant_id, company_id);
 
--- Foreign key: Location reference
-ALTER TABLE public.stock_picking
-    ADD CONSTRAINT fk_stock_picking_location 
-    FOREIGN KEY (tenant_id, location_id) 
-    REFERENCES public.stock_location(tenant_id, id)
-    ON DELETE RESTRICT;
 -- ============================================================
 -- Table: stock_backorder_confirmation
 -- ============================================================
-
 
 CREATE TABLE public.stock_backorder_confirmation (
     tenant_id UUID NOT NULL,
@@ -558,7 +495,6 @@ COMMENT ON COLUMN public.stock_backorder_confirmation.write_date IS 'Last Update
 -- ============================================================
 -- Table: stock_backorder_confirmation_line
 -- ============================================================
-
 
 CREATE TABLE public.stock_backorder_confirmation_line (
     tenant_id UUID NOT NULL,
@@ -593,18 +529,19 @@ COMMENT ON COLUMN public.stock_backorder_confirmation_line.write_date IS 'Last U
 -- Table: stock_conflict_quant_rel
 -- ============================================================
 
-
 CREATE TABLE public.stock_conflict_quant_rel (
     stock_inventory_conflict_id integer NOT NULL,
     stock_quant_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.stock_conflict_quant_rel
+    ADD CONSTRAINT stock_conflict_quant_rel_pkey PRIMARY KEY (stock_inventory_conflict_id, stock_quant_id);
 
 COMMENT ON TABLE public.stock_conflict_quant_rel IS 'RELATION BETWEEN stock_inventory_conflict AND stock_quant';
 
 -- ============================================================
 -- Table: stock_inventory_adjustment_name
 -- ============================================================
-
 
 CREATE TABLE public.stock_inventory_adjustment_name (
     tenant_id UUID NOT NULL,
@@ -639,18 +576,19 @@ COMMENT ON COLUMN public.stock_inventory_adjustment_name.accounting_date IS 'Acc
 -- Table: stock_inventory_adjustment_name_stock_quant_rel
 -- ============================================================
 
-
 CREATE TABLE public.stock_inventory_adjustment_name_stock_quant_rel (
     stock_inventory_adjustment_name_id integer NOT NULL,
     stock_quant_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.stock_inventory_adjustment_name_stock_quant_rel
+    ADD CONSTRAINT stock_inventory_adjustment_name_stock_quant_rel_pkey PRIMARY KEY (stock_inventory_adjustment_name_id, stock_quant_id);
 
 COMMENT ON TABLE public.stock_inventory_adjustment_name_stock_quant_rel IS 'RELATION BETWEEN stock_inventory_adjustment_name AND stock_quant';
 
 -- ============================================================
 -- Table: stock_inventory_conflict
 -- ============================================================
-
 
 CREATE TABLE public.stock_inventory_conflict (
     tenant_id UUID NOT NULL,
@@ -679,18 +617,19 @@ COMMENT ON COLUMN public.stock_inventory_conflict.write_date IS 'Last Updated on
 -- Table: stock_inventory_conflict_stock_quant_rel
 -- ============================================================
 
-
 CREATE TABLE public.stock_inventory_conflict_stock_quant_rel (
     stock_inventory_conflict_id integer NOT NULL,
     stock_quant_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.stock_inventory_conflict_stock_quant_rel
+    ADD CONSTRAINT stock_inventory_conflict_stock_quant_rel_pkey PRIMARY KEY (stock_inventory_conflict_id, stock_quant_id);
 
 COMMENT ON TABLE public.stock_inventory_conflict_stock_quant_rel IS 'RELATION BETWEEN stock_inventory_conflict AND stock_quant';
 
 -- ============================================================
 -- Table: stock_inventory_warning
 -- ============================================================
-
 
 CREATE TABLE public.stock_inventory_warning (
     tenant_id UUID NOT NULL,
@@ -719,18 +658,19 @@ COMMENT ON COLUMN public.stock_inventory_warning.write_date IS 'Last Updated on'
 -- Table: stock_inventory_warning_stock_quant_rel
 -- ============================================================
 
-
 CREATE TABLE public.stock_inventory_warning_stock_quant_rel (
     stock_inventory_warning_id integer NOT NULL,
     stock_quant_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.stock_inventory_warning_stock_quant_rel
+    ADD CONSTRAINT stock_inventory_warning_stock_quant_rel_pkey PRIMARY KEY (stock_inventory_warning_id, stock_quant_id);
 
 COMMENT ON TABLE public.stock_inventory_warning_stock_quant_rel IS 'RELATION BETWEEN stock_inventory_warning AND stock_quant';
 
 -- ============================================================
 -- Table: stock_lot
 -- ============================================================
-
 
 CREATE TABLE public.stock_lot (
     tenant_id UUID NOT NULL,
@@ -773,46 +713,31 @@ COMMENT ON COLUMN public.stock_lot.write_date IS 'Last Updated on';
 COMMENT ON COLUMN public.stock_lot.standard_price IS 'Cost';
 COMMENT ON COLUMN public.stock_lot.avg_cost IS 'Average Cost';
 
-
 -- Index: Queries by product
 CREATE INDEX IF NOT EXISTS idx_stock_lot_product 
     ON public.stock_lot(tenant_id, product_id);
-
 
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_stock_lot_company 
     ON public.stock_lot(tenant_id, company_id);
 
--- Foreign key: Product reference
-ALTER TABLE public.stock_lot
-    ADD CONSTRAINT fk_stock_lot_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
-
-
--- Foreign key: Location reference
-ALTER TABLE public.stock_lot
-    ADD CONSTRAINT fk_stock_lot_location 
-    FOREIGN KEY (tenant_id, location_id) 
-    REFERENCES public.stock_location(tenant_id, id)
-    ON DELETE RESTRICT;
 -- ============================================================
 -- Table: stock_move_created_purchase_line_rel
 -- ============================================================
-
 
 CREATE TABLE public.stock_move_created_purchase_line_rel (
     created_purchase_line_id integer NOT NULL,
     move_id integer NOT NULL
 );
 
+ALTER TABLE ONLY public.stock_move_created_purchase_line_rel
+    ADD CONSTRAINT stock_move_created_purchase_line_rel_pkey PRIMARY KEY (created_purchase_line_id, move_id);
+
 COMMENT ON TABLE public.stock_move_created_purchase_line_rel IS 'RELATION BETWEEN purchase_order_line AND stock_move';
 
 -- ============================================================
 -- Table: stock_move_line
 -- ============================================================
-
 
 CREATE TABLE public.stock_move_line (
     tenant_id UUID NOT NULL,
@@ -875,45 +800,30 @@ COMMENT ON COLUMN public.stock_move_line.date IS 'Date';
 COMMENT ON COLUMN public.stock_move_line.create_date IS 'Created on';
 COMMENT ON COLUMN public.stock_move_line.write_date IS 'Last Updated on';
 
-
 -- Index: Queries by state
 CREATE INDEX IF NOT EXISTS idx_stock_move_line_state 
     ON public.stock_move_line(tenant_id, state) 
     WHERE state IS NOT NULL;
 
-
 -- Index: Queries by product
 CREATE INDEX IF NOT EXISTS idx_stock_move_line_product 
     ON public.stock_move_line(tenant_id, product_id);
-
 
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_stock_move_line_company 
     ON public.stock_move_line(tenant_id, company_id);
 
--- Foreign key: Product reference
-ALTER TABLE public.stock_move_line
-    ADD CONSTRAINT fk_stock_move_line_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
-
-
--- Foreign key: Location reference
-ALTER TABLE public.stock_move_line
-    ADD CONSTRAINT fk_stock_move_line_location 
-    FOREIGN KEY (tenant_id, location_id) 
-    REFERENCES public.stock_location(tenant_id, id)
-    ON DELETE RESTRICT;
 -- ============================================================
 -- Table: stock_move_line_consume_rel
 -- ============================================================
-
 
 CREATE TABLE public.stock_move_line_consume_rel (
     consume_line_id integer NOT NULL,
     produce_line_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.stock_move_line_consume_rel
+    ADD CONSTRAINT stock_move_line_consume_rel_pkey PRIMARY KEY (consume_line_id, produce_line_id);
 
 COMMENT ON TABLE public.stock_move_line_consume_rel IS 'RELATION BETWEEN stock_move_line AND stock_move_line';
 
@@ -921,11 +831,13 @@ COMMENT ON TABLE public.stock_move_line_consume_rel IS 'RELATION BETWEEN stock_m
 -- Table: stock_move_line_stock_put_in_pack_rel
 -- ============================================================
 
-
 CREATE TABLE public.stock_move_line_stock_put_in_pack_rel (
     stock_put_in_pack_id integer NOT NULL,
     stock_move_line_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.stock_move_line_stock_put_in_pack_rel
+    ADD CONSTRAINT stock_move_line_stock_put_in_pack_rel_pkey PRIMARY KEY (stock_put_in_pack_id, stock_move_line_id);
 
 COMMENT ON TABLE public.stock_move_line_stock_put_in_pack_rel IS 'RELATION BETWEEN stock_put_in_pack AND stock_move_line';
 
@@ -933,18 +845,19 @@ COMMENT ON TABLE public.stock_move_line_stock_put_in_pack_rel IS 'RELATION BETWE
 -- Table: stock_move_move_rel
 -- ============================================================
 
-
 CREATE TABLE public.stock_move_move_rel (
     move_orig_id integer NOT NULL,
     move_dest_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.stock_move_move_rel
+    ADD CONSTRAINT stock_move_move_rel_pkey PRIMARY KEY (move_orig_id, move_dest_id);
 
 COMMENT ON TABLE public.stock_move_move_rel IS 'RELATION BETWEEN stock_move AND stock_move';
 
 -- ============================================================
 -- Table: stock_orderpoint_snooze
 -- ============================================================
-
 
 CREATE TABLE public.stock_orderpoint_snooze (
     tenant_id UUID NOT NULL,
@@ -977,18 +890,19 @@ COMMENT ON COLUMN public.stock_orderpoint_snooze.write_date IS 'Last Updated on'
 -- Table: stock_orderpoint_snooze_stock_warehouse_orderpoint_rel
 -- ============================================================
 
-
 CREATE TABLE public.stock_orderpoint_snooze_stock_warehouse_orderpoint_rel (
     stock_orderpoint_snooze_id integer NOT NULL,
     stock_warehouse_orderpoint_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.stock_orderpoint_snooze_stock_warehouse_orderpoint_rel
+    ADD CONSTRAINT stock_orderpoint_snooze_stock_warehouse_orderpoint_rel_pkey PRIMARY KEY (stock_orderpoint_snooze_id, stock_warehouse_orderpoint_id);
 
 COMMENT ON TABLE public.stock_orderpoint_snooze_stock_warehouse_orderpoint_rel IS 'RELATION BETWEEN stock_orderpoint_snooze AND stock_warehouse_orderpoint';
 
 -- ============================================================
 -- Table: stock_package
 -- ============================================================
-
 
 CREATE TABLE public.stock_package (
     tenant_id UUID NOT NULL,
@@ -1033,21 +947,13 @@ COMMENT ON COLUMN public.stock_package.create_date IS 'Created on';
 COMMENT ON COLUMN public.stock_package.write_date IS 'Last Updated on';
 COMMENT ON COLUMN public.stock_package.shipping_weight IS 'Shipping Weight';
 
-
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_stock_package_company 
     ON public.stock_package(tenant_id, company_id);
 
--- Foreign key: Location reference
-ALTER TABLE public.stock_package
-    ADD CONSTRAINT fk_stock_package_location 
-    FOREIGN KEY (tenant_id, location_id) 
-    REFERENCES public.stock_location(tenant_id, id)
-    ON DELETE RESTRICT;
 -- ============================================================
 -- Table: stock_package_destination
 -- ============================================================
-
 
 CREATE TABLE public.stock_package_destination (
     tenant_id UUID NOT NULL,
@@ -1077,7 +983,6 @@ COMMENT ON COLUMN public.stock_package_destination.write_date IS 'Last Updated o
 -- ============================================================
 -- Table: stock_package_history
 -- ============================================================
-
 
 CREATE TABLE public.stock_package_history (
     tenant_id UUID NOT NULL,
@@ -1122,26 +1027,21 @@ COMMENT ON COLUMN public.stock_package_history.parent_dest_name IS 'Destination 
 COMMENT ON COLUMN public.stock_package_history.create_date IS 'Created on';
 COMMENT ON COLUMN public.stock_package_history.write_date IS 'Last Updated on';
 
-
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_stock_package_history_company 
     ON public.stock_package_history(tenant_id, company_id);
 
--- Foreign key: Location reference
-ALTER TABLE public.stock_package_history
-    ADD CONSTRAINT fk_stock_package_history_location 
-    FOREIGN KEY (tenant_id, location_id) 
-    REFERENCES public.stock_location(tenant_id, id)
-    ON DELETE RESTRICT;
 -- ============================================================
 -- Table: stock_package_history_stock_picking_rel
 -- ============================================================
-
 
 CREATE TABLE public.stock_package_history_stock_picking_rel (
     stock_picking_id integer NOT NULL,
     stock_package_history_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.stock_package_history_stock_picking_rel
+    ADD CONSTRAINT stock_package_history_stock_picking_rel_pkey PRIMARY KEY (stock_picking_id, stock_package_history_id);
 
 COMMENT ON TABLE public.stock_package_history_stock_picking_rel IS 'RELATION BETWEEN stock_picking AND stock_package_history';
 
@@ -1149,18 +1049,19 @@ COMMENT ON TABLE public.stock_package_history_stock_picking_rel IS 'RELATION BET
 -- Table: stock_package_stock_put_in_pack_rel
 -- ============================================================
 
-
 CREATE TABLE public.stock_package_stock_put_in_pack_rel (
     stock_put_in_pack_id integer NOT NULL,
     stock_package_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.stock_package_stock_put_in_pack_rel
+    ADD CONSTRAINT stock_package_stock_put_in_pack_rel_pkey PRIMARY KEY (stock_put_in_pack_id, stock_package_id);
 
 COMMENT ON TABLE public.stock_package_stock_put_in_pack_rel IS 'RELATION BETWEEN stock_put_in_pack AND stock_package';
 
 -- ============================================================
 -- Table: stock_package_type
 -- ============================================================
-
 
 CREATE TABLE public.stock_package_type (
     tenant_id UUID NOT NULL,
@@ -1180,6 +1081,11 @@ CREATE TABLE public.stock_package_type (
     packaging_length double precision,
     base_weight double precision,
     max_weight double precision
+,
+    CONSTRAINT stock_package_type_positive_height CHECK (height >= 0.0),
+    CONSTRAINT stock_package_type_positive_length CHECK (packaging_length >= 0.0),
+    CONSTRAINT stock_package_type_positive_max_weight CHECK (max_weight >= 0.0),
+    CONSTRAINT stock_package_type_positive_width CHECK (width >= 0.0)
 );
 
 ALTER TABLE ONLY public.stock_package_type
@@ -1206,11 +1112,6 @@ COMMENT ON COLUMN public.stock_package_type.width IS 'Width';
 COMMENT ON COLUMN public.stock_package_type.packaging_length IS 'Length';
 COMMENT ON COLUMN public.stock_package_type.base_weight IS 'Weight';
 COMMENT ON COLUMN public.stock_package_type.max_weight IS 'Max Weight';
-COMMENT ON CONSTRAINT stock_package_type_positive_height ON public.stock_package_type IS 'CHECK(height>=0.0)';
-COMMENT ON CONSTRAINT stock_package_type_positive_length ON public.stock_package_type IS 'CHECK(packaging_length>=0.0)';
-COMMENT ON CONSTRAINT stock_package_type_positive_max_weight ON public.stock_package_type IS 'CHECK(max_weight>=0.0)';
-COMMENT ON CONSTRAINT stock_package_type_positive_width ON public.stock_package_type IS 'CHECK(width>=0.0)';
-
 
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_stock_package_type_company 
@@ -1219,11 +1120,13 @@ CREATE INDEX IF NOT EXISTS idx_stock_package_type_company
 -- Table: stock_package_type_stock_putaway_rule_rel
 -- ============================================================
 
-
 CREATE TABLE public.stock_package_type_stock_putaway_rule_rel (
     stock_putaway_rule_id integer NOT NULL,
     stock_package_type_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.stock_package_type_stock_putaway_rule_rel
+    ADD CONSTRAINT stock_package_type_stock_putaway_rule_rel_pkey PRIMARY KEY (stock_putaway_rule_id, stock_package_type_id);
 
 COMMENT ON TABLE public.stock_package_type_stock_putaway_rule_rel IS 'RELATION BETWEEN stock_putaway_rule AND stock_package_type';
 
@@ -1231,11 +1134,13 @@ COMMENT ON TABLE public.stock_package_type_stock_putaway_rule_rel IS 'RELATION B
 -- Table: stock_package_type_stock_route_rel
 -- ============================================================
 
-
 CREATE TABLE public.stock_package_type_stock_route_rel (
     stock_package_type_id integer NOT NULL,
     stock_route_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.stock_package_type_stock_route_rel
+    ADD CONSTRAINT stock_package_type_stock_route_rel_pkey PRIMARY KEY (stock_package_type_id, stock_route_id);
 
 COMMENT ON TABLE public.stock_package_type_stock_route_rel IS 'RELATION BETWEEN stock_package_type AND stock_route';
 
@@ -1243,11 +1148,13 @@ COMMENT ON TABLE public.stock_package_type_stock_route_rel IS 'RELATION BETWEEN 
 -- Table: stock_picking_backorder_rel
 -- ============================================================
 
-
 CREATE TABLE public.stock_picking_backorder_rel (
     stock_backorder_confirmation_id integer NOT NULL,
     stock_picking_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.stock_picking_backorder_rel
+    ADD CONSTRAINT stock_picking_backorder_rel_pkey PRIMARY KEY (stock_backorder_confirmation_id, stock_picking_id);
 
 COMMENT ON TABLE public.stock_picking_backorder_rel IS 'RELATION BETWEEN stock_backorder_confirmation AND stock_picking';
 
@@ -1255,18 +1162,19 @@ COMMENT ON TABLE public.stock_picking_backorder_rel IS 'RELATION BETWEEN stock_b
 -- Table: stock_picking_sms_rel
 -- ============================================================
 
-
 CREATE TABLE public.stock_picking_sms_rel (
     confirm_stock_sms_id integer NOT NULL,
     stock_picking_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.stock_picking_sms_rel
+    ADD CONSTRAINT stock_picking_sms_rel_pkey PRIMARY KEY (confirm_stock_sms_id, stock_picking_id);
 
 COMMENT ON TABLE public.stock_picking_sms_rel IS 'RELATION BETWEEN confirm_stock_sms AND stock_picking';
 
 -- ============================================================
 -- Table: stock_picking_type
 -- ============================================================
-
 
 CREATE TABLE public.stock_picking_type (
     tenant_id UUID NOT NULL,
@@ -1365,14 +1273,12 @@ COMMENT ON COLUMN public.stock_picking_type.auto_print_package_label IS 'Auto Pr
 COMMENT ON COLUMN public.stock_picking_type.create_date IS 'Created on';
 COMMENT ON COLUMN public.stock_picking_type.write_date IS 'Last Updated on';
 
-
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_stock_picking_type_company 
     ON public.stock_picking_type(tenant_id, company_id);
 -- ============================================================
 -- Table: stock_put_in_pack
 -- ============================================================
-
 
 CREATE TABLE public.stock_put_in_pack (
     tenant_id UUID NOT NULL,
@@ -1406,7 +1312,6 @@ COMMENT ON COLUMN public.stock_put_in_pack.write_date IS 'Last Updated on';
 -- ============================================================
 -- Table: stock_putaway_rule
 -- ============================================================
-
 
 CREATE TABLE public.stock_putaway_rule (
     tenant_id UUID NOT NULL,
@@ -1449,26 +1354,17 @@ COMMENT ON COLUMN public.stock_putaway_rule.active IS 'Active';
 COMMENT ON COLUMN public.stock_putaway_rule.create_date IS 'Created on';
 COMMENT ON COLUMN public.stock_putaway_rule.write_date IS 'Last Updated on';
 
-
 -- Index: Queries by product
 CREATE INDEX IF NOT EXISTS idx_stock_putaway_rule_product 
     ON public.stock_putaway_rule(tenant_id, product_id);
-
 
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_stock_putaway_rule_company 
     ON public.stock_putaway_rule(tenant_id, company_id);
 
--- Foreign key: Product reference
-ALTER TABLE public.stock_putaway_rule
-    ADD CONSTRAINT fk_stock_putaway_rule_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
 -- ============================================================
 -- Table: stock_quant_relocate
 -- ============================================================
-
 
 CREATE TABLE public.stock_quant_relocate (
     id UUID NOT NULL DEFAULT gen_random_uuid(),
@@ -1493,22 +1389,17 @@ COMMENT ON COLUMN public.stock_quant_relocate.message IS 'Reason for relocation'
 COMMENT ON COLUMN public.stock_quant_relocate.create_date IS 'Created on';
 COMMENT ON COLUMN public.stock_quant_relocate.write_date IS 'Last Updated on';
 
-
--- Foreign key: Location reference
-ALTER TABLE public.stock_quant_relocate
-    ADD CONSTRAINT fk_stock_quant_relocate_location 
-    FOREIGN KEY (tenant_id, location_id) 
-    REFERENCES public.stock_location(tenant_id, id)
-    ON DELETE RESTRICT;
 -- ============================================================
 -- Table: stock_quant_stock_quant_relocate_rel
 -- ============================================================
-
 
 CREATE TABLE public.stock_quant_stock_quant_relocate_rel (
     stock_quant_relocate_id integer NOT NULL,
     stock_quant_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.stock_quant_stock_quant_relocate_rel
+    ADD CONSTRAINT stock_quant_stock_quant_relocate_rel_pkey PRIMARY KEY (stock_quant_relocate_id, stock_quant_id);
 
 COMMENT ON TABLE public.stock_quant_stock_quant_relocate_rel IS 'RELATION BETWEEN stock_quant_relocate AND stock_quant';
 
@@ -1516,18 +1407,19 @@ COMMENT ON TABLE public.stock_quant_stock_quant_relocate_rel IS 'RELATION BETWEE
 -- Table: stock_quant_stock_request_count_rel
 -- ============================================================
 
-
 CREATE TABLE public.stock_quant_stock_request_count_rel (
     stock_request_count_id integer NOT NULL,
     stock_quant_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.stock_quant_stock_request_count_rel
+    ADD CONSTRAINT stock_quant_stock_request_count_rel_pkey PRIMARY KEY (stock_request_count_id, stock_quant_id);
 
 COMMENT ON TABLE public.stock_quant_stock_request_count_rel IS 'RELATION BETWEEN stock_request_count AND stock_quant';
 
 -- ============================================================
 -- Table: stock_quantity_history
 -- ============================================================
-
 
 CREATE TABLE public.stock_quantity_history (
     tenant_id UUID NOT NULL,
@@ -1558,7 +1450,6 @@ COMMENT ON COLUMN public.stock_quantity_history.write_date IS 'Last Updated on';
 -- Table: stock_reference
 -- ============================================================
 
-
 CREATE TABLE public.stock_reference (
     tenant_id UUID NOT NULL,
     id UUID NOT NULL DEFAULT gen_random_uuid(),
@@ -1588,11 +1479,13 @@ COMMENT ON COLUMN public.stock_reference.write_date IS 'Last Updated on';
 -- Table: stock_reference_move_rel
 -- ============================================================
 
-
 CREATE TABLE public.stock_reference_move_rel (
     move_id integer NOT NULL,
     reference_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.stock_reference_move_rel
+    ADD CONSTRAINT stock_reference_move_rel_pkey PRIMARY KEY (move_id, reference_id);
 
 COMMENT ON TABLE public.stock_reference_move_rel IS 'RELATION BETWEEN stock_move AND stock_reference';
 
@@ -1600,11 +1493,13 @@ COMMENT ON TABLE public.stock_reference_move_rel IS 'RELATION BETWEEN stock_move
 -- Table: stock_reference_purchase_rel
 -- ============================================================
 
-
 CREATE TABLE public.stock_reference_purchase_rel (
     purchase_id integer NOT NULL,
     reference_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.stock_reference_purchase_rel
+    ADD CONSTRAINT stock_reference_purchase_rel_pkey PRIMARY KEY (purchase_id, reference_id);
 
 COMMENT ON TABLE public.stock_reference_purchase_rel IS 'RELATION BETWEEN purchase_order AND stock_reference';
 
@@ -1612,18 +1507,19 @@ COMMENT ON TABLE public.stock_reference_purchase_rel IS 'RELATION BETWEEN purcha
 -- Table: stock_reference_sale_rel
 -- ============================================================
 
-
 CREATE TABLE public.stock_reference_sale_rel (
     sale_id integer NOT NULL,
     reference_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.stock_reference_sale_rel
+    ADD CONSTRAINT stock_reference_sale_rel_pkey PRIMARY KEY (sale_id, reference_id);
 
 COMMENT ON TABLE public.stock_reference_sale_rel IS 'RELATION BETWEEN sale_order AND stock_reference';
 
 -- ============================================================
 -- Table: stock_replenishment_info
 -- ============================================================
-
 
 CREATE TABLE public.stock_replenishment_info (
     tenant_id UUID NOT NULL,
@@ -1658,7 +1554,6 @@ COMMENT ON COLUMN public.stock_replenishment_info.write_date IS 'Last Updated on
 -- Table: stock_replenishment_option
 -- ============================================================
 
-
 CREATE TABLE public.stock_replenishment_option (
     tenant_id UUID NOT NULL,
     id UUID NOT NULL DEFAULT gen_random_uuid(),
@@ -1688,21 +1583,13 @@ COMMENT ON COLUMN public.stock_replenishment_option.write_uid IS 'Last Updated b
 COMMENT ON COLUMN public.stock_replenishment_option.create_date IS 'Created on';
 COMMENT ON COLUMN public.stock_replenishment_option.write_date IS 'Last Updated on';
 
-
 -- Index: Queries by product
 CREATE INDEX IF NOT EXISTS idx_stock_replenishment_option_product 
     ON public.stock_replenishment_option(tenant_id, product_id);
 
--- Foreign key: Product reference
-ALTER TABLE public.stock_replenishment_option
-    ADD CONSTRAINT fk_stock_replenishment_option_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
 -- ============================================================
 -- Table: stock_request_count
 -- ============================================================
-
 
 CREATE TABLE public.stock_request_count (
     tenant_id UUID NOT NULL,
@@ -1735,7 +1622,6 @@ COMMENT ON COLUMN public.stock_request_count.write_date IS 'Last Updated on';
 -- Table: stock_return_picking
 -- ============================================================
 
-
 CREATE TABLE public.stock_return_picking (
     tenant_id UUID NOT NULL,
     id UUID NOT NULL DEFAULT gen_random_uuid(),
@@ -1764,7 +1650,6 @@ COMMENT ON COLUMN public.stock_return_picking.write_date IS 'Last Updated on';
 -- ============================================================
 -- Table: stock_return_picking_line
 -- ============================================================
-
 
 CREATE TABLE public.stock_return_picking_line (
     tenant_id UUID NOT NULL,
@@ -1799,21 +1684,13 @@ COMMENT ON COLUMN public.stock_return_picking_line.create_date IS 'Created on';
 COMMENT ON COLUMN public.stock_return_picking_line.write_date IS 'Last Updated on';
 COMMENT ON COLUMN public.stock_return_picking_line.to_refund IS 'Update quantities on SO/PO';
 
-
 -- Index: Queries by product
 CREATE INDEX IF NOT EXISTS idx_stock_return_picking_line_product 
     ON public.stock_return_picking_line(tenant_id, product_id);
 
--- Foreign key: Product reference
-ALTER TABLE public.stock_return_picking_line
-    ADD CONSTRAINT fk_stock_return_picking_line_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
 -- ============================================================
 -- Table: stock_route
 -- ============================================================
-
 
 CREATE TABLE public.stock_route (
     tenant_id UUID NOT NULL,
@@ -1860,14 +1737,12 @@ COMMENT ON COLUMN public.stock_route.create_date IS 'Created on';
 COMMENT ON COLUMN public.stock_route.write_date IS 'Last Updated on';
 COMMENT ON COLUMN public.stock_route.sale_selectable IS 'Selectable on Sales Order Line';
 
-
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_stock_route_company 
     ON public.stock_route(tenant_id, company_id);
 -- ============================================================
 -- Table: stock_route_categ
 -- ============================================================
-
 
 CREATE TABLE public.stock_route_categ (
     tenant_id UUID NOT NULL,
@@ -1884,19 +1759,10 @@ CREATE INDEX IF NOT EXISTS idx_stock_route_categ_tenant
 COMMENT ON COLUMN public.stock_route_categ.tenant_id IS 'Tenant ID for multi-tenancy';
 COMMENT ON TABLE public.stock_route_categ IS 'RELATION BETWEEN stock_route AND product_category';
 
-
 -- Index: Queries by category
 CREATE INDEX IF NOT EXISTS idx_stock_route_categ_category 
     ON public.stock_route_categ(tenant_id, categ_id);
 
--- Foreign key: Category reference
-ALTER TABLE public.stock_route_categ
-    ADD CONSTRAINT fk_stock_route_categ_category 
-    FOREIGN KEY (tenant_id, categ_id) 
-    REFERENCES public.product_category(tenant_id, id)
-    ON DELETE RESTRICT;
-
-
 -- Trigger: Auto-update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_stock_route_categ_timestamp()
 RETURNS TRIGGER AS $$
@@ -1911,24 +1777,9 @@ CREATE TRIGGER trigger_stock_route_categ_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_stock_route_categ_timestamp();
 
-
--- Trigger: Auto-update updated_at timestamp
-CREATE OR REPLACE FUNCTION update_stock_route_categ_timestamp()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigger_stock_route_categ_updated_at
-    BEFORE UPDATE ON public.stock_route_categ
-    FOR EACH ROW
-    EXECUTE FUNCTION update_stock_route_categ_timestamp();
 -- ============================================================
 -- Table: stock_route_move
 -- ============================================================
-
 
 CREATE TABLE public.stock_route_move (
     tenant_id UUID NOT NULL,
@@ -1945,8 +1796,6 @@ CREATE INDEX IF NOT EXISTS idx_stock_route_move_tenant
 COMMENT ON COLUMN public.stock_route_move.tenant_id IS 'Tenant ID for multi-tenancy';
 COMMENT ON TABLE public.stock_route_move IS 'RELATION BETWEEN stock_move AND stock_route';
 
-
-
 -- Trigger: Auto-update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_stock_route_move_timestamp()
 RETURNS TRIGGER AS $$
@@ -1961,24 +1810,9 @@ CREATE TRIGGER trigger_stock_route_move_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_stock_route_move_timestamp();
 
-
--- Trigger: Auto-update updated_at timestamp
-CREATE OR REPLACE FUNCTION update_stock_route_move_timestamp()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigger_stock_route_move_updated_at
-    BEFORE UPDATE ON public.stock_route_move
-    FOR EACH ROW
-    EXECUTE FUNCTION update_stock_route_move_timestamp();
 -- ============================================================
 -- Table: stock_route_product
 -- ============================================================
-
 
 CREATE TABLE public.stock_route_product (
     tenant_id UUID NOT NULL,
@@ -1995,19 +1829,10 @@ CREATE INDEX IF NOT EXISTS idx_stock_route_product_tenant
 COMMENT ON COLUMN public.stock_route_product.tenant_id IS 'Tenant ID for multi-tenancy';
 COMMENT ON TABLE public.stock_route_product IS 'RELATION BETWEEN stock_route AND product_template';
 
-
 -- Index: Queries by product
 CREATE INDEX IF NOT EXISTS idx_stock_route_product_product 
     ON public.stock_route_product(tenant_id, product_id);
 
--- Foreign key: Product reference
-ALTER TABLE public.stock_route_product
-    ADD CONSTRAINT fk_stock_route_product_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
-
-
 -- Trigger: Auto-update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_stock_route_product_timestamp()
 RETURNS TRIGGER AS $$
@@ -2022,36 +1847,23 @@ CREATE TRIGGER trigger_stock_route_product_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_stock_route_product_timestamp();
 
-
--- Trigger: Auto-update updated_at timestamp
-CREATE OR REPLACE FUNCTION update_stock_route_product_timestamp()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigger_stock_route_product_updated_at
-    BEFORE UPDATE ON public.stock_route_product
-    FOR EACH ROW
-    EXECUTE FUNCTION update_stock_route_product_timestamp();
 -- ============================================================
 -- Table: stock_route_stock_rules_report_rel
 -- ============================================================
-
 
 CREATE TABLE public.stock_route_stock_rules_report_rel (
     stock_rules_report_id integer NOT NULL,
     stock_route_id integer NOT NULL
 );
 
+ALTER TABLE ONLY public.stock_route_stock_rules_report_rel
+    ADD CONSTRAINT stock_route_stock_rules_report_rel_pkey PRIMARY KEY (stock_rules_report_id, stock_route_id);
+
 COMMENT ON TABLE public.stock_route_stock_rules_report_rel IS 'RELATION BETWEEN stock_rules_report AND stock_route';
 
 -- ============================================================
 -- Table: stock_route_warehouse
 -- ============================================================
-
 
 CREATE TABLE public.stock_route_warehouse (
     tenant_id UUID NOT NULL,
@@ -2068,8 +1880,6 @@ CREATE INDEX IF NOT EXISTS idx_stock_route_warehouse_tenant
 COMMENT ON COLUMN public.stock_route_warehouse.tenant_id IS 'Tenant ID for multi-tenancy';
 COMMENT ON TABLE public.stock_route_warehouse IS 'RELATION BETWEEN stock_route AND stock_warehouse';
 
-
-
 -- Trigger: Auto-update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_stock_route_warehouse_timestamp()
 RETURNS TRIGGER AS $$
@@ -2084,24 +1894,9 @@ CREATE TRIGGER trigger_stock_route_warehouse_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_stock_route_warehouse_timestamp();
 
-
--- Trigger: Auto-update updated_at timestamp
-CREATE OR REPLACE FUNCTION update_stock_route_warehouse_timestamp()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigger_stock_route_warehouse_updated_at
-    BEFORE UPDATE ON public.stock_route_warehouse
-    FOR EACH ROW
-    EXECUTE FUNCTION update_stock_route_warehouse_timestamp();
 -- ============================================================
 -- Table: stock_rule
 -- ============================================================
-
 
 CREATE TABLE public.stock_rule (
     tenant_id UUID NOT NULL,
@@ -2164,14 +1959,12 @@ COMMENT ON COLUMN public.stock_rule.propagate_carrier IS 'Propagation of carrier
 COMMENT ON COLUMN public.stock_rule.create_date IS 'Created on';
 COMMENT ON COLUMN public.stock_rule.write_date IS 'Last Updated on';
 
-
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_stock_rule_company 
     ON public.stock_rule(tenant_id, company_id);
 -- ============================================================
 -- Table: stock_rules_report
 -- ============================================================
-
 
 CREATE TABLE public.stock_rules_report (
     tenant_id UUID NOT NULL,
@@ -2202,41 +1995,27 @@ COMMENT ON COLUMN public.stock_rules_report.product_has_variants IS 'Has variant
 COMMENT ON COLUMN public.stock_rules_report.create_date IS 'Created on';
 COMMENT ON COLUMN public.stock_rules_report.write_date IS 'Last Updated on';
 
-
 -- Index: Queries by product
 CREATE INDEX IF NOT EXISTS idx_stock_rules_report_product 
     ON public.stock_rules_report(tenant_id, product_id);
 
--- Foreign key: Product reference
-ALTER TABLE public.stock_rules_report
-    ADD CONSTRAINT fk_stock_rules_report_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
-
-
--- Foreign key: Product template reference
-ALTER TABLE public.stock_rules_report
-    ADD CONSTRAINT fk_stock_rules_report_product_template 
-    FOREIGN KEY (tenant_id, product_tmpl_id) 
-    REFERENCES public.product_template(tenant_id, id)
-    ON DELETE CASCADE;
 -- ============================================================
 -- Table: stock_rules_report_stock_warehouse_rel
 -- ============================================================
-
 
 CREATE TABLE public.stock_rules_report_stock_warehouse_rel (
     stock_rules_report_id integer NOT NULL,
     stock_warehouse_id integer NOT NULL
 );
 
+ALTER TABLE ONLY public.stock_rules_report_stock_warehouse_rel
+    ADD CONSTRAINT stock_rules_report_stock_warehouse_rel_pkey PRIMARY KEY (stock_rules_report_id, stock_warehouse_id);
+
 COMMENT ON TABLE public.stock_rules_report_stock_warehouse_rel IS 'RELATION BETWEEN stock_rules_report AND stock_warehouse';
 
 -- ============================================================
 -- Table: stock_scrap
 -- ============================================================
-
 
 CREATE TABLE public.stock_scrap (
     tenant_id UUID NOT NULL,
@@ -2291,40 +2070,22 @@ COMMENT ON COLUMN public.stock_scrap.date_done IS 'Date';
 COMMENT ON COLUMN public.stock_scrap.create_date IS 'Created on';
 COMMENT ON COLUMN public.stock_scrap.write_date IS 'Last Updated on';
 
-
 -- Index: Queries by state
 CREATE INDEX IF NOT EXISTS idx_stock_scrap_state 
     ON public.stock_scrap(tenant_id, state) 
     WHERE state IS NOT NULL;
 
-
 -- Index: Queries by product
 CREATE INDEX IF NOT EXISTS idx_stock_scrap_product 
     ON public.stock_scrap(tenant_id, product_id);
-
 
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_stock_scrap_company 
     ON public.stock_scrap(tenant_id, company_id);
 
--- Foreign key: Product reference
-ALTER TABLE public.stock_scrap
-    ADD CONSTRAINT fk_stock_scrap_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
-
-
--- Foreign key: Location reference
-ALTER TABLE public.stock_scrap
-    ADD CONSTRAINT fk_stock_scrap_location 
-    FOREIGN KEY (tenant_id, location_id) 
-    REFERENCES public.stock_location(tenant_id, id)
-    ON DELETE RESTRICT;
 -- ============================================================
 -- Table: stock_scrap_reason_tag
 -- ============================================================
-
 
 CREATE TABLE public.stock_scrap_reason_tag (
     tenant_id UUID NOT NULL,
@@ -2359,18 +2120,19 @@ COMMENT ON COLUMN public.stock_scrap_reason_tag.write_date IS 'Last Updated on';
 -- Table: stock_scrap_stock_scrap_reason_tag_rel
 -- ============================================================
 
-
 CREATE TABLE public.stock_scrap_stock_scrap_reason_tag_rel (
     stock_scrap_id integer NOT NULL,
     stock_scrap_reason_tag_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.stock_scrap_stock_scrap_reason_tag_rel
+    ADD CONSTRAINT stock_scrap_stock_scrap_reason_tag_rel_pkey PRIMARY KEY (stock_scrap_id, stock_scrap_reason_tag_id);
 
 COMMENT ON TABLE public.stock_scrap_stock_scrap_reason_tag_rel IS 'RELATION BETWEEN stock_scrap AND stock_scrap_reason_tag';
 
 -- ============================================================
 -- Table: stock_storage_category
 -- ============================================================
-
 
 CREATE TABLE public.stock_storage_category (
     tenant_id UUID NOT NULL,
@@ -2402,8 +2164,6 @@ COMMENT ON COLUMN public.stock_storage_category.allow_new_product IS 'Allow New 
 COMMENT ON COLUMN public.stock_storage_category.max_weight IS 'Max Weight';
 COMMENT ON COLUMN public.stock_storage_category.create_date IS 'Created on';
 COMMENT ON COLUMN public.stock_storage_category.write_date IS 'Last Updated on';
-COMMENT ON CONSTRAINT stock_storage_category_positive_max_weight ON public.stock_storage_category IS 'CHECK(max_weight >= 0)';
-
 
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_stock_storage_category_company 
@@ -2411,7 +2171,6 @@ CREATE INDEX IF NOT EXISTS idx_stock_storage_category_company
 -- ============================================================
 -- Table: stock_storage_category_capacity
 -- ============================================================
-
 
 CREATE TABLE public.stock_storage_category_capacity (
     tenant_id UUID NOT NULL,
@@ -2443,23 +2202,14 @@ COMMENT ON COLUMN public.stock_storage_category_capacity.write_uid IS 'Last Upda
 COMMENT ON COLUMN public.stock_storage_category_capacity.create_date IS 'Created on';
 COMMENT ON COLUMN public.stock_storage_category_capacity.write_date IS 'Last Updated on';
 COMMENT ON COLUMN public.stock_storage_category_capacity.quantity IS 'Quantity';
-COMMENT ON CONSTRAINT stock_storage_category_capacity_positive_quantity ON public.stock_storage_category_capacity IS 'CHECK(quantity > 0)';
-
 
 -- Index: Queries by product
 CREATE INDEX IF NOT EXISTS idx_stock_storage_category_capacity_product 
     ON public.stock_storage_category_capacity(tenant_id, product_id);
 
--- Foreign key: Product reference
-ALTER TABLE public.stock_storage_category_capacity
-    ADD CONSTRAINT fk_stock_storage_category_capacity_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
 -- ============================================================
 -- Table: stock_traceability_report
 -- ============================================================
-
 
 CREATE TABLE public.stock_traceability_report (
     tenant_id UUID NOT NULL,
@@ -2487,7 +2237,6 @@ COMMENT ON COLUMN public.stock_traceability_report.write_date IS 'Last Updated o
 -- ============================================================
 -- Table: stock_warehouse_orderpoint
 -- ============================================================
-
 
 CREATE TABLE public.stock_warehouse_orderpoint (
     tenant_id UUID NOT NULL,
@@ -2544,34 +2293,17 @@ COMMENT ON COLUMN public.stock_warehouse_orderpoint.create_date IS 'Created on';
 COMMENT ON COLUMN public.stock_warehouse_orderpoint.write_date IS 'Last Updated on';
 COMMENT ON COLUMN public.stock_warehouse_orderpoint.supplier_id IS 'Vendor Pricelist';
 
-
 -- Index: Queries by product
 CREATE INDEX IF NOT EXISTS idx_stock_warehouse_orderpoint_product 
     ON public.stock_warehouse_orderpoint(tenant_id, product_id);
-
 
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_stock_warehouse_orderpoint_company 
     ON public.stock_warehouse_orderpoint(tenant_id, company_id);
 
--- Foreign key: Product reference
-ALTER TABLE public.stock_warehouse_orderpoint
-    ADD CONSTRAINT fk_stock_warehouse_orderpoint_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
-
-
--- Foreign key: Location reference
-ALTER TABLE public.stock_warehouse_orderpoint
-    ADD CONSTRAINT fk_stock_warehouse_orderpoint_location 
-    FOREIGN KEY (tenant_id, location_id) 
-    REFERENCES public.stock_location(tenant_id, id)
-    ON DELETE RESTRICT;
 -- ============================================================
 -- Table: stock_warn_insufficient_qty_scrap
 -- ============================================================
-
 
 CREATE TABLE public.stock_warn_insufficient_qty_scrap (
     tenant_id UUID NOT NULL,
@@ -2606,29 +2338,13 @@ COMMENT ON COLUMN public.stock_warn_insufficient_qty_scrap.create_date IS 'Creat
 COMMENT ON COLUMN public.stock_warn_insufficient_qty_scrap.write_date IS 'Last Updated on';
 COMMENT ON COLUMN public.stock_warn_insufficient_qty_scrap.quantity IS 'Quantity';
 
-
 -- Index: Queries by product
 CREATE INDEX IF NOT EXISTS idx_stock_warn_insufficient_qty_scrap_product 
     ON public.stock_warn_insufficient_qty_scrap(tenant_id, product_id);
 
--- Foreign key: Product reference
-ALTER TABLE public.stock_warn_insufficient_qty_scrap
-    ADD CONSTRAINT fk_stock_warn_insufficient_qty_scrap_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
-
-
--- Foreign key: Location reference
-ALTER TABLE public.stock_warn_insufficient_qty_scrap
-    ADD CONSTRAINT fk_stock_warn_insufficient_qty_scrap_location 
-    FOREIGN KEY (tenant_id, location_id) 
-    REFERENCES public.stock_location(tenant_id, id)
-    ON DELETE RESTRICT;
 -- ============================================================
 -- Table: stock_wh_resupply_table
 -- ============================================================
-
 
 CREATE TABLE public.stock_wh_resupply_table (
     tenant_id UUID NOT NULL,
@@ -2645,8 +2361,6 @@ CREATE INDEX IF NOT EXISTS idx_stock_wh_resupply_table_tenant
 COMMENT ON COLUMN public.stock_wh_resupply_table.tenant_id IS 'Tenant ID for multi-tenancy';
 COMMENT ON TABLE public.stock_wh_resupply_table IS 'RELATION BETWEEN stock_warehouse AND stock_warehouse';
 
-
-
 -- Trigger: Auto-update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_stock_wh_resupply_table_timestamp()
 RETURNS TRIGGER AS $$
@@ -2662,16 +2376,4 @@ CREATE TRIGGER trigger_stock_wh_resupply_table_updated_at
     EXECUTE FUNCTION update_stock_wh_resupply_table_timestamp();
 
 
--- Trigger: Auto-update updated_at timestamp
-CREATE OR REPLACE FUNCTION update_stock_wh_resupply_table_timestamp()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigger_stock_wh_resupply_table_updated_at
-    BEFORE UPDATE ON public.stock_wh_resupply_table
-    FOR EACH ROW
-    EXECUTE FUNCTION update_stock_wh_resupply_table_timestamp();
+-- ============================================================

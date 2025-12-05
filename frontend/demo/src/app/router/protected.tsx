@@ -788,6 +788,20 @@ const protectedRoutes: RouteObject = {
               }),
             },
             {
+              path: "sale/sale-create",
+              lazy: async () => ({
+                Component: (await import("@/app/pages/dashboards/sale/sale-create"))
+                  .default,
+              }),
+            },
+            {
+              path: "sale/sale-list",
+              lazy: async () => ({
+                Component: (await import("@/app/pages/dashboards/sale/sale-list"))
+                  .default,
+              }),
+            },
+            {
               path: "loan/loan-list",
               lazy: async () => ({
                 Component: (await import("@/app/pages/dashboards/loan/loan-list"))

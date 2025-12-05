@@ -20,20 +20,19 @@
 -- Table: product_attr_exclusion_value_ids_rel
 -- ============================================================
 
-
-
 CREATE TABLE public.product_attr_exclusion_value_ids_rel (
     product_template_attribute_exclusion_id integer NOT NULL,
     product_template_attribute_value_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.product_attr_exclusion_value_ids_rel
+    ADD CONSTRAINT product_attr_exclusion_value_ids_rel_pkey PRIMARY KEY (product_template_attribute_exclusion_id, product_template_attribute_value_id);
 
 COMMENT ON TABLE public.product_attr_exclusion_value_ids_rel IS 'RELATION BETWEEN product_template_attribute_exclusion AND product_template_attribute_value';
 
 -- ============================================================
 -- Table: product_attribute
 -- ============================================================
-
-
 
 CREATE TABLE public.product_attribute (
     tenant_id UUID NOT NULL,
@@ -46,7 +45,8 @@ CREATE TABLE public.product_attribute (
     name jsonb NOT NULL,
     active boolean,
     create_date timestamp without time zone,
-    write_date timestamp without time zone
+    write_date timestamp without time zone,
+    CONSTRAINT product_attribute_check_multi_checkbox_no_variant CHECK ((display_type <> 'multi' OR create_variant = 'no_variant'))
 );
 
 ALTER TABLE ONLY public.product_attribute
@@ -67,21 +67,14 @@ COMMENT ON COLUMN public.product_attribute.name IS 'Attribute';
 COMMENT ON COLUMN public.product_attribute.active IS 'Active';
 COMMENT ON COLUMN public.product_attribute.create_date IS 'Created on';
 COMMENT ON COLUMN public.product_attribute.write_date IS 'Last Updated on';
-COMMENT ON CONSTRAINT product_attribute_check_multi_checkbox_no_variant ON public.product_attribute IS 'CHECK(display_type != ''multi'' OR create_variant = ''no_variant'')';
-
 
 -- Index: Text search on name
 CREATE INDEX IF NOT EXISTS idx_product_attribute_name_search 
     ON public.product_attribute USING gin(to_tsvector('english', COALESCE(name::text, '')));
 
--- Index: Text search on name
-CREATE INDEX IF NOT EXISTS idx_product_attribute_name_search 
-    ON public.product_attribute USING gin(to_tsvector('english', COALESCE(name::text, '')));
 -- ============================================================
 -- Table: product_attribute_custom_value
 -- ============================================================
-
-
 
 CREATE TABLE public.product_attribute_custom_value (
     tenant_id UUID NOT NULL,
@@ -116,20 +109,19 @@ COMMENT ON COLUMN public.product_attribute_custom_value.sale_order_line_id IS 'S
 -- Table: product_attribute_product_template_rel
 -- ============================================================
 
-
-
 CREATE TABLE public.product_attribute_product_template_rel (
     product_attribute_id integer NOT NULL,
     product_template_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.product_attribute_product_template_rel
+    ADD CONSTRAINT product_attribute_product_template_rel_pkey PRIMARY KEY (product_attribute_id, product_template_id);
 
 COMMENT ON TABLE public.product_attribute_product_template_rel IS 'RELATION BETWEEN product_attribute AND product_template';
 
 -- ============================================================
 -- Table: product_attribute_value
 -- ============================================================
-
-
 
 CREATE TABLE public.product_attribute_value (
     tenant_id UUID NOT NULL,
@@ -170,32 +162,28 @@ COMMENT ON COLUMN public.product_attribute_value.create_date IS 'Created on';
 COMMENT ON COLUMN public.product_attribute_value.write_date IS 'Last Updated on';
 COMMENT ON COLUMN public.product_attribute_value.default_extra_price IS 'Default Extra Price';
 
-
 -- Index: Text search on name
 CREATE INDEX IF NOT EXISTS idx_product_attribute_value_name_search 
     ON public.product_attribute_value USING gin(to_tsvector('english', COALESCE(name::text, '')));
 
 -- Index: Text search on name
-CREATE INDEX IF NOT EXISTS idx_product_attribute_value_name_search 
-    ON public.product_attribute_value USING gin(to_tsvector('english', COALESCE(name::text, '')));
 -- ============================================================
 -- Table: product_attribute_value_product_template_attribute_line_rel
 -- ============================================================
-
-
 
 CREATE TABLE public.product_attribute_value_product_template_attribute_line_rel (
     product_attribute_value_id integer NOT NULL,
     product_template_attribute_line_id integer NOT NULL
 );
 
+ALTER TABLE ONLY public.product_attribute_value_product_template_attribute_line_rel
+    ADD CONSTRAINT product_attribute_value_product_template_attribute_line_rel_pkey PRIMARY KEY (product_attribute_value_id, product_template_attribute_line_id);
+
 COMMENT ON TABLE public.product_attribute_value_product_template_attribute_line_rel IS 'RELATION BETWEEN product_attribute_value AND product_template_attribute_line';
 
 -- ============================================================
 -- Table: product_category
 -- ============================================================
-
-
 
 CREATE TABLE public.product_category (
     tenant_id UUID NOT NULL,
@@ -248,19 +236,14 @@ COMMENT ON COLUMN public.product_category.property_stock_journal IS 'Stock Journ
 COMMENT ON COLUMN public.product_category.property_stock_valuation_account_id IS 'Stock Valuation Account';
 COMMENT ON COLUMN public.product_category.property_price_difference_account_id IS 'Price Difference Account';
 
-
 -- Index: Text search on name
 CREATE INDEX IF NOT EXISTS idx_product_category_name_search 
     ON public.product_category USING gin(to_tsvector('english', COALESCE(name::text, '')));
 
 -- Index: Text search on name
-CREATE INDEX IF NOT EXISTS idx_product_category_name_search 
-    ON public.product_category USING gin(to_tsvector('english', COALESCE(name::text, '')));
 -- ============================================================
 -- Table: product_combo
 -- ============================================================
-
-
 
 CREATE TABLE public.product_combo (
     tenant_id UUID NOT NULL,
@@ -291,29 +274,20 @@ COMMENT ON COLUMN public.product_combo.name IS 'Name';
 COMMENT ON COLUMN public.product_combo.create_date IS 'Created on';
 COMMENT ON COLUMN public.product_combo.write_date IS 'Last Updated on';
 
-
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_product_combo_company 
     ON public.product_combo(tenant_id, company_id);
-
 
 -- Index: Text search on name
 CREATE INDEX IF NOT EXISTS idx_product_combo_name_search 
     ON public.product_combo USING gin(to_tsvector('english', COALESCE(name::text, '')));
 
 -- Index: Queries by company
-CREATE INDEX IF NOT EXISTS idx_product_combo_company 
-    ON public.product_combo(tenant_id, company_id);
-
 
 -- Index: Text search on name
-CREATE INDEX IF NOT EXISTS idx_product_combo_name_search 
-    ON public.product_combo USING gin(to_tsvector('english', COALESCE(name::text, '')));
 -- ============================================================
 -- Table: product_combo_item
 -- ============================================================
-
-
 
 CREATE TABLE public.product_combo_item (
     tenant_id UUID NOT NULL,
@@ -346,56 +320,35 @@ COMMENT ON COLUMN public.product_combo_item.extra_price IS 'Extra Price';
 COMMENT ON COLUMN public.product_combo_item.create_date IS 'Created on';
 COMMENT ON COLUMN public.product_combo_item.write_date IS 'Last Updated on';
 
-
 -- Index: Queries by product
 CREATE INDEX IF NOT EXISTS idx_product_combo_item_product 
     ON public.product_combo_item(tenant_id, product_id);
-
 
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_product_combo_item_company 
     ON public.product_combo_item(tenant_id, company_id);
 
--- Foreign key: Product reference
-ALTER TABLE public.product_combo_item
-    ADD CONSTRAINT fk_product_combo_item_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
-
 -- Index: Queries by product
-CREATE INDEX IF NOT EXISTS idx_product_combo_item_product 
-    ON public.product_combo_item(tenant_id, product_id);
-
 
 -- Index: Queries by company
-CREATE INDEX IF NOT EXISTS idx_product_combo_item_company 
-    ON public.product_combo_item(tenant_id, company_id);
 
--- Foreign key: Product reference
-ALTER TABLE public.product_combo_item
-    ADD CONSTRAINT fk_product_combo_item_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
 -- ============================================================
 -- Table: product_combo_product_template_rel
 -- ============================================================
-
-
 
 CREATE TABLE public.product_combo_product_template_rel (
     product_template_id integer NOT NULL,
     product_combo_id integer NOT NULL
 );
 
+ALTER TABLE ONLY public.product_combo_product_template_rel
+    ADD CONSTRAINT product_combo_product_template_rel_pkey PRIMARY KEY (product_template_id, product_combo_id);
+
 COMMENT ON TABLE public.product_combo_product_template_rel IS 'RELATION BETWEEN product_template AND product_combo';
 
 -- ============================================================
 -- Table: product_document
 -- ============================================================
-
-
 
 CREATE TABLE public.product_document (
     tenant_id UUID NOT NULL,
@@ -432,20 +385,19 @@ COMMENT ON COLUMN public.product_document.attached_on_sale IS 'Sale : Visible at
 -- Table: product_document_sale_pdf_form_field_rel
 -- ============================================================
 
-
-
 CREATE TABLE public.product_document_sale_pdf_form_field_rel (
     product_document_id integer NOT NULL,
     sale_pdf_form_field_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.product_document_sale_pdf_form_field_rel
+    ADD CONSTRAINT product_document_sale_pdf_form_field_rel_pkey PRIMARY KEY (product_document_id, sale_pdf_form_field_id);
 
 COMMENT ON TABLE public.product_document_sale_pdf_form_field_rel IS 'RELATION BETWEEN product_document AND sale_pdf_form_field';
 
 -- ============================================================
 -- Table: product_label_layout
 -- ============================================================
-
-
 
 CREATE TABLE public.product_label_layout (
     tenant_id UUID NOT NULL,
@@ -486,47 +438,33 @@ COMMENT ON COLUMN public.product_label_layout.zpl_template IS 'ZPL Template';
 -- Table: product_label_layout_product_product_rel
 -- ============================================================
 
-
-
 CREATE TABLE public.product_label_layout_product_product_rel (
     product_label_layout_id integer NOT NULL,
     product_product_id integer NOT NULL
 );
 
+ALTER TABLE ONLY public.product_label_layout_product_product_rel
+    ADD CONSTRAINT product_label_layout_product_product_rel_pkey PRIMARY KEY (product_label_layout_id, product_product_id);
+
 COMMENT ON TABLE public.product_label_layout_product_product_rel IS 'RELATION BETWEEN product_label_layout AND product_product';
 
-
 -- Index: Queries by product
 CREATE INDEX IF NOT EXISTS idx_product_label_layout_product_product_rel_product 
-    ON public.product_label_layout_product_product_rel(tenant_id, product_id);
-
--- Foreign key: Product reference
-ALTER TABLE public.product_label_layout_product_product_rel
-    ADD CONSTRAINT fk_product_label_layout_product_product_rel_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
+    ON public.product_label_layout_product_product_rel(product_product_id);
 
 -- Index: Queries by product
-CREATE INDEX IF NOT EXISTS idx_product_label_layout_product_product_rel_product 
-    ON public.product_label_layout_product_product_rel(tenant_id, product_id);
 
--- Foreign key: Product reference
-ALTER TABLE public.product_label_layout_product_product_rel
-    ADD CONSTRAINT fk_product_label_layout_product_product_rel_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
 -- ============================================================
 -- Table: product_label_layout_product_template_rel
 -- ============================================================
-
-
 
 CREATE TABLE public.product_label_layout_product_template_rel (
     product_label_layout_id integer NOT NULL,
     product_template_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.product_label_layout_product_template_rel
+    ADD CONSTRAINT product_label_layout_product_template_rel_pkey PRIMARY KEY (product_label_layout_id, product_template_id);
 
 COMMENT ON TABLE public.product_label_layout_product_template_rel IS 'RELATION BETWEEN product_label_layout AND product_template';
 
@@ -534,12 +472,13 @@ COMMENT ON TABLE public.product_label_layout_product_template_rel IS 'RELATION B
 -- Table: product_label_layout_stock_move_rel
 -- ============================================================
 
-
-
 CREATE TABLE public.product_label_layout_stock_move_rel (
     product_label_layout_id integer NOT NULL,
     stock_move_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.product_label_layout_stock_move_rel
+    ADD CONSTRAINT product_label_layout_stock_move_rel_pkey PRIMARY KEY (product_label_layout_id, stock_move_id);
 
 COMMENT ON TABLE public.product_label_layout_stock_move_rel IS 'RELATION BETWEEN product_label_layout AND stock_move';
 
@@ -547,20 +486,19 @@ COMMENT ON TABLE public.product_label_layout_stock_move_rel IS 'RELATION BETWEEN
 -- Table: product_optional_rel
 -- ============================================================
 
-
-
 CREATE TABLE public.product_optional_rel (
     src_id integer NOT NULL,
     dest_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.product_optional_rel
+    ADD CONSTRAINT product_optional_rel_pkey PRIMARY KEY (src_id, dest_id);
 
 COMMENT ON TABLE public.product_optional_rel IS 'RELATION BETWEEN product_template AND product_template';
 
 -- ============================================================
 -- Table: product_pricelist
 -- ============================================================
-
-
 
 CREATE TABLE public.product_pricelist (
     tenant_id UUID NOT NULL,
@@ -595,36 +533,9 @@ COMMENT ON COLUMN public.product_pricelist.active IS 'Active';
 COMMENT ON COLUMN public.product_pricelist.create_date IS 'Created on';
 COMMENT ON COLUMN public.product_pricelist.write_date IS 'Last Updated on';
 
-
--- Business constraint: Non-negative amounts
-ALTER TABLE public.product_pricelist
-    ADD CONSTRAINT check_product_pricelist_positive_amounts 
-    CHECK (
-        (amount_untaxed IS NULL OR amount_untaxed >= 0) AND
-        (amount_total IS NULL OR amount_total >= 0)
-    );
-
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_product_pricelist_company 
     ON public.product_pricelist(tenant_id, company_id);
-
-
--- Index: Text search on name
-CREATE INDEX IF NOT EXISTS idx_product_pricelist_name_search 
-    ON public.product_pricelist USING gin(to_tsvector('english', COALESCE(name::text, '')));
-
--- Business constraint: Non-negative amounts
-ALTER TABLE public.product_pricelist
-    ADD CONSTRAINT check_product_pricelist_positive_amounts 
-    CHECK (
-        (amount_untaxed IS NULL OR amount_untaxed >= 0) AND
-        (amount_total IS NULL OR amount_total >= 0)
-    );
-
--- Index: Queries by company
-CREATE INDEX IF NOT EXISTS idx_product_pricelist_company 
-    ON public.product_pricelist(tenant_id, company_id);
-
 
 -- Index: Text search on name
 CREATE INDEX IF NOT EXISTS idx_product_pricelist_name_search 
@@ -632,8 +543,6 @@ CREATE INDEX IF NOT EXISTS idx_product_pricelist_name_search
 -- ============================================================
 -- Table: product_pricelist_item
 -- ============================================================
-
-
 
 CREATE TABLE public.product_pricelist_item (
     tenant_id UUID NOT NULL,
@@ -702,101 +611,21 @@ COMMENT ON COLUMN public.product_pricelist_item.create_date IS 'Created on';
 COMMENT ON COLUMN public.product_pricelist_item.write_date IS 'Last Updated on';
 COMMENT ON COLUMN public.product_pricelist_item.percent_price IS 'Percentage Price';
 
-
--- Business constraint: Non-negative amounts
-ALTER TABLE public.product_pricelist_item
-    ADD CONSTRAINT check_product_pricelist_item_positive_amounts 
-    CHECK (
-        (amount_untaxed IS NULL OR amount_untaxed >= 0) AND
-        (amount_total IS NULL OR amount_total >= 0)
-    );
-
 -- Index: Queries by product
 CREATE INDEX IF NOT EXISTS idx_product_pricelist_item_product 
     ON public.product_pricelist_item(tenant_id, product_id);
-
 
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_product_pricelist_item_company 
     ON public.product_pricelist_item(tenant_id, company_id);
 
-
 -- Index: Queries by category
 CREATE INDEX IF NOT EXISTS idx_product_pricelist_item_category 
     ON public.product_pricelist_item(tenant_id, categ_id);
 
--- Foreign key: Product reference
-ALTER TABLE public.product_pricelist_item
-    ADD CONSTRAINT fk_product_pricelist_item_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
-
-
--- Foreign key: Product template reference
-ALTER TABLE public.product_pricelist_item
-    ADD CONSTRAINT fk_product_pricelist_item_product_template 
-    FOREIGN KEY (tenant_id, product_tmpl_id) 
-    REFERENCES public.product_template(tenant_id, id)
-    ON DELETE CASCADE;
-
-
--- Foreign key: Category reference
-ALTER TABLE public.product_pricelist_item
-    ADD CONSTRAINT fk_product_pricelist_item_category 
-    FOREIGN KEY (tenant_id, categ_id) 
-    REFERENCES public.product_category(tenant_id, id)
-    ON DELETE RESTRICT;
-
--- Business constraint: Non-negative amounts
-ALTER TABLE public.product_pricelist_item
-    ADD CONSTRAINT check_product_pricelist_item_positive_amounts 
-    CHECK (
-        (amount_untaxed IS NULL OR amount_untaxed >= 0) AND
-        (amount_total IS NULL OR amount_total >= 0)
-    );
-
--- Index: Queries by product
-CREATE INDEX IF NOT EXISTS idx_product_pricelist_item_product 
-    ON public.product_pricelist_item(tenant_id, product_id);
-
-
--- Index: Queries by company
-CREATE INDEX IF NOT EXISTS idx_product_pricelist_item_company 
-    ON public.product_pricelist_item(tenant_id, company_id);
-
-
--- Index: Queries by category
-CREATE INDEX IF NOT EXISTS idx_product_pricelist_item_category 
-    ON public.product_pricelist_item(tenant_id, categ_id);
-
--- Foreign key: Product reference
-ALTER TABLE public.product_pricelist_item
-    ADD CONSTRAINT fk_product_pricelist_item_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
-
-
--- Foreign key: Product template reference
-ALTER TABLE public.product_pricelist_item
-    ADD CONSTRAINT fk_product_pricelist_item_product_template 
-    FOREIGN KEY (tenant_id, product_tmpl_id) 
-    REFERENCES public.product_template(tenant_id, id)
-    ON DELETE CASCADE;
-
-
--- Foreign key: Category reference
-ALTER TABLE public.product_pricelist_item
-    ADD CONSTRAINT fk_product_pricelist_item_category 
-    FOREIGN KEY (tenant_id, categ_id) 
-    REFERENCES public.product_category(tenant_id, id)
-    ON DELETE RESTRICT;
 -- ============================================================
 -- Table: product_product
 -- ============================================================
-
-
 
 CREATE TABLE public.product_product (
     tenant_id UUID NOT NULL,
@@ -845,25 +674,9 @@ COMMENT ON COLUMN public.product_product.write_date IS 'Write Date';
 COMMENT ON COLUMN public.product_product.create_date IS 'Created on';
 COMMENT ON COLUMN public.product_product.lot_properties_definition IS 'Lot Properties';
 
-
--- Foreign key: Product template reference
-ALTER TABLE public.product_product
-    ADD CONSTRAINT fk_product_product_product_template 
-    FOREIGN KEY (tenant_id, product_tmpl_id) 
-    REFERENCES public.product_template(tenant_id, id)
-    ON DELETE CASCADE;
-
--- Foreign key: Product template reference
-ALTER TABLE public.product_product
-    ADD CONSTRAINT fk_product_product_product_template 
-    FOREIGN KEY (tenant_id, product_tmpl_id) 
-    REFERENCES public.product_template(tenant_id, id)
-    ON DELETE CASCADE;
 -- ============================================================
 -- Table: product_removal
 -- ============================================================
-
-
 
 CREATE TABLE public.product_removal (
     tenant_id UUID NOT NULL,
@@ -892,19 +705,14 @@ COMMENT ON COLUMN public.product_removal.method IS 'Method';
 COMMENT ON COLUMN public.product_removal.create_date IS 'Created on';
 COMMENT ON COLUMN public.product_removal.write_date IS 'Last Updated on';
 
-
 -- Index: Text search on name
 CREATE INDEX IF NOT EXISTS idx_product_removal_name_search 
     ON public.product_removal USING gin(to_tsvector('english', COALESCE(name::text, '')));
 
 -- Index: Text search on name
-CREATE INDEX IF NOT EXISTS idx_product_removal_name_search 
-    ON public.product_removal USING gin(to_tsvector('english', COALESCE(name::text, '')));
 -- ============================================================
 -- Table: product_replenish
 -- ============================================================
-
-
 
 CREATE TABLE public.product_replenish (
     tenant_id UUID NOT NULL,
@@ -949,72 +757,35 @@ COMMENT ON COLUMN public.product_replenish.write_date IS 'Last Updated on';
 COMMENT ON COLUMN public.product_replenish.quantity IS 'Quantity';
 COMMENT ON COLUMN public.product_replenish.supplier_id IS 'Vendor';
 
-
 -- Index: Queries by product
 CREATE INDEX IF NOT EXISTS idx_product_replenish_product 
     ON public.product_replenish(tenant_id, product_id);
-
 
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_product_replenish_company 
     ON public.product_replenish(tenant_id, company_id);
 
--- Foreign key: Product reference
-ALTER TABLE public.product_replenish
-    ADD CONSTRAINT fk_product_replenish_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
-
-
--- Foreign key: Product template reference
-ALTER TABLE public.product_replenish
-    ADD CONSTRAINT fk_product_replenish_product_template 
-    FOREIGN KEY (tenant_id, product_tmpl_id) 
-    REFERENCES public.product_template(tenant_id, id)
-    ON DELETE CASCADE;
-
 -- Index: Queries by product
-CREATE INDEX IF NOT EXISTS idx_product_replenish_product 
-    ON public.product_replenish(tenant_id, product_id);
-
 
 -- Index: Queries by company
-CREATE INDEX IF NOT EXISTS idx_product_replenish_company 
-    ON public.product_replenish(tenant_id, company_id);
 
--- Foreign key: Product reference
-ALTER TABLE public.product_replenish
-    ADD CONSTRAINT fk_product_replenish_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
-
-
--- Foreign key: Product template reference
-ALTER TABLE public.product_replenish
-    ADD CONSTRAINT fk_product_replenish_product_template 
-    FOREIGN KEY (tenant_id, product_tmpl_id) 
-    REFERENCES public.product_template(tenant_id, id)
-    ON DELETE CASCADE;
 -- ============================================================
 -- Table: product_supplier_taxes_rel
 -- ============================================================
-
-
 
 CREATE TABLE public.product_supplier_taxes_rel (
     prod_id integer NOT NULL,
     tax_id integer NOT NULL
 );
 
+ALTER TABLE ONLY public.product_supplier_taxes_rel
+    ADD CONSTRAINT product_supplier_taxes_rel_pkey PRIMARY KEY (prod_id, tax_id);
+
 COMMENT ON TABLE public.product_supplier_taxes_rel IS 'RELATION BETWEEN product_template AND account_tax';
 
 -- ============================================================
 -- Table: product_supplierinfo
 -- ============================================================
-
-
 
 CREATE TABLE public.product_supplierinfo (
     tenant_id UUID NOT NULL,
@@ -1069,92 +840,39 @@ COMMENT ON COLUMN public.product_supplierinfo.discount IS 'Discount (%)';
 COMMENT ON COLUMN public.product_supplierinfo.create_date IS 'Created on';
 COMMENT ON COLUMN public.product_supplierinfo.write_date IS 'Last Updated on';
 
-
 -- Index: Queries by partner
 CREATE INDEX IF NOT EXISTS idx_product_supplierinfo_partner 
     ON public.product_supplierinfo(tenant_id, partner_id);
-
 
 -- Index: Queries by product
 CREATE INDEX IF NOT EXISTS idx_product_supplierinfo_product 
     ON public.product_supplierinfo(tenant_id, product_id);
 
-
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_product_supplierinfo_company 
     ON public.product_supplierinfo(tenant_id, company_id);
 
-
--- Index: Text search on name
+-- Index: Text search on product_name
 CREATE INDEX IF NOT EXISTS idx_product_supplierinfo_name_search 
-    ON public.product_supplierinfo USING gin(to_tsvector('english', COALESCE(name::text, '')));
+    ON public.product_supplierinfo USING gin(to_tsvector('english', COALESCE(product_name::text, '')));
 
--- Foreign key: Product reference
-ALTER TABLE public.product_supplierinfo
-    ADD CONSTRAINT fk_product_supplierinfo_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
-
-
--- Foreign key: Product template reference
-ALTER TABLE public.product_supplierinfo
-    ADD CONSTRAINT fk_product_supplierinfo_product_template 
-    FOREIGN KEY (tenant_id, product_tmpl_id) 
-    REFERENCES public.product_template(tenant_id, id)
-    ON DELETE CASCADE;
-
--- Index: Queries by partner
-CREATE INDEX IF NOT EXISTS idx_product_supplierinfo_partner 
-    ON public.product_supplierinfo(tenant_id, partner_id);
-
-
--- Index: Queries by product
-CREATE INDEX IF NOT EXISTS idx_product_supplierinfo_product 
-    ON public.product_supplierinfo(tenant_id, product_id);
-
-
--- Index: Queries by company
-CREATE INDEX IF NOT EXISTS idx_product_supplierinfo_company 
-    ON public.product_supplierinfo(tenant_id, company_id);
-
-
--- Index: Text search on name
-CREATE INDEX IF NOT EXISTS idx_product_supplierinfo_name_search 
-    ON public.product_supplierinfo USING gin(to_tsvector('english', COALESCE(name::text, '')));
-
--- Foreign key: Product reference
-ALTER TABLE public.product_supplierinfo
-    ADD CONSTRAINT fk_product_supplierinfo_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
-
-
--- Foreign key: Product template reference
-ALTER TABLE public.product_supplierinfo
-    ADD CONSTRAINT fk_product_supplierinfo_product_template 
-    FOREIGN KEY (tenant_id, product_tmpl_id) 
-    REFERENCES public.product_template(tenant_id, id)
-    ON DELETE CASCADE;
 -- ============================================================
 -- Table: product_supplierinfo_stock_replenishment_info_rel
 -- ============================================================
-
-
 
 CREATE TABLE public.product_supplierinfo_stock_replenishment_info_rel (
     stock_replenishment_info_id integer NOT NULL,
     product_supplierinfo_id integer NOT NULL
 );
 
+ALTER TABLE ONLY public.product_supplierinfo_stock_replenishment_info_rel
+    ADD CONSTRAINT product_supplierinfo_stock_replenishment_info_rel_pkey PRIMARY KEY (stock_replenishment_info_id, product_supplierinfo_id);
+
 COMMENT ON TABLE public.product_supplierinfo_stock_replenishment_info_rel IS 'RELATION BETWEEN stock_replenishment_info AND product_supplierinfo';
 
 -- ============================================================
 -- Table: product_tag
 -- ============================================================
-
-
 
 CREATE TABLE public.product_tag (
     tenant_id UUID NOT NULL,
@@ -1187,59 +905,42 @@ COMMENT ON COLUMN public.product_tag.visible_to_customers IS 'Visible to custome
 COMMENT ON COLUMN public.product_tag.create_date IS 'Created on';
 COMMENT ON COLUMN public.product_tag.write_date IS 'Last Updated on';
 
-
 -- Index: Text search on name
 CREATE INDEX IF NOT EXISTS idx_product_tag_name_search 
     ON public.product_tag USING gin(to_tsvector('english', COALESCE(name::text, '')));
 
 -- Index: Text search on name
-CREATE INDEX IF NOT EXISTS idx_product_tag_name_search 
-    ON public.product_tag USING gin(to_tsvector('english', COALESCE(name::text, '')));
 -- ============================================================
 -- Table: product_tag_product_product_rel
 -- ============================================================
-
-
 
 CREATE TABLE public.product_tag_product_product_rel (
     product_product_id integer NOT NULL,
     product_tag_id integer NOT NULL
 );
 
+ALTER TABLE ONLY public.product_tag_product_product_rel
+    ADD CONSTRAINT product_tag_product_product_rel_pkey PRIMARY KEY (product_product_id, product_tag_id);
+
 COMMENT ON TABLE public.product_tag_product_product_rel IS 'RELATION BETWEEN product_product AND product_tag';
 
-
 -- Index: Queries by product
 CREATE INDEX IF NOT EXISTS idx_product_tag_product_product_rel_product 
-    ON public.product_tag_product_product_rel(tenant_id, product_id);
-
--- Foreign key: Product reference
-ALTER TABLE public.product_tag_product_product_rel
-    ADD CONSTRAINT fk_product_tag_product_product_rel_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
+    ON public.product_tag_product_product_rel(product_product_id);
 
 -- Index: Queries by product
-CREATE INDEX IF NOT EXISTS idx_product_tag_product_product_rel_product 
-    ON public.product_tag_product_product_rel(tenant_id, product_id);
 
--- Foreign key: Product reference
-ALTER TABLE public.product_tag_product_product_rel
-    ADD CONSTRAINT fk_product_tag_product_product_rel_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
 -- ============================================================
 -- Table: product_tag_product_template_rel
 -- ============================================================
-
-
 
 CREATE TABLE public.product_tag_product_template_rel (
     product_template_id integer NOT NULL,
     product_tag_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.product_tag_product_template_rel
+    ADD CONSTRAINT product_tag_product_template_rel_pkey PRIMARY KEY (product_template_id, product_tag_id);
 
 COMMENT ON TABLE public.product_tag_product_template_rel IS 'RELATION BETWEEN product_template AND product_tag';
 
@@ -1247,20 +948,19 @@ COMMENT ON TABLE public.product_tag_product_template_rel IS 'RELATION BETWEEN pr
 -- Table: product_taxes_rel
 -- ============================================================
 
-
-
 CREATE TABLE public.product_taxes_rel (
     prod_id integer NOT NULL,
     tax_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.product_taxes_rel
+    ADD CONSTRAINT product_taxes_rel_pkey PRIMARY KEY (prod_id, tax_id);
 
 COMMENT ON TABLE public.product_taxes_rel IS 'RELATION BETWEEN product_template AND account_tax';
 
 -- ============================================================
 -- Table: product_template
 -- ============================================================
-
-
 
 CREATE TABLE public.product_template (
     tenant_id UUID NOT NULL,
@@ -1371,53 +1071,27 @@ COMMENT ON COLUMN public.product_template.is_storable IS 'Track Inventory';
 COMMENT ON COLUMN public.product_template.property_price_difference_account_id IS 'Price Difference Account';
 COMMENT ON COLUMN public.product_template.lot_valuated IS 'Valuation by Lot/Serial';
 
-
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_product_template_company 
     ON public.product_template(tenant_id, company_id);
-
 
 -- Index: Queries by category
 CREATE INDEX IF NOT EXISTS idx_product_template_category 
     ON public.product_template(tenant_id, categ_id);
 
-
 -- Index: Text search on name
 CREATE INDEX IF NOT EXISTS idx_product_template_name_search 
     ON public.product_template USING gin(to_tsvector('english', COALESCE(name::text, '')));
-
--- Foreign key: Category reference
-ALTER TABLE public.product_template
-    ADD CONSTRAINT fk_product_template_category 
-    FOREIGN KEY (tenant_id, categ_id) 
-    REFERENCES public.product_category(tenant_id, id)
-    ON DELETE RESTRICT;
 
 -- Index: Queries by company
-CREATE INDEX IF NOT EXISTS idx_product_template_company 
-    ON public.product_template(tenant_id, company_id);
-
 
 -- Index: Queries by category
-CREATE INDEX IF NOT EXISTS idx_product_template_category 
-    ON public.product_template(tenant_id, categ_id);
-
 
 -- Index: Text search on name
-CREATE INDEX IF NOT EXISTS idx_product_template_name_search 
-    ON public.product_template USING gin(to_tsvector('english', COALESCE(name::text, '')));
 
--- Foreign key: Category reference
-ALTER TABLE public.product_template
-    ADD CONSTRAINT fk_product_template_category 
-    FOREIGN KEY (tenant_id, categ_id) 
-    REFERENCES public.product_category(tenant_id, id)
-    ON DELETE RESTRICT;
 -- ============================================================
 -- Table: product_template_attribute_exclusion
 -- ============================================================
-
-
 
 CREATE TABLE public.product_template_attribute_exclusion (
     tenant_id UUID NOT NULL,
@@ -1446,25 +1120,9 @@ COMMENT ON COLUMN public.product_template_attribute_exclusion.write_uid IS 'Last
 COMMENT ON COLUMN public.product_template_attribute_exclusion.create_date IS 'Created on';
 COMMENT ON COLUMN public.product_template_attribute_exclusion.write_date IS 'Last Updated on';
 
-
--- Foreign key: Product template reference
-ALTER TABLE public.product_template_attribute_exclusion
-    ADD CONSTRAINT fk_product_template_attribute_exclusion_product_template 
-    FOREIGN KEY (tenant_id, product_tmpl_id) 
-    REFERENCES public.product_template(tenant_id, id)
-    ON DELETE CASCADE;
-
--- Foreign key: Product template reference
-ALTER TABLE public.product_template_attribute_exclusion
-    ADD CONSTRAINT fk_product_template_attribute_exclusion_product_template 
-    FOREIGN KEY (tenant_id, product_tmpl_id) 
-    REFERENCES public.product_template(tenant_id, id)
-    ON DELETE CASCADE;
 -- ============================================================
 -- Table: product_template_attribute_line
 -- ============================================================
-
-
 
 CREATE TABLE public.product_template_attribute_line (
     tenant_id UUID NOT NULL,
@@ -1499,25 +1157,9 @@ COMMENT ON COLUMN public.product_template_attribute_line.active IS 'Active';
 COMMENT ON COLUMN public.product_template_attribute_line.create_date IS 'Created on';
 COMMENT ON COLUMN public.product_template_attribute_line.write_date IS 'Last Updated on';
 
-
--- Foreign key: Product template reference
-ALTER TABLE public.product_template_attribute_line
-    ADD CONSTRAINT fk_product_template_attribute_line_product_template 
-    FOREIGN KEY (tenant_id, product_tmpl_id) 
-    REFERENCES public.product_template(tenant_id, id)
-    ON DELETE CASCADE;
-
--- Foreign key: Product template reference
-ALTER TABLE public.product_template_attribute_line
-    ADD CONSTRAINT fk_product_template_attribute_line_product_template 
-    FOREIGN KEY (tenant_id, product_tmpl_id) 
-    REFERENCES public.product_template(tenant_id, id)
-    ON DELETE CASCADE;
 -- ============================================================
 -- Table: product_template_attribute_value
 -- ============================================================
-
-
 
 CREATE TABLE public.product_template_attribute_value (
     tenant_id UUID NOT NULL,
@@ -1556,30 +1198,17 @@ COMMENT ON COLUMN public.product_template_attribute_value.ptav_active IS 'Active
 COMMENT ON COLUMN public.product_template_attribute_value.create_date IS 'Created on';
 COMMENT ON COLUMN public.product_template_attribute_value.write_date IS 'Last Updated on';
 
-
--- Foreign key: Product template reference
-ALTER TABLE public.product_template_attribute_value
-    ADD CONSTRAINT fk_product_template_attribute_value_product_template 
-    FOREIGN KEY (tenant_id, product_tmpl_id) 
-    REFERENCES public.product_template(tenant_id, id)
-    ON DELETE CASCADE;
-
--- Foreign key: Product template reference
-ALTER TABLE public.product_template_attribute_value
-    ADD CONSTRAINT fk_product_template_attribute_value_product_template 
-    FOREIGN KEY (tenant_id, product_tmpl_id) 
-    REFERENCES public.product_template(tenant_id, id)
-    ON DELETE CASCADE;
 -- ============================================================
 -- Table: product_template_attribute_value_purchase_order_line_rel
 -- ============================================================
-
-
 
 CREATE TABLE public.product_template_attribute_value_purchase_order_line_rel (
     purchase_order_line_id integer NOT NULL,
     product_template_attribute_value_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.product_template_attribute_value_purchase_order_line_rel
+    ADD CONSTRAINT product_template_attribute_value_purchase_order_line_rel_pkey PRIMARY KEY (purchase_order_line_id, product_template_attribute_value_id);
 
 COMMENT ON TABLE public.product_template_attribute_value_purchase_order_line_rel IS 'RELATION BETWEEN purchase_order_line AND product_template_attribute_value';
 
@@ -1587,12 +1216,13 @@ COMMENT ON TABLE public.product_template_attribute_value_purchase_order_line_rel
 -- Table: product_template_attribute_value_sale_order_line_rel
 -- ============================================================
 
-
-
 CREATE TABLE public.product_template_attribute_value_sale_order_line_rel (
     sale_order_line_id integer NOT NULL,
     product_template_attribute_value_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.product_template_attribute_value_sale_order_line_rel
+    ADD CONSTRAINT product_template_attribute_value_sale_order_line_rel_pkey PRIMARY KEY (sale_order_line_id, product_template_attribute_value_id);
 
 COMMENT ON TABLE public.product_template_attribute_value_sale_order_line_rel IS 'RELATION BETWEEN sale_order_line AND product_template_attribute_value';
 
@@ -1600,20 +1230,19 @@ COMMENT ON TABLE public.product_template_attribute_value_sale_order_line_rel IS 
 -- Table: product_template_uom_uom_rel
 -- ============================================================
 
-
-
 CREATE TABLE public.product_template_uom_uom_rel (
     product_template_id integer NOT NULL,
     uom_uom_id integer NOT NULL
 );
+
+ALTER TABLE ONLY public.product_template_uom_uom_rel
+    ADD CONSTRAINT product_template_uom_uom_rel_pkey PRIMARY KEY (product_template_id, uom_uom_id);
 
 COMMENT ON TABLE public.product_template_uom_uom_rel IS 'RELATION BETWEEN product_template AND uom_uom';
 
 -- ============================================================
 -- Table: product_uom
 -- ============================================================
-
-
 
 CREATE TABLE public.product_uom (
     tenant_id UUID NOT NULL,
@@ -1646,43 +1275,21 @@ COMMENT ON COLUMN public.product_uom.barcode IS 'Barcode';
 COMMENT ON COLUMN public.product_uom.create_date IS 'Created on';
 COMMENT ON COLUMN public.product_uom.write_date IS 'Last Updated on';
 
-
 -- Index: Queries by product
 CREATE INDEX IF NOT EXISTS idx_product_uom_product 
     ON public.product_uom(tenant_id, product_id);
-
 
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_product_uom_company 
     ON public.product_uom(tenant_id, company_id);
 
--- Foreign key: Product reference
-ALTER TABLE public.product_uom
-    ADD CONSTRAINT fk_product_uom_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
-
 -- Index: Queries by product
-CREATE INDEX IF NOT EXISTS idx_product_uom_product 
-    ON public.product_uom(tenant_id, product_id);
-
 
 -- Index: Queries by company
-CREATE INDEX IF NOT EXISTS idx_product_uom_company 
-    ON public.product_uom(tenant_id, company_id);
 
--- Foreign key: Product reference
-ALTER TABLE public.product_uom
-    ADD CONSTRAINT fk_product_uom_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
 -- ============================================================
 -- Table: product_value
 -- ============================================================
-
-
 
 CREATE TABLE public.product_value (
     tenant_id UUID NOT NULL,
@@ -1723,43 +1330,21 @@ COMMENT ON COLUMN public.product_value.date IS 'Date';
 COMMENT ON COLUMN public.product_value.create_date IS 'Created on';
 COMMENT ON COLUMN public.product_value.write_date IS 'Last Updated on';
 
-
 -- Index: Queries by product
 CREATE INDEX IF NOT EXISTS idx_product_value_product 
     ON public.product_value(tenant_id, product_id);
-
 
 -- Index: Queries by company
 CREATE INDEX IF NOT EXISTS idx_product_value_company 
     ON public.product_value(tenant_id, company_id);
 
--- Foreign key: Product reference
-ALTER TABLE public.product_value
-    ADD CONSTRAINT fk_product_value_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
-
 -- Index: Queries by product
-CREATE INDEX IF NOT EXISTS idx_product_value_product 
-    ON public.product_value(tenant_id, product_id);
-
 
 -- Index: Queries by company
-CREATE INDEX IF NOT EXISTS idx_product_value_company 
-    ON public.product_value(tenant_id, company_id);
 
--- Foreign key: Product reference
-ALTER TABLE public.product_value
-    ADD CONSTRAINT fk_product_value_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
 -- ============================================================
 -- Table: product_variant_combination
 -- ============================================================
-
-
 
 CREATE TABLE public.product_variant_combination (
     tenant_id UUID NOT NULL,
@@ -1776,29 +1361,9 @@ CREATE INDEX IF NOT EXISTS idx_product_variant_combination_tenant
 COMMENT ON COLUMN public.product_variant_combination.tenant_id IS 'Tenant ID for multi-tenancy';
 COMMENT ON TABLE public.product_variant_combination IS 'RELATION BETWEEN product_product AND product_template_attribute_value';
 
-
 -- Index: Queries by product
 CREATE INDEX IF NOT EXISTS idx_product_variant_combination_product 
-    ON public.product_variant_combination(tenant_id, product_id);
-
--- Foreign key: Product reference
-ALTER TABLE public.product_variant_combination
-    ADD CONSTRAINT fk_product_variant_combination_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
-
--- Index: Queries by product
-CREATE INDEX IF NOT EXISTS idx_product_variant_combination_product 
-    ON public.product_variant_combination(tenant_id, product_id);
-
--- Foreign key: Product reference
-ALTER TABLE public.product_variant_combination
-    ADD CONSTRAINT fk_product_variant_combination_product 
-    FOREIGN KEY (tenant_id, product_id) 
-    REFERENCES public.product_product(tenant_id, id)
-    ON DELETE RESTRICT;
-
+    ON public.product_variant_combination(tenant_id, product_product_id);
 
 -- Trigger: Auto-update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_product_variant_combination_timestamp()
@@ -1814,17 +1379,4 @@ CREATE TRIGGER trigger_product_variant_combination_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_product_variant_combination_timestamp();
 
-
--- Trigger: Auto-update updated_at timestamp
-CREATE OR REPLACE FUNCTION update_product_variant_combination_timestamp()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigger_product_variant_combination_updated_at
-    BEFORE UPDATE ON public.product_variant_combination
-    FOR EACH ROW
-    EXECUTE FUNCTION update_product_variant_combination_timestamp();
+-- ============================================================
