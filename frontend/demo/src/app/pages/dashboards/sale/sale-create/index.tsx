@@ -15,22 +15,25 @@ import { JWT_HOST_API } from "@/configs/auth";
 
 const api = axios.create({ baseURL: JWT_HOST_API });
 
+// SaleOrderLine interface theo manifest.json notebook fields
 interface SaleOrderLine {
-  id?: string;
-  product_id?: string;
-  name?: string;
-  product_uom_qty?: number;
-  product_uom_id?: string;
-  price_unit?: number;
+  id?: string | number; // ID từ database
+  product_id?: number; // type: number trong manifest
+  name?: string; // type: text trong manifest
+  product_uom_qty?: number; // type: number trong manifest
+  product_uom_id?: number; // type: number trong manifest
+  price_unit?: number; // type: number trong manifest
+  customer_lead?: number; // type: number trong manifest
+  price_tax?: number; // type: number trong manifest (readonly)
+  price_subtotal?: number; // type: number trong manifest (readonly)
+  price_total?: number; // type: number trong manifest (readonly)
+  // Các field khác không có trong manifest nhưng có thể có trong database
   discount?: number;
-  price_tax?: number;
-  price_subtotal?: number;
-  price_total?: number;
   qty_delivered?: number;
   qty_invoiced?: number;
   qty_to_invoice?: number;
   invoice_status?: string;
-  warehouse_id?: string;
+  warehouse_id?: number;
   is_downpayment?: boolean;
   is_optional?: boolean;
   sequence?: number;
@@ -47,8 +50,57 @@ interface Metadata {
   };
 }
 
-interface SaleFormValues extends Record<string, any> {
+// SaleFormValues interface theo manifest.json form fields
+interface SaleFormValues {
+  // Text fields
+  name?: string; // type: text
+  state?: string; // type: select
+  client_order_ref?: string; // type: text
+  origin?: string; // type: text
+  incoterm_location?: string; // type: text
+  picking_policy?: string; // type: text
+  delivery_status?: string; // type: text
+  invoice_status?: string; // type: text
+  reference?: string; // type: text
+  signed_by?: string; // type: text
+  note?: string; // type: textarea
+  
+  // Number fields (IDs và số)
+  partner_id?: number; // type: number
+  user_id?: number; // type: number
+  company_id?: number; // type: number
+  team_id?: number; // type: number (hidden)
+  warehouse_id?: number; // type: number
+  partner_invoice_id?: number; // type: number
+  partner_shipping_id?: number; // type: number
+  pricelist_id?: number; // type: number
+  currency_id?: number; // type: number
+  payment_term_id?: number; // type: number
+  fiscal_position_id?: number; // type: number
+  incoterm?: number; // type: number
+  amount_untaxed?: number; // type: number (readonly)
+  amount_tax?: number; // type: number (readonly)
+  amount_total?: number; // type: number (readonly)
+  currency_rate?: number; // type: number
+  prepayment_percent?: number; // type: number
+  
+  // Date/Datetime fields
+  date_order?: string; // type: datetime (ISO string)
+  validity_date?: string; // type: date (ISO string)
+  commitment_date?: string; // type: datetime (ISO string)
+  effective_date?: string; // type: datetime (ISO string)
+  signed_on?: string; // type: datetime (ISO string)
+  
+  // Checkbox fields
+  require_signature?: boolean; // type: checkbox
+  require_payment?: boolean; // type: checkbox
+  locked?: boolean; // type: checkbox
+  
+  // Notebook/Order lines
   order_lines?: SaleOrderLine[];
+  
+  // Allow other fields that might not be in manifest
+  [key: string]: any;
 }
 
 interface FormFieldDef {
@@ -181,16 +233,16 @@ export default function SaleCreatePage() {
             
             const fieldType = notebookFieldTypeMap.get(key) || "text";
             
-            // Convert based on type
+            // Convert based on type from manifest
             if (fieldType === "number") {
-              // Convert to number
+              // Convert to number (theo manifest, các _id fields là number)
               if (typeof value === "string") {
                 const numValue = parseFloat(value);
-                lineData[key] = isNaN(numValue) ? value : numValue;
+                lineData[key] = isNaN(numValue) ? null : numValue;
               } else if (typeof value === "number") {
                 lineData[key] = value;
               } else {
-                lineData[key] = value;
+                lineData[key] = null;
               }
             } else if (fieldType === "checkbox") {
               // Convert to boolean
@@ -200,12 +252,8 @@ export default function SaleCreatePage() {
                 lineData[key] = Boolean(value);
               }
             } else {
-              // Text or other types - convert IDs to string, keep others as is
-              if (key.endsWith("_id") && typeof value === "number") {
-                lineData[key] = String(value);
-              } else {
-                lineData[key] = value;
-              }
+              // Text or other types - keep as is
+              lineData[key] = value;
             }
           });
           

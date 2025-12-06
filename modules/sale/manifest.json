@@ -44,11 +44,11 @@
         { "name": "delivery_status", "label": "Trạng thái giao hàng", "type": "text", "width": 4 },
         { "name": "invoice_status", "label": "Trạng thái hóa đơn", "type": "text", "width": 4 },
         { "name": "reference", "label": "Tham chiếu thanh toán", "type": "text", "width": 6 },
-        { "name": "require_signature", "label": "Yêu cầu chữ ký", "type": "checkbox", "width": 3 },
-        { "name": "require_payment", "label": "Yêu cầu thanh toán", "type": "checkbox", "width": 3 },
-        { "name": "locked", "label": "Đã khóa", "type": "checkbox", "width": 3 },
-        { "name": "signed_by", "label": "Người ký", "type": "text", "width": 6 },
-        { "name": "signed_on", "label": "Ngày ký", "type": "datetime", "width": 6 },
+        { "name": "require_signature", "label": "Yêu cầu chữ ký", "type": "checkbox", "width": 3, "hidden": true },
+        { "name": "require_payment", "label": "Yêu cầu thanh toán", "type": "checkbox", "width": 3, "hidden": true },
+        { "name": "locked", "label": "Đã khóa", "type": "checkbox", "width": 3, "hidden": true },
+        { "name": "signed_by", "label": "Người ký", "type": "text", "width": 6, "hidden": true },
+        { "name": "signed_on", "label": "Ngày ký", "type": "datetime", "width": 6, "hidden": true },
         { "name": "prepayment_percent", "label": "% Thanh toán trước", "type": "number", "width": 4 },
         { "name": "note", "label": "Điều khoản và điều kiện", "type": "textarea", "width": 12 }
       ]
