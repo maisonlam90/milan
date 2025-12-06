@@ -1,0 +1,13 @@
+2025-12-06T02:59:42.945098Z ERROR milan::core::error: ❌ Internal error: Lỗi khi insert notebook line: error returned from database: column "customer_lead" is of type double precision but expression is of type text
+2025-12-06T03:00:59.095916Z ERROR milan::core::error: ❌ Internal error: Lỗi khi insert notebook line: error returned from database: column "customer_lead" is of type double precision but expression is of type text
+2025-12-06T03:06:07.168150Z ERROR milan::core::error: ❌ Internal error: Lỗi khi insert notebook line: error returned from database: null value in column "customer_lead" of relation "sale_order_line" violates not-null constraint
+2025-12-06T03:06:34.968330Z ERROR milan::core::error: ❌ Internal error: Lỗi khi insert notebook line: error returned from database: null value in column "customer_lead" of relation "sale_order_line" violates not-null constraint
+2025-12-06T03:07:38.257651Z ERROR milan::core::error: ❌ Internal error: Lỗi khi insert notebook line: error returned from database: null value in column "customer_lead" of relation "sale_order_line" violates not-null constraint
+2025-12-06T03:37:27.226257Z ERROR milan::core::error: ❌ Internal error: Lỗi khi insert notebook line: error returned from database: column "id" is of type uuid but expression is of type text
+2025-12-06T03:38:10.791729Z ERROR milan::core::error: ❌ Internal error: Lỗi khi insert notebook line: error returned from database: column "id" is of type uuid but expression is of type text
+2025-12-06T03:39:43.562794Z ERROR milan::core::error: ❌ Internal error: Lỗi khi insert notebook line: error returned from database: column "id" is of type uuid but expression is of type text
+2025-12-06T03:48:08.026904Z ERROR milan::core::error: ❌ Internal error: Lỗi khi insert notebook line: error returned from database: new row for relation "sale_order_line" violates check constraint "check_sale_order_line_positive_qty"
+2025-12-06T04:01:31.939584Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-12-06T04:01:31.940937Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-12-06T04:01:33.831640Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)
+2025-12-06T04:01:34.964728Z ERROR milan::core::auth: ❌ Middleware decode JWT lỗi: Error(ExpiredSignature)

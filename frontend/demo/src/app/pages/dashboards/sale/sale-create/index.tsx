@@ -73,18 +73,23 @@ function isDynamicFieldConfig(x: any): x is DynamicFieldConfig {
 // Convert metadata fields → DynamicForm fields
 function toDynamicFields(fields: unknown): DynamicFieldConfig[] {
   if (!Array.isArray(fields)) return [];
-  return fields.filter(isDynamicFieldConfig);
+  return fields
+    .filter(isDynamicFieldConfig)
+    .filter((f) => !f.hidden); // Filter out hidden fields
 }
 
 // Convert metadata fields → NotebookColumn
 function normalizeNotebookColumns(fields?: FormFieldDef[]): NotebookColumn[] {
   if (!fields) return [];
-  return fields.map((f) => ({
-    name: f.name,
-    label: f.label ?? "",
-    type: (f.type as any) ?? "text",
-    readonly: f.readonly ?? false,
-  }));
+  // Filter out hidden fields first
+  return fields
+    .filter((f) => !(f as any).hidden) // Skip hidden fields
+    .map((f) => ({
+      name: f.name,
+      label: f.label ?? "",
+      type: (f.type as any) ?? "text",
+      readonly: f.readonly ?? false,
+    }));
 }
 
 export default function SaleCreatePage() {
@@ -93,6 +98,8 @@ export default function SaleCreatePage() {
   const saleId = searchParams.get("id");
   const [metadata, setMetadata] = useState<Metadata | null>(null);
   const [isLoadingSale, setIsLoadingSale] = useState<boolean>(!!saleId);
+  const [isEditing, setIsEditing] = useState<boolean>(!saleId);
+  const [saving, setSaving] = useState<boolean>(false);
   const form = useForm<SaleFormValues>({
     defaultValues: {
       order_lines: [],
@@ -293,6 +300,7 @@ export default function SaleCreatePage() {
       
       // Reset form with all data
       reset(formData);
+      setIsEditing(false); // Set to view mode after loading
     } catch (err: any) {
       console.error("❌ Lỗi load sale order:", err);
       alert(`❌ Không thể tải dữ liệu đơn hàng: ${err.response?.data?.message || err.message}`);
@@ -362,6 +370,7 @@ export default function SaleCreatePage() {
   // 5️⃣ Submit form → Gửi lên API /sale/create
   const onSubmit = async (data: SaleFormValues) => {
     try {
+      setSaving(true);
       const token = localStorage.getItem("authToken");
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
@@ -374,19 +383,27 @@ export default function SaleCreatePage() {
       if (saleId) {
         // Update mode (nếu có id)
         await api.post(`/sale/${saleId}/update`, payload, { headers });
-        alert("✅ Cập nhật thành công!");
+        // Reload data after update
+        await fetchSale();
+        setIsEditing(false);
       } else {
         // Create mode
         const res = await api.post("/sale/create", payload, { headers });
         console.log("✅ Tạo thành công:", res.data);
-        alert("✅ Tạo đơn hàng thành công!");
+        const newSaleId = res.data?.id;
+        if (newSaleId) {
+          // Navigate to the new sale order
+          navigate(`/dashboards/sale/sale-create?id=${newSaleId}`);
+        } else {
+          navigate("/dashboards/sale/sale-list");
+        }
       }
-
-      navigate("/dashboards/sale/sale-list");
     } catch (err: any) {
       console.error("❌ Lỗi:", err);
       const errorMsg = err.response?.data?.message || err.message || "Lỗi không xác định";
       alert(`❌ Lỗi: ${errorMsg}`);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -394,20 +411,47 @@ export default function SaleCreatePage() {
     <Page title={saleId ? "Cập nhật Đơn Hàng" : "Tạo Mới Đơn Hàng"}>
       <div className="transition-content px-(--margin-x) pb-6">
         <div className="flex flex-col items-center justify-between space-y-4 py-5 sm:flex-row sm:space-y-0 lg:py-6">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <h2 className="line-clamp-1 text-xl font-medium text-gray-700 dark:text-dark-50">
-              🛒 {saleId ? "Cập nhật" : "Tạo Mới"} Đơn Hàng Bán Hàng
+              🛒 {saleId ? "Chi tiết Đơn Hàng" : "Tạo Mới Đơn Hàng Bán Hàng"}
             </h2>
+            {isLoadingSale && (
+              <span className="ml-3 text-xs text-gray-400">Đang tải dữ liệu đơn hàng…</span>
+            )}
           </div>
           <div className="flex gap-2">
-            <Button
-              className="min-w-[7rem]"
-              color="primary"
-              type="button"
-              onClick={form.handleSubmit(onSubmit)}
-            >
-              {saleId ? "Lưu thay đổi" : "Lưu"}
-            </Button>
+            {saleId && !isEditing && (
+              <Button className="min-w-[7rem]" onClick={() => setIsEditing(true)}>
+                Chỉnh sửa
+              </Button>
+            )}
+            {isEditing && (
+              <>
+                <Button
+                  className="min-w-[7rem]"
+                  variant="outlined"
+                  onClick={() => {
+                    if (saleId) {
+                      fetchSale();
+                    } else {
+                      navigate("/dashboards/sale/sale-list");
+                    }
+                  }}
+                  disabled={saving}
+                >
+                  Hủy
+                </Button>
+                <Button
+                  className="min-w-[7rem]"
+                  color="primary"
+                  type="submit"
+                  form="sale-form"
+                  disabled={saving}
+                >
+                  {saving ? "Đang lưu..." : "Lưu"}
+                </Button>
+              </>
+            )}
           </div>
         </div>
 
@@ -416,7 +460,7 @@ export default function SaleCreatePage() {
             <p className="text-gray-600 dark:text-dark-200">Đang tải dữ liệu đơn hàng...</p>
           </Card>
         ) : (
-          <form autoComplete="off" onSubmit={form.handleSubmit(onSubmit)}>
+          <form autoComplete="off" onSubmit={form.handleSubmit(onSubmit)} id="sale-form">
             <div className="grid grid-cols-12 place-content-start gap-4 sm:gap-5 lg:gap-6">
             {/* Left Column - Main Form */}
             <div className="col-span-12 lg:col-span-8">
@@ -431,6 +475,7 @@ export default function SaleCreatePage() {
                     <DynamicForm
                       form={form}
                       fields={importantFields}
+                      disabled={!isEditing}
                     />
                   )}
 
@@ -461,17 +506,17 @@ export default function SaleCreatePage() {
                       <TabPanels className="mt-5">
                         {/* Tab 1: Sale Lines (Notebook) */}
                         <TabPanel>
-                          {notebookColumns.length > 0 ? (
+                          {metadata?.notebook ? (
                             <Notebook
                               name="order_lines"
-                              editable={true}
+                              editable={isEditing}
                               form={form}
                               fields={notebookColumns}
                             />
                           ) : (
                             <div className="p-4 bg-gray-50 dark:bg-dark-600 rounded">
                               <p className="text-sm text-gray-600 dark:text-dark-300">
-                                Đang tải notebook... (columns: {notebookColumns.length})
+                                Đang tải notebook...
                               </p>
                             </div>
                           )}
@@ -484,17 +529,29 @@ export default function SaleCreatePage() {
                               <DynamicForm
                                 form={form}
                                 fields={otherFields}
+                                disabled={!isEditing}
                               />
                             )}
                             
                             {/* Terms and Conditions */}
                             <div>
-                              <Textarea
-                                label="Điều khoản và điều kiện"
-                                rows={4}
-                                {...form.register("note")}
-                                placeholder="Điều khoản và điều kiện"
-                              />
+                              {isEditing ? (
+                                <Textarea
+                                  label="Điều khoản và điều kiện"
+                                  rows={4}
+                                  {...form.register("note")}
+                                  placeholder="Điều khoản và điều kiện"
+                                />
+                              ) : (
+                                <>
+                                  <label className="block mb-1 text-gray-700 dark:text-dark-100">
+                                    Điều khoản và điều kiện
+                                  </label>
+                                  <div className="bg-gray-100 dark:bg-dark-800 text-gray-600 px-2 py-1 rounded whitespace-pre-line">
+                                    {form.watch("note") || ""}
+                                  </div>
+                                </>
+                              )}
                             </div>
                           </div>
                         </TabPanel>

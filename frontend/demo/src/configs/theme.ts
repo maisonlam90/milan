@@ -14,7 +14,7 @@ const DEFAULT_PRIMARY_COLOR: PrimaryColor = "blue";
 export const defaultTheme: ThemeConfig = {
   themeMode: "system",
   isMonochrome: false,
-  themeLayout: "sideblock",
+  themeLayout: "main-layout",
   cardSkin: "bordered",
 
   darkColorScheme: {

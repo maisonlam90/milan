@@ -27,6 +27,7 @@ export interface DynamicFieldConfig {
   width?: WidthSpan;
   required?: boolean;
   disabled?: boolean;
+  hidden?: boolean; // Nếu true thì field sẽ không hiển thị
   options?: SelectOption[];
 }
 
@@ -122,6 +123,9 @@ export default function DynamicForm<TForm extends FieldValues = FieldValues>({
 
   const fieldsInvalid = !Array.isArray(fields);
   const safeFields: DynamicFieldConfig[] = fieldsInvalid ? [] : fields;
+  
+  // Filter out hidden fields (có thể dùng để "comment out" fields)
+  const visibleFields = safeFields.filter(f => !f.hidden);
 
   return (
     <>
@@ -129,7 +133,7 @@ export default function DynamicForm<TForm extends FieldValues = FieldValues>({
         <p className="text-red-500 mb-3">⚠️ Metadata form.fields không hợp lệ</p>
       )}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-        {safeFields.map((field, idx) => {
+        {visibleFields.map((field, idx) => {
           const span = widthClass[String(field.width ?? 12) as `${WidthSpan}`] || "md:col-span-12";
           const errObj = (form.formState.errors as any)?.[field.name];
           const error: string | undefined = errObj?.message as string | undefined;

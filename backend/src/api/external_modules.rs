@@ -267,8 +267,22 @@ async fn handle_notebook_lines(
 
         // Add fields from line_obj
         for (field_name, field_value) in line_obj.iter() {
-            // Skip null values for non-required fields
-            if field_value.is_null() && !required_fields.contains_key(field_name) {
+            // Skip system fields - id will be auto-generated, tenant_id and foreign_key are handled separately
+            if field_name == "id" || field_name == "tenant_id" || field_name == foreign_key {
+                continue;
+            }
+            
+            // Check if this is a required field
+            let is_required = required_fields.contains_key(field_name);
+            
+            // Skip null/empty values for non-required fields
+            let is_empty = match field_value {
+                Value::Null => true,
+                Value::String(s) => s.trim().is_empty(),
+                _ => false,
+            };
+            
+            if is_empty && !is_required {
                 continue;
             }
 
@@ -276,10 +290,11 @@ async fn handle_notebook_lines(
             param_count += 1;
 
             // Xác định type cast
+            // Note: PostgreSQL can handle numeric -> double precision conversion
             let type_cast = match field_type_map.get(field_name).map(|s| s.as_str()) {
                 Some("datetime") => "::timestamp without time zone",
                 Some("date") => "::date",
-                Some("number") => "::numeric",
+                Some("number") => "::numeric", // Will be converted to double precision if needed
                 Some("checkbox") => "::boolean",
                 _ => "",
             };
@@ -333,37 +348,99 @@ async fn handle_notebook_lines(
 
         for (field_name, field_value) in fields_to_bind.iter() {
             let field_type = field_type_map.get(field_name).map(|s| s.as_str()).unwrap_or("text");
+            let is_required = required_fields.contains_key(field_name);
 
             match field_type {
                 "checkbox" => {
                     q = q.bind(field_value.as_bool().unwrap_or(false));
                 }
-                "datetime" | "date" | "number" => {
+                "number" => {
+                    // For number fields, handle null/empty for required fields
                     let val_str = match field_value {
-                        Value::Null => None,
-                        Value::String(s) => {
-                            if s.trim().is_empty() {
-                                None
+                        Value::Null => {
+                            if is_required {
+                                Some("0".to_string()) // Default to 0 for required number fields
                             } else {
-                                Some(s.clone())
+                                None
+                            }
+                        }
+                        Value::String(s) => {
+                            let trimmed = s.trim();
+                            if trimmed.is_empty() {
+                                if is_required {
+                                    Some("0".to_string())
+                                } else {
+                                    None
+                                }
+                            } else {
+                                // Validate it's a valid number
+                                if trimmed.parse::<f64>().is_ok() {
+                                    Some(trimmed.to_string())
+                                } else if is_required {
+                                    Some("0".to_string())
+                                } else {
+                                    None
+                                }
                             }
                         }
                         Value::Number(n) => Some(n.to_string()),
-                        _ => Some(field_value.to_string()),
+                        _ => {
+                            let s = field_value.to_string().trim().to_string();
+                            if s.is_empty() && is_required {
+                                Some("0".to_string())
+                            } else if s.is_empty() {
+                                None
+                            } else {
+                                Some(s)
+                            }
+                        }
+                    };
+                    q = q.bind(val_str);
+                }
+                "datetime" | "date" => {
+                    let val_str = match field_value {
+                        Value::Null => None,
+                        Value::String(s) => {
+                            let trimmed = s.trim();
+                            if trimmed.is_empty() {
+                                None
+                            } else {
+                                Some(trimmed.to_string())
+                            }
+                        }
+                        Value::Number(n) => Some(n.to_string()),
+                        _ => {
+                            let s = field_value.to_string().trim().to_string();
+                            if s.is_empty() { None } else { Some(s) }
+                        }
                     };
                     q = q.bind(val_str);
                 }
                 _ => {
                     let val_str = match field_value {
-                        Value::Null => None,
-                        Value::String(s) => {
-                            if s.trim().is_empty() {
-                                None
+                        Value::Null => {
+                            if is_required {
+                                Some("".to_string()) // Default to empty string for required text fields
                             } else {
-                                Some(s.clone())
+                                None
                             }
                         }
-                        _ => Some(field_value.to_string()),
+                        Value::String(s) => {
+                            let trimmed = s.trim();
+                            if trimmed.is_empty() && !is_required {
+                                None
+                            } else {
+                                Some(trimmed.to_string())
+                            }
+                        }
+                        _ => {
+                            let s = field_value.to_string().trim().to_string();
+                            if s.is_empty() && !is_required {
+                                None
+                            } else {
+                                Some(s)
+                            }
+                        }
                     };
                     q = q.bind(val_str);
                 }
@@ -747,36 +824,52 @@ async fn update_handler(
         .map_err(|e| AppError::internal(&format!("DB error: {}", e)))?;
 
     // Xử lý notebook lines nếu có
-    // Delete existing lines first
-    if let Some(notebook_meta) = metadata.get("notebook") {
-        if let (Some(notebook_table), Some(foreign_key)) = (
-            notebook_meta.get("table").and_then(|v| v.as_str()),
-            notebook_meta.get("foreign_key").and_then(|v| v.as_str()),
-        ) {
-            let delete_sql = format!(
-                "DELETE FROM {} WHERE tenant_id = $1 AND {} = $2",
-                notebook_table, foreign_key
-            );
-            sqlx::query(&delete_sql)
-                .bind(auth.tenant_id)
-                .bind(record_id)
-                .execute(pool)
-                .await
-                .map_err(|e| AppError::internal(&format!("Lỗi khi xóa notebook lines cũ: {}", e)))?;
-            
-            tracing::info!("🗑️ Đã xóa notebook lines cũ");
-        }
-    }
+    // Chỉ xóa và insert lại nếu có key notebook lines trong body (kể cả mảng rỗng)
+    // Nếu không có key này, giữ nguyên lines cũ
+    let notebook_lines_key = body
+        .get("order_lines")
+        .or_else(|| body.get("invoice_lines"))
+        .or_else(|| body.get("lines"));
 
-    // Insert new lines
-    handle_notebook_lines(
-        pool,
-        &auth.tenant_id,
-        &auth.user_id,
-        &record_id,
-        &metadata,
-        &body,
-    ).await?;
+    if let Some(lines_value) = notebook_lines_key {
+        // Có key notebook lines trong body, cần update (xóa cũ và insert mới)
+        if !lines_value.is_array() {
+            return Err(AppError::bad_request("order_lines/invoice_lines/lines phải là array"));
+        }
+        // Delete existing lines first (chỉ khi có lines mới)
+        if let Some(notebook_meta) = metadata.get("notebook") {
+            if let (Some(notebook_table), Some(foreign_key)) = (
+                notebook_meta.get("table").and_then(|v| v.as_str()),
+                notebook_meta.get("foreign_key").and_then(|v| v.as_str()),
+            ) {
+                let delete_sql = format!(
+                    "DELETE FROM {} WHERE tenant_id = $1 AND {} = $2",
+                    notebook_table, foreign_key
+                );
+                sqlx::query(&delete_sql)
+                    .bind(auth.tenant_id)
+                    .bind(record_id)
+                    .execute(pool)
+                    .await
+                    .map_err(|e| AppError::internal(&format!("Lỗi khi xóa notebook lines cũ: {}", e)))?;
+                
+                tracing::info!("🗑️ Đã xóa notebook lines cũ");
+            }
+        }
+
+        // Insert new lines
+        handle_notebook_lines(
+            pool,
+            &auth.tenant_id,
+            &auth.user_id,
+            &record_id,
+            &metadata,
+            &body,
+        ).await?;
+    } else {
+        // Không có key notebook lines trong body, giữ nguyên lines cũ
+        tracing::debug!("   Không có key notebook lines trong body, giữ nguyên lines cũ");
+    }
 
     Ok(Json(json!({ "id": id, "message": "Updated successfully" })))
 }

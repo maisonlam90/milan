@@ -50,7 +50,9 @@ export default function Notebook<TForm extends FieldValues = FieldValues>({
   const [columns, setColumns] = useState<NotebookColumn[]>([]);
 
   useEffect(() => {
-    setColumns(fields);
+    // Filter out hidden fields (có thể dùng để "comment out" fields)
+    const visibleFields = fields.filter((f: NotebookColumn) => !(f as any).hidden);
+    setColumns(visibleFields);
   }, [fields]);
 
   const addEmptyRow = () => {
@@ -152,21 +154,26 @@ export default function Notebook<TForm extends FieldValues = FieldValues>({
       </div>
 
       <div className="mt-3 overflow-x-auto">
-        <table className="min-w-full table-auto border text-sm text-gray-700 dark:text-dark-50">
-          <thead className="bg-gray-100 dark:bg-dark-800">
-            <tr>
-              {columns.map((col) => (
-                <th key={col.name} className="px-3 py-2 text-left">
-                  {col.label}
-                </th>
-              ))}
-              {editable && <th className="px-3 py-2"></th>}
-            </tr>
-          </thead>
-          <tbody>
-            {rowFields.map((fieldRow, rowIndex) => (
-              <tr key={fieldRow.id} className="border-t">
-                {columns.map((col) => {
+        {columns.length === 0 ? (
+          <div className="p-4 bg-gray-50 dark:bg-dark-600 rounded text-sm text-gray-600 dark:text-dark-300">
+            Không có cột nào để hiển thị (tất cả đều bị ẩn).
+          </div>
+        ) : (
+          <table className="min-w-full table-auto border text-sm text-gray-700 dark:text-dark-50">
+            <thead className="bg-gray-100 dark:bg-dark-800">
+              <tr>
+                {columns.map((col) => (
+                  <th key={col.name} className="px-3 py-2 text-left">
+                    {col.label}
+                  </th>
+                ))}
+                {editable && <th className="px-3 py-2"></th>}
+              </tr>
+            </thead>
+            <tbody>
+              {rowFields.map((fieldRow, rowIndex) => (
+                <tr key={fieldRow.id} className="border-t">
+                  {columns.map((col) => {
                   const isCompute = col.type === "compute";
                   const path = `${name}.${rowIndex}.${col.name}`;
                   const watched = form.watch(path as any);
@@ -293,6 +300,7 @@ export default function Notebook<TForm extends FieldValues = FieldValues>({
             ))}
           </tbody>
         </table>
+        )}
       </div>
     </div>
   );

@@ -21,7 +21,7 @@
         { "name": "partner_id", "label": "Khách hàng", "type": "number", "width": 6, "required": true },
         { "name": "user_id", "label": "Nhân viên bán", "type": "number", "width": 6 },
         { "name": "company_id", "label": "Công ty", "type": "number", "width": 4, "required": true },
-        { "name": "team_id", "label": "Đội bán hàng", "type": "number", "width": 4 },
+        { "name": "team_id", "label": "Đội bán hàng", "type": "number", "width": 4, "hidden": true },
         { "name": "warehouse_id", "label": "Kho", "type": "number", "width": 4 },
         { "name": "client_order_ref", "label": "Mã tham chiếu KH", "type": "text", "width": 6 },
         { "name": "origin", "label": "Nguồn gốc", "type": "text", "width": 6 },
@@ -62,6 +62,7 @@
         { "name": "product_uom_qty", "label": "Số lượng", "type": "number", "width": 3, "required": true },
         { "name": "product_uom_id", "label": "Đơn vị", "type": "number", "width": 3 },
         { "name": "price_unit", "label": "Đơn giá", "type": "number", "width": 4, "required": true },
+        { "name": "customer_lead", "label": "Thời gian giao hàng", "type": "number", "width": 4, "required": true},
         { "name": "price_tax", "label": "Thuế", "type": "number", "width": 4, "readonly": true },
         { "name": "price_subtotal", "label": "Thành tiền", "type": "number", "width": 4, "readonly": true },
         { "name": "price_total", "label": "Tổng tiền", "type": "number", "width": 4, "readonly": true }

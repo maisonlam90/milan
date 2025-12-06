@@ -24,3 +24,6 @@
 2025-12-05T18:01:26.870352Z ERROR milan::module::invoice_link::command: No active credentials found for provider: viettel
 2025-12-05T18:01:52.030545Z ERROR milan::module::invoice_link::command: No active credentials found for provider: viettel
 2025-12-05T18:06:02.268664Z ERROR milan::core::error: ❌ Internal error: Lỗi khi insert notebook line: error returned from database: null value in column "customer_lead" of relation "sale_order_line" violates not-null constraint
+2025-12-05T18:11:56.527020Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
+2025-12-05T18:11:56.544549Z ERROR milan::core::error: ❌ Internal error: DB error: error returned from database: relation "school_schools" does not exist
+2025-12-05T18:13:08.765633Z ERROR milan::core::error: ❌ Internal error: Lỗi khi insert notebook line: error returned from database: column "customer_lead" is of type double precision but expression is of type text
