@@ -1,0 +1,75 @@
+{
+  "name": "product",
+  "display_name": "Quản lý Sản phẩm",
+  "description": "Module quản lý sản phẩm - Product Management",
+  "version": "0.1.0",
+  "metadata": {
+    "root_table": "product_template",
+    "form": {
+      "fields": [
+        { "name": "name", "label": "Tên sản phẩm", "type": "text", "width": 8, "required": true },
+        { "name": "default_code", "label": "Mã tham chiếu nội bộ", "type": "text", "width": 4, "required": false },
+        { "name": "active", "label": "Hoạt động", "type": "checkbox", "width": 4, "required": false },
+        { "name": "type", "label": "Loại sản phẩm", "type": "select", "width": 4, "required": true,
+          "options": [
+            { "value": "consu", "label": "Hàng tiêu dùng" },
+            { "value": "service", "label": "Dịch vụ" },
+            { "value": "product", "label": "Hàng lưu kho" }
+          ]
+        },
+        { "name": "categ_id", "label": "Danh mục sản phẩm", "type": "number", "width": 4, "required": false },
+        { "name": "list_price", "label": "Giá bán", "type": "number", "width": 4, "required": false },
+        { "name": "uom_id", "label": "Đơn vị tính", "type": "number", "width": 4, "required": true },
+        { "name": "company_id", "label": "Công ty", "type": "number", "width": 4, "hidden": true },
+        { "name": "sale_ok", "label": "Có thể bán", "type": "checkbox", "width": 3 },
+        { "name": "purchase_ok", "label": "Có thể mua", "type": "checkbox", "width": 3 },
+        { "name": "tracking", "label": "Theo dõi tồn kho", "type": "select", "width": 4,
+          "options": [
+            { "value": "none", "label": "Không theo dõi" },
+            { "value": "serial", "label": "Theo số serial" },
+            { "value": "lot", "label": "Theo lô" }
+          ]
+        },
+        { "name": "service_tracking", "label": "Tạo khi đặt hàng", "type": "text", "width": 4, "required": true, "hidden": true },
+        { "name": "weight", "label": "Trọng lượng", "type": "number", "width": 4 },
+        { "name": "volume", "label": "Thể tích", "type": "number", "width": 4 },
+        { "name": "sale_delay", "label": "Thời gian giao hàng (ngày)", "type": "number", "width": 4 },
+        { "name": "color", "label": "Màu sắc (index)", "type": "number", "width": 4, "hidden": true },
+        { "name": "sequence", "label": "Thứ tự", "type": "number", "width": 4, "hidden": true },
+        { "name": "service_type", "label": "Loại dịch vụ", "type": "text", "width": 4, "hidden": true },
+        { "name": "expense_policy", "label": "Chính sách chi phí", "type": "text", "width": 4, "hidden": true },
+        { "name": "invoice_policy", "label": "Chính sách hóa đơn", "type": "text", "width": 4, "hidden": true },
+        { "name": "purchase_method", "label": "Phương thức mua", "type": "text", "width": 4, "hidden": true },
+        { "name": "description", "label": "Mô tả", "type": "textarea", "width": 12 },
+        { "name": "description_purchase", "label": "Mô tả khi mua", "type": "textarea", "width": 12, "hidden": true },
+        { "name": "description_sale", "label": "Mô tả khi bán", "type": "textarea", "width": 12, "hidden": true }
+      ]
+    },
+    "notebook": {
+      "table": "product_product",
+      "foreign_key": "product_tmpl_id",
+      "fields": [
+        { "name": "default_code", "label": "Mã tham chiếu nội bộ", "type": "text", "width": 4 },
+        { "name": "barcode", "label": "Mã vạch", "type": "text", "width": 4 },
+        { "name": "standard_price", "label": "Giá vốn", "type": "number", "width": 4 },
+        { "name": "volume", "label": "Thể tích", "type": "number", "width": 4 },
+        { "name": "weight", "label": "Trọng lượng", "type": "number", "width": 4 },
+        { "name": "active", "label": "Hoạt động", "type": "checkbox", "width": 3 }
+      ]
+    },
+    "list": {
+      "columns": [
+        { "name": "name", "label": "Tên sản phẩm" },
+        { "name": "default_code", "label": "Mã tham chiếu" },
+        { "name": "categ_id", "label": "Danh mục" },
+        { "name": "list_price", "label": "Giá bán" },
+        { "name": "type", "label": "Loại" },
+        { "name": "sale_ok", "label": "Có thể bán" },
+        { "name": "purchase_ok", "label": "Có thể mua" },
+        { "name": "active", "label": "Hoạt động" }
+      ],
+      "search": { "placeholder": "Tìm theo tên/mã tham chiếu/mã vạch" }
+    }
+  }
+}
+

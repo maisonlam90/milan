@@ -1,0 +1,48 @@
+{
+  "name": "test",
+  "display_name": "Module Test",
+  "description": "Module test để kiểm tra nút scan - Test Module for Scan Button",
+  "version": "0.1.0",
+  "metadata": {
+    "root_table": "test_item",
+    "form": {
+      "fields": [
+        { "name": "name", "label": "Tên test", "type": "text", "width": 8, "required": true },
+        { "name": "code", "label": "Mã test", "type": "text", "width": 4, "required": false },
+        { "name": "active", "label": "Hoạt động", "type": "checkbox", "width": 4, "required": false },
+        { "name": "status", "label": "Trạng thái", "type": "select", "width": 4, "required": true,
+          "options": [
+            { "value": "draft", "label": "Nháp" },
+            { "value": "active", "label": "Hoạt động" },
+            { "value": "archived", "label": "Lưu trữ" }
+          ]
+        },
+        { "name": "category_id", "label": "Danh mục", "type": "number", "width": 4 },
+        { "name": "price", "label": "Giá", "type": "number", "width": 4 },
+        { "name": "quantity", "label": "Số lượng", "type": "number", "width": 4 },
+        { "name": "description", "label": "Mô tả", "type": "textarea", "width": 12 }
+      ]
+    },
+    "notebook": {
+      "table": "test_item_line",
+      "foreign_key": "test_item_id",
+      "fields": [
+        { "name": "name", "label": "Tên dòng", "type": "text", "width": 6, "required": true },
+        { "name": "value", "label": "Giá trị", "type": "number", "width": 3 },
+        { "name": "unit", "label": "Đơn vị", "type": "text", "width": 3 }
+      ]
+    },
+    "list": {
+      "columns": [
+        { "name": "name", "label": "Tên test" },
+        { "name": "code", "label": "Mã test" },
+        { "name": "status", "label": "Trạng thái" },
+        { "name": "price", "label": "Giá" },
+        { "name": "quantity", "label": "Số lượng" },
+        { "name": "active", "label": "Hoạt động" }
+      ],
+      "search": { "placeholder": "Tìm theo tên/mã test" }
+    }
+  }
+}
+

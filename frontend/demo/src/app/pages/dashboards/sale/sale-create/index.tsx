@@ -23,6 +23,7 @@ interface SaleOrderLine {
   product_uom_qty?: number; // type: number trong manifest
   product_uom_id?: number; // type: number trong manifest
   price_unit?: number; // type: number trong manifest
+  tax_rate?: number; // type: number trong manifest
   customer_lead?: number; // type: number trong manifest
   price_tax?: number; // type: number trong manifest (readonly)
   price_subtotal?: number; // type: number trong manifest (readonly)
@@ -396,24 +397,147 @@ export default function SaleCreatePage() {
 
   // 4️⃣ Tính tổng tiền từ order_lines
   const orderLines = form.watch("order_lines") || [];
-  const totals = useMemo(() => {
-    let untaxed = 0;
-    let tax = 0;
-    let total = 0;
-
-    orderLines.forEach((line: SaleOrderLine) => {
+  
+  // State để trigger totals update khi line values thay đổi
+  const [totalsUpdateTrigger, setTotalsUpdateTrigger] = useState(0);
+  
+  // 4.1️⃣ Tự động tính price_subtotal, price_tax, price_total cho mỗi line khi qty/price thay đổi
+  useEffect(() => {
+    if (!isEditing || !metadata) return;
+    
+    const calculateLineTotals = async (lineIndex: number, line: SaleOrderLine) => {
       const qty = line.product_uom_qty || 0;
-      const price = line.price_unit || 0;
-      const discount = line.discount || 0;
-      const subtotal = qty * price * (1 - discount / 100);
-      untaxed += subtotal;
-      const taxAmount = line.price_tax || 0;
-      tax += taxAmount;
+      const priceUnit = line.price_unit || 0;
+      
+      // Skip nếu qty hoặc price = 0
+      if (qty === 0 || priceUnit === 0) {
+        form.setValue(`order_lines.${lineIndex}.price_subtotal` as any, 0);
+        form.setValue(`order_lines.${lineIndex}.price_tax` as any, 0);
+        form.setValue(`order_lines.${lineIndex}.price_total` as any, 0);
+        return;
+      }
+      
+      // Lấy tax_rate từ form, mặc định 10% nếu không có
+      const taxRate = line.tax_rate !== undefined && line.tax_rate !== null 
+        ? Number(line.tax_rate) 
+        : 10.0;
+      
+      try {
+        // Gọi WASM function để tính toán
+        const token = localStorage.getItem("authToken");
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        
+        const response = await api.post(
+          "/sale/wasm/calculate_line",
+          { args: [qty, priceUnit, taxRate] },
+          { headers }
+        );
+        
+        if (response.data?.success && response.data?.result) {
+          const result = JSON.parse(response.data.result);
+          
+          // Cập nhật form values với shouldTouch để trigger watch
+          form.setValue(`order_lines.${lineIndex}.price_subtotal` as any, result.subtotal || 0, { shouldDirty: false, shouldTouch: true });
+          form.setValue(`order_lines.${lineIndex}.price_tax` as any, result.tax || 0, { shouldDirty: false, shouldTouch: true });
+          form.setValue(`order_lines.${lineIndex}.price_total` as any, result.total || 0, { shouldDirty: false, shouldTouch: true });
+          
+          // Trigger totals update
+          setTotalsUpdateTrigger(prev => prev + 1);
+        }
+      } catch (err) {
+        console.error("❌ Lỗi tính toán line totals:", err);
+        // Fallback: tính toán local nếu WASM fail
+        const subtotal = qty * priceUnit;
+        const tax = subtotal * taxRate / 100;
+        const total = subtotal + tax;
+        
+        form.setValue(`order_lines.${lineIndex}.price_subtotal` as any, subtotal, { shouldDirty: false, shouldTouch: true });
+        form.setValue(`order_lines.${lineIndex}.price_tax` as any, tax, { shouldDirty: false, shouldTouch: true });
+        form.setValue(`order_lines.${lineIndex}.price_total` as any, total, { shouldDirty: false, shouldTouch: true });
+        
+        // Trigger totals update
+        setTotalsUpdateTrigger(prev => prev + 1);
+      }
+    };
+    
+    // Tính toán cho tất cả lines
+    orderLines.forEach((line: SaleOrderLine, index: number) => {
+      // Chỉ tính nếu có qty và price_unit
+      if (line.product_uom_qty !== undefined && line.price_unit !== undefined) {
+        calculateLineTotals(index, line);
+      }
     });
-
-    total = untaxed + tax;
-    return { untaxed, tax, total };
-  }, [orderLines]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderLines.map(l => `${l.product_uom_qty || 0}-${l.price_unit || 0}-${l.tax_rate || 0}`).join(','), isEditing, metadata]);
+  
+  // 4.2️⃣ Tính tổng đơn hàng bằng WASM (nhất quán với tính từng dòng)
+  const [totals, setTotals] = useState({ untaxed: 0, tax: 0, total: 0 });
+  
+  // Tạo dependency string từ các giá trị price_subtotal, price_tax, price_total
+  // Để tự động tính lại khi các giá trị này thay đổi
+  const totalsDependency = useMemo(() => {
+    return orderLines.map((line: SaleOrderLine) => 
+      `${line.price_subtotal || 0}-${line.price_tax || 0}-${line.price_total || 0}`
+    ).join('|');
+  }, [orderLines, totalsUpdateTrigger]); // Thêm trigger để force update
+  
+  useEffect(() => {
+    const calculateTotals = async () => {
+      if (orderLines.length === 0) {
+        setTotals({ untaxed: 0, tax: 0, total: 0 });
+        return;
+      }
+      
+      // Prepare arrays for WASM
+      const subtotals = orderLines.map((line: SaleOrderLine) => line.price_subtotal || 0);
+      const taxes = orderLines.map((line: SaleOrderLine) => line.price_tax || 0);
+      const totals = orderLines.map((line: SaleOrderLine) => line.price_total || 0);
+      
+      try {
+        // Gọi WASM function để tính tổng
+        const token = localStorage.getItem("authToken");
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        
+        const response = await api.post(
+          "/sale/wasm/calculate_order_totals",
+          { 
+            args: [
+              JSON.stringify(subtotals),
+              JSON.stringify(taxes),
+              JSON.stringify(totals)
+            ]
+          },
+          { headers }
+        );
+        
+        if (response.data?.success && response.data?.result) {
+          const result = JSON.parse(response.data.result);
+          setTotals({
+            untaxed: result.untaxed || 0,
+            tax: result.tax || 0,
+            total: result.total || 0,
+          });
+        }
+      } catch (err) {
+        console.error("❌ Lỗi tính tổng đơn hàng bằng WASM:", err);
+        // Fallback: tính bằng JS nếu WASM fail
+        let untaxed = 0;
+        let tax = 0;
+        let total = 0;
+        
+        orderLines.forEach((line: SaleOrderLine) => {
+          untaxed += line.price_subtotal || 0;
+          tax += line.price_tax || 0;
+          total += line.price_total || 0;
+        });
+        
+        setTotals({ untaxed, tax, total });
+      }
+    };
+    
+    calculateTotals();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [totalsDependency, totalsUpdateTrigger]); // Tự động tính lại khi các giá trị price_subtotal/tax/total thay đổi
 
   // 5️⃣ Submit form → Gửi lên API /sale/create
   const onSubmit = async (data: SaleFormValues) => {

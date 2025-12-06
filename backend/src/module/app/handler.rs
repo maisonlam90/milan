@@ -219,25 +219,90 @@ pub async fn scan_and_seed_modules(
     if !external_dir.exists() {
         external_dir = std::path::Path::new("../modules");
     }
+    
+    // 🗑️ Unload tất cả WASM modules đã cache trước khi scan lại
+    // Để đảm bảo lần gọi WASM tiếp theo sẽ load lại từ file mới
+    let wasm_count_before = state.module_registry.loaded_wasm_count();
+    if wasm_count_before > 0 {
+        let module_names: Vec<String> = state.module_registry.get_loaded_wasm_module_names();
+        tracing::info!("🗑️  Unloading {} WASM modules before reload: {:?}", wasm_count_before, module_names);
+        state.module_registry.unload_all_wasm_modules();
+    }
+    
+    // Scan lại manifest.json và WASM paths
     if let Err(e) = state.module_registry.scan_modules(external_dir) {
         tracing::warn!("⚠️ Không thể scan external modules tại {:?}: {}", external_dir, e);
     } else {
         let count = state.module_registry.list_modules_owned().len();
-        tracing::info!("✅ Reloaded external modules: {}", count);
+        tracing::info!("✅ Reloaded external modules (manifest + WASM paths): {}", count);
+        tracing::info!("💡 WASM modules sẽ được load lại từ file khi được gọi lần tiếp theo");
     }
 
-    // Gộp thêm external modules vào kết quả trả về để FE có thể hiển thị ngay
+    // 🔄 Tự động insert external modules vào available_module table
     for ext in state.module_registry.list_modules_owned() {
+        let description = ext
+            .metadata
+            .get("description")
+            .and_then(|v| v.as_str())
+            .unwrap_or("External module")
+            .to_string();
+        
+        // Insert vào available_module nếu chưa có
+        if let Err(e) = sqlx::query!(
+            r#"
+            INSERT INTO available_module (module_name, display_name, description)
+            VALUES ($1, $2, $3)
+            ON CONFLICT (module_name) DO UPDATE
+            SET display_name = EXCLUDED.display_name,
+                description = EXCLUDED.description
+            "#,
+            ext.name,
+            ext.display_name,
+            description
+        )
+        .execute(pool)
+        .await
+        {
+            tracing::warn!("⚠️ Không thể insert external module {} vào available_module: {}", ext.name, e);
+        } else {
+            tracing::info!("✅ Inserted/Updated external module: {} ({})", ext.name, ext.display_name);
+        }
+        
+        // Insert permissions cho external module (nếu chưa có)
+        const ACTIONS: [&str; 5] = ["access", "read", "create", "update", "delete"];
+        for action in ACTIONS {
+            let label = match action {
+                "access" => format!("Truy cập module {}", ext.display_name),
+                "read"   => format!("Xem {}", ext.display_name),
+                "create" => format!("Tạo {}", ext.display_name),
+                "update" => format!("Cập nhật {}", ext.display_name),
+                "delete" => format!("Xoá {}", ext.display_name),
+                _ => format!("{} {}", action, ext.display_name),
+            };
+
+            if let Err(e) = sqlx::query!(
+                r#"
+                INSERT INTO permissions (resource, action, label)
+                VALUES ($1, $2, $3)
+                ON CONFLICT DO NOTHING
+                "#,
+                ext.name,   // resource
+                action,     // action
+                label       // label
+            )
+            .execute(pool)
+            .await
+            {
+                tracing::warn!("⚠️ Không thể insert permission {}.{}: {}", ext.name, action, e);
+            }
+        }
+        
+        // Gộp vào kết quả trả về
         if !result.iter().any(|m| m.module_name == ext.name) {
             result.push(ScannedModule {
                 module_name: ext.name.clone(),
                 display_name: ext.display_name.clone(),
-                description: ext
-                    .metadata
-                    .get("description")
-                    .and_then(|v| v.as_str())
-                    .unwrap_or("External module")
-                    .to_string(),
+                description,
             });
         }
     }

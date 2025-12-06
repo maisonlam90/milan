@@ -341,6 +341,7 @@ CREATE TABLE public.sale_order_line (
     product_uom_qty numeric NOT NULL,
     price_unit numeric NOT NULL,
     discount numeric,
+    tax_rate numeric,
     price_subtotal numeric,
     price_total numeric,
     price_reduce_taxexcl numeric,
@@ -404,6 +405,7 @@ COMMENT ON COLUMN public.sale_order_line.name IS 'Description';
 COMMENT ON COLUMN public.sale_order_line.product_uom_qty IS 'Quantity';
 COMMENT ON COLUMN public.sale_order_line.price_unit IS 'Unit Price';
 COMMENT ON COLUMN public.sale_order_line.discount IS 'Discount (%)';
+COMMENT ON COLUMN public.sale_order_line.tax_rate IS 'Tax Rate (%)';
 COMMENT ON COLUMN public.sale_order_line.price_subtotal IS 'Subtotal';
 COMMENT ON COLUMN public.sale_order_line.price_total IS 'Total';
 COMMENT ON COLUMN public.sale_order_line.price_reduce_taxexcl IS 'Price Reduce Tax excl';
@@ -432,6 +434,11 @@ ALTER TABLE public.sale_order_line
         (price_subtotal IS NULL OR price_subtotal >= 0) AND
         (price_total IS NULL OR price_total >= 0)
     );
+
+-- Business constraint: Valid tax rate (0-100%)
+ALTER TABLE public.sale_order_line
+    ADD CONSTRAINT check_sale_order_line_valid_tax_rate 
+    CHECK (tax_rate IS NULL OR (tax_rate >= 0 AND tax_rate <= 100));
 
 -- Business constraint: Positive quantities
 ALTER TABLE public.sale_order_line

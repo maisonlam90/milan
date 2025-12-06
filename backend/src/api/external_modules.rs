@@ -13,82 +13,55 @@ use bigdecimal::BigDecimal;
 use chrono::{NaiveDateTime, DateTime, Utc};
 
 /// Tạo routes động từ module registry
-pub fn routes(state: Arc<AppState>) -> Router<Arc<AppState>> {
-    let mut router = Router::new();
+/// SỬ DỤNG DYNAMIC ROUTES để không cần rebuild router khi scan modules mới
+pub fn routes(_state: Arc<AppState>) -> Router<Arc<AppState>> {
+    tracing::info!("🔧 Registering dynamic external module routes");
     
-    // Scan tất cả modules và tạo routes
-    for module_info in state.module_registry.list_modules_owned() {
-        let module_name = module_info.name.clone();
-        let metadata = module_info.metadata.clone();
-        
-        // Tạo routes cho module này
-        let module_router = create_module_routes(&module_name, metadata);
-        router = router.merge(module_router);
-        
-        tracing::info!("✅ Registered routes cho module: {}", module_name);
-    }
-    
-    router
-}
-
-/// Tạo routes cho một module cụ thể
-fn create_module_routes(module_name: &str, _metadata: Value) -> Router<Arc<AppState>> {
-    let base_path = format!("/{}", module_name);
-    let module_name_clone = module_name.to_string();
-    
-    Router::new()
-        // Public route - không cần auth
+    // PUBLIC routes - không cần auth
+    let public_routes = Router::new()
         .route(
-            &format!("{}/metadata", base_path),
-            get(move |state: State<Arc<AppState>>| {
-                let name = module_name_clone.clone();
-                async move {
-                    get_module_metadata_handler(state, name).await
-                }
+            "/:module_name/metadata",
+            get(|State(state): State<Arc<AppState>>, Path(module_name): Path<String>| async move {
+                get_module_metadata_handler(State(state), module_name).await
             }),
         )
-        // Protected routes - cần auth
-        .nest(
-            &base_path,
-            Router::new()
-                .route("/list", get({
-                    let name = module_name.to_string();
-                    move |state: State<Arc<AppState>>, auth: AuthUser, query: Query<HashMap<String, String>>| {
-                        let name = name.clone();
-                        async move {
-                            list_handler(state, auth, query, name).await
-                        }
-                    }
-                }))
-                .route("/create", post({
-                    let name = module_name.to_string();
-                    move |state: State<Arc<AppState>>, auth: AuthUser, body: Json<Value>| {
-                        let name = name.clone();
-                        async move {
-                            create_handler(state, auth, body, name).await
-                        }
-                    }
-                }))
-                .route("/:id", get({
-                    let name = module_name.to_string();
-                    move |state: State<Arc<AppState>>, auth: AuthUser, path: Path<String>| {
-                        let name = name.clone();
-                        async move {
-                            get_by_id_handler(state, auth, path, name).await
-                        }
-                    }
-                }))
-                .route("/:id/update", post({
-                    let name = module_name.to_string();
-                    move |state: State<Arc<AppState>>, auth: AuthUser, path: Path<String>, body: Json<Value>| {
-                        let name = name.clone();
-                        async move {
-                            update_handler(state, auth, path, body, name).await
-                        }
-                    }
-                }))
-                .layer(middleware::from_fn(jwt_auth)),
+        .route(
+            "/:module_name/wasm/:function_name",
+            post(|State(state): State<Arc<AppState>>, Path((module_name, function_name)): Path<(String, String)>, body: Json<Value>| async move {
+                call_wasm_function_handler(State(state), Path(function_name), body, module_name).await
+            }),
+        );
+    
+    // PROTECTED routes - cần auth
+    let protected_routes = Router::new()
+        .route(
+            "/:module_name/list",
+            get(|State(state): State<Arc<AppState>>, auth: AuthUser, Path(module_name): Path<String>, query: Query<HashMap<String, String>>| async move {
+                list_handler(State(state), auth, query, module_name).await
+            }),
         )
+        .route(
+            "/:module_name/create",
+            post(|State(state): State<Arc<AppState>>, auth: AuthUser, Path(module_name): Path<String>, body: Json<Value>| async move {
+                create_handler(State(state), auth, body, module_name).await
+            }),
+        )
+        .route(
+            "/:module_name/:id",
+            get(|State(state): State<Arc<AppState>>, auth: AuthUser, Path((module_name, id)): Path<(String, String)>| async move {
+                get_by_id_handler(State(state), auth, Path(id), module_name).await
+            }),
+        )
+        .route(
+            "/:module_name/:id/update",
+            post(|State(state): State<Arc<AppState>>, auth: AuthUser, Path((module_name, id)): Path<(String, String)>, body: Json<Value>| async move {
+                update_handler(State(state), auth, Path(id), body, module_name).await
+            }),
+        )
+        .layer(middleware::from_fn(jwt_auth));
+    
+    // Merge public và protected routes
+    public_routes.merge(protected_routes)
 }
 
 /// Handler: GET /{module_name}/metadata
@@ -103,6 +76,42 @@ async fn get_module_metadata_handler(
         tracing::warn!("⚠️  Module không tìm thấy: {}", module_name);
         Err(AppError::not_found(&format!("Module '{}' not found", module_name)))
     }
+}
+
+/// Handler: POST /{module_name}/wasm/:function - Call WASM function
+async fn call_wasm_function_handler(
+    State(state): State<Arc<AppState>>,
+    Path(function_name): Path<String>,
+    Json(body): Json<Value>,
+    module_name: String,
+) -> Result<impl IntoResponse, AppError> {
+    tracing::info!("🚀 WASM call: {}::{} với args: {:?}", module_name, function_name, body);
+
+    // Get args from body
+    let args = body
+        .get("args")
+        .and_then(|v| v.as_array())
+        .cloned()
+        .unwrap_or_default();
+
+    // Call WASM function
+    let result = state
+        .module_registry
+        .call_wasm_function(&module_name, &function_name, args)
+        .map_err(|e| {
+            tracing::error!("❌ WASM call failed: {}", e);
+            AppError::internal(&format!("WASM execution error: {}", e))
+        })?;
+
+    // Return result as JSON
+    let response = json!({
+        "module": module_name,
+        "function": function_name,
+        "result": result,
+        "success": true
+    });
+
+    Ok(Json(response))
 }
 
 /// Handler: GET /{module_name}/list - Generic list handler
